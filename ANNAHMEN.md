@@ -19,7 +19,9 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
    Investor **vor** der Datenraum-Freigabe ein Vermarktungs-NDA unterzeichnet.
 4. **Follow-up-Automatik:** „nach 2 Tagen, bis zu 3 Stufen“ wurde als fester
    2-Tage-Rhythmus je Stufe interpretiert. Nach Stufe 3 ohne Antwort entsteht eine
-   manuelle Nachfass-Aufgabe für den zuständigen Mitarbeiter (Annahme).
+   manuelle Nachfass-Aufgabe für den zuständigen Mitarbeiter (Annahme). Automatische
+   Follow-ups können nicht „überfällig“ werden – Überfälligkeit gibt es im Prototyp
+   nur bei Aufgaben.
 5. **Antworterkennung:** Interesse erzeugt eine Aufgabe „Broker Call“ für den
    **objektzuständigen** Mitarbeiter (nicht für einen Pool); Preisanfragen werden als
    Aufgabe an das Investment-Team (im Prototyp: eine Person) geroutet.
@@ -71,3 +73,7 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
 18. **Referenzdatum:** Der Prototyp „lebt“ am 18.08.2026 – Überfälligkeiten und
     „heute fällig“ beziehen sich auf dieses fixe Datum (`HEUTE` in
     `lib/mock-data.ts`).
+19. **Demodaten-Dramaturgie:** Damit auf fünf Screens alle Zustände gleichzeitig
+    sichtbar sind (Interesse, Preisanfrage, Absage, Stufe 1–3, Freigabe ausstehend,
+    Datenraum-Lücken …), sind einzelne Zeitabstände in den Demodaten bewusst
+    gestreckt und nicht in jedem Fall streng im 2-Tage-Raster.
