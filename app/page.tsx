@@ -24,6 +24,7 @@ import {
   KpiKachel,
   SeitenKopf,
 } from "@/components/ui";
+import { KlickZeile } from "@/components/klick-zeile";
 
 export default function UebersichtSeite() {
   const k = kpis();
@@ -86,7 +87,7 @@ export default function UebersichtSeite() {
                 const offeneAufgaben = aufgabenZuObjekt(o.id).length;
                 const zust = mitarbeiterVon(o.zustaendigId);
                 return (
-                  <tr key={o.id}>
+                  <KlickZeile key={o.id} href={`/objekte/${o.id}`}>
                     <td>
                       <EntityLink href={`/objekte/${o.id}`}>{o.name}</EntityLink>
                       <div className="text-[11px] text-ink-mute">{o.stadt}</div>
@@ -111,7 +112,7 @@ export default function UebersichtSeite() {
                     <td className="w-6 pr-3">
                       <ChevronRight size={14} className="text-ink-mute" aria-hidden />
                     </td>
-                  </tr>
+                  </KlickZeile>
                 );
               })}
             </tbody>

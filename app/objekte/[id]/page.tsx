@@ -147,12 +147,16 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
         <section className="karte">
           <div className="karte-kopf">
             <h2 className="karte-titel">Verknüpfte Investoren ({links.length})</h2>
-            <Link
-              href={`/vermarktung?objekt=${objekt.id}`}
-              className="text-[11px] text-accent hover:underline"
-            >
-              zur Vermarktung
-            </Link>
+            {objekt.investorenPhasen.some((s) => s !== "offen") ? (
+              <Link
+                href={`/vermarktung?objekt=${objekt.id}`}
+                className="text-[11px] text-accent hover:underline"
+              >
+                zur Vermarktung
+              </Link>
+            ) : (
+              <span className="text-[11px] text-ink-mute">Vermarktung noch nicht gestartet</span>
+            )}
           </div>
           {links.length === 0 ? (
             <LeerHinweis text="Noch keine Investoren verknüpft – die Vermarktung ist nicht gestartet." />

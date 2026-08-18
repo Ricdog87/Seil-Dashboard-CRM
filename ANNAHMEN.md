@@ -19,9 +19,10 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
    Investor **vor** der Datenraum-Freigabe ein Vermarktungs-NDA unterzeichnet.
 4. **Follow-up-Automatik:** „nach 2 Tagen, bis zu 3 Stufen“ wurde als fester
    2-Tage-Rhythmus je Stufe interpretiert. Nach Stufe 3 ohne Antwort entsteht eine
-   manuelle Nachfass-Aufgabe für den zuständigen Mitarbeiter (Annahme). Automatische
-   Follow-ups können nicht „überfällig“ werden – Überfälligkeit gibt es im Prototyp
-   nur bei Aufgaben.
+   manuelle Nachfass-Aufgabe für den zuständigen Mitarbeiter (Annahme). Ein geplantes
+   Follow-up gilt als überfällig, wenn sein Termin vor dem Referenztag liegt (etwa
+   weil die Automatik angehalten wurde) – in den Demodaten kommt dieser Fall nicht
+   vor, dort entsteht Handlungsbedarf durch die ausgeschöpfte Stufe 3.
 5. **Antworterkennung:** Interesse erzeugt eine Aufgabe „Broker Call“ für den
    **objektzuständigen** Mitarbeiter (nicht für einen Pool); Preisanfragen werden als
    Aufgabe an das Investment-Team (im Prototyp: eine Person) geroutet.

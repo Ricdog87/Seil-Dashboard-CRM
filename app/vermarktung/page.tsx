@@ -39,6 +39,8 @@ export default async function VermarktungSeite({
   const optionen = objekte.filter((o) => o.investorenPhasen.some((s) => s !== "offen"));
   const standard = optionen.find((o) => o.freigabe?.status === "ausstehend") ?? optionen[0];
   const objekt = optionen.find((o) => o.id === objektParam) ?? standard;
+  const nichtVerfuegbar =
+    objektParam && objektParam !== objekt.id ? objekte.find((o) => o.id === objektParam) : undefined;
 
   const links = [...linksZuObjekt(objekt.id)].sort(
     (a, b) => statusReihenfolge.indexOf(a.status) - statusReihenfolge.indexOf(b.status),
@@ -60,6 +62,13 @@ export default async function VermarktungSeite({
           aktivId={objekt.id}
         />
       </div>
+
+      {nichtVerfuegbar ? (
+        <p className="mb-4 rounded border border-line bg-neutral-tint px-3 py-2 text-[12px] text-ink-soft">
+          Für „{nichtVerfuegbar.name}“ ist die Vermarktung noch nicht gestartet – angezeigt wird
+          stattdessen {objekt.name}.
+        </p>
+      ) : null}
 
       <FreigabeKarte
         ausstehend={freigabeAusstehend}
