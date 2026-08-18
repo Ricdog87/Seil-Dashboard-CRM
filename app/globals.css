@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f6f6f4;
+  --color-surface: #ffffff;
+  --color-ink: #1b1d22;
+  --color-ink-soft: #575b63;
+  --color-ink-mute: #8b8f99;
+  --color-line: #e6e5e0;
+  --color-line-strong: #d2d1ca;
+  --color-accent: #1d5aa8;
+  --color-accent-deep: #164a8c;
+  --color-accent-tint: #e9f0fa;
+  --color-ok: #1a7a2e;
+  --color-ok-tint: #e6f4e9;
+  --color-warn: #8a5b03;
+  --color-warn-tint: #fdf3d8;
+  --color-crit: #b42318;
+  --color-crit-tint: #fceae8;
+  --color-neutral-tint: #f0f0ee;
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+body {
+  @apply bg-paper text-ink antialiased;
+}
+
+/* Dichte Tabellen – die Grundwährung des Cockpits */
+.tbl {
+  @apply w-full border-collapse text-[13px] leading-snug;
+}
+.tbl thead th {
+  @apply border-b border-line-strong px-3 py-1.5 text-left text-[11px] font-medium tracking-wide text-ink-mute uppercase whitespace-nowrap;
+}
+.tbl tbody td {
+  @apply border-b border-line px-3 py-2 align-middle;
+}
+.tbl tbody tr:last-child td {
+  @apply border-b-0;
+}
+.tbl.zeilen-klickbar tbody tr {
+  @apply cursor-pointer transition-colors;
+}
+.tbl.zeilen-klickbar tbody tr:hover {
+  @apply bg-paper;
+}
+.tbl .num {
+  @apply text-right tabular-nums whitespace-nowrap;
+}
+
+/* Karten */
+.karte {
+  @apply rounded-md border border-line bg-surface;
+}
+.karte-kopf {
+  @apply flex items-baseline justify-between gap-3 border-b border-line px-4 py-2.5;
+}
+.karte-titel {
+  @apply text-[13px] font-semibold;
+}
