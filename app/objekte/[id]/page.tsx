@@ -7,6 +7,7 @@ import {
   auftraggeberVon,
   datenraumFortschritt,
   fmtDatum,
+  fmtDatumKurz,
   fmtMio,
   investorVon,
   linksZuObjekt,
@@ -15,6 +16,7 @@ import {
 } from "@/lib/derive";
 import type { DokumentStatus } from "@/lib/types";
 import { Aktivitaeten } from "@/components/aktivitaeten";
+import { KiExtraktion } from "@/components/ki-extraktion";
 import { Prozessleiste } from "@/components/prozessleiste";
 import {
   Badge,
@@ -146,19 +148,7 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
                     })}
                   </TBody>
                 </Table>
-                {objekt.kiExtrakt?.length ? (
-                  <div className="flex flex-wrap items-center gap-2 border-t border-seil-line px-4 py-3">
-                    <Kicker>KI-ausgelesen</Kicker>
-                    {objekt.kiExtrakt.map((k) => (
-                      <Badge key={k} tone="info">
-                        {k}
-                      </Badge>
-                    ))}
-                    <span className="text-kicker text-seil-muted">
-                      automatisch aus den Datenraum-Dokumenten ins CRM übernommen
-                    </span>
-                  </div>
-                ) : null}
+                {objekt.kiFelder?.length ? <KiExtraktion felder={objekt.kiFelder} /> : null}
               </>
             ) : (
               <EmptyState text="Datenraum noch nicht angefordert – Schritt 3 der Eigentümerseite." />
@@ -175,6 +165,50 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
               </p>
             </CardBody>
           </Card>
+
+          {objekt.seCircleSync ? (
+            <Card>
+              <CardHeader
+                title="Se Circle-Anbindung"
+                meta={<Badge tone="success">verbunden</Badge>}
+              />
+              <CardBody className="flex flex-col gap-3">
+                <dl className="flex flex-wrap gap-x-8 gap-y-2">
+                  <div>
+                    <dt>
+                      <Kicker>Richtung</Kicker>
+                    </dt>
+                    <dd className="mt-1 text-seil-body">{objekt.seCircleSync.richtung}</dd>
+                  </div>
+                  <div>
+                    <dt>
+                      <Kicker>Letzter Sync</Kicker>
+                    </dt>
+                    <dd className="mt-1 text-seil-body">
+                      {fmtDatumKurz(objekt.seCircleSync.letzterSync)}
+                    </dd>
+                  </div>
+                </dl>
+                <div>
+                  <Kicker>Synchronisierte Feldgruppen</Kicker>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {objekt.seCircleSync.feldgruppen.map((f) => (
+                      <span
+                        key={f}
+                        className="inline-flex rounded-seil border border-seil-line bg-seil-card-alt px-2 py-0.5 text-kicker text-seil-body"
+                      >
+                        {f}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-kicker text-seil-muted">
+                  Keine manuelle Excel-Übertragung mehr – Off-Market-Daten laufen direkt ins
+                  Cockpit. Anbindung ist Umsetzungsteil von Modul 02, hier simuliert.
+                </p>
+              </CardBody>
+            </Card>
+          ) : null}
         </div>
 
         <Card>
