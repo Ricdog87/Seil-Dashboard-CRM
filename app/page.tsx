@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, Send, TriangleAlert } from "lucide-react";
+import { ChevronRight, FolderCheck, RefreshCw, Send, TriangleAlert } from "lucide-react";
 import {
   aktiverSchritt,
   aufgabenZuObjekt,
@@ -50,10 +50,21 @@ export default function UebersichtSeite() {
           titel="Übersicht"
           untertitel="Alle laufenden Transaktionen mit Phase, Aufgaben, Rückmeldungen und Datenraum-Status auf einen Blick."
         />
-        <p className="inline-flex items-center gap-2 text-kicker text-seil-muted">
-          <Send size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
-          Status-Report heute 08:00 via Telegram an das Team versendet
-        </p>
+        {/* Systemstatus: die drei Anbindungen aus Angebot und Kickoff, still im Hintergrund. */}
+        <div className="flex flex-col items-end gap-1 text-kicker text-seil-muted">
+          <p className="inline-flex items-center gap-2">
+            <Send size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
+            Status-Report heute 08:00 via Telegram an das Team versendet
+          </p>
+          <p className="inline-flex items-center gap-2">
+            <RefreshCw size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
+            Se Circle-Sync heute 06:00 – keine Änderungen
+          </p>
+          <p className="inline-flex items-center gap-2">
+            <FolderCheck size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
+            Modul 01: Datenraum-Status heute 07:30 aktualisiert
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
