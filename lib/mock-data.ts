@@ -427,17 +427,17 @@ export const investoren: Investor[] = [
 export const objektInvestorLinks: ObjektInvestorLink[] = [
   // Büroensemble Westend-Karree – Vermarktung weit fortgeschritten
   { objektId: "o1", investorId: "i1", status: "interesse", followUpStufe: 1, letzterKontakt: "2026-08-14", hinweis: "Broker Call vereinbart" },
-  { objektId: "o1", investorId: "i2", status: "preisanfrage", followUpStufe: 0, letzterKontakt: "2026-08-12", hinweis: "Indikation über Investment-Team" },
-  { objektId: "o1", investorId: "i3", status: "nda_unterzeichnet", followUpStufe: 0, letzterKontakt: "2026-08-17" },
+  { objektId: "o1", investorId: "i2", status: "preisanfrage", followUpStufe: 1, letzterKontakt: "2026-08-12", hinweis: "Indikation über Investment-Team" },
+  { objektId: "o1", investorId: "i3", status: "nda_unterzeichnet", followUpStufe: 1, letzterKontakt: "2026-08-17" },
   { objektId: "o1", investorId: "i4", status: "angeschrieben", followUpStufe: 2, letzterKontakt: "2026-08-17", naechstesFollowUp: "2026-08-19" },
   { objektId: "o1", investorId: "i8", status: "angeschrieben", followUpStufe: 3, letzterKontakt: "2026-08-16", hinweis: "Stufe 3 ohne Antwort – manuell nachfassen" },
   { objektId: "o1", investorId: "i9", status: "abgesagt", followUpStufe: 1, letzterKontakt: "2026-08-15", hinweis: "Kein Büro-Ankauf in 2026" },
-  { objektId: "o1", investorId: "i12", status: "datenraum_freigegeben", followUpStufe: 0, letzterKontakt: "2026-08-06" },
+  { objektId: "o1", investorId: "i12", status: "datenraum_freigegeben", followUpStufe: 1, letzterKontakt: "2026-08-06" },
 
   // Logistikpark Gateway Süd – Follow-up-Automatik läuft
   { objektId: "o2", investorId: "i1", status: "angeschrieben", followUpStufe: 2, letzterKontakt: "2026-08-17", naechstesFollowUp: "2026-08-19" },
   { objektId: "o2", investorId: "i2", status: "angeschrieben", followUpStufe: 3, letzterKontakt: "2026-08-16", hinweis: "Stufe 3 ohne Antwort – manuell nachfassen" },
-  { objektId: "o2", investorId: "i4", status: "angeschrieben", followUpStufe: 1, letzterKontakt: "2026-08-16", naechstesFollowUp: "2026-08-18" },
+  { objektId: "o2", investorId: "i4", status: "angeschrieben", followUpStufe: 2, letzterKontakt: "2026-08-16", naechstesFollowUp: "2026-08-18" },
   { objektId: "o2", investorId: "i7", status: "interesse", followUpStufe: 1, letzterKontakt: "2026-08-15", hinweis: "Broker Call vereinbart" },
 
   // Wohnportfolio Sachsenhausen – Liste abgeglichen, wartet auf Freigabe
@@ -501,12 +501,16 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak14", datum: "2026-08-16T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 3 an Corvus Family Office versendet – maximale Stufe erreicht.", objektId: "o1", investorId: "i8" },
   { id: "ak15", datum: "2026-08-17T11:05", typ: "anruf", text: "Rückfragen von Hartmann & Cie. zur Mieter- & Flächenliste beantwortet.", objektId: "o1", investorId: "i3", mitarbeiterId: "m1" },
 
+  { id: "ak46", datum: "2026-08-17T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 2 automatisch versendet an Rheingold Asset Management.", objektId: "o1", investorId: "i4" },
+
   // Logistikpark Gateway Süd (o2)
   { id: "ak16", datum: "2026-08-04T10:20", typ: "system", quelle: "Modul 01", text: "Checkliste aktualisiert: 11/12 Dokumente – Altlasten- & Baulastenauskunft ausstehend.", objektId: "o2" },
   { id: "ak17", datum: "2026-08-05T09:40", typ: "notiz", text: "Investorenliste freigegeben (4 Kontakte) – Versand ausgelöst.", objektId: "o2", mitarbeiterId: "m2" },
   { id: "ak18", datum: "2026-08-06T08:30", typ: "mail_ausgang", text: "Teaser Logistikpark an Verteiler versendet (4 Investoren).", objektId: "o2", mitarbeiterId: "m2" },
   { id: "ak19", datum: "2026-08-08T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 1 automatisch versendet an 4 Kontakte ohne Rückmeldung.", objektId: "o2" },
   { id: "ak20", datum: "2026-08-16T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 3 automatisch versendet an Novaris Invest – maximale Stufe erreicht.", objektId: "o2", investorId: "i2" },
+  { id: "ak47", datum: "2026-08-16T08:05", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 2 automatisch versendet an Rheingold Asset Management.", objektId: "o2", investorId: "i4" },
+  { id: "ak48", datum: "2026-08-17T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 2 automatisch versendet an Falkenstein Capital Partners.", objektId: "o2", investorId: "i1" },
   { id: "ak21", datum: "2026-08-15T14:22", typ: "mail_eingang", text: "Portus Logistics Capital meldet Interesse – Objektbesichtigung gewünscht.", objektId: "o2", investorId: "i7" },
   { id: "ak22", datum: "2026-08-15T14:23", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Interesse – Aufgabe „Broker Call“ für Daniel Mertens erstellt.", objektId: "o2", investorId: "i7" },
   { id: "ak23", datum: "2026-08-17T16:40", typ: "anruf", text: "Statusupdate an Gateway Industrial: 4 Kontakte angeschrieben, 1 Interessent.", objektId: "o2", auftraggeberId: "a3", mitarbeiterId: "m2" },

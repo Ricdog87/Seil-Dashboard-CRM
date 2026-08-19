@@ -21,7 +21,8 @@ export function THead({ children }: { children: React.ReactNode }) {
 }
 
 export function TBody({ children }: { children: React.ReactNode }) {
-  return <tbody>{children}</tbody>;
+  // Die letzte Zeile schliesst mit der Karte ab - ohne doppelte Linie.
+  return <tbody className="[&>tr:last-child>td]:border-b-0">{children}</tbody>;
 }
 
 export function TH({
@@ -69,7 +70,7 @@ export function TD({
 }: React.TdHTMLAttributes<HTMLTableCellElement> & { numeric?: boolean }) {
   return (
     <td
-      className={`h-row border-b border-seil-line px-3 py-2 align-middle last:border-b-0 ${
+      className={`h-row border-b border-seil-line px-3 py-2 align-middle ${
         numeric ? "text-right whitespace-nowrap" : ""
       } ${className}`}
       {...rest}

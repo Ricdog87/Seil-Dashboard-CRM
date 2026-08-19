@@ -99,8 +99,13 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
     Import-Screen würde die Fünf-Screen-Grenze sprengen.
 24. **Status-Reports via Telegram:** als Statuszeile auf der Übersicht angedeutet
     („heute 08:00 versendet“). Inhalt, Frequenz und Empfängerkreis sind offen.
-25. **Presound-Mail an BCC-Verteiler:** Benennung aus dem Kickoff übernommen
-    (Freigabe-Karte und Automatik-Zeile der Vermarktung).
+25. **Presound-Mail an BCC-Verteiler vs. KI-personalisierte Ansprache:** Das
+    Angebot nennt eine „KI-personalisierte Ansprache mit Freigabe-Workflow“, im
+    Kickoff wurde der heutige Ist-Prozess als Presound-Mail an einen
+    BCC-Verteiler beschrieben. Der Prototyp zeigt den Versand als Sammelmail
+    (Benennung aus dem Kickoff) – ob die Ansprache künftig je Investor
+    KI-personalisiert erzeugt und einzeln freigegeben wird, ist zu klären; das
+    verändert Freigabe-Granularität und Datenmodell.
 26. **Distressed Assets:** Im Kickoff als Sonderfall mit typisch unvollständigen
     Unterlagen genannt – im Prototyp als Merkmal am Fachmarktzentrum (7/12
     Dokumente) dargestellt. Ob Distressed-Fälle eine eigene Prozessvariante

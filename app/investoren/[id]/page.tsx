@@ -32,14 +32,6 @@ import {
   KontaktStatusBadge,
 } from "@/components/cockpit";
 
-function Chip({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex rounded-seil border border-seil-line bg-seil-card-alt px-2 py-0.5 text-kicker text-seil-body">
-      {children}
-    </span>
-  );
-}
-
 export default async function InvestorDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const investor = investorVon(id);
@@ -82,7 +74,9 @@ export default async function InvestorDetail({ params }: { params: Promise<{ id:
               </dt>
               <dd className="mt-2 flex flex-wrap gap-1.5">
                 {investor.assetklassen.map((a) => (
-                  <Chip key={a}>{a}</Chip>
+                  <Badge key={a} tone="neutral">
+                    {a}
+                  </Badge>
                 ))}
               </dd>
             </div>
@@ -92,7 +86,9 @@ export default async function InvestorDetail({ params }: { params: Promise<{ id:
               </dt>
               <dd className="mt-2 flex flex-wrap gap-1.5">
                 {investor.regionen.map((r) => (
-                  <Chip key={r}>{r}</Chip>
+                  <Badge key={r} tone="neutral">
+                    {r}
+                  </Badge>
                 ))}
               </dd>
             </div>

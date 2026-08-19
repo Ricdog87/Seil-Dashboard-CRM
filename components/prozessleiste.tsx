@@ -50,6 +50,7 @@ function SchrittChip({
     <div
       className={`flex min-w-0 items-center gap-2 rounded-seil border px-2 py-2 ${rahmen}`}
       title={lang}
+      aria-current={status === "aktiv" ? "step" : undefined}
     >
       <span className={`flex w-4 shrink-0 justify-center text-kicker ${marke}`} aria-hidden>
         {status === "abgeschlossen" ? (
@@ -60,7 +61,17 @@ function SchrittChip({
           nr
         )}
       </span>
-      <span className={`truncate text-kicker ${text}`}>{kurz}</span>
+      {/* Status haengt nie an der Farbe allein: aktiv traegt zusaetzlich Gewicht + sr-Text. */}
+      <span className={`truncate text-kicker ${text} ${status === "aktiv" ? "font-medium" : ""}`}>
+        {kurz}
+        <span className="sr-only">
+          {status === "aktiv"
+            ? " – aktueller Schritt"
+            : status === "abgeschlossen"
+              ? " – abgeschlossen"
+              : " – offen"}
+        </span>
+      </span>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { TriangleAlert } from "lucide-react";
+import { Info, TriangleAlert } from "lucide-react";
 import {
   fmtDatum,
   fmtTicket,
@@ -20,6 +20,7 @@ import {
   TD,
   TH,
   THead,
+  Toast,
   TR,
 } from "@/components/ui";
 import {
@@ -75,10 +76,12 @@ export default async function VermarktungSeite({
       </div>
 
       {nichtVerfuegbar ? (
-        <p className="mb-5 rounded-seil border border-seil-line bg-seil-card-alt px-3 py-2 text-seil-muted">
-          Für „{nichtVerfuegbar.name}“ ist die Vermarktung noch nicht gestartet – angezeigt wird
-          stattdessen {objekt.name}.
-        </p>
+        <div className="mb-5">
+          <Toast tone="neutral" icon={Info}>
+            Für „{nichtVerfuegbar.name}“ ist die Vermarktung noch nicht gestartet – angezeigt wird
+            stattdessen {objekt.name}.
+          </Toast>
+        </div>
       ) : null}
 
       <FreigabeKarte

@@ -26,7 +26,7 @@ Tabellen anklicken) – es gibt keine Listen-Screens über die fünf Screens hin
 
 | Leistungsbaustein | Im Prototyp sichtbar als |
 |---|---|
-| KI-personalisierte Ansprache mit Freigabe-Workflow | Vermarktung: Freigabe-Karte (Human-in-the-Loop) über der Investorenliste |
+| KI-personalisierte Ansprache mit Freigabe-Workflow | Freigabe-Karte (Human-in-the-Loop); Versand im Prototyp als Presound-Sammelmail – Personalisierung je Investor ist Klärungspunkt (ANNAHMEN.md, Punkt 25) |
 | Szenariobasierte Follow-up-Logik (Response, Price Inquiry, kein Rücklauf) | Antwortstatus je Kontakt, Follow-up-Stufen 1–3, „manuell nachfassen“ nach Stufe 3 |
 | Antwort-Erkennung und Zuordnung | Aktivitäten „Antwort erkannt: …“ + automatisch erzeugte Aufgaben (Broker Call, Investment-Team) |
 | Zentrales Dashboard: Phasen, Investoren, Objekte, Datenraum-Status | Die fünf Screens; Prozessleiste über beide Seiten; Datenraum aus Modul 01 |
