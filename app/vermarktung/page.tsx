@@ -1,6 +1,7 @@
 import { ArrowRight, CircleCheck, Info, Send, Sparkles, TriangleAlert, UserCheck } from "lucide-react";
 import {
   fmtDatum,
+  inVermarktungskontext,
   fmtTicket,
   investorVon,
   istUeberfaellig,
@@ -120,7 +121,7 @@ export default async function VermarktungSeite({
 }) {
   const { objekt: objektParam } = await searchParams;
 
-  const optionen = objekte.filter((o) => o.investorenPhasen.some((s) => s !== "offen"));
+  const optionen = objekte.filter(inVermarktungskontext);
   const standard = optionen.find((o) => o.freigabe?.status === "ausstehend") ?? optionen[0];
   const objekt = optionen.find((o) => o.id === objektParam) ?? standard;
   const nichtVerfuegbar =
