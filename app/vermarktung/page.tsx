@@ -1,4 +1,4 @@
-import { Info, TriangleAlert } from "lucide-react";
+import { ArrowRight, CircleCheck, Info, Send, Sparkles, TriangleAlert, UserCheck } from "lucide-react";
 import {
   fmtDatum,
   fmtTicket,
@@ -8,6 +8,7 @@ import {
   mitarbeiterVon,
 } from "@/lib/derive";
 import { objekte } from "@/lib/mock-data";
+import type { Objekt } from "@/lib/types";
 import type { KontaktStatus } from "@/lib/types";
 import { FreigabeKarte, ObjektAuswahl } from "@/components/vermarktung-client";
 import {
@@ -26,6 +27,7 @@ import {
 import {
   EntityLink,
   FollowUpStufe,
+  Kicker,
   KontaktStatusBadge,
   SeitenKopf,
 } from "@/components/cockpit";
@@ -40,6 +42,76 @@ const statusReihenfolge: KontaktStatus[] = [
   "vorgemerkt",
   "abgesagt",
 ];
+
+/** Teaser & Listing: KI-Entwurf → menschliche Prüfung → Versand (Kickoff-Anforderung). */
+function TeaserPipeline({ objekt }: { objekt: Objekt }) {
+  const t = objekt.teaser;
+  if (!t) return null;
+  const geprueft = t.geprueftDurchId ? mitarbeiterVon(t.geprueftDurchId)?.name : undefined;
+
+  const stufen = [
+    {
+      icon: Sparkles,
+      label: "KI-Entwurf",
+      detail: fmtDatum(t.entwurfVom),
+      erledigt: true,
+    },
+    {
+      icon: UserCheck,
+      label: "Prüfung",
+      detail: geprueft ?? "ausstehend",
+      erledigt: t.stand !== "entwurf_pruefung",
+    },
+    {
+      icon: Send,
+      label: "Versand",
+      detail:
+        t.stand === "versendet"
+          ? fmtDatum(t.versendetAm)
+          : "wartet auf Listen-Freigabe",
+      erledigt: t.stand === "versendet",
+    },
+  ];
+
+  return (
+    <Card className="mb-6 px-4 py-3">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <Kicker>Teaser & Listing</Kicker>
+        {stufen.map((st, i) => {
+          const Icon = st.erledigt ? CircleCheck : st.icon;
+          return (
+            <span key={st.label} className="inline-flex items-center gap-x-4">
+              {i > 0 ? (
+                <ArrowRight
+                  size={ICON_SM}
+                  strokeWidth={ICON_STROKE}
+                  className="text-seil-muted"
+                  aria-hidden
+                />
+              ) : null}
+              <span className="inline-flex items-center gap-2">
+                <Icon
+                  size={ICON_SM}
+                  strokeWidth={ICON_STROKE}
+                  className={st.erledigt ? "text-seil-success" : "text-seil-warning"}
+                  aria-hidden
+                />
+                <span className={st.erledigt ? "text-seil-body" : "text-seil-text"}>
+                  {st.label}
+                </span>
+                <span className="text-kicker text-seil-muted">{st.detail}</span>
+                <span className="sr-only">{st.erledigt ? " – erledigt" : " – offen"}</span>
+              </span>
+            </span>
+          );
+        })}
+        <span className="ml-auto text-kicker text-seil-muted">
+          KI-generiert, Prüfung durch das Team – produktiv Teil von Modul 02
+        </span>
+      </div>
+    </Card>
+  );
+}
 
 export default async function VermarktungSeite({
   searchParams,
@@ -92,6 +164,8 @@ export default async function VermarktungSeite({
         freigegebenAm={fmtDatum(objekt.freigabe?.am)}
       />
 
+      <TeaserPipeline objekt={objekt} />
+
       <Card>
         <CardHeader
           title={
@@ -101,6 +175,36 @@ export default async function VermarktungSeite({
           }
           meta="Automatik: Presound-Mail an BCC-Verteiler · Follow-up alle 2 Tage (max. 3 Stufen) · Interesse → Broker Call · Preisanfrage → Investment-Team"
         />
+        {(() => {
+          const geantwortet = links.filter((l) =>
+            ["interesse", "preisanfrage", "nda_unterzeichnet", "datenraum_freigegeben"].includes(
+              l.status,
+            ),
+          ).length;
+          const stumm = links.filter((l) => l.status === "angeschrieben").length;
+          const abgesagt = links.filter((l) => l.status === "abgesagt").length;
+          const vorgemerkt = links.filter((l) => l.status === "vorgemerkt").length;
+          const versendet = links.length - vorgemerkt;
+          return (
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-b border-seil-line px-4 py-2">
+              <Kicker>Wer hat geantwortet?</Kicker>
+              {versendet > 0 ? (
+                <>
+                  <span className="text-seil-body">Versendet {versendet}</span>
+                  <span className="text-seil-success">Geantwortet {geantwortet}</span>
+                  <span className={stumm > 0 ? "text-seil-warning" : "text-seil-muted"}>
+                    Ohne Rückmeldung {stumm}
+                  </span>
+                  <span className="text-seil-muted">Absagen {abgesagt}</span>
+                </>
+              ) : (
+                <span className="text-seil-muted">
+                  Noch nicht versendet – {vorgemerkt} Kontakte vorgemerkt, wartet auf Freigabe
+                </span>
+              )}
+            </div>
+          );
+        })()}
         <Table>
           <THead>
             <TR>
