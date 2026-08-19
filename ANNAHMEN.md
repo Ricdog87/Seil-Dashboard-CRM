@@ -5,25 +5,38 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
 
 ## Prozess & Statusmodell
 
-1. **Benennung und Kurzform der Prozessschritte.** Die 6 + 6 Schritte aus dem Auftrag
-   wurden übernommen; für die kompakte Prozessleiste wurden Kurzlabels gesetzt
-   („Erstinfo“, „Agreement & Vollmacht“, „Freigabe Liste“ …). → `lib/mock-data.ts`
-2. **Beide Seiten laufen sichtbar parallel.** Annahme: Die Investorenseite startet
-   erst, wenn die Eigentümerseite (fast) abgeschlossen ist – die Prozessleiste zeigt
-   aber immer beide Seiten. Ausnahme im Demodatensatz: der Logistikpark wird trotz
-   einer Datenraum-Lücke bereits vermarktet (Nachlieferung läuft) – ob das real
-   zulässig ist, bitte bestätigen.
-3. **Antwortstatus je Investor-Kontakt** in 7 Stufen: Vorgemerkt → Keine Rückmeldung →
+1. **Prozessmodell aus der Team-Excel (19.08.).** Der Prototyp folgt der echten
+   Liste „SEIL Transaction Process“: 26 Schritte in 4 Phasen, je Schritt
+   Verantwortung (Client, Legal Team, Investment Team, Broker, Team) und
+   heutiges Tool (Word/PDF, Excel, PowerPoint, Outlook, OneDrive, Pipedrive).
+   Für die kompakte Leiste wurden deutsche Kurzlabels gesetzt. → `lib/mock-data.ts`
+2. **Bereinigungen gegenüber der Excel (bitte bestätigen):** Die Titel der
+   Phasen 1+2 sind im Export abgeschnitten und hier gesetzt („Mandat &
+   Bewertung“, „Vermarktungsvorbereitung“); Phasen 3+4 heißen wie im Original.
+   Die Excel-Nummerierung (Lücken bei 13/17, doppelte 18) wurde auf 1–26
+   durchnummeriert; „Reporting (wöchentlich)“ läuft als Querschnitt in Phase 4
+   statt als eigener Schritt. Die Tool-Zuordnung je Schritt ist aus dem Export
+   rekonstruiert.
+3. **Statusvokabular wie im Team:** Done / In Progress / Pending / N.A. –
+   mehrere Schritte können parallel „In Progress“ sein. „Aktueller Schritt“
+   (Tabelle, Board) ist der weiteste laufende Schritt; parallel Laufende werden
+   als „+n parallel“ ausgewiesen. Der Prozessfortschritt zählt N.A. nicht mit.
+4. **Lead + Vertretung** je Objekt wie in der Excel (Spalten Projekt Lead /
+   Vertretung); die Stand-Notiz entspricht der Freitext-Notizspalte.
+5. **Keine echten Daten übernommen:** Die Excel enthält reale Adressen, Preise
+   und interne Notizen. Übernommen wurde ausschließlich die Struktur – alle
+   Objekte, Zahlen und Notizen im Prototyp bleiben frei erfunden (Leitplanke).
+6. **Antwortstatus je Investor-Kontakt** in 7 Stufen: Vorgemerkt → Keine Rückmeldung →
    Interesse / Preisanfrage → NDA unterzeichnet → Datenraum freigegeben → Abgesagt.
    Granularität und Benennung sind eine Setzung; ebenso die Annahme, dass jeder
    Investor **vor** der Datenraum-Freigabe ein Vermarktungs-NDA unterzeichnet.
-4. **Follow-up-Automatik:** „nach 2 Tagen, bis zu 3 Stufen“ wurde als fester
+7. **Follow-up-Automatik:** „nach 2 Tagen, bis zu 3 Stufen“ wurde als fester
    2-Tage-Rhythmus je Stufe interpretiert. Nach Stufe 3 ohne Antwort entsteht eine
    manuelle Nachfass-Aufgabe für den zuständigen Mitarbeiter (Annahme). Ein geplantes
    Follow-up gilt als überfällig, wenn sein Termin vor dem Referenztag liegt (etwa
    weil die Automatik angehalten wurde) – in den Demodaten kommt dieser Fall nicht
    vor, dort entsteht Handlungsbedarf durch die ausgeschöpfte Stufe 3.
-5. **Antworterkennung:** Interesse erzeugt eine Aufgabe „Broker Call“ für den
+8. **Antworterkennung:** Interesse erzeugt eine Aufgabe „Broker Call“ für den
    **objektzuständigen** Mitarbeiter (nicht für einen Pool); Preisanfragen werden als
    Aufgabe an das Investment-Team (im Prototyp: eine Person) geroutet.
 

@@ -5,6 +5,8 @@ Immobilien-Transaktionsberatung. Der Prototyp dient der Abstimmung mit dem Kunde
 **keine echte Logik, keine API-Anbindung, keine Datenbank.** Alle Daten sind frei
 erfundene Demodaten in [`lib/mock-data.ts`](lib/mock-data.ts).
 
+Der Transaktionsprozess folgt der Team-Liste: **26 Schritte in 4 Phasen** (Mandat & Bewertung → Vermarktungsvorbereitung → Aktive Vermarktung → Angebote & Reporting), Statusvokabular Done / In Progress / Pending / N.A.
+
 Kernidee: Objekte, Investoren und Auftraggeber sind **relational verknüpft** – jeder
 Klick auf eine Entität zeigt alle verbundenen Aktivitäten, Kommunikation und
 Gegenparteien. Genau das, was Pipedrive + Excel heute nicht können.
