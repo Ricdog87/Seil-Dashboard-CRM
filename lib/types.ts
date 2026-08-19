@@ -1,6 +1,8 @@
 // Typen des SEIL Cockpit (Modul 02) – reiner Frontend-Prototyp mit Mock-Daten.
 
-/** Statusvokabular der Team-Excel: Done / In Progress / Pending / N.A. */
+/** Statusvokabular der Team-Excel: Done / In Progress / Pending / N.A.
+ *  Das dort vereinzelt genutzte „In Vorbereitung" wird im Prototyp auf
+ *  Pending abgebildet (siehe ANNAHMEN.md Punkt 3). */
 export type SchrittStatus = "done" | "in_progress" | "pending" | "na";
 
 export type DokumentStatus = "vorhanden" | "in_pruefung" | "ausstehend";

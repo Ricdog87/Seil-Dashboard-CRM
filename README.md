@@ -5,7 +5,7 @@ Immobilien-Transaktionsberatung. Der Prototyp dient der Abstimmung mit dem Kunde
 **keine echte Logik, keine API-Anbindung, keine Datenbank.** Alle Daten sind frei
 erfundene Demodaten in [`lib/mock-data.ts`](lib/mock-data.ts).
 
-Der Transaktionsprozess folgt der Team-Liste: **26 Schritte in 4 Phasen** (Mandat & Bewertung → Vermarktungsvorbereitung → Aktive Vermarktung → Angebote & Reporting), Statusvokabular Done / In Progress / Pending / N.A.
+Der Transaktionsprozess folgt der Team-Liste, bereinigt auf **26 Schritte in 4 Phasen** (Mandat & Bewertung → Vermarktungsvorbereitung → Aktive Vermarktung → Angebote & Reporting), Statusvokabular Done / In Progress / Pending / N.A. – die Bereinigungen gegenüber der Excel sind in [`ANNAHMEN.md`](ANNAHMEN.md) (Punkte 1–3) dokumentiert.
 
 Kernidee: Objekte, Investoren und Auftraggeber sind **relational verknüpft** – jeder
 Klick auf eine Entität zeigt alle verbundenen Aktivitäten, Kommunikation und
@@ -22,7 +22,8 @@ Gegenparteien. Genau das, was Pipedrive + Excel heute nicht können.
 | 5 | Aufgaben | `/aufgaben` | Nach Mitarbeiter gefiltert, Broker Calls hervorgehoben |
 
 Die Übersicht zeigt die laufenden Transaktionen wahlweise als dichte Tabelle
-oder als Board (Pipeline-Spalten von „Akquise & NDA" bis „Vermarktung · Aktiv").
+oder als Board – eine Spalte je Phase („Mandat & Bewertung“ bis „Angebote &
+Reporting“).
 
 Der Klickdummy ist an den im Kickoff gewünschten Stellen interaktiv: die
 Prozessleiste öffnet je Schritt ein Detailpanel, KI-extrahierte Werte lassen

@@ -103,16 +103,16 @@ function TransaktionsBoard() {
   }));
 
   return (
-    <div className="grid grid-cols-2 items-start gap-3 md:grid-cols-3 lg:grid-cols-5" role="list">
+    <div className="grid grid-cols-2 items-start gap-3 md:grid-cols-4 lg:grid-cols-4" role="list">
       {spalten.map((sp) => (
         <div
           key={sp.label}
           role="listitem"
           className="flex flex-col gap-2 rounded-seil border border-seil-line bg-seil-surface px-2 py-2"
         >
-          <div className="flex items-baseline justify-between gap-2 px-1">
+          <div className="flex min-w-0 items-baseline justify-between gap-2 px-1">
             <Kicker>{sp.label}</Kicker>
-            <span className="text-kicker text-seil-muted">{sp.objekte.length}</span>
+            <span className="shrink-0 text-kicker text-seil-muted">{sp.objekte.length}</span>
           </div>
           {sp.objekte.length === 0 ? (
             <p className="px-1 pb-1 text-kicker text-seil-muted">keine Transaktion</p>
@@ -196,8 +196,8 @@ function TransaktionsTabelle() {
 
 /**
  * Laufende Transaktionen in zwei Projektionen derselben Daten:
- * Tabelle (dicht, sortiert) und Board (Pipeline-Spalten, Karte je Objekt).
- * Das Board verdichtet die 12 Prozessschritte auf 5 Stufen.
+ * Tabelle (dicht, sortiert) und Board (eine Spalte je Phase, Karte je Objekt).
+ * Jede Karte hängt in der Phase ihres weitesten laufenden Schritts.
  */
 export function TransaktionenAnsicht() {
   const [ansicht, setAnsicht] = useState<string>("tabelle");

@@ -175,7 +175,7 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
                 {objekt.kiFelder?.length ? <KiExtraktion felder={objekt.kiFelder} /> : null}
               </>
             ) : (
-              <EmptyState text="Datenraum noch nicht angefordert – Schritt 3 der Eigentümerseite." />
+              <EmptyState text="Datenraum noch nicht angefordert – folgt mit Schritt 8 „Standarddokumente“ (Phase 2)." />
             )}
           </Card>
 

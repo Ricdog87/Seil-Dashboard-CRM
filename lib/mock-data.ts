@@ -20,12 +20,17 @@ export const HEUTE = "2026-08-18";
 // ---------------------------------------------------------------------------
 
 /**
- * Prozessmodell 1:1 aus der Team-Excel „SEIL Transaction Process" (19.08.):
- * 26 Schritte in 4 Phasen, je Schritt Verantwortung und heutiges Tool.
- * Titel der Phasen 3+4 stehen so in der Excel; 1+2 sind im Export abgeschnitten
- * und hier gesetzt. Die Excel-Nummerierung (Lücken bei 13/17, doppelte 18)
- * wurde auf durchgängig 1–26 bereinigt; „Reporting (wöchentlich)" läuft als
- * Querschnitt in Phase 4 mit. Beides bitte im Kundengespräch bestätigen.
+ * Prozessmodell aus der Team-Excel „SEIL Transaction Process" (19.08.),
+ * bereinigt auf 26 Schritte in 4 Phasen, je Schritt Verantwortung und heutiges
+ * Tool. Bereinigungen gegenüber der Excel (dort real 25 Statusspalten):
+ * – zwei kombinierte Einträge wurden in je zwei Schritte geteilt
+ *   („Indikatives Angebot/LOI Besichtigungen" → 19+20,
+ *   „Angebotsverhandlung Notarbeauftragung" → 23+24);
+ * – „Reporting (wöchentlich)" läuft als Querschnitt in Phase 4 statt als Schritt;
+ * – die Excel-Nummerierung (Lücken bei 13/17, doppelte 18) wurde auf 1–26
+ *   durchnummeriert; Titel der Phasen 1+2 sind im Export abgeschnitten und hier
+ *   gesetzt (3+4 wie im Original).
+ * Alles bitte im Kundengespräch bestätigen – siehe ANNAHMEN.md Punkt 2.
  */
 
 export type SchrittVerantwortung = "team" | "automatik" | "freigabe" | "extern";
@@ -167,9 +172,12 @@ export const STANDARD_DOKUMENTE = [
 
 type SchrittMap = Partial<Record<number, "done" | "in_progress" | "pending" | "na">>;
 
-/** Schritt-Status-Array: alles bis `doneBis` (1-basiert) done, Rest pending, plus Ausnahmen. */
+/** Schritt-Status-Array: alles bis `doneBis` done, Rest pending.
+ *  Ausnahmen werden über die SCHRITTNUMMER (1–26) adressiert – nie über den Array-Index. */
 function schritteMit(doneBis: number, ausnahmen: SchrittMap = {}) {
-  return PROZESS_SCHRITTE.map((sch, i) => ausnahmen[i] ?? (sch.nr <= doneBis ? ("done" as const) : ("pending" as const)));
+  return PROZESS_SCHRITTE.map(
+    (sch) => ausnahmen[sch.nr] ?? (sch.nr <= doneBis ? ("done" as const) : ("pending" as const)),
+  );
 }
 
 type DokStatusMap = Partial<Record<number, "in_pruefung" | "ausstehend">>;
@@ -203,7 +211,7 @@ export const objekte: Objekt[] = [
     vertretungId: "m2",
     standNotiz: "Zwei heiße Kandidaten – indikative Angebote für KW 35 avisiert.",
     kennzahlen: { renditeProzent: 4.6, baujahr: 1998, einheiten: 31, leerstandProzent: 4.1, jnkmIstEuro: 2230000, jnkmSollEuro: 2310000 },
-    schritte: schritteMit(15, { 15: "in_progress", 16: "in_progress", 18: "in_progress", 19: "pending" }),
+    schritte: schritteMit(15, { 16: "in_progress", 17: "in_progress", 18: "in_progress" }),
     kiFelder: [
       { feld: "Mietverträge", wert: "27", quelleDokument: "Mieter- & Flächenliste", status: "uebernommen" },
       { feld: "WALT", wert: "4,3 Jahre", quelleDokument: "Mieter- & Flächenliste", status: "uebernommen" },
@@ -227,7 +235,7 @@ export const objekte: Objekt[] = [
     vertretungId: "m3",
     standNotiz: "Altlastenauskunft beim Amt nachgefordert – Reporting an Auftraggeber läuft.",
     kennzahlen: { renditeProzent: 5.4, baujahr: 2011, einheiten: 4, leerstandProzent: 0 },
-    schritte: schritteMit(15, { 15: "in_progress", 16: "in_progress", 17: "pending" }),
+    schritte: schritteMit(15, { 16: "in_progress", 17: "in_progress" }),
     teaser: { stand: "versendet", entwurfVom: "2026-08-04", geprueftDurchId: "m2", versendetAm: "2026-08-06" },
     datenraum: datenraumMit({ 10: "ausstehend" }, "2026-08-16"),
     freigabe: { status: "erteilt", durchId: "m2", am: "2026-08-05" },
@@ -245,7 +253,7 @@ export const objekte: Objekt[] = [
     vertretungId: "m3",
     standNotiz: "Versand wartet auf Listen-Freigabe – danach übernimmt die Automatik.",
     kennzahlen: { renditeProzent: 3.8, baujahr: 1955, einheiten: 62, leerstandProzent: 3.2, jnkmIstEuro: 867000, jnkmSollEuro: 912000 },
-    schritte: schritteMit(14, { 14: "pending" }),
+    schritte: schritteMit(14),
     kiFelder: [
       { feld: "Grundbuchblätter", wert: "3 (Bl. 4211, 4212, 4287)", quelleDokument: "Grundbuchauszug", status: "uebernommen" },
       { feld: "Wohneinheiten", wert: "62", quelleDokument: "Mieter- & Flächenliste", status: "uebernommen" },
@@ -272,7 +280,7 @@ export const objekte: Objekt[] = [
     vertretungId: "m1",
     standNotiz: "Eigentümerin liefert Unterlagen schleppend – täglich nachfassen.",
     kennzahlen: { renditeProzent: 7.1, baujahr: 1994, einheiten: 12, leerstandProzent: 18.5 },
-    schritte: schritteMit(7, { 7: "in_progress", 8: "in_progress", 3: "in_progress", 12: "na" }),
+    schritte: schritteMit(7, { 4: "in_progress", 8: "in_progress", 9: "in_progress", 13: "na" }),
     datenraum: datenraumMit(
       { 3: "in_pruefung", 7: "ausstehend", 8: "ausstehend", 9: "ausstehend", 10: "ausstehend" },
       "2026-08-16",
@@ -297,7 +305,7 @@ export const objekte: Objekt[] = [
     vertretungId: "m2",
     standNotiz: "Pachtvertrag mit Betreiber wird nachgereicht – Valuation läuft.",
     kennzahlen: { renditeProzent: 5.9, baujahr: 2016, einheiten: 88, leerstandProzent: 0 },
-    schritte: schritteMit(3, { 3: "in_progress", 4: "in_progress", 8: "in_progress", 9: "done" }),
+    schritte: schritteMit(2, { 3: "in_progress", 4: "in_progress", 8: "in_progress", 9: "done", 10: "done" }),
     datenraum: datenraumMit({ 9: "ausstehend", 11: "ausstehend" }, "2026-08-08"),
   },
   {
@@ -313,7 +321,7 @@ export const objekte: Objekt[] = [
     vertretungId: "m2",
     standNotiz: "NDA-Rücklauf steht aus – Wiedervorlage heute.",
     kennzahlen: { renditeProzent: 4.9, baujahr: 2005, einheiten: 9, leerstandProzent: 6.0 },
-    schritte: schritteMit(1, { 1: "in_progress" }),
+    schritte: schritteMit(1, { 2: "in_progress" }),
     datenraum: { angefordert: false, dokumente: [] },
   },
 ];

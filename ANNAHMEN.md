@@ -6,21 +6,31 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
 ## Prozess & Statusmodell
 
 1. **Prozessmodell aus der Team-Excel (19.08.).** Der Prototyp folgt der echten
-   Liste „SEIL Transaction Process“: 26 Schritte in 4 Phasen, je Schritt
-   Verantwortung (Client, Legal Team, Investment Team, Broker, Team) und
-   heutiges Tool (Word/PDF, Excel, PowerPoint, Outlook, OneDrive, Pipedrive).
-   Für die kompakte Leiste wurden deutsche Kurzlabels gesetzt. → `lib/mock-data.ts`
-2. **Bereinigungen gegenüber der Excel (bitte bestätigen):** Die Titel der
-   Phasen 1+2 sind im Export abgeschnitten und hier gesetzt („Mandat &
-   Bewertung“, „Vermarktungsvorbereitung“); Phasen 3+4 heißen wie im Original.
-   Die Excel-Nummerierung (Lücken bei 13/17, doppelte 18) wurde auf 1–26
-   durchnummeriert; „Reporting (wöchentlich)“ läuft als Querschnitt in Phase 4
-   statt als eigener Schritt. Die Tool-Zuordnung je Schritt ist aus dem Export
+   Liste „SEIL Transaction Process“: bereinigt 26 Schritte in 4 Phasen, je
+   Schritt Verantwortung und heutiges Tool (Word/PDF, Excel, PowerPoint,
+   Outlook, OneDrive, Pipedrive). Als Verantwortliche führt die Excel Client,
+   Legal Team, Investment Team, **Investment Team (India)**, Broker und Team –
+   im Prototyp ist India unter „Investment Team“ zusammengefasst; welche
+   Schritte real in Indien liegen, bitte im Gespräch klären. Für die kompakte
+   Leiste wurden deutsche Kurzlabels gesetzt. → `lib/mock-data.ts`
+2. **Bereinigungen gegenüber der Excel (bitte bestätigen):** Die Excel führt
+   real 25 Statusspalten. Zwei kombinierte Einträge wurden für den Prototyp in
+   je zwei Schritte geteilt („Indikatives Angebot/LOI Besichtigungen“ →
+   Schritte 19+20, „Angebotsverhandlung Notarbeauftragung“ → Schritte 23+24);
+   „Reporting (wöchentlich)“ läuft als Querschnitt in Phase 4 statt als eigener
+   Schritt – zusammen ergibt das die 26 Schritte. Die Titel der Phasen 1+2 sind
+   im Export abgeschnitten und hier gesetzt („Mandat & Bewertung“,
+   „Vermarktungsvorbereitung“); Phasen 3+4 heißen wie im Original. Die
+   Excel-Nummerierung (Lücken bei 13/17, doppelte 18) wurde auf 1–26
+   durchnummeriert. Die Tool-Zuordnung je Schritt ist aus dem Export
    rekonstruiert.
-3. **Statusvokabular wie im Team:** Done / In Progress / Pending / N.A. –
-   mehrere Schritte können parallel „In Progress“ sein. „Aktueller Schritt“
-   (Tabelle, Board) ist der weiteste laufende Schritt; parallel Laufende werden
-   als „+n parallel“ ausgewiesen. Der Prozessfortschritt zählt N.A. nicht mit.
+3. **Statusvokabular:** Done / In Progress / Pending / N.A. wie in der Excel –
+   das dort vereinzelt genutzte **„In Vorbereitung“** ist im Prototyp auf
+   „Pending“ abgebildet (bitte bestätigen, falls es ein eigener Status bleiben
+   soll). Mehrere Schritte können parallel „In Progress“ sein. „Aktueller
+   Schritt“ (Tabelle, Board) ist der weiteste laufende Schritt; parallel
+   Laufende werden als „+n parallel“ ausgewiesen. Der Prozessfortschritt zählt
+   N.A. nicht mit.
 4. **Lead + Vertretung** je Objekt wie in der Excel (Spalten Projekt Lead /
    Vertretung); die Stand-Notiz entspricht der Freitext-Notizspalte.
 5. **Keine echten Daten übernommen:** Die Excel enthält reale Adressen, Preise
@@ -137,12 +147,12 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
     „Zurücksetzen“ stellt den Stand wieder her). Das Umsortieren der
     Prozessschritte selbst bleibt dem echten System vorbehalten – die Schritte
     sind hier bewusst fest verdrahtet.
-28. **Board-Ansicht:** Die Übersicht bietet zusätzlich zur Tabelle ein Board.
-    Die 5 Spalten („Akquise & NDA“ → „Vermarktung · Aktiv“) verdichten die
-    12 Prozessschritte; die Zuordnung ist eine Setzung und im Kundengespräch
-    zu bestätigen. Karten folgen dem Prozessstatus – ein manuelles Verschieben
-    von Karten wäre im echten System eine Statusänderung und ist im Klickdummy
-    bewusst nicht simuliert.
+28. **Board-Ansicht:** Die Übersicht bietet zusätzlich zur Tabelle ein Board
+    mit **4 Spalten = die 4 Phasen der Team-Excel** („Mandat & Bewertung“ bis
+    „Angebote & Reporting“). Jede Karte hängt in der Phase ihres weitesten
+    laufenden Schritts. Karten folgen dem Prozessstatus – ein manuelles
+    Verschieben von Karten wäre im echten System eine Statusänderung und ist
+    im Klickdummy bewusst nicht simuliert.
 29. **Interaktiver Prozess:** „Das Dashboard soll den gesamten
     Transaktionsprozess interaktiv abbilden“ (Kickoff) ist als klickbare
     Prozessleiste umgesetzt: jeder Schritt öffnet ein Detailpanel mit
