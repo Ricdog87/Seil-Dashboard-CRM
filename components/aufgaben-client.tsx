@@ -10,18 +10,21 @@ import {
   FileText,
   FolderOpen,
   Phone,
+  RotateCcw,
   TriangleAlert,
   UserCheck,
 } from "lucide-react";
-import { faelligLabel, investorVon, mitarbeiterVon, objektVon } from "@/lib/derive";
+import { faelligLabel, investorVon, objektVon } from "@/lib/derive";
 import { aufgaben, mitarbeiter } from "@/lib/mock-data";
-import type { AufgabenTyp } from "@/lib/types";
+import type { Aufgabe, AufgabenTyp } from "@/lib/types";
 import {
   Badge,
+  Button,
   Card,
   Checkbox,
   ICON_SM,
   ICON_STROKE,
+  Select,
   Table,
   TBody,
   TD,
@@ -43,12 +46,35 @@ const typMeta: Record<AufgabenTyp, { label: string; tone: Tone; icon: LucideIcon
   sonstiges: { label: "Aufgabe", tone: "neutral", icon: ClipboardList },
 };
 
+/** ISO-Datum um n Tage verschieben – ohne Date.now, rein deterministisch. */
+function plusTage(iso: string, n: number): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d + n));
+  return dt.toISOString().slice(0, 10);
+}
+
+type Override = Partial<Pick<Aufgabe, "mitarbeiterId" | "faellig" | "erledigt">>;
+
+/**
+ * Aufgabenliste mit den im Kickoff gewünschten Eingriffen: Aufgaben lassen
+ * sich neu zuweisen, verschieben und abhaken. Klickdummy: Änderungen leben
+ * nur im Speicher dieser Sitzung – "Zurücksetzen" stellt den Stand wieder her.
+ */
 export function AufgabenListe() {
   const [filterId, setFilterId] = useState<string>("alle");
   const [erledigteAnzeigen, setErledigteAnzeigen] = useState(false);
+  const [overrides, setOverrides] = useState<Record<string, Override>>({});
+
+  const patch = (id: string, o: Override) =>
+    setOverrides((cur) => ({ ...cur, [id]: { ...cur[id], ...o } }));
+
+  const effektiv = useMemo(
+    () => aufgaben.map((t) => ({ ...t, ...overrides[t.id] })),
+    [overrides],
+  );
 
   const zeilen = useMemo(() => {
-    const gefiltert = aufgaben.filter(
+    const gefiltert = effektiv.filter(
       (t) =>
         (filterId === "alle" || t.mitarbeiterId === filterId) && (erledigteAnzeigen || !t.erledigt),
     );
@@ -56,26 +82,39 @@ export function AufgabenListe() {
       if (a.erledigt !== b.erledigt) return a.erledigt ? 1 : -1;
       return a.faellig < b.faellig ? -1 : 1;
     });
-  }, [filterId, erledigteAnzeigen]);
+  }, [effektiv, filterId, erledigteAnzeigen]);
 
   const offenJeMitarbeiter = (id: string) =>
-    aufgaben.filter((t) => t.mitarbeiterId === id && !t.erledigt).length;
+    effektiv.filter((t) => t.mitarbeiterId === id && !t.erledigt).length;
 
   const filter = [
-    { id: "alle", label: "Alle", count: aufgaben.filter((t) => !t.erledigt).length },
+    { id: "alle", label: "Alle", count: effektiv.filter((t) => !t.erledigt).length },
     ...mitarbeiter.map((m) => ({ id: m.id, label: m.name, count: offenJeMitarbeiter(m.id) })),
   ];
 
+  const geaendert = Object.keys(overrides).length;
+
   return (
     <>
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-4">
         <Tabs items={filter} activeId={filterId} onChange={setFilterId} label="Nach Mitarbeiter filtern" />
-        <Checkbox
-          label="Erledigte anzeigen"
-          checked={erledigteAnzeigen}
-          onChange={(e) => setErledigteAnzeigen(e.target.checked)}
-        />
+        <span className="inline-flex items-center gap-4">
+          {geaendert > 0 ? (
+            <Button icon={RotateCcw} onClick={() => setOverrides({})}>
+              Zurücksetzen ({geaendert})
+            </Button>
+          ) : null}
+          <Checkbox
+            label="Erledigte anzeigen"
+            checked={erledigteAnzeigen}
+            onChange={(e) => setErledigteAnzeigen(e.target.checked)}
+          />
+        </span>
       </div>
+      <p className="mb-4 text-kicker text-seil-muted">
+        Zuweisung und Fälligkeit lassen sich direkt in der Liste ändern – Prototyp: Änderungen
+        gelten nur in dieser Sitzung.
+      </p>
 
       <Card>
         <Table>
@@ -87,6 +126,9 @@ export function AufgabenListe() {
               <TH>Objekt</TH>
               <TH>Investor</TH>
               <TH>Zuständig</TH>
+              <TH>
+                <span className="sr-only">Aktionen</span>
+              </TH>
             </TR>
           </THead>
           <TBody>
@@ -94,7 +136,6 @@ export function AufgabenListe() {
               const meta = typMeta[t.typ];
               const obj = t.objektId ? objektVon(t.objektId) : undefined;
               const inv = t.investorId ? investorVon(t.investorId) : undefined;
-              const zust = mitarbeiterVon(t.mitarbeiterId);
               const faellig = faelligLabel(t.faellig);
               const brokerCall = t.typ === "broker_call" && !t.erledigt;
               return (
@@ -135,7 +176,44 @@ export function AufgabenListe() {
                       <span className="text-seil-muted">–</span>
                     )}
                   </TD>
-                  <TD className="whitespace-nowrap text-seil-muted">{zust?.name}</TD>
+                  <TD>
+                    <Select
+                      aria-label={`Zuständig für: ${t.titel}`}
+                      value={t.mitarbeiterId}
+                      onChange={(e) => patch(t.id, { mitarbeiterId: e.target.value })}
+                      disabled={t.erledigt}
+                    >
+                      {mitarbeiter.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </TD>
+                  <TD className="whitespace-nowrap">
+                    {t.erledigt ? (
+                      <Button variant="ghost" onClick={() => patch(t.id, { erledigt: false })}>
+                        Wieder öffnen
+                      </Button>
+                    ) : (
+                      <span className="inline-flex gap-1.5">
+                        <Button
+                          variant="ghost"
+                          aria-label={`„${t.titel}“ um 2 Tage verschieben`}
+                          onClick={() => patch(t.id, { faellig: plusTage(t.faellig, 2) })}
+                        >
+                          +2 Tage
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          aria-label={`„${t.titel}“ als erledigt markieren`}
+                          onClick={() => patch(t.id, { erledigt: true })}
+                        >
+                          Erledigt
+                        </Button>
+                      </span>
+                    )}
+                  </TD>
                 </TR>
               );
             })}
