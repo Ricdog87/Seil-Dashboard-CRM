@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CircleCheck, CircleDashed, Search } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import {
   aktivitaetenZu,
   auftraggeberVon,
@@ -17,21 +18,47 @@ import { Aktivitaeten } from "@/components/aktivitaeten";
 import { Prozessleiste } from "@/components/prozessleiste";
 import {
   Badge,
+  Card,
+  CardBody,
+  CardHeader,
+  EmptyState,
+  ICON_SM,
+  ICON_STROKE,
+  Table,
+  TBody,
+  TD,
+  TH,
+  THead,
+  TR,
+  type Tone,
+} from "@/components/ui";
+import {
   EntityLink,
   FollowUpStufe,
   Fortschritt,
+  Kicker,
   KontaktStatusBadge,
-  LeerHinweis,
-} from "@/components/ui";
+} from "@/components/cockpit";
 
 const dokumentStatusMeta: Record<
   DokumentStatus,
-  { label: string; ton: "ok" | "warn" | "neutral"; icon: typeof CircleCheck }
+  { label: string; tone: Tone; icon: LucideIcon }
 > = {
-  vorhanden: { label: "vorhanden", ton: "ok", icon: CircleCheck },
-  in_pruefung: { label: "in Prüfung", ton: "neutral", icon: Search },
-  ausstehend: { label: "ausstehend", ton: "warn", icon: CircleDashed },
+  vorhanden: { label: "vorhanden", tone: "success", icon: CircleCheck },
+  in_pruefung: { label: "in Prüfung", tone: "neutral", icon: Search },
+  ausstehend: { label: "ausstehend", tone: "warning", icon: CircleDashed },
 };
+
+function Kennwert({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <dt>
+        <Kicker>{label}</Kicker>
+      </dt>
+      <dd className="mt-1 text-seil-text">{children}</dd>
+    </div>
+  );
+}
 
 export default async function ObjektDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -48,166 +75,170 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
     <>
       <Link
         href="/"
-        className="mb-3 inline-flex items-center gap-1 text-[12px] text-ink-soft hover:text-ink"
+        className="mb-4 inline-flex items-center gap-1.5 text-seil-muted hover:text-seil-text"
       >
-        <ArrowLeft size={13} aria-hidden /> Übersicht
+        <ArrowLeft size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden /> Übersicht
       </Link>
 
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-6">
         <div>
-          <h1 className="text-[20px] font-semibold tracking-tight">{objekt.name}</h1>
-          <p className="mt-0.5 text-[13px] text-ink-soft">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-title text-seil-text">{objekt.name}</h1>
+            {objekt.merkmal ? <Badge tone="neutral">{objekt.merkmal}</Badge> : null}
+          </div>
+          <p className="mt-1 text-seil-muted">
             {objekt.adresse} · {objekt.stadt}
           </p>
         </div>
-        <dl className="flex flex-wrap gap-x-6 gap-y-1 text-[13px]">
-          <div>
-            <dt className="text-[11px] tracking-wide text-ink-mute uppercase">Assetklasse</dt>
-            <dd>{objekt.assetklasse}</dd>
-          </div>
-          <div>
-            <dt className="text-[11px] tracking-wide text-ink-mute uppercase">Fläche</dt>
-            <dd>{objekt.flaeche}</dd>
-          </div>
-          <div>
-            <dt className="text-[11px] tracking-wide text-ink-mute uppercase">Kaufpreisvorstellung</dt>
-            <dd className="tabular-nums">{fmtMio(objekt.kaufpreisMio)}</dd>
-          </div>
-          <div>
-            <dt className="text-[11px] tracking-wide text-ink-mute uppercase">Zuständig</dt>
-            <dd>{zust.name}</dd>
-          </div>
+        <dl className="flex flex-wrap gap-x-8 gap-y-2">
+          <Kennwert label="Assetklasse">{objekt.assetklasse}</Kennwert>
+          <Kennwert label="Fläche">{objekt.flaeche}</Kennwert>
+          <Kennwert label="Kaufpreisvorstellung">{fmtMio(objekt.kaufpreisMio)}</Kennwert>
+          <Kennwert label="Zuständig">{zust.name}</Kennwert>
+          {objekt.quelle ? (
+            <Kennwert label="Quelle">
+              <Badge tone={objekt.quelle === "Se Circle" ? "info" : "neutral"}>
+                {objekt.quelle}
+              </Badge>
+            </Kennwert>
+          ) : null}
         </dl>
       </div>
 
-      <section className="karte mb-5 px-4 py-3.5">
+      <Card className="mb-6 px-4 py-4">
         <Prozessleiste objekt={objekt} />
-      </section>
+      </Card>
 
-      <div className="grid items-start gap-5 lg:grid-cols-[5fr_7fr]">
-        <div className="flex flex-col gap-5">
-          <section className="karte">
-            <div className="karte-kopf">
-              <h2 className="karte-titel">Datenraum</h2>
-              <span className="flex items-center gap-2">
-                <Badge ton="accent">Modul 01</Badge>
-                {objekt.datenraum.stand ? (
-                  <span className="text-[11px] text-ink-mute">
-                    Stand {fmtDatum(objekt.datenraum.stand)}
-                  </span>
-                ) : null}
-              </span>
-            </div>
+      <div className="grid items-start gap-6 lg:grid-cols-[5fr_7fr]">
+        <div className="flex flex-col gap-6">
+          <Card>
+            <CardHeader
+              title="Datenraum"
+              meta={
+                <span className="inline-flex items-center gap-3">
+                  <Badge tone="info">Modul 01</Badge>
+                  {objekt.datenraum.stand ? <>Stand {fmtDatum(objekt.datenraum.stand)}</> : null}
+                </span>
+              }
+            />
             {dr ? (
               <>
-                <div className="flex items-center justify-between px-4 py-2.5">
-                  <span className="text-[12px] text-ink-soft">Standarddokumente</span>
+                <div className="flex items-center justify-between border-b border-seil-line px-4 py-3">
+                  <span className="text-seil-muted">Standarddokumente</span>
                   <Fortschritt vorhanden={dr.vorhanden} gesamt={dr.gesamt} breit />
                 </div>
-                <table className="tbl">
-                  <tbody>
+                <Table>
+                  <TBody>
                     {objekt.datenraum.dokumente.map((d) => {
                       const meta = dokumentStatusMeta[d.status];
                       return (
-                        <tr key={d.name}>
-                          <td className={d.status === "vorhanden" ? "text-ink-soft" : ""}>
+                        <TR key={d.name}>
+                          <TD className={d.status === "vorhanden" ? "text-seil-muted" : ""}>
                             {d.name}
-                          </td>
-                          <td className="w-32">
-                            <Badge ton={meta.ton} icon={meta.icon}>
+                          </TD>
+                          <TD className="w-40">
+                            <Badge tone={meta.tone} icon={meta.icon}>
                               {meta.label}
                             </Badge>
-                          </td>
-                        </tr>
+                          </TD>
+                        </TR>
                       );
                     })}
-                  </tbody>
-                </table>
+                  </TBody>
+                </Table>
+                {objekt.kiExtrakt?.length ? (
+                  <div className="flex flex-wrap items-center gap-2 border-t border-seil-line px-4 py-3">
+                    <Kicker>KI-ausgelesen</Kicker>
+                    {objekt.kiExtrakt.map((k) => (
+                      <Badge key={k} tone="info">
+                        {k}
+                      </Badge>
+                    ))}
+                    <span className="text-kicker text-seil-muted">
+                      automatisch aus den Datenraum-Dokumenten ins CRM übernommen
+                    </span>
+                  </div>
+                ) : null}
               </>
             ) : (
-              <LeerHinweis text="Datenraum noch nicht angefordert – Schritt 3 der Eigentümerseite." />
+              <EmptyState text="Datenraum noch nicht angefordert – Schritt 3 der Eigentümerseite." />
             )}
-          </section>
+          </Card>
 
-          <section className="karte">
-            <div className="karte-kopf">
-              <h2 className="karte-titel">Auftraggeber</h2>
-              <span className="text-[11px] text-ink-mute">Sell-Side</span>
-            </div>
-            <div className="px-4 py-3 text-[13px]">
-              <p className="font-medium">{ag.firma}</p>
-              <p className="mt-0.5 text-ink-soft">{ag.ansprechpartner}</p>
-              <p className="mt-2 text-[12px] text-ink-soft">
+          <Card>
+            <CardHeader title="Auftraggeber" meta="Sell-Side" />
+            <CardBody>
+              <p className="text-seil-text">{ag.firma}</p>
+              <p className="mt-1 text-seil-body">{ag.ansprechpartner}</p>
+              <p className="mt-3 text-seil-muted">
                 {ag.telefon} · {ag.email}
               </p>
-            </div>
-          </section>
+            </CardBody>
+          </Card>
         </div>
 
-        <section className="karte">
-          <div className="karte-kopf">
-            <h2 className="karte-titel">Verknüpfte Investoren ({links.length})</h2>
-            {objekt.investorenPhasen.some((s) => s !== "offen") ? (
-              <Link
-                href={`/vermarktung?objekt=${objekt.id}`}
-                className="text-[11px] text-accent hover:underline"
-              >
-                zur Vermarktung
-              </Link>
-            ) : (
-              <span className="text-[11px] text-ink-mute">Vermarktung noch nicht gestartet</span>
-            )}
-          </div>
+        <Card>
+          <CardHeader
+            title={`Verknüpfte Investoren (${links.length})`}
+            meta={
+              objekt.investorenPhasen.some((s) => s !== "offen") ? (
+                <Link
+                  href={`/vermarktung?objekt=${objekt.id}`}
+                  className="text-seil-accent hover:underline"
+                >
+                  zur Vermarktung
+                </Link>
+              ) : (
+                "Vermarktung noch nicht gestartet"
+              )
+            }
+          />
           {links.length === 0 ? (
-            <LeerHinweis text="Noch keine Investoren verknüpft – die Vermarktung ist nicht gestartet." />
+            <EmptyState text="Noch keine Investoren verknüpft – die Vermarktung ist nicht gestartet." />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="tbl">
-                <thead>
-                  <tr>
-                    <th>Investor</th>
-                    <th>Antwortstatus</th>
-                    <th>Follow-up</th>
-                    <th>Letzter Kontakt</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {links.map((l) => {
-                    const inv = investorVon(l.investorId)!;
-                    return (
-                      <tr key={l.investorId}>
-                        <td>
-                          <EntityLink href={`/investoren/${inv.id}`}>{inv.firma}</EntityLink>
-                          <div className="text-[11px] text-ink-mute">{inv.typ}</div>
-                        </td>
-                        <td>
-                          <KontaktStatusBadge status={l.status} />
-                        </td>
-                        <td>
-                          <FollowUpStufe stufe={l.followUpStufe} />
-                        </td>
-                        <td className="whitespace-nowrap text-ink-soft">
-                          {fmtDatum(l.letzterKontakt)}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <Table>
+              <THead>
+                <TR>
+                  <TH>Investor</TH>
+                  <TH>Antwortstatus</TH>
+                  <TH>Follow-up</TH>
+                  <TH>Letzter Kontakt</TH>
+                </TR>
+              </THead>
+              <TBody>
+                {links.map((l) => {
+                  const inv = investorVon(l.investorId)!;
+                  return (
+                    <TR key={l.investorId}>
+                      <TD>
+                        <EntityLink href={`/investoren/${inv.id}`}>{inv.firma}</EntityLink>
+                        <div className="text-kicker text-seil-muted">{inv.typ}</div>
+                      </TD>
+                      <TD>
+                        <KontaktStatusBadge status={l.status} />
+                      </TD>
+                      <TD>
+                        <FollowUpStufe stufe={l.followUpStufe} />
+                      </TD>
+                      <TD className="whitespace-nowrap text-seil-muted">
+                        {fmtDatum(l.letzterKontakt)}
+                      </TD>
+                    </TR>
+                  );
+                })}
+              </TBody>
+            </Table>
           )}
-        </section>
+        </Card>
       </div>
 
-      <section className="karte mt-5">
-        <div className="karte-kopf">
-          <h2 className="karte-titel">Aktivitäten & Kommunikation</h2>
-          <span className="text-[11px] text-ink-mute">
-            alle Kontakte, Automatik-Schritte und Notizen zu diesem Objekt
-          </span>
-        </div>
+      <Card className="mt-6">
+        <CardHeader
+          title="Aktivitäten & Kommunikation"
+          meta="alle Kontakte, Automatik-Schritte und Notizen zu diesem Objekt"
+        />
         <Aktivitaeten eintraege={eintraege} kontext="objekt" />
-      </section>
+      </Card>
     </>
   );
 }

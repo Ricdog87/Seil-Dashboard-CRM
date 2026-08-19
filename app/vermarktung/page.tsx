@@ -11,11 +11,23 @@ import { objekte } from "@/lib/mock-data";
 import type { KontaktStatus } from "@/lib/types";
 import { FreigabeKarte, ObjektAuswahl } from "@/components/vermarktung-client";
 import {
+  Card,
+  CardHeader,
+  ICON_SM,
+  ICON_STROKE,
+  Table,
+  TBody,
+  TD,
+  TH,
+  THead,
+  TR,
+} from "@/components/ui";
+import {
   EntityLink,
   FollowUpStufe,
   KontaktStatusBadge,
   SeitenKopf,
-} from "@/components/ui";
+} from "@/components/cockpit";
 
 /** Sortierung der Liste: heiße Kontakte oben, Absagen unten. */
 const statusReihenfolge: KontaktStatus[] = [
@@ -35,7 +47,6 @@ export default async function VermarktungSeite({
 }) {
   const { objekt: objektParam } = await searchParams;
 
-  // Nur Objekte, deren Investorenseite bereits gestartet ist
   const optionen = objekte.filter((o) => o.investorenPhasen.some((s) => s !== "offen"));
   const standard = optionen.find((o) => o.freigabe?.status === "ausstehend") ?? optionen[0];
   const objekt = optionen.find((o) => o.id === objektParam) ?? standard;
@@ -52,7 +63,7 @@ export default async function VermarktungSeite({
 
   return (
     <>
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <SeitenKopf
           titel="Vermarktung"
           untertitel="Investorenliste je Objekt mit Antwortstatus und Follow-up-Stufe – Versand erst nach Freigabe."
@@ -64,7 +75,7 @@ export default async function VermarktungSeite({
       </div>
 
       {nichtVerfuegbar ? (
-        <p className="mb-4 rounded border border-line bg-neutral-tint px-3 py-2 text-[12px] text-ink-soft">
+        <p className="mb-5 rounded-seil border border-seil-line bg-seil-card-alt px-3 py-2 text-seil-muted">
           Für „{nichtVerfuegbar.name}“ ist die Vermarktung noch nicht gestartet – angezeigt wird
           stattdessen {objekt.name}.
         </p>
@@ -78,76 +89,69 @@ export default async function VermarktungSeite({
         freigegebenAm={fmtDatum(objekt.freigabe?.am)}
       />
 
-      <section className="karte">
-        <div className="karte-kopf">
-          <h2 className="karte-titel">
-            Verteiler: <EntityLink href={`/objekte/${objekt.id}`}>{objekt.name}</EntityLink>
-          </h2>
-          <span className="text-[11px] text-ink-mute">
-            Automatik: Follow-up alle 2 Tage (max. 3 Stufen) · Interesse → Broker Call ·
-            Preisanfrage → Investment-Team
-          </span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="tbl">
-            <thead>
-              <tr>
-                <th>Investor</th>
-                <th>Ansprechpartner</th>
-                <th className="num">Ticket</th>
-                <th>Antwortstatus</th>
-                <th>Follow-up</th>
-                <th>Letzter Kontakt</th>
-                <th>Nächstes Follow-up</th>
-              </tr>
-            </thead>
-            <tbody>
-              {links.map((l) => {
-                const inv = investorVon(l.investorId)!;
-                const ueberfaellig = istUeberfaellig(l.naechstesFollowUp);
-                return (
-                  <tr key={l.investorId}>
-                    <td>
-                      <EntityLink href={`/investoren/${inv.id}`}>{inv.firma}</EntityLink>
-                      <div className="text-[11px] text-ink-mute">{inv.typ}</div>
-                    </td>
-                    <td className="text-ink-soft">{inv.ansprechpartner}</td>
-                    <td className="num whitespace-nowrap">
-                      {fmtTicket(inv.ticketMinMio, inv.ticketMaxMio)}
-                    </td>
-                    <td>
-                      <KontaktStatusBadge status={l.status} />
-                      {l.hinweis ? (
-                        <div className="mt-0.5 text-[11px] text-ink-mute">{l.hinweis}</div>
-                      ) : null}
-                    </td>
-                    <td>
-                      <FollowUpStufe stufe={l.followUpStufe} />
-                    </td>
-                    <td className="whitespace-nowrap text-ink-soft">{fmtDatum(l.letzterKontakt)}</td>
-                    <td className="whitespace-nowrap">
-                      {l.naechstesFollowUp ? (
-                        ueberfaellig ? (
-                          <span className="inline-flex items-center gap-1 text-[12px] font-medium text-crit">
-                            <TriangleAlert size={12} aria-hidden />
-                            überfällig ({fmtDatum(l.naechstesFollowUp)})
-                          </span>
-                        ) : (
-                          <span className="text-[12px] text-ink-soft">
-                            {fmtDatum(l.naechstesFollowUp)}
-                          </span>
-                        )
+      <Card>
+        <CardHeader
+          title={
+            <>
+              Verteiler: <EntityLink href={`/objekte/${objekt.id}`}>{objekt.name}</EntityLink>
+            </>
+          }
+          meta="Automatik: Presound-Mail an BCC-Verteiler · Follow-up alle 2 Tage (max. 3 Stufen) · Interesse → Broker Call · Preisanfrage → Investment-Team"
+        />
+        <Table>
+          <THead>
+            <TR>
+              <TH>Investor</TH>
+              <TH>Ansprechpartner</TH>
+              <TH numeric>Ticket</TH>
+              <TH>Antwortstatus</TH>
+              <TH>Follow-up</TH>
+              <TH>Letzter Kontakt</TH>
+              <TH>Nächstes Follow-up</TH>
+            </TR>
+          </THead>
+          <TBody>
+            {links.map((l) => {
+              const inv = investorVon(l.investorId)!;
+              const ueberfaellig = istUeberfaellig(l.naechstesFollowUp);
+              return (
+                <TR key={l.investorId}>
+                  <TD>
+                    <EntityLink href={`/investoren/${inv.id}`}>{inv.firma}</EntityLink>
+                    <div className="text-kicker text-seil-muted">{inv.typ}</div>
+                  </TD>
+                  <TD className="text-seil-muted">{inv.ansprechpartner}</TD>
+                  <TD numeric>{fmtTicket(inv.ticketMinMio, inv.ticketMaxMio)}</TD>
+                  <TD>
+                    <KontaktStatusBadge status={l.status} />
+                    {l.hinweis ? (
+                      <div className="mt-1 text-kicker text-seil-muted">{l.hinweis}</div>
+                    ) : null}
+                  </TD>
+                  <TD>
+                    <FollowUpStufe stufe={l.followUpStufe} />
+                  </TD>
+                  <TD className="whitespace-nowrap text-seil-muted">{fmtDatum(l.letzterKontakt)}</TD>
+                  <TD className="whitespace-nowrap">
+                    {l.naechstesFollowUp ? (
+                      ueberfaellig ? (
+                        <span className="inline-flex items-center gap-1.5 text-seil-danger">
+                          <TriangleAlert size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
+                          überfällig ({fmtDatum(l.naechstesFollowUp)})
+                        </span>
                       ) : (
-                        <span className="text-[12px] text-ink-mute">–</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </section>
+                        <span className="text-seil-body">{fmtDatum(l.naechstesFollowUp)}</span>
+                      )
+                    ) : (
+                      <span className="text-seil-muted">–</span>
+                    )}
+                  </TD>
+                </TR>
+              );
+            })}
+          </TBody>
+        </Table>
+      </Card>
     </>
   );
 }

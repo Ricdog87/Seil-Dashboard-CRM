@@ -7,6 +7,8 @@ import {
   INVESTOREN_SCHRITTE_KURZ,
 } from "@/lib/mock-data";
 import type { Objekt, PhaseStatus } from "@/lib/types";
+import { ICON_SM, ICON_STROKE } from "@/components/ui";
+import { Kicker } from "@/components/cockpit";
 
 function SchrittChip({
   nr,
@@ -21,47 +23,44 @@ function SchrittChip({
   status: PhaseStatus;
   freigabeSchritt: boolean;
 }) {
-  const basis = "flex items-center gap-1.5 rounded border px-2 py-1.5 min-w-0";
-  const klasse =
+  const rahmen =
     status === "aktiv"
       ? freigabeSchritt
-        ? `${basis} border-warn/40 bg-warn-tint`
-        : `${basis} border-accent/40 bg-accent-tint`
-      : status === "abgeschlossen"
-        ? `${basis} border-line bg-neutral-tint`
-        : `${basis} border-line bg-surface`;
+        ? "border-seil-warning bg-seil-warning-bg"
+        : "border-seil-accent bg-seil-accent-bg"
+      : "border-seil-line bg-seil-surface";
 
-  const kreis =
+  const marke =
     status === "abgeschlossen"
-      ? "bg-ink-soft text-surface"
+      ? "text-seil-success"
       : status === "aktiv"
         ? freigabeSchritt
-          ? "bg-warn text-surface"
-          : "bg-accent text-surface"
-        : "border border-line-strong text-ink-mute";
+          ? "text-seil-warning"
+          : "text-seil-accent"
+        : "text-seil-muted";
 
   const text =
     status === "aktiv"
-      ? "font-medium text-ink"
+      ? "text-seil-text"
       : status === "abgeschlossen"
-        ? "text-ink-soft"
-        : "text-ink-mute";
+        ? "text-seil-body"
+        : "text-seil-muted";
 
   return (
-    <div className={klasse} title={lang}>
-      <span
-        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-semibold ${kreis}`}
-        aria-hidden
-      >
+    <div
+      className={`flex min-w-0 items-center gap-2 rounded-seil border px-2 py-2 ${rahmen}`}
+      title={lang}
+    >
+      <span className={`flex w-4 shrink-0 justify-center text-kicker ${marke}`} aria-hidden>
         {status === "abgeschlossen" ? (
-          <Check size={10} strokeWidth={3} />
+          <Check size={ICON_SM} strokeWidth={ICON_STROKE} />
         ) : freigabeSchritt ? (
-          <UserCheck size={10} strokeWidth={2.5} />
+          <UserCheck size={ICON_SM} strokeWidth={ICON_STROKE} />
         ) : (
           nr
         )}
       </span>
-      <span className={`truncate text-[11px] ${text}`}>{kurz}</span>
+      <span className={`truncate text-kicker ${text}`}>{kurz}</span>
     </div>
   );
 }
@@ -80,9 +79,9 @@ function Seite({
   investorenSeite: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="text-[11px] font-medium tracking-wide text-ink-mute uppercase">{label}</div>
-      <div className="grid grid-cols-3 gap-1.5 lg:grid-cols-6">
+    <div className="flex flex-col gap-2">
+      <Kicker>{label}</Kicker>
+      <div className="grid grid-cols-3 gap-2 lg:grid-cols-6">
         {schritte.map((lang, i) => (
           <SchrittChip
             key={lang}
@@ -101,7 +100,7 @@ function Seite({
 /** Prozessleiste über beide Seiten – so denkt der Kunde über seine Transaktionen. */
 export function Prozessleiste({ objekt }: { objekt: Objekt }) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       <Seite
         label="Eigentümerseite · Akquise & Datenraum"
         schritte={EIGENTUEMER_SCHRITTE}
@@ -116,8 +115,13 @@ export function Prozessleiste({ objekt }: { objekt: Objekt }) {
         status={objekt.investorenPhasen}
         investorenSeite
       />
-      <p className="text-[11px] text-ink-mute">
-        <UserCheck size={11} className="mr-1 inline align-[-1px]" aria-hidden />
+      <p className="flex items-start gap-2 text-kicker text-seil-muted">
+        <UserCheck
+          size={ICON_SM}
+          strokeWidth={ICON_STROKE}
+          className="mt-px shrink-0"
+          aria-hidden
+        />
         „Freigabe Liste“ ist der einzige manuelle Freigabeschritt – alle Versände und Follow-ups
         laufen danach automatisch.
       </p>

@@ -26,6 +26,12 @@ export interface Objekt {
   kaufpreisMio: number; // Kaufpreisvorstellung in Mio. €
   auftraggeberId: string;
   zustaendigId: string;
+  /** Herkunft des Objekts – Se Circle wird produktiv direkt angebunden. */
+  quelle?: "Se Circle" | "Manuell";
+  /** Besonderes Merkmal, z. B. Distressed Asset (Transkript: Notlagen-Immobilien). */
+  merkmal?: string;
+  /** Von der KI aus den Datenraum-Dokumenten ausgelesene Kennwerte (Anzeige). */
+  kiExtrakt?: string[];
   /** Status der 6 Schritte auf der Eigentümerseite (Reihenfolge wie EIGENTUEMER_SCHRITTE) */
   eigentuemerPhasen: PhaseStatus[];
   /** Status der 6 Schritte auf der Investorenseite (Reihenfolge wie INVESTOREN_SCHRITTE) */
@@ -59,6 +65,8 @@ export interface Investor {
   assetklassen: string[];
   regionen: string[];
   notiz?: string;
+  /** Herkunft des Kontakts – der einmalige Pipedrive-Import ist Teil von Modul 02. */
+  quelle?: "Pipedrive-Import" | "Manuell";
 }
 
 /** Antwortstatus eines Investors zu einem konkreten Objekt. */
@@ -117,7 +125,7 @@ export interface Aktivitaet {
   investorId?: string;
   auftraggeberId?: string;
   mitarbeiterId?: string;
-  quelle?: "Modul 01" | "Automatik";
+  quelle?: "Modul 01" | "Automatik" | "KI" | "Se Circle";
 }
 
 export interface Mitarbeiter {

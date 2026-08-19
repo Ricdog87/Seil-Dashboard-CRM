@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CircleCheck, UserCheck } from "lucide-react";
-import { Badge } from "./ui";
+import { Badge, Button, Card, ICON_MD, ICON_STROKE, Select, Toast } from "@/components/ui";
 
 export function ObjektAuswahl({
   optionen,
@@ -14,20 +14,17 @@ export function ObjektAuswahl({
 }) {
   const router = useRouter();
   return (
-    <label className="flex items-center gap-2 text-[12px] text-ink-soft">
-      Objekt
-      <select
-        value={aktivId}
-        onChange={(e) => router.push(`/vermarktung?objekt=${e.target.value}`)}
-        className="rounded border border-line bg-surface px-2 py-1 text-[13px] text-ink"
-      >
-        {optionen.map((o) => (
-          <option key={o.id} value={o.id}>
-            {o.name}
-          </option>
-        ))}
-      </select>
-    </label>
+    <Select
+      label="Objekt"
+      value={aktivId}
+      onChange={(e) => router.push(`/vermarktung?objekt=${e.target.value}`)}
+    >
+      {optionen.map((o) => (
+        <option key={o.id} value={o.id}>
+          {o.name}
+        </option>
+      ))}
+    </Select>
   );
 }
 
@@ -53,61 +50,62 @@ export function FreigabeKarte({
 
   if (!ausstehend) {
     return (
-      <section className="karte mb-5 flex items-center gap-3 border-line bg-surface px-4 py-3">
-        <CircleCheck size={18} className="shrink-0 text-ok" aria-hidden />
-        <div className="text-[13px]">
-          <span className="font-medium">Investorenliste freigegeben</span>
-          <span className="text-ink-soft">
+      <Card className="mb-6 flex items-center gap-3 px-4 py-3">
+        <CircleCheck
+          size={ICON_MD}
+          strokeWidth={ICON_STROKE}
+          className="shrink-0 text-seil-success"
+          aria-hidden
+        />
+        <p>
+          <span className="text-seil-text">Investorenliste freigegeben</span>
+          <span className="text-seil-muted">
             {" "}
             – am {freigegebenAm} durch {freigegebenDurch}. Versand und Follow-up laufen automatisch.
           </span>
-        </div>
-      </section>
+        </p>
+      </Card>
     );
   }
 
   return (
-    <section className="karte mb-5 border-warn/40 bg-warn-tint/60 px-4 py-3.5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <Card className="mb-6 px-4 py-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <span
-            className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-warn text-surface"
+          <UserCheck
+            size={ICON_MD}
+            strokeWidth={ICON_STROKE}
+            className="mt-px shrink-0 text-seil-warning"
             aria-hidden
-          >
-            <UserCheck size={15} />
-          </span>
+          />
           <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-[14px] font-semibold">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-seil-text">
                 Freigabe erforderlich: Versand an {anzahlInvestoren} Investoren
               </h2>
-              <Badge ton="warn">Manueller Schritt</Badge>
+              <Badge tone="warning">Manueller Schritt</Badge>
             </div>
-            <p className="mt-1 max-w-[640px] text-[12px] leading-relaxed text-ink-soft">
+            <p className="mt-2 max-w-[70ch] text-seil-muted">
               Die Investorenliste wurde automatisch mit den Ankaufsprofilen abgeglichen (
-              {abgleichKriterien}). Erst nach Freigabe durch einen Mitarbeiter startet der Versand –
-              danach übernimmt die Automatik Follow-ups (alle 2 Tage, max. 3 Stufen) und
-              Antworterkennung.
+              {abgleichKriterien}). Erst nach Freigabe durch einen Mitarbeiter startet der Versand
+              als Presound-Mail an den BCC-Verteiler – danach übernimmt die Automatik Follow-ups
+              (alle 2 Tage, max. 3 Stufen) und Antworterkennung.
             </p>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-1.5">
+        <div className="flex flex-col items-end gap-2">
           {demoFreigegeben ? (
-            <span className="inline-flex items-center gap-1.5 rounded bg-ok-tint px-2.5 py-1.5 text-[12px] font-medium text-ok">
-              <CircleCheck size={14} aria-hidden /> Freigabe erfasst
-            </span>
+            <Toast tone="success" icon={CircleCheck}>
+              Freigabe erfasst
+            </Toast>
           ) : (
-            <button
-              type="button"
-              onClick={() => setDemoFreigegeben(true)}
-              className="rounded bg-accent px-3 py-1.5 text-[13px] font-medium text-surface transition-colors hover:bg-accent-deep"
-            >
+            <Button variant="primary" onClick={() => setDemoFreigegeben(true)}>
               Investorenliste freigeben
-            </button>
+            </Button>
           )}
-          <span className="text-[11px] text-ink-mute">Prototyp – ohne echte Aktion</span>
+          <span className="text-kicker text-seil-muted">Prototyp – ohne echte Aktion</span>
         </div>
       </div>
-    </section>
+    </Card>
   );
 }

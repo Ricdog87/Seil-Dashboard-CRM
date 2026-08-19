@@ -12,15 +12,29 @@ import {
 } from "@/lib/derive";
 import { Aktivitaeten } from "@/components/aktivitaeten";
 import {
+  Badge,
+  Card,
+  CardHeader,
+  EmptyState,
+  ICON_SM,
+  ICON_STROKE,
+  Table,
+  TBody,
+  TD,
+  TH,
+  THead,
+  TR,
+} from "@/components/ui";
+import {
   EntityLink,
   FollowUpStufe,
+  Kicker,
   KontaktStatusBadge,
-  LeerHinweis,
-} from "@/components/ui";
+} from "@/components/cockpit";
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex rounded border border-line bg-paper px-1.5 py-0.5 text-[12px] text-ink-soft">
+    <span className="inline-flex rounded-seil border border-seil-line bg-seil-card-alt px-2 py-0.5 text-kicker text-seil-body">
       {children}
     </span>
   );
@@ -38,50 +52,55 @@ export default async function InvestorDetail({ params }: { params: Promise<{ id:
     <>
       <Link
         href="/"
-        className="mb-3 inline-flex items-center gap-1 text-[12px] text-ink-soft hover:text-ink"
+        className="mb-4 inline-flex items-center gap-1.5 text-seil-muted hover:text-seil-text"
       >
-        <ArrowLeft size={13} aria-hidden /> Übersicht
+        <ArrowLeft size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden /> Übersicht
       </Link>
 
-      <div className="mb-5">
-        <h1 className="text-[20px] font-semibold tracking-tight">{investor.firma}</h1>
-        <p className="mt-0.5 text-[13px] text-ink-soft">
+      <div className="mb-6">
+        <h1 className="text-title text-seil-text">{investor.firma}</h1>
+        <p className="mt-1 text-seil-muted">
           {investor.typ} · {investor.ansprechpartner}
         </p>
       </div>
 
-      <div className="grid items-start gap-5 lg:grid-cols-[5fr_7fr]">
-        <section className="karte">
-          <div className="karte-kopf">
-            <h2 className="karte-titel">Ankaufsprofil</h2>
-            <span className="text-[11px] text-ink-mute">Buy-Side</span>
-          </div>
-          <dl className="flex flex-col gap-3 px-4 py-3 text-[13px]">
+      <div className="grid items-start gap-6 lg:grid-cols-[5fr_7fr]">
+        <Card>
+          <CardHeader title="Ankaufsprofil" meta="Buy-Side" />
+          <dl className="flex flex-col gap-4 px-4 py-4">
             <div>
-              <dt className="text-[11px] tracking-wide text-ink-mute uppercase">Ticketgröße</dt>
-              <dd className="mt-0.5 tabular-nums">
+              <dt>
+                <Kicker>Ticketgröße</Kicker>
+              </dt>
+              <dd className="mt-1 text-seil-text">
                 {fmtTicket(investor.ticketMinMio, investor.ticketMaxMio)}
               </dd>
             </div>
             <div>
-              <dt className="text-[11px] tracking-wide text-ink-mute uppercase">Assetklassen</dt>
-              <dd className="mt-1 flex flex-wrap gap-1">
+              <dt>
+                <Kicker>Assetklassen</Kicker>
+              </dt>
+              <dd className="mt-2 flex flex-wrap gap-1.5">
                 {investor.assetklassen.map((a) => (
                   <Chip key={a}>{a}</Chip>
                 ))}
               </dd>
             </div>
             <div>
-              <dt className="text-[11px] tracking-wide text-ink-mute uppercase">Regionen</dt>
-              <dd className="mt-1 flex flex-wrap gap-1">
+              <dt>
+                <Kicker>Regionen</Kicker>
+              </dt>
+              <dd className="mt-2 flex flex-wrap gap-1.5">
                 {investor.regionen.map((r) => (
                   <Chip key={r}>{r}</Chip>
                 ))}
               </dd>
             </div>
             <div>
-              <dt className="text-[11px] tracking-wide text-ink-mute uppercase">Kontakt</dt>
-              <dd className="mt-0.5 text-ink-soft">
+              <dt>
+                <Kicker>Kontakt</Kicker>
+              </dt>
+              <dd className="mt-1 text-seil-body">
                 {investor.telefon}
                 <br />
                 {investor.email}
@@ -89,70 +108,74 @@ export default async function InvestorDetail({ params }: { params: Promise<{ id:
             </div>
             {investor.notiz ? (
               <div>
-                <dt className="text-[11px] tracking-wide text-ink-mute uppercase">Notiz</dt>
-                <dd className="mt-0.5 text-ink-soft">{investor.notiz}</dd>
+                <dt>
+                  <Kicker>Notiz</Kicker>
+                </dt>
+                <dd className="mt-1 text-seil-body">{investor.notiz}</dd>
+              </div>
+            ) : null}
+            {investor.quelle ? (
+              <div>
+                <dt>
+                  <Kicker>Quelle</Kicker>
+                </dt>
+                <dd className="mt-2">
+                  <Badge tone="neutral">{investor.quelle}</Badge>
+                </dd>
               </div>
             ) : null}
           </dl>
-        </section>
+        </Card>
 
-        <section className="karte">
-          <div className="karte-kopf">
-            <h2 className="karte-titel">Verknüpfte Objekte ({links.length})</h2>
-            <span className="text-[11px] text-ink-mute">Antwortstatus je Objekt</span>
-          </div>
+        <Card>
+          <CardHeader title={`Verknüpfte Objekte (${links.length})`} meta="Antwortstatus je Objekt" />
           {links.length === 0 ? (
-            <LeerHinweis text="Noch keinem Objekt zugeordnet." />
+            <EmptyState text="Noch keinem Objekt zugeordnet." />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="tbl">
-                <thead>
-                  <tr>
-                    <th>Objekt</th>
-                    <th className="num">Kaufpreis</th>
-                    <th>Antwortstatus</th>
-                    <th>Follow-up</th>
-                    <th>Letzter Kontakt</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {links.map((l) => {
-                    const obj = objektVon(l.objektId)!;
-                    return (
-                      <tr key={l.objektId}>
-                        <td>
-                          <EntityLink href={`/objekte/${obj.id}`}>{obj.name}</EntityLink>
-                          <div className="text-[11px] text-ink-mute">
-                            {obj.assetklasse} · {obj.stadt}
-                          </div>
-                        </td>
-                        <td className="num">{fmtMio(obj.kaufpreisMio)}</td>
-                        <td>
-                          <KontaktStatusBadge status={l.status} />
-                        </td>
-                        <td>
-                          <FollowUpStufe stufe={l.followUpStufe} />
-                        </td>
-                        <td className="whitespace-nowrap text-ink-soft">
-                          {fmtDatum(l.letzterKontakt)}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <Table>
+              <THead>
+                <TR>
+                  <TH>Objekt</TH>
+                  <TH numeric>Kaufpreis</TH>
+                  <TH>Antwortstatus</TH>
+                  <TH>Follow-up</TH>
+                  <TH>Letzter Kontakt</TH>
+                </TR>
+              </THead>
+              <TBody>
+                {links.map((l) => {
+                  const obj = objektVon(l.objektId)!;
+                  return (
+                    <TR key={l.objektId}>
+                      <TD>
+                        <EntityLink href={`/objekte/${obj.id}`}>{obj.name}</EntityLink>
+                        <div className="text-kicker text-seil-muted">
+                          {obj.assetklasse} · {obj.stadt}
+                        </div>
+                      </TD>
+                      <TD numeric>{fmtMio(obj.kaufpreisMio)}</TD>
+                      <TD>
+                        <KontaktStatusBadge status={l.status} />
+                      </TD>
+                      <TD>
+                        <FollowUpStufe stufe={l.followUpStufe} />
+                      </TD>
+                      <TD className="whitespace-nowrap text-seil-muted">
+                        {fmtDatum(l.letzterKontakt)}
+                      </TD>
+                    </TR>
+                  );
+                })}
+              </TBody>
+            </Table>
           )}
-        </section>
+        </Card>
       </div>
 
-      <section className="karte mt-5">
-        <div className="karte-kopf">
-          <h2 className="karte-titel">Kommunikationshistorie</h2>
-          <span className="text-[11px] text-ink-mute">über alle verknüpften Objekte</span>
-        </div>
+      <Card className="mt-6">
+        <CardHeader title="Kommunikationshistorie" meta="über alle verknüpften Objekte" />
         <Aktivitaeten eintraege={eintraege} kontext="investor" />
-      </section>
+      </Card>
     </>
   );
 }

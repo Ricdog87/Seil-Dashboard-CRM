@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, TriangleAlert } from "lucide-react";
+import { ChevronRight, Send, TriangleAlert } from "lucide-react";
 import {
   aktiverSchritt,
   aufgabenZuObjekt,
@@ -18,12 +18,24 @@ import {
 import { objekte } from "@/lib/mock-data";
 import {
   Badge,
+  Card,
+  CardHeader,
+  ICON_SM,
+  ICON_STROKE,
+  Table,
+  TBody,
+  TD,
+  TH,
+  THead,
+  TR,
+} from "@/components/ui";
+import {
   EntityLink,
-  Fortschritt,
   FollowUpStufe,
+  Fortschritt,
   KpiKachel,
   SeitenKopf,
-} from "@/components/ui";
+} from "@/components/cockpit";
 import { KlickZeile } from "@/components/klick-zeile";
 
 export default function UebersichtSeite() {
@@ -33,12 +45,18 @@ export default function UebersichtSeite() {
 
   return (
     <>
-      <SeitenKopf
-        titel="Übersicht"
-        untertitel="Alle laufenden Transaktionen mit Phase, Aufgaben, Rückmeldungen und Datenraum-Status auf einen Blick."
-      />
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <SeitenKopf
+          titel="Übersicht"
+          untertitel="Alle laufenden Transaktionen mit Phase, Aufgaben, Rückmeldungen und Datenraum-Status auf einen Blick."
+        />
+        <p className="inline-flex items-center gap-2 text-kicker text-seil-muted">
+          <Send size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
+          Status-Report heute 08:00 via Telegram an das Team versendet
+        </p>
+      </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <KpiKachel label="Laufende Transaktionen" wert={k.transaktionen} sub="davon 3 in Vermarktung" />
         <KpiKachel
           label="Offene Aufgaben"
@@ -59,164 +77,159 @@ export default function UebersichtSeite() {
         />
       </div>
 
-      <section className="karte mt-5">
-        <div className="karte-kopf">
-          <h2 className="karte-titel">Laufende Transaktionen</h2>
-          <span className="text-[11px] text-ink-mute">Zeile anklicken für Objekt-Detail</span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="tbl zeilen-klickbar">
-            <thead>
-              <tr>
-                <th>Objekt</th>
-                <th>Assetklasse</th>
-                <th className="num">Kaufpreis</th>
-                <th>Aktuelle Phase</th>
-                <th>Datenraum</th>
-                <th className="num">Aufgaben</th>
-                <th className="num">Investoren</th>
-                <th>Zuständig</th>
-                <th aria-hidden />
-              </tr>
-            </thead>
-            <tbody>
-              {objekte.map((o) => {
-                const phase = aktiverSchritt(o);
-                const dr = datenraumFortschritt(o);
-                const links = linksZuObjekt(o.id);
-                const offeneAufgaben = aufgabenZuObjekt(o.id).length;
-                const zust = mitarbeiterVon(o.zustaendigId);
+      <Card className="mt-6">
+        <CardHeader title="Laufende Transaktionen" meta="Zeile anklicken für Objekt-Detail" />
+        <Table>
+          <THead>
+            <TR>
+              <TH>Objekt</TH>
+              <TH>Assetklasse</TH>
+              <TH numeric>Kaufpreis</TH>
+              <TH>Aktuelle Phase</TH>
+              <TH>Datenraum</TH>
+              <TH numeric>Aufgaben</TH>
+              <TH numeric>Investoren</TH>
+              <TH>Zuständig</TH>
+              <TH aria-hidden />
+            </TR>
+          </THead>
+          <TBody>
+            {objekte.map((o) => {
+              const phase = aktiverSchritt(o);
+              const dr = datenraumFortschritt(o);
+              const links = linksZuObjekt(o.id);
+              const offeneAufgaben = aufgabenZuObjekt(o.id).length;
+              const zust = mitarbeiterVon(o.zustaendigId);
+              return (
+                <KlickZeile key={o.id} href={`/objekte/${o.id}`}>
+                  <TD>
+                    <EntityLink href={`/objekte/${o.id}`}>{o.name}</EntityLink>
+                    <div className="text-kicker text-seil-muted">{o.stadt}</div>
+                  </TD>
+                  <TD className="text-seil-muted">{o.assetklasse}</TD>
+                  <TD numeric>{fmtMio(o.kaufpreisMio)}</TD>
+                  <TD>
+                    <Badge tone={phase.seite === "Investoren" ? "accent" : "neutral"}>
+                      {phase.seite} · {phase.nr} {phase.titel}
+                    </Badge>
+                  </TD>
+                  <TD>
+                    {dr ? (
+                      <Fortschritt vorhanden={dr.vorhanden} gesamt={dr.gesamt} />
+                    ) : (
+                      <span className="text-seil-muted">nicht angefordert</span>
+                    )}
+                  </TD>
+                  <TD numeric>{offeneAufgaben}</TD>
+                  <TD numeric>{links.length}</TD>
+                  <TD className="whitespace-nowrap text-seil-muted">{zust?.kuerzel}</TD>
+                  <TD className="w-8">
+                    <ChevronRight
+                      size={ICON_SM}
+                      strokeWidth={ICON_STROKE}
+                      className="text-seil-muted"
+                      aria-hidden
+                    />
+                  </TD>
+                </KlickZeile>
+              );
+            })}
+          </TBody>
+        </Table>
+      </Card>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader
+            title="Investoren ohne Rückmeldung"
+            meta={
+              <Link href="/vermarktung" className="text-seil-accent hover:underline">
+                zur Vermarktung
+              </Link>
+            }
+          />
+          <Table>
+            <THead>
+              <TR>
+                <TH>Investor</TH>
+                <TH>Objekt</TH>
+                <TH>Follow-up</TH>
+                <TH>Nächster Schritt</TH>
+              </TR>
+            </THead>
+            <TBody>
+              {stumm.map((l) => {
+                const inv = investorVon(l.investorId)!;
+                const obj = objektVon(l.objektId)!;
+                const ueberfaellig = istUeberfaellig(l.naechstesFollowUp);
                 return (
-                  <KlickZeile key={o.id} href={`/objekte/${o.id}`}>
-                    <td>
-                      <EntityLink href={`/objekte/${o.id}`}>{o.name}</EntityLink>
-                      <div className="text-[11px] text-ink-mute">{o.stadt}</div>
-                    </td>
-                    <td className="text-ink-soft">{o.assetklasse}</td>
-                    <td className="num">{fmtMio(o.kaufpreisMio)}</td>
-                    <td>
-                      <Badge ton={phase.seite === "Investoren" ? "accent" : "neutral"}>
-                        {phase.seite} · {phase.nr} {phase.titel}
-                      </Badge>
-                    </td>
-                    <td>
-                      {dr ? (
-                        <Fortschritt vorhanden={dr.vorhanden} gesamt={dr.gesamt} />
+                  <TR key={`${l.objektId}-${l.investorId}`}>
+                    <TD>
+                      <EntityLink href={`/investoren/${inv.id}`}>{inv.firma}</EntityLink>
+                    </TD>
+                    <TD>
+                      <EntityLink href={`/objekte/${obj.id}`}>{obj.name}</EntityLink>
+                    </TD>
+                    <TD>
+                      <FollowUpStufe stufe={l.followUpStufe} />
+                    </TD>
+                    <TD>
+                      {l.followUpStufe === 3 ? (
+                        <Badge tone="danger" icon={TriangleAlert}>
+                          manuell nachfassen
+                        </Badge>
+                      ) : ueberfaellig ? (
+                        <Badge tone="danger" icon={TriangleAlert}>
+                          Follow-up überfällig ({fmtDatum(l.naechstesFollowUp)})
+                        </Badge>
                       ) : (
-                        <span className="text-[12px] text-ink-mute">nicht angefordert</span>
+                        <span className="text-seil-muted">
+                          Follow-up am {fmtDatum(l.naechstesFollowUp)}
+                        </span>
                       )}
-                    </td>
-                    <td className="num">{offeneAufgaben}</td>
-                    <td className="num">{links.length}</td>
-                    <td className="whitespace-nowrap text-ink-soft">{zust?.kuerzel}</td>
-                    <td className="w-6 pr-3">
-                      <ChevronRight size={14} className="text-ink-mute" aria-hidden />
-                    </td>
-                  </KlickZeile>
+                    </TD>
+                  </TR>
                 );
               })}
-            </tbody>
-          </table>
-        </div>
-      </section>
+            </TBody>
+          </Table>
+        </Card>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
-        <section className="karte">
-          <div className="karte-kopf">
-            <h2 className="karte-titel">Investoren ohne Rückmeldung</h2>
-            <Link href="/vermarktung" className="text-[11px] text-accent hover:underline">
-              zur Vermarktung
-            </Link>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="tbl">
-              <thead>
-                <tr>
-                  <th>Investor</th>
-                  <th>Objekt</th>
-                  <th>Follow-up</th>
-                  <th>Nächster Schritt</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stumm.map((l) => {
-                  const inv = investorVon(l.investorId)!;
-                  const obj = objektVon(l.objektId)!;
-                  const ueberfaellig = istUeberfaellig(l.naechstesFollowUp);
-                  return (
-                    <tr key={`${l.objektId}-${l.investorId}`}>
-                      <td>
-                        <EntityLink href={`/investoren/${inv.id}`}>{inv.firma}</EntityLink>
-                      </td>
-                      <td>
-                        <EntityLink href={`/objekte/${obj.id}`}>{obj.name}</EntityLink>
-                      </td>
-                      <td>
-                        <FollowUpStufe stufe={l.followUpStufe} />
-                      </td>
-                      <td>
-                        {l.followUpStufe === 3 ? (
-                          <Badge ton="crit" icon={TriangleAlert}>
-                            manuell nachfassen
-                          </Badge>
-                        ) : ueberfaellig ? (
-                          <Badge ton="crit" icon={TriangleAlert}>
-                            Follow-up überfällig ({fmtDatum(l.naechstesFollowUp)})
-                          </Badge>
-                        ) : (
-                          <span className="text-[12px] text-ink-soft">
-                            Follow-up am {fmtDatum(l.naechstesFollowUp)}
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section className="karte">
-          <div className="karte-kopf">
-            <h2 className="karte-titel">Datenräume mit Lücken</h2>
-            <span className="text-[11px] text-ink-mute">Status aus Modul 01</span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="tbl">
-              <thead>
-                <tr>
-                  <th>Objekt</th>
-                  <th>Checkliste</th>
-                  <th>Fehlt</th>
-                </tr>
-              </thead>
-              <tbody>
-                {luecken.map((o) => {
-                  const dr = datenraumFortschritt(o)!;
-                  const fehlend = o.datenraum.dokumente.filter((d) => d.status !== "vorhanden");
-                  return (
-                    <tr key={o.id}>
-                      <td>
-                        <EntityLink href={`/objekte/${o.id}`}>{o.name}</EntityLink>
-                      </td>
-                      <td>
-                        <Fortschritt vorhanden={dr.vorhanden} gesamt={dr.gesamt} />
-                      </td>
-                      <td className="max-w-[260px] text-[12px] text-ink-soft">
-                        {fehlend
-                          .slice(0, 2)
-                          .map((d) => d.name)
-                          .join(", ")}
-                        {fehlend.length > 2 ? ` +${fehlend.length - 2} weitere` : ""}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </section>
+        <Card>
+          <CardHeader title="Datenräume mit Lücken" meta="Status aus Modul 01" />
+          <Table>
+            <THead>
+              <TR>
+                <TH>Objekt</TH>
+                <TH>Checkliste</TH>
+                <TH>Fehlt</TH>
+              </TR>
+            </THead>
+            <TBody>
+              {luecken.map((o) => {
+                const dr = datenraumFortschritt(o)!;
+                const fehlend = o.datenraum.dokumente.filter((d) => d.status !== "vorhanden");
+                return (
+                  <TR key={o.id}>
+                    <TD>
+                      <EntityLink href={`/objekte/${o.id}`}>{o.name}</EntityLink>
+                    </TD>
+                    <TD>
+                      <Fortschritt vorhanden={dr.vorhanden} gesamt={dr.gesamt} />
+                    </TD>
+                    <TD className="max-w-[260px] text-seil-muted">
+                      {fehlend
+                        .slice(0, 2)
+                        .map((d) => d.name)
+                        .join(", ")}
+                      {fehlend.length > 2 ? ` +${fehlend.length - 2} weitere` : ""}
+                    </TD>
+                  </TR>
+                );
+              })}
+            </TBody>
+          </Table>
+        </Card>
       </div>
     </>
   );

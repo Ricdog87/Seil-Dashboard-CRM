@@ -1,0 +1,62 @@
+/* ==========================================================================
+   SEIL Design Tokens – die einzige Quelle der Wahrheit.
+
+   Regel: Hex-Werte stehen ausschliesslich in dieser Datei. Komponenten und
+   Screens referenzieren nur noch Tailwind-Klassen (bg-seil-card, text-seil-muted
+   ...), die in tailwind.config.ts auf diese Variablen gemappt sind.
+   ========================================================================== */
+
+:root {
+  /* --- Flaechen ---------------------------------------------------------- */
+  --seil-bg: #121214; /* Seitenhintergrund */
+  --seil-surface: #1a1a1e; /* Panels, Tabellenflaechen */
+  --seil-card: #232328; /* Karten */
+  --seil-card-alt: #2a2a31; /* Badges, Zeilen-Hover, Eingabefelder */
+  --seil-line: #37373f; /* Rahmen, Trennlinien */
+
+  /* --- Text -------------------------------------------------------------- */
+  --seil-text: #f4f5f6; /* Primaertext, Ueberschriften */
+  --seil-body: #c2c6cc; /* Fliesstext, Tabellenwerte */
+  --seil-muted: #8a8f97; /* Labels, Metadaten, Platzhalter */
+
+  /* --- Akzent (der einzige) ---------------------------------------------- */
+  --seil-accent: #9daab8; /* Aktiv, Fokus, Links */
+  --seil-accent-dk: #748596; /* Akzent gedrueckt / hover */
+
+  /* --- Status ------------------------------------------------------------
+     Nicht Teil der SEIL-Praesentations-CI. Bewusst entsaettigt gewaehlt,
+     damit sie sich in die Palette einfuegen statt zu schreien. Jeder Ton
+     zusaetzlich als 12%-Flaeche. Geprueft: Kontrast >= 4.5:1 auf allen
+     Flaechen-Tokens, auch auf der eigenen Tint-Flaeche.
+     Farbe traegt nie allein die Information - immer Label oder Icon dazu. */
+  --seil-success: #7fb894;
+  --seil-warning: #c9a56b;
+  --seil-danger: #d5948e;
+  --seil-info: #86a6d0;
+
+  --seil-success-bg: color-mix(in srgb, var(--seil-success) 12%, transparent);
+  --seil-warning-bg: color-mix(in srgb, var(--seil-warning) 12%, transparent);
+  --seil-danger-bg: color-mix(in srgb, var(--seil-danger) 12%, transparent);
+  --seil-info-bg: color-mix(in srgb, var(--seil-info) 12%, transparent);
+  --seil-accent-bg: color-mix(in srgb, var(--seil-accent) 12%, transparent);
+
+  /* --- Typografie --------------------------------------------------------
+     Die Praesentationsvorlage setzt Avenir Next (Theme-Fallback: Calibri).
+     Im Web ersetzt durch Inter, lokal gehostet - kein Google-CDN, kein
+     Request an Dritte. */
+  --seil-font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --seil-text-kicker: 11px; /* Labels, Metadaten, Uppercase */
+  --seil-text-body: 13px; /* Fliesstext, Tabellen, Buttons */
+  --seil-text-title: 20px; /* Seitentitel */
+  --seil-text-display: 24px; /* ausschliesslich KPI-Zahlen */
+
+  --seil-tracking-kicker: 0.08em;
+
+  /* --- Form --------------------------------------------------------------
+     4px-Raster, Rahmen statt Schatten, ein einziger Radius. */
+  --seil-radius: 6px;
+  --seil-row-h: 38px; /* Tabellenzeile, Zielkorridor 36-40px */
+  --seil-control-h: 28px; /* Buttons, Inputs, Selects */
+  --seil-focus-ring: 2px;
+}

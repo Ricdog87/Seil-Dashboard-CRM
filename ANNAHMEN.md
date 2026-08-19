@@ -78,3 +78,42 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
     sichtbar sind (Interesse, Preisanfrage, Absage, Stufe 1–3, Freigabe ausstehend,
     Datenraum-Lücken …), sind einzelne Zeitabstände in den Demodaten bewusst
     gestreckt und nicht in jedem Fall streng im 2-Tage-Raster.
+
+## Integrationen & Automationen (aus Angebot AG2026-SEIL-03 und Kickoff 17.08.)
+
+Der Prototyp ist ein Klickdummy – alle folgenden Punkte sind **nur als Anzeige
+simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
+
+20. **Se Circle:** Im Kickoff als zentrale Entscheidung benannt. Im Prototyp als
+    Quelle-Kennzeichnung am Objekt (Boardinghouse Europaviertel) und als
+    Sync-Aktivität dargestellt. Welche Felder Se Circle liefert und in welche
+    Richtung synchronisiert wird, ist offen.
+21. **KI-Extraktion aus dem Datenraum** (Grundbuch, Mieterlisten): als
+    „KI-ausgelesen“-Zeile in der Datenraum-Karte und als Aktivitäten mit
+    Quelle „KI“ dargestellt. Das konkrete Feldmapping ins CRM ist offen.
+22. **KI-generierte Teaser & Listings:** als Aktivität am Wohnportfolio
+    dargestellt (Entwurf → menschliche Prüfung → Abstimmung mit Auftraggeberin).
+    Ob die Prüfung verpflichtend sein soll, ist eine Annahme.
+23. **Pipedrive-Migration:** Der einmalige Export/Import aus dem Angebot ist als
+    Quelle-Tag am Investor („Pipedrive-Import“) dargestellt – ein eigener
+    Import-Screen würde die Fünf-Screen-Grenze sprengen.
+24. **Status-Reports via Telegram:** als Statuszeile auf der Übersicht angedeutet
+    („heute 08:00 versendet“). Inhalt, Frequenz und Empfängerkreis sind offen.
+25. **Presound-Mail an BCC-Verteiler:** Benennung aus dem Kickoff übernommen
+    (Freigabe-Karte und Automatik-Zeile der Vermarktung).
+26. **Distressed Assets:** Im Kickoff als Sonderfall mit typisch unvollständigen
+    Unterlagen genannt – im Prototyp als Merkmal am Fachmarktzentrum (7/12
+    Dokumente) dargestellt. Ob Distressed-Fälle eine eigene Prozessvariante
+    brauchen, ist offen.
+
+## Corporate Design
+
+27. **CI-Quelle:** Palette, Typo-Raster und Abstände sind verbindlich aus der
+    SEIL-Präsentationsvorlage übernommen (siehe `DESIGN.md`). Die Statusfarben
+    sind bewusst entsättigt ergänzt – sie sind nicht Teil der Präsentations-CI.
+28. **Schrift:** Die Vorlage setzt Avenir Next (lizenzpflichtig); im Web ersetzt
+    durch Inter, lokal gehostet. Freigabe durch SEIL steht aus.
+29. **Logo:** Die Logo-Datei aus der Vorlage ist beschnitten und wird deshalb
+    nicht angezeigt (typografische Wortmarke als Platzhalter). Auf seil.com liegt
+    ein vollständiges SVG, aber nur in dunkler Farbe – für die dunkle Kopfleiste
+    wird eine weiße SVG-Variante von SEIL benötigt („nie einfärben“-Regel).

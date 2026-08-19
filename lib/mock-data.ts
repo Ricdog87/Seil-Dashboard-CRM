@@ -167,6 +167,7 @@ export const objekte: Objekt[] = [
     zustaendigId: "m1",
     eigentuemerPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen"],
     investorenPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "aktiv"],
+    kiExtrakt: ["27 Mietverträge", "WALT 4,3 Jahre", "Leerstand 4,1 %"],
     datenraum: datenraumMit({}, "2026-08-17"),
     freigabe: { status: "erteilt", durchId: "m1", am: "2026-07-23" },
   },
@@ -197,6 +198,7 @@ export const objekte: Objekt[] = [
     zustaendigId: "m1",
     eigentuemerPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen"],
     investorenPhasen: ["abgeschlossen", "abgeschlossen", "aktiv", "offen", "offen", "offen"],
+    kiExtrakt: ["62 Wohneinheiten", "3 Grundbuchblätter", "Ø-Miete 14,90 €/m²"],
     datenraum: datenraumMit({}, "2026-08-14"),
     freigabe: { status: "ausstehend" },
   },
@@ -210,6 +212,7 @@ export const objekte: Objekt[] = [
     kaufpreisMio: 17.4,
     auftraggeberId: "a4",
     zustaendigId: "m2",
+    merkmal: "Distressed Asset",
     eigentuemerPhasen: ["abgeschlossen", "abgeschlossen", "aktiv", "offen", "offen", "offen"],
     investorenPhasen: ["offen", "offen", "offen", "offen", "offen", "offen"],
     datenraum: datenraumMit(
@@ -227,6 +230,7 @@ export const objekte: Objekt[] = [
     kaufpreisMio: 12.8,
     auftraggeberId: "a5",
     zustaendigId: "m3",
+    quelle: "Se Circle",
     eigentuemerPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "aktiv", "offen", "offen"],
     investorenPhasen: ["offen", "offen", "offen", "offen", "offen", "offen"],
     datenraum: datenraumMit({ 9: "ausstehend", 11: "ausstehend" }, "2026-08-08"),
@@ -255,6 +259,7 @@ export const investoren: Investor[] = [
   {
     id: "i1",
     firma: "Falkenstein Capital Partners",
+    quelle: "Pipedrive-Import",
     typ: "Vermögensverwalter",
     ansprechpartner: "Dr. Robert Steinbach",
     email: "steinbach@falkenstein-cp.example",
@@ -268,6 +273,7 @@ export const investoren: Investor[] = [
   {
     id: "i2",
     firma: "Novaris Invest AG",
+    quelle: "Pipedrive-Import",
     typ: "Fondsmanager",
     ansprechpartner: "Claudia Bergmann",
     email: "bergmann@novaris-invest.example",
@@ -281,6 +287,7 @@ export const investoren: Investor[] = [
   {
     id: "i3",
     firma: "Hartmann & Cie. Family Office",
+    quelle: "Pipedrive-Import",
     typ: "Family Office",
     ansprechpartner: "Maximilian Hartmann",
     email: "hartmann@hartmann-cie.example",
@@ -294,6 +301,7 @@ export const investoren: Investor[] = [
   {
     id: "i4",
     firma: "Rheingold Asset Management",
+    quelle: "Pipedrive-Import",
     typ: "Fondsmanager",
     ansprechpartner: "Peter Lindqvist",
     email: "lindqvist@rheingold-am.example",
@@ -306,6 +314,7 @@ export const investoren: Investor[] = [
   {
     id: "i5",
     firma: "MainPoint Capital GmbH",
+    quelle: "Manuell",
     typ: "Investor / Projektentwickler",
     ansprechpartner: "Selin Kaya",
     email: "kaya@mainpoint-capital.example",
@@ -319,6 +328,7 @@ export const investoren: Investor[] = [
   {
     id: "i6",
     firma: "Vesta Wohnwerte AG",
+    quelle: "Pipedrive-Import",
     typ: "Bestandshalter",
     ansprechpartner: "Georg Winkler",
     email: "winkler@vesta-wohnwerte.example",
@@ -331,6 +341,7 @@ export const investoren: Investor[] = [
   {
     id: "i7",
     firma: "Portus Logistics Capital",
+    quelle: "Pipedrive-Import",
     typ: "Spezialfonds",
     ansprechpartner: "Jan Hoffmeister",
     email: "hoffmeister@portus-logistics.example",
@@ -344,6 +355,7 @@ export const investoren: Investor[] = [
   {
     id: "i8",
     firma: "Corvus Family Office",
+    quelle: "Pipedrive-Import",
     typ: "Family Office",
     ansprechpartner: "Friederike Lang",
     email: "lang@corvus-fo.example",
@@ -356,6 +368,7 @@ export const investoren: Investor[] = [
   {
     id: "i9",
     firma: "Belvedere Grund Invest",
+    quelle: "Pipedrive-Import",
     typ: "Vermögensverwalter",
     ansprechpartner: "Andreas Roth",
     email: "roth@belvedere-grund.example",
@@ -369,6 +382,7 @@ export const investoren: Investor[] = [
   {
     id: "i10",
     firma: "Silberberg Stiftung",
+    quelle: "Manuell",
     typ: "Stiftung",
     ansprechpartner: "Christina Ernst",
     email: "ernst@silberberg-stiftung.example",
@@ -381,6 +395,7 @@ export const investoren: Investor[] = [
   {
     id: "i11",
     firma: "Arkadia Living GmbH",
+    quelle: "Manuell",
     typ: "Bestandshalter",
     ansprechpartner: "Tobias Frey",
     email: "frey@arkadia-living.example",
@@ -393,6 +408,7 @@ export const investoren: Investor[] = [
   {
     id: "i12",
     firma: "Quercus Real Assets",
+    quelle: "Pipedrive-Import",
     typ: "Fondsmanager",
     ansprechpartner: "Miriam Osei",
     email: "osei@quercus-ra.example",
@@ -469,6 +485,7 @@ export const aufgaben: Aufgabe[] = [
 export const aktivitaeten: Aktivitaet[] = [
   // Büroensemble Westend-Karree (o1)
   { id: "ak01", datum: "2026-07-21T09:12", typ: "system", quelle: "Modul 01", text: "Datenraum vollständig – 12/12 Standarddokumente abgelegt.", objektId: "o1" },
+  { id: "ak42", datum: "2026-07-21T09:30", typ: "system", quelle: "KI", text: "KI-Extraktion: Mieter- & Flächenliste ausgelesen – 27 Mietverträge, WALT 4,3 Jahre, Leerstand 4,1 % ins CRM übernommen.", objektId: "o1" },
   { id: "ak02", datum: "2026-07-23T14:05", typ: "notiz", text: "Investorenliste freigegeben (7 Kontakte) – Versand ausgelöst.", objektId: "o1", mitarbeiterId: "m1" },
   { id: "ak03", datum: "2026-07-24T08:30", typ: "mail_ausgang", text: "Teaser Westend-Karree an Verteiler versendet (7 Investoren).", objektId: "o1", mitarbeiterId: "m1" },
   { id: "ak04", datum: "2026-07-26T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 1 automatisch versendet an 7 Kontakte ohne Rückmeldung.", objektId: "o1" },
@@ -496,7 +513,9 @@ export const aktivitaeten: Aktivitaet[] = [
 
   // Wohnportfolio Sachsenhausen (o3)
   { id: "ak24", datum: "2026-07-30T09:00", typ: "system", quelle: "Modul 01", text: "Datenraum vollständig – 12/12 Standarddokumente abgelegt.", objektId: "o3" },
+  { id: "ak43", datum: "2026-07-31T08:20", typ: "system", quelle: "KI", text: "KI-Extraktion: Grundbuchdaten der 3 Liegenschaften ausgelesen und ins CRM übernommen.", objektId: "o3" },
   { id: "ak25", datum: "2026-08-05T11:30", typ: "notiz", text: "Fotograf beauftragt, Termin 08.08. vor Ort.", objektId: "o3", mitarbeiterId: "m1" },
+  { id: "ak44", datum: "2026-08-09T10:00", typ: "system", quelle: "KI", text: "Teaser und Listing automatisch generiert – Entwurf zur Prüfung an Katharina Vogt.", objektId: "o3" },
   { id: "ak26", datum: "2026-08-11T17:15", typ: "notiz", text: "Teaser und Listing final abgestimmt mit Auftraggeberin.", objektId: "o3", auftraggeberId: "a2", mitarbeiterId: "m1" },
   { id: "ak27", datum: "2026-08-14T08:45", typ: "system", quelle: "Automatik", text: "Investorenliste abgeglichen: 6 passende Profile (Assetklasse Wohnen, Ticket passend, Region Rhein-Main/Top-7).", objektId: "o3" },
   { id: "ak28", datum: "2026-08-14T08:46", typ: "system", quelle: "Automatik", text: "Aufgabe „Investorenliste freigeben“ für Katharina Vogt erstellt – Versand wartet auf Freigabe.", objektId: "o3" },
@@ -509,6 +528,7 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak33", datum: "2026-08-16T15:30", typ: "mail_eingang", text: "Belvedere Grund Invest fragt proaktiv nach Fachmarktzentren – für Vermarktungsstart vorgemerkt.", objektId: "o4", investorId: "i9" },
 
   // Boardinghouse Europaviertel (o5)
+  { id: "ak45", datum: "2026-07-22T11:10", typ: "system", quelle: "Se Circle", text: "Objekt aus Se Circle übernommen – Stammdaten, Flächen und Exposé-Daten automatisch synchronisiert.", objektId: "o5" },
   { id: "ak34", datum: "2026-07-30T10:40", typ: "system", quelle: "Modul 01", text: "8/12 Standarddokumente abgelegt.", objektId: "o5" },
   { id: "ak35", datum: "2026-08-08T09:25", typ: "system", quelle: "Modul 01", text: "Energieausweis und Grundrisse abgelegt (10/12).", objektId: "o5" },
   { id: "ak36", datum: "2026-08-11T14:00", typ: "notiz", text: "Valuation begonnen – Cashflow-Modell mit Betreiberpacht aufgesetzt.", objektId: "o5", mitarbeiterId: "m3" },

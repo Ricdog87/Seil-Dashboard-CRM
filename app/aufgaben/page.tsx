@@ -1,5 +1,5 @@
 import { AufgabenListe } from "@/components/aufgaben-client";
-import { SeitenKopf } from "@/components/ui";
+import { SeitenKopf } from "@/components/cockpit";
 
 export default function AufgabenSeite() {
   return (

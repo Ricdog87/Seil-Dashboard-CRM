@@ -22,6 +22,23 @@ Gegenparteien. Genau das, was Pipedrive + Excel heute nicht können.
 Objekt- und Investor-Detail sind bewusst nur über Verlinkungen erreichbar (Zeilen in
 Tabellen anklicken) – es gibt keine Listen-Screens über die fünf Screens hinaus.
 
+## Abdeckung Angebot AG2026-SEIL-03 & Kickoff (17.08.)
+
+| Leistungsbaustein | Im Prototyp sichtbar als |
+|---|---|
+| KI-personalisierte Ansprache mit Freigabe-Workflow | Vermarktung: Freigabe-Karte (Human-in-the-Loop) über der Investorenliste |
+| Szenariobasierte Follow-up-Logik (Response, Price Inquiry, kein Rücklauf) | Antwortstatus je Kontakt, Follow-up-Stufen 1–3, „manuell nachfassen“ nach Stufe 3 |
+| Antwort-Erkennung und Zuordnung | Aktivitäten „Antwort erkannt: …“ + automatisch erzeugte Aufgaben (Broker Call, Investment-Team) |
+| Zentrales Dashboard: Phasen, Investoren, Objekte, Datenraum-Status | Die fünf Screens; Prozessleiste über beide Seiten; Datenraum aus Modul 01 |
+| Pipedrive-Export/-Import (einmalig) | Quelle-Tag „Pipedrive-Import“ am Investor |
+| Status-Reports (z. B. via Telegram) | Statuszeile auf der Übersicht |
+| Se-Circle-Anbindung (Kickoff) | Quelle „Se Circle“ am Objekt + Sync-Aktivität |
+| KI liest Datenraum aus (Grundbuch, Mieterlisten) | „KI-ausgelesen“-Kennwerte in der Datenraum-Karte + Aktivitäten mit Quelle „KI“ |
+| KI generiert Teaser & Listings | Aktivität „Teaser und Listing automatisch generiert – zur Prüfung“ |
+| Presound-Mails an BCC-Verteiler | Benennung in Freigabe-Karte und Automatik-Zeile der Vermarktung |
+
+Alles davon ist reine Anzeige mit Demodaten – keine echte Automation im Prototyp.
+
 ### Screenshots
 
 **Übersicht**
@@ -74,17 +91,29 @@ kein Backend):
 
 ```
 app/
+  tokens.css               Design-Tokens – die einzige Stelle mit Hex-Werten
+  globals.css              Tailwind-Einstieg, Inter-@font-face, Basis-Layer
   page.tsx                 Screen 1 – Übersicht
   objekte/[id]/page.tsx    Screen 2 – Objekt-Detail
   investoren/[id]/page.tsx Screen 3 – Investor-Detail
   vermarktung/page.tsx     Screen 4 – Vermarktung + Freigabe
   aufgaben/page.tsx        Screen 5 – Aufgaben
-components/                Nav, Badges, Prozessleiste, Aktivitäten, Client-Bausteine
+components/
+  ui/                      Primitives: Button, Badge, Card, Table, Input, Select,
+                           Tabs, Toast, EmptyState, StatusDot – alles baut darauf auf
+  cockpit.tsx              Fachliche Bausteine (KPI-Kachel, Fortschritt, Statusbadge …)
+  nav.tsx, seil-logo.tsx   Kopfleiste und Logo
+  prozessleiste.tsx, aktivitaeten.tsx, *-client.tsx
+tailwind.config.ts         Liest die Tokens – enthält selbst keine Farbwerte
 lib/
   types.ts                 Datenmodell (Objekt, Investor, Auftraggeber, Verknüpfung …)
   mock-data.ts             Alle Demodaten – zentral kuratiert
   derive.ts                Anzeige-Helfer: KPIs & Listen werden aus den Daten abgeleitet
+public/
+  fonts/                   Inter (variabel, lokal gehostet – kein Google-CDN)
+  seil-logo.png            Weiße Logo-Variante aus der Präsentationsvorlage
 docs/screenshots/          Screenshots der fünf Screens
+DESIGN.md                  Design-System: Palette, Typo, Abstände, Do's und Don'ts
 ```
 
 ## Leitplanken
@@ -96,3 +125,5 @@ docs/screenshots/          Screenshots der fünf Screens
 - Der Freigabe-Button in der Vermarktung ist eine reine UI-Demonstration.
 
 Offene Punkte für das Kundengespräch: siehe [`ANNAHMEN.md`](ANNAHMEN.md).
+
+Design-System (Palette, Typografie, Abstände, Bausteine): siehe `DESIGN.md`.
