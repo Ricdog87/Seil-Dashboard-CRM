@@ -102,9 +102,11 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
 23. **Pipedrive-Migration:** Der einmalige Export/Import aus dem Angebot ist als
     Quelle-Tag am Investor („Pipedrive-Import“) dargestellt – ein eigener
     Import-Screen würde die Fünf-Screen-Grenze sprengen.
-24. **Status-Reports via Telegram:** als Systemstatus-Block auf der Übersicht
-    angedeutet (Telegram-Report 08:00, Se Circle-Sync 06:00, Modul-01-Stand
-    07:30). Inhalt, Frequenz und Empfängerkreis sind offen.
+24. **Status-Reports:** Im Angebot enthalten („Status-Reports“, dort mit
+    Telegram nur als Beispiel genannt); im Kickoff wurde kein Kanal besprochen.
+    Die Anzeige ist deshalb bewusst kanalneutral („Status-Report heute 08:00 an
+    das Team versendet“). Kanal, Inhalt, Frequenz und Empfängerkreis sind im
+    Kundengespräch festzulegen.
 25. **Presound-Mail an BCC-Verteiler vs. KI-personalisierte Ansprache:** Das
     Angebot nennt eine „KI-personalisierte Ansprache mit Freigabe-Workflow“, im
     Kickoff wurde der heutige Ist-Prozess als Presound-Mail an einen
@@ -122,7 +124,13 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
     „Zurücksetzen“ stellt den Stand wieder her). Das Umsortieren der
     Prozessschritte selbst bleibt dem echten System vorbehalten – die Schritte
     sind hier bewusst fest verdrahtet.
-28. **Interaktiver Prozess:** „Das Dashboard soll den gesamten
+28. **Board-Ansicht:** Die Übersicht bietet zusätzlich zur Tabelle ein Board.
+    Die 5 Spalten („Akquise & NDA“ → „Vermarktung · Aktiv“) verdichten die
+    12 Prozessschritte; die Zuordnung ist eine Setzung und im Kundengespräch
+    zu bestätigen. Karten folgen dem Prozessstatus – ein manuelles Verschieben
+    von Karten wäre im echten System eine Statusänderung und ist im Klickdummy
+    bewusst nicht simuliert.
+29. **Interaktiver Prozess:** „Das Dashboard soll den gesamten
     Transaktionsprozess interaktiv abbilden“ (Kickoff) ist als klickbare
     Prozessleiste umgesetzt: jeder Schritt öffnet ein Detailpanel mit
     Beschreibung, Verantwortung (Team / Automatik / manuelle Freigabe) und –
@@ -131,12 +139,12 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
 
 ## Corporate Design
 
-29. **CI-Quelle:** Palette, Typo-Raster und Abstände sind verbindlich aus der
+30. **CI-Quelle:** Palette, Typo-Raster und Abstände sind verbindlich aus der
     SEIL-Präsentationsvorlage übernommen (siehe `DESIGN.md`). Die Statusfarben
     sind bewusst entsättigt ergänzt – sie sind nicht Teil der Präsentations-CI.
-30. **Schrift:** Die Vorlage setzt Avenir Next (lizenzpflichtig); im Web ersetzt
+31. **Schrift:** Die Vorlage setzt Avenir Next (lizenzpflichtig); im Web ersetzt
     durch Inter, lokal gehostet. Freigabe durch SEIL steht aus.
-31. **Logo:** Die Logo-Datei aus der Vorlage ist beschnitten und wird deshalb
+32. **Logo:** Die Logo-Datei aus der Vorlage ist beschnitten und wird deshalb
     nicht angezeigt (typografische Wortmarke als Platzhalter). Auf seil.com liegt
     ein vollständiges SVG, aber nur in dunkler Farbe – für die dunkle Kopfleiste
     wird eine weiße SVG-Variante von SEIL benötigt („nie einfärben“-Regel).

@@ -19,6 +19,9 @@ Gegenparteien. Genau das, was Pipedrive + Excel heute nicht können.
 | 4 | Vermarktung | `/vermarktung` | Investorenliste je Objekt, Antwortstatus je Kontakt, Follow-up-Stufe, oben der Freigabe-Schritt (Human-in-the-Loop) |
 | 5 | Aufgaben | `/aufgaben` | Nach Mitarbeiter gefiltert, Broker Calls hervorgehoben |
 
+Die Übersicht zeigt die laufenden Transaktionen wahlweise als dichte Tabelle
+oder als Board (Pipeline-Spalten von „Akquise & NDA" bis „Vermarktung · Aktiv").
+
 Der Klickdummy ist an den im Kickoff gewünschten Stellen interaktiv: die
 Prozessleiste öffnet je Schritt ein Detailpanel, KI-extrahierte Werte lassen
 sich prüfen und übernehmen, Aufgaben lassen sich neu zuweisen, verschieben und
@@ -37,7 +40,7 @@ Tabellen anklicken) – es gibt keine Listen-Screens über die fünf Screens hin
 | Antwort-Erkennung und Zuordnung | Aktivitäten „Antwort erkannt: …“ + automatisch erzeugte Aufgaben (Broker Call, Investment-Team) |
 | Zentrales Dashboard: Phasen, Investoren, Objekte, Datenraum-Status | Die fünf Screens; Prozessleiste über beide Seiten; Datenraum aus Modul 01 |
 | Pipedrive-Export/-Import (einmalig) | Quelle-Tag „Pipedrive-Import“ am Investor |
-| Status-Reports (z. B. via Telegram) | Statuszeile auf der Übersicht |
+| Status-Reports an das Team | Statuszeile auf der Übersicht – Kanal bewusst offen |
 | Se-Circle-Anbindung (Kickoff) | Quelle „Se Circle“ am Objekt + Sync-Aktivität |
 | KI liest Datenraum aus (Grundbuch, Mieterlisten) | „KI-ausgelesen“-Kennwerte in der Datenraum-Karte + Aktivitäten mit Quelle „KI“ |
 | KI generiert Teaser & Listings | Aktivität „Teaser und Listing automatisch generiert – zur Prüfung“ |
