@@ -58,6 +58,32 @@ export const INVESTOREN_SCHRITTE_KURZ = [
 /** Index des Human-in-the-Loop-Schritts auf der Investorenseite. */
 export const FREIGABE_SCHRITT_INDEX = 2;
 
+/** Wer einen Schritt treibt – Grundlage für das Detailpanel der Prozessleiste. */
+export type SchrittVerantwortung = "team" | "automatik" | "freigabe";
+
+export interface SchrittInfo {
+  beschreibung: string;
+  verantwortung: SchrittVerantwortung;
+}
+
+export const EIGENTUEMER_SCHRITT_INFO: readonly SchrittInfo[] = [
+  { beschreibung: "Client Portfolio entgegennehmen, Objekt anlegen, Unterlagen sichten.", verantwortung: "team" },
+  { beschreibung: "NDA mit dem Auftraggeber schließen – Grundlage für den Austausch vertraulicher Unterlagen.", verantwortung: "team" },
+  { beschreibung: "Datenraum mit Standard-Checkliste anfordern; Eingänge prüft Modul 01 automatisch, die KI liest Kennwerte aus.", verantwortung: "team" },
+  { beschreibung: "Valuation: Cashflow-Modell und Kaufpreiseinschätzung auf Basis der Datenraum-Zahlen.", verantwortung: "team" },
+  { beschreibung: "Excel- und Präsentationsunterlagen erstellen – Kennzahlen kommen aus der KI-Extraktion.", verantwortung: "team" },
+  { beschreibung: "Service Agreement (intern) und Legitimation/Vollmacht (extern) – SEIL vertritt den Auftraggeber nach außen.", verantwortung: "team" },
+] as const;
+
+export const INVESTOREN_SCHRITT_INFO: readonly SchrittInfo[] = [
+  { beschreibung: "Vermarktungs-NDA je Interessent – Voraussetzung für jeden Datenraumzugang.", verantwortung: "team" },
+  { beschreibung: "Fotograf beauftragen; Teaser & Listing werden KI-generiert und vom Team geprüft.", verantwortung: "team" },
+  { beschreibung: "Automatischer Abgleich der Investorenliste (Assetklasse, Ticket, Region) – Versand erst nach Freigabe.", verantwortung: "freigabe" },
+  { beschreibung: "Presound-Mail an den BCC-Verteiler – ausgelöst durch die Freigabe.", verantwortung: "automatik" },
+  { beschreibung: "Follow-up alle 2 Tage, maximal 3 Stufen; danach entsteht eine manuelle Nachfass-Aufgabe.", verantwortung: "automatik" },
+  { beschreibung: "Antworterkennung: Interesse → Broker Call, Preisanfrage → Investment-Team, Absagen werden verbucht.", verantwortung: "automatik" },
+] as const;
+
 // ---------------------------------------------------------------------------
 // Team
 // ---------------------------------------------------------------------------
@@ -167,7 +193,13 @@ export const objekte: Objekt[] = [
     zustaendigId: "m1",
     eigentuemerPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen"],
     investorenPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "aktiv"],
-    kiExtrakt: ["27 Mietverträge", "WALT 4,3 Jahre", "Leerstand 4,1 %"],
+    kiFelder: [
+      { feld: "Mietverträge", wert: "27", quelleDokument: "Mieter- & Flächenliste", status: "uebernommen" },
+      { feld: "WALT", wert: "4,3 Jahre", quelleDokument: "Mieter- & Flächenliste", status: "uebernommen" },
+      { feld: "Leerstand", wert: "4,1 %", quelleDokument: "Mieter- & Flächenliste", status: "uebernommen" },
+      { feld: "Lasten Abt. II", wert: "Wegerecht (lfd. Nr. 3)", quelleDokument: "Grundbuchauszug", status: "uebernommen" },
+    ],
+    teaser: { stand: "versendet", entwurfVom: "2026-07-22", geprueftDurchId: "m1", versendetAm: "2026-07-24" },
     datenraum: datenraumMit({}, "2026-08-17"),
     freigabe: { status: "erteilt", durchId: "m1", am: "2026-07-23" },
   },
@@ -183,6 +215,7 @@ export const objekte: Objekt[] = [
     zustaendigId: "m2",
     eigentuemerPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen"],
     investorenPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "aktiv", "offen"],
+    teaser: { stand: "versendet", entwurfVom: "2026-08-04", geprueftDurchId: "m2", versendetAm: "2026-08-06" },
     datenraum: datenraumMit({ 10: "ausstehend" }, "2026-08-16"),
     freigabe: { status: "erteilt", durchId: "m2", am: "2026-08-05" },
   },
@@ -198,7 +231,12 @@ export const objekte: Objekt[] = [
     zustaendigId: "m1",
     eigentuemerPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen"],
     investorenPhasen: ["abgeschlossen", "abgeschlossen", "aktiv", "offen", "offen", "offen"],
-    kiExtrakt: ["62 Wohneinheiten", "3 Grundbuchblätter", "Ø-Miete 14,90 €/m²"],
+    kiFelder: [
+      { feld: "Grundbuchblätter", wert: "3 (Bl. 4211, 4212, 4287)", quelleDokument: "Grundbuchauszug", status: "uebernommen" },
+      { feld: "Wohneinheiten", wert: "62", quelleDokument: "Mieter- & Flächenliste", status: "uebernommen" },
+      { feld: "Ø-Kaltmiete", wert: "14,90 €/m²", quelleDokument: "Mieter- & Flächenliste", status: "pruefen", hinweis: "Staffelmieten in 8 Verträgen – Durchschnitt bitte bestätigen" },
+    ],
+    teaser: { stand: "freigegeben", entwurfVom: "2026-08-09", geprueftDurchId: "m1" },
     datenraum: datenraumMit({}, "2026-08-14"),
     freigabe: { status: "ausstehend" },
   },
@@ -213,6 +251,9 @@ export const objekte: Objekt[] = [
     auftraggeberId: "a4",
     zustaendigId: "m2",
     merkmal: "Distressed Asset",
+    kiFelder: [
+      { feld: "Mietfläche lt. Liste", wert: "8.310 m²", quelleDokument: "Mieter- & Flächenliste", status: "pruefen", hinweis: "Weicht vom Exposé ab (8.400 m²)" },
+    ],
     eigentuemerPhasen: ["abgeschlossen", "abgeschlossen", "aktiv", "offen", "offen", "offen"],
     investorenPhasen: ["offen", "offen", "offen", "offen", "offen", "offen"],
     datenraum: datenraumMit(
@@ -231,6 +272,11 @@ export const objekte: Objekt[] = [
     auftraggeberId: "a5",
     zustaendigId: "m3",
     quelle: "Se Circle",
+    seCircleSync: {
+      letzterSync: "2026-08-18T06:00",
+      richtung: "Se Circle → Cockpit",
+      feldgruppen: ["Stammdaten", "Flächen & Einheiten", "Exposé-Daten", "Ansprechpartner"],
+    },
     eigentuemerPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "aktiv", "offen", "offen"],
     investorenPhasen: ["offen", "offen", "offen", "offen", "offen", "offen"],
     datenraum: datenraumMit({ 9: "ausstehend", 11: "ausstehend" }, "2026-08-08"),
@@ -518,6 +564,7 @@ export const aktivitaeten: Aktivitaet[] = [
   // Wohnportfolio Sachsenhausen (o3)
   { id: "ak24", datum: "2026-07-30T09:00", typ: "system", quelle: "Modul 01", text: "Datenraum vollständig – 12/12 Standarddokumente abgelegt.", objektId: "o3" },
   { id: "ak43", datum: "2026-07-31T08:20", typ: "system", quelle: "KI", text: "KI-Extraktion: Grundbuchdaten der 3 Liegenschaften ausgelesen und ins CRM übernommen.", objektId: "o3" },
+  { id: "ak50", datum: "2026-07-31T08:25", typ: "system", quelle: "KI", text: "Ø-Kaltmiete 14,90 €/m² ermittelt – wegen Staffelmieten in 8 Verträgen zur Prüfung markiert.", objektId: "o3" },
   { id: "ak25", datum: "2026-08-05T11:30", typ: "notiz", text: "Fotograf beauftragt, Termin 08.08. vor Ort.", objektId: "o3", mitarbeiterId: "m1" },
   { id: "ak44", datum: "2026-08-09T10:00", typ: "system", quelle: "KI", text: "Teaser und Listing automatisch generiert – Entwurf zur Prüfung an Katharina Vogt.", objektId: "o3" },
   { id: "ak26", datum: "2026-08-11T17:15", typ: "notiz", text: "Teaser und Listing final abgestimmt mit Auftraggeberin.", objektId: "o3", auftraggeberId: "a2", mitarbeiterId: "m1" },
@@ -528,11 +575,13 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak29", datum: "2026-07-28T10:00", typ: "mail_ausgang", text: "Datenraum-Anforderung mit Standard-Checkliste an HL Retail Estate versendet.", objektId: "o4", auftraggeberId: "a4", mitarbeiterId: "m2" },
   { id: "ak30", datum: "2026-08-05T13:20", typ: "system", quelle: "Modul 01", text: "5/12 Standarddokumente abgelegt.", objektId: "o4" },
   { id: "ak31", datum: "2026-08-12T09:10", typ: "system", quelle: "Modul 01", text: "Mieter- & Flächenliste abgelegt – automatische Prüfung läuft (7/12).", objektId: "o4" },
+  { id: "ak49", datum: "2026-08-12T09:15", typ: "system", quelle: "KI", text: "KI-Extraktion: Mietfläche lt. Liste 8.310 m² – Abweichung zum Exposé (8.400 m²) zur Prüfung markiert.", objektId: "o4" },
   { id: "ak32", datum: "2026-08-15T08:55", typ: "mail_ausgang", text: "Erinnerung an fehlende Unterlagen (4 offen) an Frau Sommerfeld.", objektId: "o4", auftraggeberId: "a4", mitarbeiterId: "m2" },
   { id: "ak33", datum: "2026-08-16T15:30", typ: "mail_eingang", text: "Belvedere Grund Invest fragt proaktiv nach Fachmarktzentren – für Vermarktungsstart vorgemerkt.", objektId: "o4", investorId: "i9" },
 
   // Boardinghouse Europaviertel (o5)
   { id: "ak45", datum: "2026-07-22T11:10", typ: "system", quelle: "Se Circle", text: "Objekt aus Se Circle übernommen – Stammdaten, Flächen und Exposé-Daten automatisch synchronisiert.", objektId: "o5" },
+  { id: "ak51", datum: "2026-08-18T06:00", typ: "system", quelle: "Se Circle", text: "Turnus-Sync mit Se Circle: keine Änderungen an Stammdaten und Flächen.", objektId: "o5" },
   { id: "ak34", datum: "2026-07-30T10:40", typ: "system", quelle: "Modul 01", text: "8/12 Standarddokumente abgelegt.", objektId: "o5" },
   { id: "ak35", datum: "2026-08-08T09:25", typ: "system", quelle: "Modul 01", text: "Energieausweis und Grundrisse abgelegt (10/12).", objektId: "o5" },
   { id: "ak36", datum: "2026-08-11T14:00", typ: "notiz", text: "Valuation begonnen – Cashflow-Modell mit Betreiberpacht aufgesetzt.", objektId: "o5", mitarbeiterId: "m3" },

@@ -16,6 +16,30 @@ export interface Datenraum {
   dokumente: DatenraumDokument[];
 }
 
+/** Ein von der KI aus einem Datenraum-Dokument extrahierter Kennwert. */
+export interface KiFeld {
+  feld: string;
+  wert: string;
+  quelleDokument: string;
+  status: "uebernommen" | "pruefen";
+  hinweis?: string;
+}
+
+/** Anzeige-Stand der Se-Circle-Anbindung (zentrale Entscheidung aus dem Kickoff). */
+export interface SeCircleSync {
+  letzterSync: string; // ISO-Datum mit Uhrzeit
+  richtung: string; // z. B. "Se Circle → Cockpit"
+  feldgruppen: string[];
+}
+
+/** Pipeline-Stand von Teaser & Listing: KI-Entwurf → menschliche Pruefung → Versand. */
+export interface TeaserStatus {
+  stand: "entwurf_pruefung" | "freigegeben" | "versendet";
+  entwurfVom: string; // ISO-Datum
+  geprueftDurchId?: string;
+  versendetAm?: string;
+}
+
 export interface Objekt {
   id: string;
   name: string;
@@ -30,8 +54,14 @@ export interface Objekt {
   quelle?: "Se Circle" | "Manuell";
   /** Besonderes Merkmal, z. B. Distressed Asset (Transkript: Notlagen-Immobilien). */
   merkmal?: string;
-  /** Von der KI aus den Datenraum-Dokumenten ausgelesene Kennwerte (Anzeige). */
-  kiExtrakt?: string[];
+  /** Von der KI aus den Datenraum-Dokumenten ausgelesene Kennwerte (Anzeige).
+   *  Jeder Wert traegt seine Quelle und einen Pruefstatus - Uebernahme ins CRM
+   *  ist wie die Listen-Freigabe ein Human-in-the-Loop-Schritt. */
+  kiFelder?: KiFeld[];
+  /** Nur fuer Se-Circle-Objekte: Stand der Plattform-Anbindung (Anzeige). */
+  seCircleSync?: SeCircleSync;
+  /** Stand von Teaser & Listing - produktiv KI-generiert mit Pruefschritt. */
+  teaser?: TeaserStatus;
   /** Status der 6 Schritte auf der Eigentümerseite (Reihenfolge wie EIGENTUEMER_SCHRITTE) */
   eigentuemerPhasen: PhaseStatus[];
   /** Status der 6 Schritte auf der Investorenseite (Reihenfolge wie INVESTOREN_SCHRITTE) */
