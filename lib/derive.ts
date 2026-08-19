@@ -54,6 +54,27 @@ export function aktiverSchritt(objekt: Objekt): { seite: "Eigentümer" | "Invest
   return { seite: "Eigentümer", nr: 1, titel: EIGENTUEMER_SCHRITTE_KURZ[0] };
 }
 
+/**
+ * Pipeline-Stufe fuer die Board-Ansicht: die 12 Prozessschritte, verdichtet
+ * auf 5 Spalten, in denen das Team Transaktionen denkt.
+ */
+export const PIPELINE_STUFEN = [
+  "Akquise & NDA",
+  "Datenraum & Valuation",
+  "Unterlagen & Mandat",
+  "Vermarktung · Vorbereitung",
+  "Vermarktung · Aktiv",
+] as const;
+
+export function pipelineStufe(objekt: Objekt): number {
+  const i = objekt.investorenPhasen.indexOf("aktiv");
+  if (i >= 0) return i <= 2 ? 3 : 4; // bis Freigabe = Vorbereitung, danach aktiv
+  const e = objekt.eigentuemerPhasen.indexOf("aktiv");
+  if (e >= 0) return e <= 1 ? 0 : e <= 3 ? 1 : 2;
+  // Eigentuemerseite komplett, Investorenseite noch nicht gestartet
+  return objekt.eigentuemerPhasen.every((s) => s === "abgeschlossen") ? 3 : 0;
+}
+
 // --- Datenraum -------------------------------------------------------------
 
 export function datenraumFortschritt(objekt: Objekt): { vorhanden: number; gesamt: number } | null {
