@@ -179,3 +179,18 @@ export interface Mitarbeiter {
   kuerzel: string;
   rolle: string;
 }
+
+/** Eingegangene Antwort aus der Antworterkennung – der Posteingang des Cockpits. */
+export type SignalArt = "interesse" | "preisanfrage" | "besichtigung" | "frage" | "absage";
+
+export interface Signal {
+  id: string;
+  eingegangen: string; // ISO-Datum mit Uhrzeit
+  objektId: string;
+  investorId: string;
+  art: SignalArt;
+  auszug: string; // erkannter Kern der Antwort
+  empfehlung: string; // was die Automatik vorschlägt
+  status: "offen" | "verarbeitet";
+  verarbeitungsHinweis?: string; // z. B. "Aufgabe Broker Call erstellt (KV)"
+}

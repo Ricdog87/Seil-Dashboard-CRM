@@ -52,52 +52,52 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
 
 ## Freigabe (Human-in-the-Loop)
 
-6. **Die Freigabe gilt für die ganze Liste,** nicht je Einzelkontakt, und wird vom
+9. **Die Freigabe gilt für die ganze Liste,** nicht je Einzelkontakt, und wird vom
    objektzuständigen Mitarbeiter erteilt. Einzelne Kontakte vor Freigabe zu entfernen
    wäre eine sinnvolle Ergänzung – im Prototyp nicht umgesetzt.
-7. **Abgleichkriterien der Investorenliste:** Assetklasse, Ticketgröße und Region als
+10. **Abgleichkriterien der Investorenliste:** Assetklasse, Ticketgröße und Region als
    Matching-Dimensionen angenommen (so auch im Ankaufsprofil dargestellt).
 
 ## Datenraum / Modul 01
 
-8. **Standard-Dokumentencheckliste mit 12 Positionen** (Grundbuchauszug, Mietverträge,
+11. **Standard-Dokumentencheckliste mit 12 Positionen** (Grundbuchauszug, Mietverträge,
    Energieausweis, Altlastenauskunft …) ist eine plausible Setzung. Die echte
    Checkliste kommt aus Modul 01 und kann abweichen – ggf. auch je Assetklasse
    unterschiedlich.
-9. **Schnittstellen-Annahme:** Modul 01 liefert je Dokument einen Status
+12. **Schnittstellen-Annahme:** Modul 01 liefert je Dokument einen Status
    (vorhanden / in Prüfung / ausstehend) plus einen Stand-Zeitstempel. Im Prototyp
    ist das simuliert und überall mit „Modul 01“ gekennzeichnet.
-10. **„Datenräume mit Lücken“** zählt nur angeforderte Datenräume mit unvollständiger
+13. **„Datenräume mit Lücken“** zählt nur angeforderte Datenräume mit unvollständiger
     Checkliste – ein noch gar nicht angeforderter Datenraum (Ärztehaus) zählt nicht
     als Lücke.
 
 ## Übersicht & Aufgaben
 
-11. **KPI-Auswahl:** Die vier Kacheln (laufende Transaktionen, offene Aufgaben,
+14. **KPI-Auswahl:** Die vier Kacheln (laufende Transaktionen, offene Aufgaben,
     Investoren ohne Rückmeldung, Datenräume mit Lücken) wurden aus dem Auftrag
     abgeleitet und als wichtigste Steuerungsgrößen angenommen.
-12. **„Investoren ohne Rückmeldung“** = angeschriebene Kontakte ohne jede Antwort;
+15. **„Investoren ohne Rückmeldung“** = angeschriebene Kontakte ohne jede Antwort;
     „mit Handlungsbedarf“ = Follow-up überfällig oder Stufe 3 ausgeschöpft.
-13. **Team-Modell:** 4 Personen inkl. „Investment-Team“ als zuweisbare Einheit für
+16. **Team-Modell:** 4 Personen inkl. „Investment-Team“ als zuweisbare Einheit für
     Preisanfragen. Rollen, Namen und Zuständigkeiten sind frei erfunden.
 
 ## Struktur & Design
 
-14. **Auftraggeber hat keinen eigenen Screen** (der Auftrag definiert genau fünf).
+17. **Auftraggeber hat keinen eigenen Screen** (der Auftrag definiert genau fünf).
     Auftraggeber werden als Panel am Objekt-Detail dargestellt; als dritte Entität
     sind sie im Datenmodell aber vollwertig angelegt.
-15. **Navigation:** Drei Menüpunkte (Übersicht, Vermarktung, Aufgaben); Objekt- und
+18. **Navigation:** Drei Menüpunkte (Übersicht, Vermarktung, Aufgaben); Objekt- und
     Investor-Detail sind nur über Verlinkungen erreichbar – bewusst keine
     zusätzlichen Listen-Screens.
-16. **Vermarktungs-Screen** zeigt nur Objekte, deren Investorenseite gestartet ist
+19. **Vermarktungs-Screen** zeigt nur Objekte, deren Investorenseite gestartet ist
     (Auswahl per Dropdown); vorausgewählt ist das Objekt mit ausstehender Freigabe.
-17. **Begriffe:** Der Denglisch-Mix aus dem Auftrag (Valuation, Broker Call, Listing,
+20. **Begriffe:** Der Denglisch-Mix aus dem Auftrag (Valuation, Broker Call, Listing,
     Teaser) wurde im UI beibehalten; Datums- und Zahlenformate sind deutsch
     („17,4 Mio. €“, „18.08.2026“).
-18. **Referenzdatum:** Der Prototyp „lebt“ am 18.08.2026 – Überfälligkeiten und
+21. **Referenzdatum:** Der Prototyp „lebt“ am 18.08.2026 – Überfälligkeiten und
     „heute fällig“ beziehen sich auf dieses fixe Datum (`HEUTE` in
     `lib/mock-data.ts`).
-19. **Demodaten-Dramaturgie:** Damit auf fünf Screens alle Zustände gleichzeitig
+22. **Demodaten-Dramaturgie:** Damit auf fünf Screens alle Zustände gleichzeitig
     sichtbar sind (Interesse, Preisanfrage, Absage, Stufe 1–3, Freigabe ausstehend,
     Datenraum-Lücken …), sind einzelne Zeitabstände in den Demodaten bewusst
     gestreckt und nicht in jedem Fall streng im 2-Tage-Raster.
@@ -107,53 +107,53 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
 Der Prototyp ist ein Klickdummy – alle folgenden Punkte sind **nur als Anzeige
 simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
 
-20. **Se Circle:** Im Kickoff als zentrale Entscheidung benannt. Im Prototyp als
+23. **Se Circle:** Im Kickoff als zentrale Entscheidung benannt. Im Prototyp als
     eigene Karte am Se-Circle-Objekt (Richtung, letzter Sync, synchronisierte
     Feldgruppen), als Sync-Aktivitäten und im Systemstatus der Übersicht
     dargestellt. Welche Felder Se Circle konkret liefert und ob zurückgeschrieben
     wird, ist offen – angenommen ist ein täglicher Sync Se Circle → Cockpit.
-21. **KI-Extraktion aus dem Datenraum** (Grundbuch, Mieterlisten): je Objekt als
+24. **KI-Extraktion aus dem Datenraum** (Grundbuch, Mieterlisten): je Objekt als
     Feldliste mit Wert, Quelldokument und Prüfstatus dargestellt. Annahme: die
     Übernahme ins CRM bestätigt ein Mitarbeiter (Human-in-the-Loop, gleiche
     Philosophie wie die Listen-Freigabe); unsichere Werte (Staffelmieten,
     Flächenabweichung beim Distressed Asset) werden zur Prüfung markiert.
     Der Demo-Klick „Prüfen & übernehmen“ wirkt nur in der Sitzung.
-22. **KI-generierte Teaser & Listings:** als Pipeline auf der Vermarktung
+25. **KI-generierte Teaser & Listings:** als Pipeline auf der Vermarktung
     dargestellt (KI-Entwurf → Prüfung durch das Team → Versand); beim
     Wohnportfolio wartet der geprüfte Teaser auf die Listen-Freigabe.
     Ob die Prüfung verpflichtend sein soll, ist eine Annahme.
-23. **Pipedrive-Migration:** Der einmalige Export/Import aus dem Angebot ist als
+26. **Pipedrive-Migration:** Der einmalige Export/Import aus dem Angebot ist als
     Quelle-Tag am Investor („Pipedrive-Import“) dargestellt – ein eigener
     Import-Screen würde die Fünf-Screen-Grenze sprengen.
-24. **Status-Reports:** Im Angebot enthalten („Status-Reports“, dort mit
+27. **Status-Reports:** Im Angebot enthalten („Status-Reports“, dort mit
     Telegram nur als Beispiel genannt); im Kickoff wurde kein Kanal besprochen.
     Die Anzeige ist deshalb bewusst kanalneutral („Status-Report heute 08:00 an
     das Team versendet“). Kanal, Inhalt, Frequenz und Empfängerkreis sind im
     Kundengespräch festzulegen.
-25. **Presound-Mail an BCC-Verteiler vs. KI-personalisierte Ansprache:** Das
+28. **Presound-Mail an BCC-Verteiler vs. KI-personalisierte Ansprache:** Das
     Angebot nennt eine „KI-personalisierte Ansprache mit Freigabe-Workflow“, im
     Kickoff wurde der heutige Ist-Prozess als Presound-Mail an einen
     BCC-Verteiler beschrieben. Der Prototyp zeigt den Versand als Sammelmail
     (Benennung aus dem Kickoff) – ob die Ansprache künftig je Investor
     KI-personalisiert erzeugt und einzeln freigegeben wird, ist zu klären; das
     verändert Freigabe-Granularität und Datenmodell.
-26. **Distressed Assets:** Im Kickoff als Sonderfall mit typisch unvollständigen
+29. **Distressed Assets:** Im Kickoff als Sonderfall mit typisch unvollständigen
     Unterlagen genannt – im Prototyp als Merkmal am Fachmarktzentrum (7/12
     Dokumente) dargestellt. Ob Distressed-Fälle eine eigene Prozessvariante
     brauchen, ist offen.
-27. **Flexible Gestaltbarkeit:** Im Kickoff wurde gewünscht, dass das Dashboard
+30. **Flexible Gestaltbarkeit:** Im Kickoff wurde gewünscht, dass das Dashboard
     Prozessänderungen erlaubt. Im Klickdummy demonstriert: Aufgaben lassen sich
     neu zuweisen, um 2 Tage verschieben und abhaken (nur in der Sitzung,
     „Zurücksetzen“ stellt den Stand wieder her). Das Umsortieren der
     Prozessschritte selbst bleibt dem echten System vorbehalten – die Schritte
     sind hier bewusst fest verdrahtet.
-28. **Board-Ansicht:** Die Übersicht bietet zusätzlich zur Tabelle ein Board
+31. **Board-Ansicht:** Die Übersicht bietet zusätzlich zur Tabelle ein Board
     mit **4 Spalten = die 4 Phasen der Team-Excel** („Mandat & Bewertung“ bis
     „Angebote & Reporting“). Jede Karte hängt in der Phase ihres weitesten
     laufenden Schritts. Karten folgen dem Prozessstatus – ein manuelles
     Verschieben von Karten wäre im echten System eine Statusänderung und ist
     im Klickdummy bewusst nicht simuliert.
-29. **Interaktiver Prozess:** „Das Dashboard soll den gesamten
+32. **Interaktiver Prozess:** „Das Dashboard soll den gesamten
     Transaktionsprozess interaktiv abbilden“ (Kickoff) ist als klickbare
     Prozessleiste umgesetzt: jeder Schritt öffnet ein Detailpanel mit
     Beschreibung, Verantwortung (Team / Automatik / manuelle Freigabe) und –
@@ -162,12 +162,31 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
 
 ## Corporate Design
 
-30. **CI-Quelle:** Palette, Typo-Raster und Abstände sind verbindlich aus der
+33. **CI-Quelle:** Palette, Typo-Raster und Abstände sind verbindlich aus der
     SEIL-Präsentationsvorlage übernommen (siehe `DESIGN.md`). Die Statusfarben
     sind bewusst entsättigt ergänzt – sie sind nicht Teil der Präsentations-CI.
-31. **Schrift:** Die Vorlage setzt Avenir Next (lizenzpflichtig); im Web ersetzt
+34. **Schrift:** Die Vorlage setzt Avenir Next (lizenzpflichtig); im Web ersetzt
     durch Inter, lokal gehostet. Freigabe durch SEIL steht aus.
-32. **Logo:** Die Logo-Datei aus der Vorlage ist beschnitten und wird deshalb
+35. **Logo:** Die Logo-Datei aus der Vorlage ist beschnitten und wird deshalb
     nicht angezeigt (typografische Wortmarke als Platzhalter). Auf seil.com liegt
     ein vollständiges SVG, aber nur in dunkler Farbe – für die dunkle Kopfleiste
     wird eine weiße SVG-Variante von SEIL benötigt („nie einfärben“-Regel).
+
+## Täglicher Arbeitsmodus (Pipedrive-Ablösung)
+
+36. **„Arbeiten als“ statt Login:** Der Umschalter in der Kopfleiste simuliert
+    die Anmeldung und personalisiert Übersicht, Aufgaben und Notiz-Autor. Im
+    echten System ersetzt ihn ein Login; Rollen/Rechte (wer sieht was, wer darf
+    freigeben) sind offen.
+37. **Posteingang der Antworterkennung:** Erkannte Antworten (Interesse,
+    Preisanfrage, Besichtigungswunsch, Rückfrage, Absage) landen als Signale im
+    Posteingang der Übersicht. Standardfälle verarbeitet die Automatik selbst
+    (sichtbar als „verarbeitet“); alles andere wird per Klick zur Aufgabe.
+    Annahme: Diese Zweiteilung – Automatik für Standardfälle, Mensch für den
+    Rest – bitte bestätigen.
+38. **Globale Suche (⌘K/Strg+K):** durchsucht im Prototyp Objekte, Investoren
+    und offene Aufgaben. Ob produktiv auch Volltext über Aktivitäten,
+    Kommunikation und Datenraum-Dokumente gesucht werden soll, ist offen.
+39. **Notizen am Objekt:** direkt in der Historie erfassbar (im Prototyp nur
+    für die Sitzung). Ob Notizen auch am Investor und am Auftraggeber erfasst
+    werden sollen, ist offen.

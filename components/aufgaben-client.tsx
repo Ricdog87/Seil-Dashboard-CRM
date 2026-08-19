@@ -35,6 +35,7 @@ import {
   type Tone,
 } from "@/components/ui";
 import { EntityLink } from "@/components/cockpit";
+import { useSitzung } from "@/components/sitzung";
 
 const typMeta: Record<AufgabenTyp, { label: string; tone: Tone; icon: LucideIcon }> = {
   broker_call: { label: "Broker Call", tone: "accent", icon: Phone },
@@ -61,16 +62,16 @@ type Override = Partial<Pick<Aufgabe, "mitarbeiterId" | "faellig" | "erledigt">>
  * nur im Speicher dieser Sitzung – "Zurücksetzen" stellt den Stand wieder her.
  */
 export function AufgabenListe() {
+  // Geteilter Sitzungszustand: Abhaken auf der Übersicht und hier bleiben synchron.
+  const { aufgabenPatches, patchAufgabe, resetAufgaben } = useSitzung();
   const [filterId, setFilterId] = useState<string>("alle");
   const [erledigteAnzeigen, setErledigteAnzeigen] = useState(false);
-  const [overrides, setOverrides] = useState<Record<string, Override>>({});
 
-  const patch = (id: string, o: Override) =>
-    setOverrides((cur) => ({ ...cur, [id]: { ...cur[id], ...o } }));
+  const patch = (id: string, o: Override) => patchAufgabe(id, o);
 
   const effektiv = useMemo(
-    () => aufgaben.map((t) => ({ ...t, ...overrides[t.id] })),
-    [overrides],
+    () => aufgaben.map((t) => ({ ...t, ...aufgabenPatches[t.id] })),
+    [aufgabenPatches],
   );
 
   const zeilen = useMemo(() => {
@@ -92,7 +93,7 @@ export function AufgabenListe() {
     ...mitarbeiter.map((m) => ({ id: m.id, label: m.name, count: offenJeMitarbeiter(m.id) })),
   ];
 
-  const geaendert = Object.keys(overrides).length;
+  const geaendert = Object.keys(aufgabenPatches).length;
 
   return (
     <>
@@ -100,7 +101,7 @@ export function AufgabenListe() {
         <Tabs items={filter} activeId={filterId} onChange={setFilterId} label="Nach Mitarbeiter filtern" />
         <span className="inline-flex items-center gap-4">
           {geaendert > 0 ? (
-            <Button icon={RotateCcw} onClick={() => setOverrides({})}>
+            <Button icon={RotateCcw} onClick={resetAufgaben}>
               Zurücksetzen ({geaendert})
             </Button>
           ) : null}

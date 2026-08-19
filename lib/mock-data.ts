@@ -10,6 +10,7 @@ import type {
   Mitarbeiter,
   Objekt,
   ObjektInvestorLink,
+  Signal,
 } from "./types";
 
 /** Fester Referenztag des Prototyps – alle Daten sind darauf abgestimmt. */
@@ -575,6 +576,7 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak13", datum: "2026-08-15T15:10", typ: "mail_eingang", text: "Belvedere Grund Invest sagt ab – kein Büro-Ankauf in 2026.", objektId: "o1", investorId: "i9" },
   { id: "ak14", datum: "2026-08-16T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 3 an Corvus Family Office versendet – maximale Stufe erreicht.", objektId: "o1", investorId: "i8" },
   { id: "ak15", datum: "2026-08-17T11:05", typ: "anruf", text: "Rückfragen von Hartmann & Cie. zur Mieter- & Flächenliste beantwortet.", objektId: "o1", investorId: "i3", mitarbeiterId: "m1" },
+  { id: "ak49", datum: "2026-08-18T08:41", typ: "mail_eingang", text: "Hartmann & Cie. bittet um Besichtigung in KW 35 – Antworterkennung: Signal im Posteingang.", objektId: "o1", investorId: "i3" },
 
   { id: "ak46", datum: "2026-08-17T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 2 automatisch versendet an Rheingold Asset Management.", objektId: "o1", investorId: "i4" },
 
@@ -588,6 +590,7 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak48", datum: "2026-08-17T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 2 automatisch versendet an Falkenstein Capital Partners.", objektId: "o2", investorId: "i1" },
   { id: "ak21", datum: "2026-08-15T14:22", typ: "mail_eingang", text: "Portus Logistics Capital meldet Interesse – Objektbesichtigung gewünscht.", objektId: "o2", investorId: "i7" },
   { id: "ak22", datum: "2026-08-15T14:23", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Interesse – Aufgabe „Broker Call“ für Daniel Mertens erstellt.", objektId: "o2", investorId: "i7" },
+  { id: "ak50", datum: "2026-08-18T07:58", typ: "mail_eingang", text: "Portus Logistics stellt Fragen zu Mietvertrag Halle 2 und Erweiterungsreserve – Antworterkennung: Signal im Posteingang.", objektId: "o2", investorId: "i7" },
   { id: "ak23", datum: "2026-08-17T16:40", typ: "anruf", text: "Statusupdate an Gateway Industrial: 4 Kontakte angeschrieben, 1 Interessent.", objektId: "o2", auftraggeberId: "a3", mitarbeiterId: "m2" },
 
   // Wohnportfolio Sachsenhausen (o3)
@@ -621,4 +624,53 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak39", datum: "2026-08-12T11:00", typ: "anruf", text: "Erstgespräch geführt – Mandatsumfang und Zeitplan besprochen.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m1" },
   { id: "ak40", datum: "2026-08-13T15:45", typ: "mail_ausgang", text: "NDA-Entwurf an Auftraggeberin versendet.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m1" },
   { id: "ak41", datum: "2026-08-18T08:30", typ: "notiz", text: "NDA-Rücklauf steht aus – Wiedervorlage heute.", objektId: "o6", mitarbeiterId: "m1" },
+];
+
+// ---------------------------------------------------------------------------
+// Posteingang: Signale der Antworterkennung (Triage durch das Team)
+// ---------------------------------------------------------------------------
+
+export const signale: Signal[] = [
+  {
+    id: "s1",
+    eingegangen: "2026-08-18T08:41",
+    objektId: "o1",
+    investorId: "i3",
+    art: "besichtigung",
+    auszug: "„… würden das Ensemble gern kurzfristig besichtigen – KW 35, Dienstag oder Donnerstag Vormittag.“",
+    empfehlung: "Besichtigung koordinieren (Schritt 20) und Broker Call vorziehen",
+    status: "offen",
+  },
+  {
+    id: "s2",
+    eingegangen: "2026-08-18T07:58",
+    objektId: "o2",
+    investorId: "i7",
+    art: "frage",
+    auszug: "„… vor dem Call zwei Fragen: Resthaltbarkeit des Mietvertrags Halle 2 und Erweiterungsreserve auf dem Grundstück?“",
+    empfehlung: "Q&A beantworten, Unterlagen für Broker Call heute bereitlegen",
+    status: "offen",
+  },
+  {
+    id: "s3",
+    eingegangen: "2026-08-14T09:31",
+    objektId: "o1",
+    investorId: "i1",
+    art: "interesse",
+    auszug: "„… haben das Objekt intern vorgestellt, konkretes Interesse – wer ist unser Ansprechpartner für ein Gespräch?“",
+    empfehlung: "Broker Call anlegen",
+    status: "verarbeitet",
+    verarbeitungsHinweis: "Aufgabe „Broker Call“ für Katharina Vogt erstellt (Automatik)",
+  },
+  {
+    id: "s4",
+    eingegangen: "2026-08-12T13:48",
+    objektId: "o1",
+    investorId: "i2",
+    art: "preisanfrage",
+    auszug: "„… bitte um Ihre Preisvorstellung und den angesetzten Faktor auf die JNKM.“",
+    empfehlung: "An Investment-Team routen",
+    status: "verarbeitet",
+    verarbeitungsHinweis: "Aufgabe für das Investment-Team erstellt (Automatik)",
+  },
 ];

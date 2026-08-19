@@ -17,8 +17,10 @@ import {
   FollowUpStufe,
   Fortschritt,
   KpiKachel,
-  SeitenKopf,
 } from "@/components/cockpit";
+import { HeuteKopf } from "@/components/heute-kopf";
+import { MeineAufgaben } from "@/components/meine-aufgaben";
+import { Posteingang } from "@/components/posteingang";
 import { TransaktionenAnsicht } from "@/components/transaktionen-ansicht";
 
 export default function UebersichtSeite() {
@@ -29,10 +31,7 @@ export default function UebersichtSeite() {
   return (
     <>
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <SeitenKopf
-          titel="Übersicht"
-          untertitel="Alle laufenden Transaktionen mit Phase, Aufgaben, Rückmeldungen und Datenraum-Status auf einen Blick."
-        />
+        <HeuteKopf />
         {/* Systemstatus: die drei Anbindungen aus Angebot und Kickoff, still im Hintergrund. */}
         <div className="flex flex-col items-end gap-1 text-kicker text-seil-muted">
           <p className="inline-flex items-center gap-2">
@@ -69,6 +68,11 @@ export default function UebersichtSeite() {
           wert={k.datenraumLuecken}
           sub="Checklisten unvollständig"
         />
+      </div>
+
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[7fr_5fr]">
+        <Posteingang />
+        <MeineAufgaben />
       </div>
 
       <TransaktionenAnsicht />

@@ -25,11 +25,19 @@ Die Übersicht zeigt die laufenden Transaktionen wahlweise als dichte Tabelle
 oder als Board – eine Spalte je Phase („Mandat & Bewertung“ bis „Angebote &
 Reporting“).
 
-Der Klickdummy ist an den im Kickoff gewünschten Stellen interaktiv: die
-Prozessleiste öffnet je Schritt ein Detailpanel, KI-extrahierte Werte lassen
-sich prüfen und übernehmen, Aufgaben lassen sich neu zuweisen, verschieben und
-abhaken (Änderungen gelten nur in der Sitzung), und die Vermarktung zeigt
-Antwortquote und Teaser-Pipeline (KI-Entwurf → Prüfung → Versand).
+Der Klickdummy ist als **tägliches Arbeitswerkzeug** gedacht (Pipedrive-Ablösung),
+nicht als Berichtsseite: Oben rechts stellt „Arbeiten als“ das Cockpit auf die
+Sicht eines Mitarbeiters um (simulierte Anmeldung). Die Übersicht beginnt mit dem
+persönlichen Tag – dem **Posteingang der Antworterkennung** (erkannte Antworten
+mit Triage per Klick) und **Meine Aufgaben** (direkt abhakbar, synchron mit dem
+Aufgaben-Screen). **⌘K / Strg+K** öffnet die globale Suche über Objekte,
+Investoren und offene Aufgaben. Dazu ist der Prototyp an den im Kickoff
+gewünschten Stellen interaktiv: die Prozessleiste öffnet je Schritt ein
+Detailpanel, KI-extrahierte Werte lassen sich prüfen und übernehmen, Notizen
+lassen sich direkt am Objekt erfassen, Aufgaben lassen sich neu zuweisen,
+verschieben und abhaken, und die Vermarktung zeigt Antwortquote und
+Teaser-Pipeline (KI-Entwurf → Prüfung → Versand). Alle Eingriffe gelten nur in
+der laufenden Sitzung – ein Reload stellt den Demostand wieder her.
 
 Objekt- und Investor-Detail sind bewusst nur über Verlinkungen erreichbar (Zeilen in
 Tabellen anklicken) – es gibt keine Listen-Screens über die fünf Screens hinaus.
@@ -38,7 +46,7 @@ Tabellen anklicken) – es gibt keine Listen-Screens über die fünf Screens hin
 
 | Leistungsbaustein | Im Prototyp sichtbar als |
 |---|---|
-| KI-personalisierte Ansprache mit Freigabe-Workflow | Freigabe-Karte (Human-in-the-Loop); Versand im Prototyp als Presound-Sammelmail – Personalisierung je Investor ist Klärungspunkt (ANNAHMEN.md, Punkt 25) |
+| KI-personalisierte Ansprache mit Freigabe-Workflow | Freigabe-Karte (Human-in-the-Loop); Versand im Prototyp als Presound-Sammelmail – Personalisierung je Investor ist Klärungspunkt (ANNAHMEN.md, Punkt 28) |
 | Szenariobasierte Follow-up-Logik (Response, Price Inquiry, kein Rücklauf) | Antwortstatus je Kontakt, Follow-up-Stufen 1–3, „manuell nachfassen“ nach Stufe 3 |
 | Antwort-Erkennung und Zuordnung | Aktivitäten „Antwort erkannt: …“ + automatisch erzeugte Aufgaben (Broker Call, Investment-Team) |
 | Zentrales Dashboard: Phasen, Investoren, Objekte, Datenraum-Status | Die fünf Screens; Prozessleiste über beide Seiten; Datenraum aus Modul 01 |

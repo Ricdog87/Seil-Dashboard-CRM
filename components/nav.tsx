@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ArbeitenAls } from "./arbeiten-als";
+import { BefehlsPalette } from "./befehlspalette";
 import { SeilLogo } from "./seil-logo";
 
 const punkte = [
@@ -49,8 +51,12 @@ export function TopNav() {
           })}
         </nav>
 
-        <span className="ml-auto rounded-seil border border-seil-line bg-seil-card-alt px-2 py-0.5 text-kicker text-seil-muted">
-          Prototyp · Demodaten
+        <span className="ml-auto inline-flex items-center gap-3">
+          <BefehlsPalette />
+          <ArbeitenAls />
+          <span className="hidden rounded-seil border border-seil-line bg-seil-card-alt px-2 py-0.5 text-kicker text-seil-muted lg:inline">
+            Prototyp · Demodaten
+          </span>
         </span>
       </div>
     </header>

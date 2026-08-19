@@ -18,6 +18,7 @@ import {
 import type { DokumentStatus } from "@/lib/types";
 import { Aktivitaeten } from "@/components/aktivitaeten";
 import { KiExtraktion } from "@/components/ki-extraktion";
+import { NotizErfassen } from "@/components/notiz-erfassen";
 import { Prozessleiste } from "@/components/prozessleiste";
 import {
   Badge,
@@ -295,6 +296,7 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
           title="Aktivitäten & Kommunikation"
           meta="alle Kontakte, Automatik-Schritte und Notizen zu diesem Objekt"
         />
+        <NotizErfassen objektId={objekt.id} />
         <Aktivitaeten eintraege={eintraege} kontext="objekt" />
       </Card>
     </>
