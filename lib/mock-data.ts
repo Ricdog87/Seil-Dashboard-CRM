@@ -19,70 +19,71 @@ export const HEUTE = "2026-08-18";
 // Prozessschritte (die zwei Seiten, in denen der Kunde denkt)
 // ---------------------------------------------------------------------------
 
-export const EIGENTUEMER_SCHRITTE = [
-  "Erstinformation / Client Portfolio",
-  "NDA mit Auftraggeber",
-  "Datenraum anfordern",
-  "Valuation",
-  "Unterlagen erstellen (Excel, Präsentation)",
-  "Service Agreement & Legitimation/Vollmacht",
-] as const;
+/**
+ * Prozessmodell 1:1 aus der Team-Excel „SEIL Transaction Process" (19.08.):
+ * 26 Schritte in 4 Phasen, je Schritt Verantwortung und heutiges Tool.
+ * Titel der Phasen 3+4 stehen so in der Excel; 1+2 sind im Export abgeschnitten
+ * und hier gesetzt. Die Excel-Nummerierung (Lücken bei 13/17, doppelte 18)
+ * wurde auf durchgängig 1–26 bereinigt; „Reporting (wöchentlich)" läuft als
+ * Querschnitt in Phase 4 mit. Beides bitte im Kundengespräch bestätigen.
+ */
 
-export const EIGENTUEMER_SCHRITTE_KURZ = [
-  "Erstinfo",
-  "NDA Auftraggeber",
-  "Datenraum",
-  "Valuation",
-  "Unterlagen",
-  "Agreement & Vollmacht",
-] as const;
+export type SchrittVerantwortung = "team" | "automatik" | "freigabe" | "extern";
 
-export const INVESTOREN_SCHRITTE = [
-  "NDA Vermarktung",
-  "Fotograf, Teaser & Listing",
-  "Investorenliste abgleichen → Freigabe",
-  "Versand an Verteiler",
-  "Automatisches Follow-up (2 Tage, max. 3 Stufen)",
-  "Antworterkennung & Übergabe",
-] as const;
-
-export const INVESTOREN_SCHRITTE_KURZ = [
-  "NDA Vermarktung",
-  "Teaser & Listing",
-  "Freigabe Liste",
-  "Versand",
-  "Follow-up",
-  "Antworten",
-] as const;
-
-/** Index des Human-in-the-Loop-Schritts auf der Investorenseite. */
-export const FREIGABE_SCHRITT_INDEX = 2;
-
-/** Wer einen Schritt treibt – Grundlage für das Detailpanel der Prozessleiste. */
-export type SchrittVerantwortung = "team" | "automatik" | "freigabe";
-
-export interface SchrittInfo {
-  beschreibung: string;
+export interface ProzessSchritt {
+  nr: number;
+  kurz: string;
+  lang: string;
+  verantwortlich: string; // wie in der Excel: Client, Legal Team, Investment Team …
   verantwortung: SchrittVerantwortung;
+  tool: string; // heutiges Werkzeug lt. Excel
+  beschreibung: string;
 }
 
-export const EIGENTUEMER_SCHRITT_INFO: readonly SchrittInfo[] = [
-  { beschreibung: "Client Portfolio entgegennehmen, Objekt anlegen, Unterlagen sichten.", verantwortung: "team" },
-  { beschreibung: "NDA mit dem Auftraggeber schließen – Grundlage für den Austausch vertraulicher Unterlagen.", verantwortung: "team" },
-  { beschreibung: "Datenraum mit Standard-Checkliste anfordern; Eingänge prüft Modul 01 automatisch, die KI liest Kennwerte aus.", verantwortung: "team" },
-  { beschreibung: "Valuation: Cashflow-Modell und Kaufpreiseinschätzung auf Basis der Datenraum-Zahlen.", verantwortung: "team" },
-  { beschreibung: "Excel- und Präsentationsunterlagen erstellen – Kennzahlen kommen aus der KI-Extraktion.", verantwortung: "team" },
-  { beschreibung: "Service Agreement (intern) und Legitimation/Vollmacht (extern) – SEIL vertritt den Auftraggeber nach außen.", verantwortung: "team" },
+export interface ProzessPhase {
+  titel: string;
+  vonNr: number;
+  bisNr: number;
+}
+
+export const PROZESS_PHASEN: readonly ProzessPhase[] = [
+  { titel: "PHASE 1 · Mandat & Bewertung", vonNr: 1, bisNr: 7 },
+  { titel: "PHASE 2 · Vermarktungsvorbereitung", vonNr: 8, bisNr: 14 },
+  { titel: "PHASE 3 · Aktive Vermarktung", vonNr: 15, bisNr: 18 },
+  { titel: "PHASE 4 · Angebote & Reporting (laufend)", vonNr: 19, bisNr: 26 },
 ] as const;
 
-export const INVESTOREN_SCHRITT_INFO: readonly SchrittInfo[] = [
-  { beschreibung: "Vermarktungs-NDA je Interessent – Voraussetzung für jeden Datenraumzugang.", verantwortung: "team" },
-  { beschreibung: "Fotograf beauftragen; Teaser & Listing werden KI-generiert und vom Team geprüft.", verantwortung: "team" },
-  { beschreibung: "Automatischer Abgleich der Investorenliste (Assetklasse, Ticket, Region) – Versand erst nach Freigabe.", verantwortung: "freigabe" },
-  { beschreibung: "Presound-Mail an den BCC-Verteiler – ausgelöst durch die Freigabe.", verantwortung: "automatik" },
-  { beschreibung: "Follow-up alle 2 Tage, maximal 3 Stufen; danach entsteht eine manuelle Nachfass-Aufgabe.", verantwortung: "automatik" },
-  { beschreibung: "Antworterkennung: Interesse → Broker Call, Preisanfrage → Investment-Team, Absagen werden verbucht.", verantwortung: "automatik" },
+export const PROZESS_SCHRITTE: readonly ProzessSchritt[] = [
+  { nr: 1, kurz: "Portfolio für Exit", lang: "Portfolio for potential Exit", verantwortlich: "Client", verantwortung: "extern", tool: "Word/PDF", beschreibung: "Der Auftraggeber liefert das Portfolio bzw. Objekt für einen möglichen Exit – Ausgangspunkt jedes Mandats." },
+  { nr: 2, kurz: "NDA Auftraggeber", lang: "Draft NDA", verantwortlich: "Legal Team", verantwortung: "extern", tool: "Word/PDF", beschreibung: "NDA mit dem Auftraggeber – Grundlage für den Austausch vertraulicher Unterlagen." },
+  { nr: 3, kurz: "Rent Roll anfordern", lang: "Request Rent Roll / Data Room (via E-Mail)", verantwortlich: "Team", verantwortung: "team", tool: "Outlook", beschreibung: "Mieterliste und erste Datenraum-Unterlagen beim Auftraggeber anfordern." },
+  { nr: 4, kurz: "Excel-Valuation", lang: "Excel Valuation on single Property Basis", verantwortlich: "Investment Team", verantwortung: "team", tool: "Excel", beschreibung: "Bewertung je Einzelobjekt – künftig mit KI-extrahierten Kennwerten aus dem Datenraum." },
+  { nr: 5, kurz: "Valuation-Präsentation", lang: "Presentation with Valuation and Sales Strategy", verantwortlich: "Team", verantwortung: "team", tool: "PowerPoint", beschreibung: "Präsentation mit Bewertung und Vermarktungsstrategie für den Auftraggeber." },
+  { nr: 6, kurz: "Service Agreement", lang: "Draft Service Agreement (via E-Mail)", verantwortlich: "Legal Team", verantwortung: "extern", tool: "Word/PDF", beschreibung: "Internes Service Agreement – Mandatsgrundlage." },
+  { nr: 7, kurz: "Legitimation", lang: "Draft Legitimation (via E-Mail)", verantwortlich: "Legal Team", verantwortung: "extern", tool: "Word/PDF", beschreibung: "Externe Legitimation/Vollmacht – SEIL vertritt den Auftraggeber nach außen." },
+  { nr: 8, kurz: "Standarddokumente", lang: "Request for Standard Documents (via E-Mail)", verantwortlich: "Team", verantwortung: "team", tool: "Outlook", beschreibung: "Standard-Dokumentenliste beim Auftraggeber anfordern – Eingang prüft künftig Modul 01." },
+  { nr: 9, kurz: "Datenraum aufbauen", lang: "Create Data Room according to Standard Structure", verantwortlich: "Team", verantwortung: "team", tool: "OneDrive", beschreibung: "Datenraum nach Standardstruktur aufbauen – Status und Checkliste liefert künftig Modul 01." },
+  { nr: 10, kurz: "Deal im CRM", lang: "Create new Deal", verantwortlich: "Team", verantwortung: "team", tool: "Pipedrive", beschreibung: "Deal anlegen – künftig automatisch im Cockpit statt in Pipedrive." },
+  { nr: 11, kurz: "Onepager/Teaser", lang: "Create Onepager", verantwortlich: "Team", verantwortung: "team", tool: "PowerPoint", beschreibung: "Onepager/Teaser erstellen – künftig KI-generiert mit Prüfung durch das Team." },
+  { nr: 12, kurz: "NDA Vermarktung", lang: "Draft NDA (Vermarktung)", verantwortlich: "Legal Team", verantwortung: "extern", tool: "Word/PDF", beschreibung: "Vermarktungs-NDA je Interessent – Voraussetzung für jeden Datenraumzugang." },
+  { nr: 13, kurz: "Fotograf", lang: "Organize Photographers for Property Pictures", verantwortlich: "Team", verantwortung: "team", tool: "Outlook", beschreibung: "Fotograf für Objektaufnahmen organisieren." },
+  { nr: 14, kurz: "Matching-Liste", lang: "Matching / Investors List (E-Mail Addresses)", verantwortlich: "Team", verantwortung: "team", tool: "Pipedrive", beschreibung: "Investorenliste per Abgleich mit den Ankaufsprofilen (Assetklasse, Ticket, Region) – künftig automatisch." },
+  { nr: 15, kurz: "Approach-Mailing", lang: "Investors Approach E-Mail (BCC Mailing)", verantwortlich: "Team", verantwortung: "freigabe", tool: "Outlook (BCC)", beschreibung: "Versand an den Verteiler – startet erst nach manueller Freigabe der Liste (Human-in-the-Loop)." },
+  { nr: 16, kurz: "Follow-ups & Q&A", lang: "Standard Process / E-Mails: Follow-Ups, Q&A, NDA", verantwortlich: "Team", verantwortung: "automatik", tool: "Outlook", beschreibung: "Follow-up alle 2 Tage (max. 3 Stufen), Q&A und NDA-Handling – übernimmt künftig die Automatik mit Antworterkennung." },
+  { nr: 17, kurz: "Broker Call", lang: "Broker Call: Feedback, Pricing, Site Visit", verantwortlich: "Broker", verantwortung: "team", tool: "Telefon", beschreibung: "Persönliches Gespräch bei Interesse – Fragen, Preis, Besichtigungswunsch. Entsteht als Aufgabe aus der Antworterkennung." },
+  { nr: 18, kurz: "Datenraum Light", lang: "Datenraum Light", verantwortlich: "Team", verantwortung: "team", tool: "OneDrive", beschreibung: "Reduzierter Datenraum für qualifizierte Interessenten nach NDA." },
+  { nr: 19, kurz: "Indikatives Angebot", lang: "Indikatives Angebot / LOI", verantwortlich: "Investment Team", verantwortung: "extern", tool: "Word/PDF", beschreibung: "Indikative Angebote bzw. LOI der Interessenten einsammeln und bewerten." },
+  { nr: 20, kurz: "Besichtigungen", lang: "Besichtigungen", verantwortlich: "Team", verantwortung: "team", tool: "Outlook", beschreibung: "Objektbesichtigungen mit qualifizierten Bietern koordinieren." },
+  { nr: 21, kurz: "Datenraum Full", lang: "Datenraum Full", verantwortlich: "Team", verantwortung: "team", tool: "OneDrive", beschreibung: "Vollständiger Datenraum für Bieter der engeren Auswahl." },
+  { nr: 22, kurz: "SEIL-HERO-Angebot", lang: "SEIL-HERO-Angebot", verantwortlich: "Investment Team", verantwortung: "team", tool: "Word/PDF", beschreibung: "Finales, strukturiertes Angebot (SEIL-HERO-Format) verhandlungsreif aufbereiten." },
+  { nr: 23, kurz: "Verhandlung", lang: "Angebotsverhandlung", verantwortlich: "Team", verantwortung: "team", tool: "Telefon", beschreibung: "Angebotsverhandlung mit dem präferierten Bieter." },
+  { nr: 24, kurz: "Notar", lang: "Notarbeauftragung", verantwortlich: "Legal Team", verantwortung: "extern", tool: "Word/PDF", beschreibung: "Notar beauftragen, Kaufvertragsentwurf abstimmen." },
+  { nr: 25, kurz: "Offene Bedingungen", lang: "Offene Bedingungen", verantwortlich: "Team", verantwortung: "team", tool: "Excel", beschreibung: "Offene Bedingungen bis zum Vollzug nachhalten – wöchentliches Reporting an den Auftraggeber läuft parallel." },
+  { nr: 26, kurz: "Signing", lang: "Signing", verantwortlich: "Legal Team", verantwortung: "extern", tool: "Word/PDF", beschreibung: "Beurkundung – Abschluss der Transaktion." },
 ] as const;
+
+/** Index (0-basiert) des Human-in-the-Loop-Schritts: Approach-Mailing erst nach Freigabe. */
+export const FREIGABE_SCHRITT_INDEX = 14;
 
 // ---------------------------------------------------------------------------
 // Team
@@ -163,6 +164,14 @@ export const STANDARD_DOKUMENTE = [
   "Jahresabrechnung / BWA",
 ] as const;
 
+
+type SchrittMap = Partial<Record<number, "done" | "in_progress" | "pending" | "na">>;
+
+/** Schritt-Status-Array: alles bis `doneBis` (1-basiert) done, Rest pending, plus Ausnahmen. */
+function schritteMit(doneBis: number, ausnahmen: SchrittMap = {}) {
+  return PROZESS_SCHRITTE.map((sch, i) => ausnahmen[i] ?? (sch.nr <= doneBis ? ("done" as const) : ("pending" as const)));
+}
+
 type DokStatusMap = Partial<Record<number, "in_pruefung" | "ausstehend">>;
 
 function datenraumMit(abweichungen: DokStatusMap, stand: string) {
@@ -191,8 +200,10 @@ export const objekte: Objekt[] = [
     kaufpreisMio: 48.5,
     auftraggeberId: "a1",
     zustaendigId: "m1",
-    eigentuemerPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen"],
-    investorenPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "aktiv"],
+    vertretungId: "m2",
+    standNotiz: "Zwei heiße Kandidaten – indikative Angebote für KW 35 avisiert.",
+    kennzahlen: { renditeProzent: 4.6, baujahr: 1998, einheiten: 31, leerstandProzent: 4.1, jnkmIstEuro: 2230000, jnkmSollEuro: 2310000 },
+    schritte: schritteMit(15, { 15: "in_progress", 16: "in_progress", 18: "in_progress", 19: "pending" }),
     kiFelder: [
       { feld: "Mietverträge", wert: "27", quelleDokument: "Mieter- & Flächenliste", status: "uebernommen" },
       { feld: "WALT", wert: "4,3 Jahre", quelleDokument: "Mieter- & Flächenliste", status: "uebernommen" },
@@ -213,8 +224,10 @@ export const objekte: Objekt[] = [
     kaufpreisMio: 23.9,
     auftraggeberId: "a3",
     zustaendigId: "m2",
-    eigentuemerPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen"],
-    investorenPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "aktiv", "offen"],
+    vertretungId: "m3",
+    standNotiz: "Altlastenauskunft beim Amt nachgefordert – Reporting an Auftraggeber läuft.",
+    kennzahlen: { renditeProzent: 5.4, baujahr: 2011, einheiten: 4, leerstandProzent: 0 },
+    schritte: schritteMit(15, { 15: "in_progress", 16: "in_progress", 17: "pending" }),
     teaser: { stand: "versendet", entwurfVom: "2026-08-04", geprueftDurchId: "m2", versendetAm: "2026-08-06" },
     datenraum: datenraumMit({ 10: "ausstehend" }, "2026-08-16"),
     freigabe: { status: "erteilt", durchId: "m2", am: "2026-08-05" },
@@ -229,8 +242,10 @@ export const objekte: Objekt[] = [
     kaufpreisMio: 31.2,
     auftraggeberId: "a2",
     zustaendigId: "m1",
-    eigentuemerPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen", "abgeschlossen"],
-    investorenPhasen: ["abgeschlossen", "abgeschlossen", "aktiv", "offen", "offen", "offen"],
+    vertretungId: "m3",
+    standNotiz: "Versand wartet auf Listen-Freigabe – danach übernimmt die Automatik.",
+    kennzahlen: { renditeProzent: 3.8, baujahr: 1955, einheiten: 62, leerstandProzent: 3.2, jnkmIstEuro: 867000, jnkmSollEuro: 912000 },
+    schritte: schritteMit(14, { 14: "pending" }),
     kiFelder: [
       { feld: "Grundbuchblätter", wert: "3 (Bl. 4211, 4212, 4287)", quelleDokument: "Grundbuchauszug", status: "uebernommen" },
       { feld: "Wohneinheiten", wert: "62", quelleDokument: "Mieter- & Flächenliste", status: "uebernommen" },
@@ -254,8 +269,10 @@ export const objekte: Objekt[] = [
     kiFelder: [
       { feld: "Mietfläche lt. Liste", wert: "8.310 m²", quelleDokument: "Mieter- & Flächenliste", status: "pruefen", hinweis: "Weicht vom Exposé ab (8.400 m²)" },
     ],
-    eigentuemerPhasen: ["abgeschlossen", "abgeschlossen", "aktiv", "offen", "offen", "offen"],
-    investorenPhasen: ["offen", "offen", "offen", "offen", "offen", "offen"],
+    vertretungId: "m1",
+    standNotiz: "Eigentümerin liefert Unterlagen schleppend – täglich nachfassen.",
+    kennzahlen: { renditeProzent: 7.1, baujahr: 1994, einheiten: 12, leerstandProzent: 18.5 },
+    schritte: schritteMit(7, { 7: "in_progress", 8: "in_progress", 3: "in_progress", 12: "na" }),
     datenraum: datenraumMit(
       { 3: "in_pruefung", 7: "ausstehend", 8: "ausstehend", 9: "ausstehend", 10: "ausstehend" },
       "2026-08-16",
@@ -277,8 +294,10 @@ export const objekte: Objekt[] = [
       richtung: "Se Circle → Cockpit",
       feldgruppen: ["Stammdaten", "Flächen & Einheiten", "Exposé-Daten", "Ansprechpartner"],
     },
-    eigentuemerPhasen: ["abgeschlossen", "abgeschlossen", "abgeschlossen", "aktiv", "offen", "offen"],
-    investorenPhasen: ["offen", "offen", "offen", "offen", "offen", "offen"],
+    vertretungId: "m2",
+    standNotiz: "Pachtvertrag mit Betreiber wird nachgereicht – Valuation läuft.",
+    kennzahlen: { renditeProzent: 5.9, baujahr: 2016, einheiten: 88, leerstandProzent: 0 },
+    schritte: schritteMit(3, { 3: "in_progress", 4: "in_progress", 8: "in_progress", 9: "done" }),
     datenraum: datenraumMit({ 9: "ausstehend", 11: "ausstehend" }, "2026-08-08"),
   },
   {
@@ -291,8 +310,10 @@ export const objekte: Objekt[] = [
     kaufpreisMio: 9.6,
     auftraggeberId: "a6",
     zustaendigId: "m1",
-    eigentuemerPhasen: ["abgeschlossen", "aktiv", "offen", "offen", "offen", "offen"],
-    investorenPhasen: ["offen", "offen", "offen", "offen", "offen", "offen"],
+    vertretungId: "m2",
+    standNotiz: "NDA-Rücklauf steht aus – Wiedervorlage heute.",
+    kennzahlen: { renditeProzent: 4.9, baujahr: 2005, einheiten: 9, leerstandProzent: 6.0 },
+    schritte: schritteMit(1, { 1: "in_progress" }),
     datenraum: { angefordert: false, dokumente: [] },
   },
 ];

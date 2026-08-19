@@ -1,6 +1,7 @@
 // Typen des SEIL Cockpit (Modul 02) – reiner Frontend-Prototyp mit Mock-Daten.
 
-export type PhaseStatus = "abgeschlossen" | "aktiv" | "offen";
+/** Statusvokabular der Team-Excel: Done / In Progress / Pending / N.A. */
+export type SchrittStatus = "done" | "in_progress" | "pending" | "na";
 
 export type DokumentStatus = "vorhanden" | "in_pruefung" | "ausstehend";
 
@@ -62,10 +63,22 @@ export interface Objekt {
   seCircleSync?: SeCircleSync;
   /** Stand von Teaser & Listing - produktiv KI-generiert mit Pruefschritt. */
   teaser?: TeaserStatus;
-  /** Status der 6 Schritte auf der Eigentümerseite (Reihenfolge wie EIGENTUEMER_SCHRITTE) */
-  eigentuemerPhasen: PhaseStatus[];
-  /** Status der 6 Schritte auf der Investorenseite (Reihenfolge wie INVESTOREN_SCHRITTE) */
-  investorenPhasen: PhaseStatus[];
+  /** Status je Prozessschritt (Reihenfolge wie PROZESS_SCHRITTE, 26 Einträge).
+   *  Mehrere Schritte können gleichzeitig in Arbeit sein – wie in der Team-Excel. */
+  schritte: SchrittStatus[];
+  /** Vertretung des Projekt-Leads (Team-Excel: Lead + Vertretung je Objekt). */
+  vertretungId?: string;
+  /** Freitext-Notiz zum Stand – Pendant zur Notizspalte der Team-Excel. */
+  standNotiz?: string;
+  /** Kennzahlen aus der Objektliste (Auszug der Excel-Spalten). */
+  kennzahlen?: {
+    renditeProzent?: number;
+    baujahr?: number;
+    einheiten?: number;
+    leerstandProzent?: number;
+    jnkmIstEuro?: number;
+    jnkmSollEuro?: number;
+  };
   datenraum: Datenraum;
   /** Nur für Objekte in Vermarktung: Stand der Listen-Freigabe (Human-in-the-Loop) */
   freigabe?: {

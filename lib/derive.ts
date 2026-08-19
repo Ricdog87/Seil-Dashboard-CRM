@@ -5,13 +5,13 @@ import {
   aktivitaeten,
   aufgaben,
   auftraggeber,
-  EIGENTUEMER_SCHRITTE_KURZ,
   HEUTE,
   investoren,
-  INVESTOREN_SCHRITTE_KURZ,
   mitarbeiter,
   objektInvestorLinks,
   objekte,
+  PROZESS_PHASEN,
+  PROZESS_SCHRITTE,
 } from "./mock-data";
 import type { Aktivitaet, Objekt, ObjektInvestorLink } from "./types";
 
@@ -39,41 +39,40 @@ export function aktivitaetenZu(filter: { objektId?: string; investorId?: string 
     .sort((a, b) => (a.datum < b.datum ? 1 : -1));
 }
 
-// --- Phase / Prozess -------------------------------------------------------
+// --- Phase / Prozess (Modell: 26 Schritte in 4 Phasen, wie die Team-Excel) --
 
-/** Aktueller Schritt eines Objekts – Investorenseite hat Vorrang, wenn aktiv. */
-export function aktiverSchritt(objekt: Objekt): { seite: "Eigentümer" | "Investoren"; nr: number; titel: string } {
-  const iAktiv = objekt.investorenPhasen.indexOf("aktiv");
-  if (iAktiv >= 0) {
-    return { seite: "Investoren", nr: iAktiv + 1, titel: INVESTOREN_SCHRITTE_KURZ[iAktiv] };
-  }
-  const eAktiv = objekt.eigentuemerPhasen.indexOf("aktiv");
-  if (eAktiv >= 0) {
-    return { seite: "Eigentümer", nr: eAktiv + 1, titel: EIGENTUEMER_SCHRITTE_KURZ[eAktiv] };
-  }
-  return { seite: "Eigentümer", nr: 1, titel: EIGENTUEMER_SCHRITTE_KURZ[0] };
+/** Weitester Schritt in Arbeit (sonst: erster offener) – Follow-ups laufen
+ *  parallel weiter, die Transaktion steht aber dort, wo es am weitesten ist. */
+export function aktiverSchritt(objekt: Objekt): { phase: number; nr: number; titel: string; weitere: number } {
+  const inArbeit = objekt.schritte
+    .map((st, i) => ({ st, i }))
+    .filter((x) => x.st === "in_progress");
+  const weitester =
+    inArbeit.length > 0
+      ? inArbeit[inArbeit.length - 1].i
+      : objekt.schritte.findIndex((st) => st === "pending");
+  const idx = weitester >= 0 ? weitester : objekt.schritte.length - 1;
+  const schritt = PROZESS_SCHRITTE[idx];
+  const phase = PROZESS_PHASEN.findIndex((p) => schritt.nr >= p.vonNr && schritt.nr <= p.bisNr);
+  return { phase: phase + 1, nr: schritt.nr, titel: schritt.kurz, weitere: Math.max(0, inArbeit.length - 1) };
 }
 
-/**
- * Pipeline-Stufe fuer die Board-Ansicht: die 12 Prozessschritte, verdichtet
- * auf 5 Spalten, in denen das Team Transaktionen denkt.
- */
-export const PIPELINE_STUFEN = [
-  "Akquise & NDA",
-  "Datenraum & Valuation",
-  "Unterlagen & Mandat",
-  "Vermarktung · Vorbereitung",
-  "Vermarktung · Aktiv",
-] as const;
+/** Prozessfortschritt: erledigte Schritte / anwendbare Schritte (N.A. zählt nicht). */
+export function prozessFortschritt(objekt: Objekt): { done: number; gesamt: number } {
+  const anwendbar = objekt.schritte.filter((st) => st !== "na");
+  return { done: anwendbar.filter((st) => st === "done").length, gesamt: anwendbar.length };
+}
+
+/** Board-Spalten = die 4 Phasen der Team-Excel. */
+export const PIPELINE_STUFEN = PROZESS_PHASEN.map((p) => p.titel);
 
 export function pipelineStufe(objekt: Objekt): number {
-  const i = objekt.investorenPhasen.indexOf("aktiv");
-  if (i >= 0) return i <= 2 ? 3 : 4; // bis Freigabe = Vorbereitung, danach aktiv
-  const e = objekt.eigentuemerPhasen.indexOf("aktiv");
-  if (e >= 0) return e <= 1 ? 0 : e <= 3 ? 1 : 2;
-  // Eigentuemerseite komplett, Investorenseite noch nicht gestartet
-  return objekt.eigentuemerPhasen.every((s) => s === "abgeschlossen") ? 3 : 0;
+  return aktiverSchritt(objekt).phase - 1;
 }
+
+/** Objekte, deren Vermarktung vorbereitet oder gestartet ist (ab Matching-Liste erledigt). */
+export const inVermarktungskontext = (objekt: Objekt): boolean =>
+  objekt.schritte[13] === "done";
 
 // --- Datenraum -------------------------------------------------------------
 
