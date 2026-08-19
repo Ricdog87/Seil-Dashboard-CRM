@@ -190,3 +190,12 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
 39. **Notizen am Objekt:** direkt in der Historie erfassbar (im Prototyp nur
     für die Sitzung). Ob Notizen auch am Investor und am Auftraggeber erfasst
     werden sollen, ist offen.
+
+40. **Aufgaben-Board (Kanban):** Die Spalten sind bewusst Fälligkeits-Horizonte
+    (Heute inkl. Überfälligem, Morgen, Später, Erledigt), keine Prozessphasen –
+    eine Karte ziehen heißt umplanen, „Erledigt“ heißt abhaken. Beim Zug nach
+    „Später“ setzt der Prototyp den frühesten Tag des Horizonts; das echte
+    System würde nach einem Datum fragen. Die Prozess-Schritte der
+    Transaktionen sind absichtlich **nicht** per Drag & Drop verschiebbar:
+    Das wäre eine Statusänderung mit Folgewirkungen (Freigaben, Automatik)
+    und gehört mit Regeln ins echte System.

@@ -134,6 +134,12 @@ export function fmtDatumKurz(iso?: string): string {
   return zeit ? `${t}.${m}. ${zeit} Uhr` : `${t}.${m}.`;
 }
 
+/** ISO-Datum um n Tage verschieben – ohne Date.now, rein deterministisch. */
+export function plusTage(iso: string, n: number): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+}
+
 /** Relative Bezeichnung für Fälligkeiten, bezogen auf den Referenztag. */
 export function faelligLabel(iso: string): { text: string; ton: "crit" | "warn" | "neutral" } {
   if (iso < HEUTE) return { text: `überfällig seit ${fmtDatum(iso)}`, ton: "crit" };

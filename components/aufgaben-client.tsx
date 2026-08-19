@@ -14,7 +14,7 @@ import {
   TriangleAlert,
   UserCheck,
 } from "lucide-react";
-import { faelligLabel, investorVon, objektVon } from "@/lib/derive";
+import { faelligLabel, investorVon, objektVon, plusTage } from "@/lib/derive";
 import { aufgaben, mitarbeiter } from "@/lib/mock-data";
 import type { Aufgabe, AufgabenTyp } from "@/lib/types";
 import {
@@ -35,6 +35,7 @@ import {
   type Tone,
 } from "@/components/ui";
 import { EntityLink } from "@/components/cockpit";
+import { AufgabenBoard } from "@/components/aufgaben-board";
 import { useSitzung } from "@/components/sitzung";
 
 const typMeta: Record<AufgabenTyp, { label: string; tone: Tone; icon: LucideIcon }> = {
@@ -46,13 +47,6 @@ const typMeta: Record<AufgabenTyp, { label: string; tone: Tone; icon: LucideIcon
   nda: { label: "NDA", tone: "neutral", icon: FilePenLine },
   sonstiges: { label: "Aufgabe", tone: "neutral", icon: ClipboardList },
 };
-
-/** ISO-Datum um n Tage verschieben – ohne Date.now, rein deterministisch. */
-function plusTage(iso: string, n: number): string {
-  const [y, m, d] = iso.split("-").map(Number);
-  const dt = new Date(Date.UTC(y, m - 1, d + n));
-  return dt.toISOString().slice(0, 10);
-}
 
 type Override = Partial<Pick<Aufgabe, "mitarbeiterId" | "faellig" | "erledigt">>;
 
@@ -66,6 +60,7 @@ export function AufgabenListe() {
   const { aufgabenPatches, patchAufgabe, resetAufgaben } = useSitzung();
   const [filterId, setFilterId] = useState<string>("alle");
   const [erledigteAnzeigen, setErledigteAnzeigen] = useState(false);
+  const [ansicht, setAnsicht] = useState<string>("board");
 
   const patch = (id: string, o: Override) => patchAufgabe(id, o);
 
@@ -105,18 +100,33 @@ export function AufgabenListe() {
               Zurücksetzen ({geaendert})
             </Button>
           ) : null}
-          <Checkbox
-            label="Erledigte anzeigen"
-            checked={erledigteAnzeigen}
-            onChange={(e) => setErledigteAnzeigen(e.target.checked)}
+          {ansicht === "liste" ? (
+            <Checkbox
+              label="Erledigte anzeigen"
+              checked={erledigteAnzeigen}
+              onChange={(e) => setErledigteAnzeigen(e.target.checked)}
+            />
+          ) : null}
+          <Tabs
+            label="Ansicht der Aufgaben"
+            activeId={ansicht}
+            onChange={setAnsicht}
+            items={[
+              { id: "board", label: "Board" },
+              { id: "liste", label: "Liste" },
+            ]}
           />
         </span>
       </div>
       <p className="mb-4 text-kicker text-seil-muted">
-        Zuweisung und Fälligkeit lassen sich direkt in der Liste ändern – Prototyp: Änderungen
-        gelten nur in dieser Sitzung.
+        {ansicht === "board"
+          ? "Karten ziehen: Spalte = neue Fälligkeit, „Erledigt“ hakt ab – Prototyp: Änderungen gelten nur in dieser Sitzung."
+          : "Zuweisung und Fälligkeit lassen sich direkt in der Liste ändern – Prototyp: Änderungen gelten nur in dieser Sitzung."}
       </p>
 
+      {ansicht === "board" ? (
+        <AufgabenBoard filterId={filterId} />
+      ) : (
       <Card>
         <Table>
           <THead>
@@ -221,6 +231,7 @@ export function AufgabenListe() {
           </TBody>
         </Table>
       </Card>
+      )}
     </>
   );
 }

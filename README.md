@@ -31,7 +31,9 @@ Sicht eines Mitarbeiters um (simulierte Anmeldung). Die Übersicht beginnt mit d
 persönlichen Tag – dem **Posteingang der Antworterkennung** (erkannte Antworten
 mit Triage per Klick) und **Meine Aufgaben** (direkt abhakbar, synchron mit dem
 Aufgaben-Screen). **⌘K / Strg+K** öffnet die globale Suche über Objekte,
-Investoren und offene Aufgaben. Dazu ist der Prototyp an den im Kickoff
+Investoren und offene Aufgaben. Der Aufgaben-Screen ist ein **Kanban-Board**
+(Spalten = Fälligkeit: Heute, Morgen, Später, Erledigt) – Karten lassen sich
+per Drag & Drop umplanen und abhaken; die Liste bleibt als zweite Ansicht. Dazu ist der Prototyp an den im Kickoff
 gewünschten Stellen interaktiv: die Prozessleiste öffnet je Schritt ein
 Detailpanel, KI-extrahierte Werte lassen sich prüfen und übernehmen, Notizen
 lassen sich direkt am Objekt erfassen, Aufgaben lassen sich neu zuweisen,
