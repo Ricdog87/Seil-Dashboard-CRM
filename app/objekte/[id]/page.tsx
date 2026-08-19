@@ -4,6 +4,7 @@ import { ArrowLeft, CircleCheck, CircleDashed, Search } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
   aktivitaetenZu,
+  inVermarktungskontext,
   auftraggeberVon,
   datenraumFortschritt,
   fmtDatum,
@@ -69,6 +70,7 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
 
   const ag = auftraggeberVon(objekt.auftraggeberId)!;
   const zust = mitarbeiterVon(objekt.zustaendigId)!;
+  const vertretung = objekt.vertretungId ? mitarbeiterVon(objekt.vertretungId) : undefined;
   const dr = datenraumFortschritt(objekt);
   const links = linksZuObjekt(objekt.id);
   const eintraege = aktivitaetenZu({ objektId: objekt.id });
@@ -91,12 +93,34 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
           <p className="mt-1 text-seil-muted">
             {objekt.adresse} · {objekt.stadt}
           </p>
+          {objekt.standNotiz ? (
+            <p className="mt-2 max-w-[70ch] text-seil-body">
+              <span className="text-kicker tracking-kicker text-seil-muted uppercase">Stand: </span>
+              {objekt.standNotiz}
+            </p>
+          ) : null}
         </div>
         <dl className="flex flex-wrap gap-x-8 gap-y-2">
           <Kennwert label="Assetklasse">{objekt.assetklasse}</Kennwert>
           <Kennwert label="Fläche">{objekt.flaeche}</Kennwert>
           <Kennwert label="Kaufpreisvorstellung">{fmtMio(objekt.kaufpreisMio)}</Kennwert>
-          <Kennwert label="Zuständig">{zust.name}</Kennwert>
+          {objekt.kennzahlen?.renditeProzent ? (
+            <Kennwert label="Rendite">
+              {objekt.kennzahlen.renditeProzent.toLocaleString("de-DE")} %
+            </Kennwert>
+          ) : null}
+          {objekt.kennzahlen?.baujahr ? (
+            <Kennwert label="Baujahr">{objekt.kennzahlen.baujahr}</Kennwert>
+          ) : null}
+          {objekt.kennzahlen?.leerstandProzent !== undefined ? (
+            <Kennwert label="Leerstand">
+              {objekt.kennzahlen.leerstandProzent.toLocaleString("de-DE")} %
+            </Kennwert>
+          ) : null}
+          <Kennwert label="Lead / Vertretung">
+            {zust.kuerzel}
+            {vertretung ? ` / ${vertretung.kuerzel}` : ""}
+          </Kennwert>
           {objekt.quelle ? (
             <Kennwert label="Quelle">
               <Badge tone={objekt.quelle === "Se Circle" ? "info" : "neutral"}>
@@ -215,7 +239,7 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
           <CardHeader
             title={`Verknüpfte Investoren (${links.length})`}
             meta={
-              objekt.investorenPhasen.some((s) => s !== "offen") ? (
+              inVermarktungskontext(objekt) ? (
                 <Link
                   href={`/vermarktung?objekt=${objekt.id}`}
                   className="text-seil-accent hover:underline"
