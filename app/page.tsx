@@ -1,34 +1,17 @@
 import Link from "next/link";
-import { ChevronRight, FolderCheck, RefreshCw, Send, TriangleAlert } from "lucide-react";
+import { FolderCheck, RefreshCw, Send, TriangleAlert } from "lucide-react";
 import {
-  aktiverSchritt,
-  aufgabenZuObjekt,
   datenraumFortschritt,
   fmtDatum,
-  fmtMio,
   hatDatenraumLuecke,
   investorVon,
   istUeberfaellig,
   kpis,
-  linksZuObjekt,
-  mitarbeiterVon,
   objektVon,
   ohneRueckmeldung,
 } from "@/lib/derive";
 import { objekte } from "@/lib/mock-data";
-import {
-  Badge,
-  Card,
-  CardHeader,
-  ICON_SM,
-  ICON_STROKE,
-  Table,
-  TBody,
-  TD,
-  TH,
-  THead,
-  TR,
-} from "@/components/ui";
+import { Badge, Card, CardHeader, ICON_SM, ICON_STROKE, Table, TBody, TD, TH, THead, TR } from "@/components/ui";
 import {
   EntityLink,
   FollowUpStufe,
@@ -36,7 +19,7 @@ import {
   KpiKachel,
   SeitenKopf,
 } from "@/components/cockpit";
-import { KlickZeile } from "@/components/klick-zeile";
+import { TransaktionenAnsicht } from "@/components/transaktionen-ansicht";
 
 export default function UebersichtSeite() {
   const k = kpis();
@@ -54,7 +37,7 @@ export default function UebersichtSeite() {
         <div className="flex flex-col items-end gap-1 text-kicker text-seil-muted">
           <p className="inline-flex items-center gap-2">
             <Send size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
-            Status-Report heute 08:00 via Telegram an das Team versendet
+            Status-Report heute 08:00 an das Team versendet
           </p>
           <p className="inline-flex items-center gap-2">
             <RefreshCw size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
@@ -88,66 +71,7 @@ export default function UebersichtSeite() {
         />
       </div>
 
-      <Card className="mt-6">
-        <CardHeader title="Laufende Transaktionen" meta="Zeile anklicken für Objekt-Detail" />
-        <Table>
-          <THead>
-            <TR>
-              <TH>Objekt</TH>
-              <TH>Assetklasse</TH>
-              <TH numeric>Kaufpreis</TH>
-              <TH>Aktuelle Phase</TH>
-              <TH>Datenraum</TH>
-              <TH numeric>Aufgaben</TH>
-              <TH numeric>Investoren</TH>
-              <TH>Zuständig</TH>
-              <TH aria-hidden />
-            </TR>
-          </THead>
-          <TBody>
-            {objekte.map((o) => {
-              const phase = aktiverSchritt(o);
-              const dr = datenraumFortschritt(o);
-              const links = linksZuObjekt(o.id);
-              const offeneAufgaben = aufgabenZuObjekt(o.id).length;
-              const zust = mitarbeiterVon(o.zustaendigId);
-              return (
-                <KlickZeile key={o.id} href={`/objekte/${o.id}`}>
-                  <TD>
-                    <EntityLink href={`/objekte/${o.id}`}>{o.name}</EntityLink>
-                    <div className="text-kicker text-seil-muted">{o.stadt}</div>
-                  </TD>
-                  <TD className="text-seil-muted">{o.assetklasse}</TD>
-                  <TD numeric>{fmtMio(o.kaufpreisMio)}</TD>
-                  <TD>
-                    <Badge tone={phase.seite === "Investoren" ? "accent" : "neutral"}>
-                      {phase.seite} · {phase.nr} {phase.titel}
-                    </Badge>
-                  </TD>
-                  <TD>
-                    {dr ? (
-                      <Fortschritt vorhanden={dr.vorhanden} gesamt={dr.gesamt} />
-                    ) : (
-                      <span className="text-seil-muted">nicht angefordert</span>
-                    )}
-                  </TD>
-                  <TD numeric>{offeneAufgaben}</TD>
-                  <TD numeric>{links.length}</TD>
-                  <TD className="whitespace-nowrap text-seil-muted">{zust?.kuerzel}</TD>
-                  <TD className="w-8">
-                    <ChevronRight
-                      size={ICON_SM}
-                      strokeWidth={ICON_STROKE}
-                      className="text-seil-muted"
-                      aria-hidden
-                    />
-                  </TD>
-                </KlickZeile>
-              );
-            })}
-          </TBody>
-        </Table>
-      </Card>
+      <TransaktionenAnsicht />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card>
