@@ -105,15 +105,19 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
     Unterlagen genannt – im Prototyp als Merkmal am Fachmarktzentrum (7/12
     Dokumente) dargestellt. Ob Distressed-Fälle eine eigene Prozessvariante
     brauchen, ist offen.
+27. **Flexible Gestaltbarkeit:** Im Kickoff wurde gewünscht, dass das Dashboard
+    Prozessänderungen erlaubt (z. B. Aufgaben verschieben, Schritte umsortieren).
+    Das ist eine Eigenschaft des späteren Systems und im Klickdummy nicht
+    abgebildet – die Prozessschritte sind hier bewusst fest verdrahtet.
 
 ## Corporate Design
 
-27. **CI-Quelle:** Palette, Typo-Raster und Abstände sind verbindlich aus der
+28. **CI-Quelle:** Palette, Typo-Raster und Abstände sind verbindlich aus der
     SEIL-Präsentationsvorlage übernommen (siehe `DESIGN.md`). Die Statusfarben
     sind bewusst entsättigt ergänzt – sie sind nicht Teil der Präsentations-CI.
-28. **Schrift:** Die Vorlage setzt Avenir Next (lizenzpflichtig); im Web ersetzt
+29. **Schrift:** Die Vorlage setzt Avenir Next (lizenzpflichtig); im Web ersetzt
     durch Inter, lokal gehostet. Freigabe durch SEIL steht aus.
-29. **Logo:** Die Logo-Datei aus der Vorlage ist beschnitten und wird deshalb
+30. **Logo:** Die Logo-Datei aus der Vorlage ist beschnitten und wird deshalb
     nicht angezeigt (typografische Wortmarke als Platzhalter). Auf seil.com liegt
     ein vollständiges SVG, aber nur in dunkler Farbe – für die dunkle Kopfleiste
     wird eine weiße SVG-Variante von SEIL benötigt („nie einfärben“-Regel).
