@@ -13,6 +13,7 @@ import {
   mitarbeiterVon,
   PIPELINE_STUFEN,
   pipelineStufe,
+  prozessFortschritt,
 } from "@/lib/derive";
 import { objekte } from "@/lib/mock-data";
 import type { Objekt } from "@/lib/types";
@@ -41,6 +42,8 @@ function ObjektKarte({ objekt }: { objekt: Objekt }) {
   const dr = datenraumFortschritt(objekt);
   const aufgaben = aufgabenZuObjekt(objekt.id);
   const zust = mitarbeiterVon(objekt.zustaendigId);
+  const vertretung = objekt.vertretungId ? mitarbeiterVon(objekt.vertretungId) : undefined;
+  const pf = prozessFortschritt(objekt);
   const handlungsbedarf = linksZuObjekt(objekt.id).some(
     (l) => (l.status === "angeschrieben" && l.followUpStufe === 3) || istUeberfaellig(l.naechstesFollowUp),
   );
@@ -67,9 +70,10 @@ function ObjektKarte({ objekt }: { objekt: Objekt }) {
       </span>
 
       <span className="flex flex-wrap items-center gap-2">
-        <Badge tone={phase.seite === "Investoren" ? "accent" : "neutral"}>
-          {phase.nr} {phase.titel}
+        <Badge tone={phase.phase >= 3 ? "accent" : "neutral"}>
+          P{phase.phase} · {phase.nr} {phase.titel}
         </Badge>
+        {phase.weitere > 0 ? <Badge tone="neutral">+{phase.weitere} parallel</Badge> : null}
         {objekt.merkmal ? <Badge tone="neutral">{objekt.merkmal}</Badge> : null}
         {handlungsbedarf ? (
           <Badge tone="danger" icon={TriangleAlert}>
@@ -82,7 +86,8 @@ function ObjektKarte({ objekt }: { objekt: Objekt }) {
         <span className="text-seil-body">{fmtMio(objekt.kaufpreisMio)}</span>
         {dr ? <Fortschritt vorhanden={dr.vorhanden} gesamt={dr.gesamt} /> : <span>Datenraum –</span>}
         <span>
-          {aufgaben.length} Aufg. · {zust?.kuerzel}
+          {pf.done}/{pf.gesamt} · {aufgaben.length} Aufg. · {zust?.kuerzel}
+          {vertretung ? `/${vertretung.kuerzel}` : ""}
         </span>
       </span>
     </button>
@@ -154,9 +159,12 @@ function TransaktionsTabelle() {
               <TD className="text-seil-muted">{o.assetklasse}</TD>
               <TD numeric>{fmtMio(o.kaufpreisMio)}</TD>
               <TD>
-                <Badge tone={phase.seite === "Investoren" ? "accent" : "neutral"}>
-                  {phase.seite} · {phase.nr} {phase.titel}
+                <Badge tone={phase.phase >= 3 ? "accent" : "neutral"}>
+                  P{phase.phase} · {phase.nr} {phase.titel}
                 </Badge>
+                {phase.weitere > 0 ? (
+                  <div className="mt-1 text-kicker text-seil-muted">+{phase.weitere} parallel in Arbeit</div>
+                ) : null}
               </TD>
               <TD>
                 {dr ? (

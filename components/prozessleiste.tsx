@@ -1,16 +1,12 @@
 "use client";
 
 import { useId, useState } from "react";
-import { Bot, Check, ChevronDown, UserCheck, Users } from "lucide-react";
+import { Bot, Check, ChevronDown, CircleSlash, Handshake, UserCheck, Users } from "lucide-react";
 import {
-  EIGENTUEMER_SCHRITTE,
-  EIGENTUEMER_SCHRITTE_KURZ,
-  EIGENTUEMER_SCHRITT_INFO,
   FREIGABE_SCHRITT_INDEX,
-  INVESTOREN_SCHRITTE,
-  INVESTOREN_SCHRITTE_KURZ,
-  INVESTOREN_SCHRITT_INFO,
-  type SchrittInfo,
+  PROZESS_PHASEN,
+  PROZESS_SCHRITTE,
+  type SchrittVerantwortung,
 } from "@/lib/mock-data";
 import {
   aktivitaetenZu,
@@ -18,62 +14,48 @@ import {
   faelligLabel,
   fmtDatumKurz,
   mitarbeiterVon,
+  prozessFortschritt,
 } from "@/lib/derive";
-import type { Objekt, PhaseStatus } from "@/lib/types";
+import type { Objekt, SchrittStatus } from "@/lib/types";
 import { Badge, ICON_SM, ICON_STROKE } from "@/components/ui";
 import { Kicker } from "@/components/cockpit";
 
-/** Eindeutige Adresse eines Schritts über beide Seiten hinweg. */
-type SchrittRef = { seite: "e" | "i"; index: number };
+const verantwortungMeta: Record<SchrittVerantwortung, { label: string; icon: typeof Users; tone: "neutral" | "info" | "warning" | "accent" }> = {
+  team: { label: "Team", icon: Users, tone: "neutral" },
+  automatik: { label: "Automatik", icon: Bot, tone: "info" },
+  freigabe: { label: "Manuelle Freigabe", icon: UserCheck, tone: "warning" },
+  extern: { label: "Extern (Client/Legal/Broker)", icon: Handshake, tone: "accent" },
+};
 
-const verantwortungMeta = {
-  team: { label: "Team", icon: Users, tone: "neutral" as const },
-  automatik: { label: "Automatik", icon: Bot, tone: "info" as const },
-  freigabe: { label: "Manuelle Freigabe", icon: UserCheck, tone: "warning" as const },
+/** Status-Erscheinung – Vokabular der Team-Excel: Done / In Progress / Pending / N.A. */
+const statusMeta: Record<SchrittStatus, { label: string; chip: string; marke: string; text: string }> = {
+  done: { label: "Done", chip: "border-seil-line bg-seil-surface", marke: "text-seil-success", text: "text-seil-body" },
+  in_progress: { label: "In Progress", chip: "border-seil-accent bg-seil-accent-bg", marke: "text-seil-accent", text: "text-seil-text" },
+  pending: { label: "Pending", chip: "border-seil-line bg-seil-surface", marke: "text-seil-muted", text: "text-seil-muted" },
+  na: { label: "N.A.", chip: "border-dashed border-seil-line bg-seil-surface", marke: "text-seil-muted", text: "text-seil-muted" },
 };
 
 function SchrittChip({
-  nr,
-  kurz,
-  lang,
+  index,
   status,
-  freigabeSchritt,
   ausgewaehlt,
   panelId,
   onToggle,
 }: {
-  nr: number;
-  kurz: string;
-  lang: string;
-  status: PhaseStatus;
-  freigabeSchritt: boolean;
+  index: number;
+  status: SchrittStatus;
   ausgewaehlt: boolean;
   panelId: string;
   onToggle: () => void;
 }) {
+  const schritt = PROZESS_SCHRITTE[index];
+  const freigabe = index === FREIGABE_SCHRITT_INDEX;
+  const meta = statusMeta[status];
   const rahmen = ausgewaehlt
     ? "border-seil-accent bg-seil-card-alt"
-    : status === "aktiv"
-      ? freigabeSchritt
-        ? "border-seil-warning bg-seil-warning-bg"
-        : "border-seil-accent bg-seil-accent-bg"
-      : "border-seil-line bg-seil-surface";
-
-  const marke =
-    status === "abgeschlossen"
-      ? "text-seil-success"
-      : status === "aktiv"
-        ? freigabeSchritt
-          ? "text-seil-warning"
-          : "text-seil-accent"
-        : "text-seil-muted";
-
-  const text =
-    status === "aktiv"
-      ? "text-seil-text"
-      : status === "abgeschlossen"
-        ? "text-seil-body"
-        : "text-seil-muted";
+    : freigabe && status !== "done"
+      ? "border-seil-warning bg-seil-warning-bg"
+      : meta.chip;
 
   return (
     <button
@@ -81,76 +63,53 @@ function SchrittChip({
       onClick={onToggle}
       aria-expanded={ausgewaehlt}
       aria-controls={panelId}
-      aria-current={status === "aktiv" ? "step" : undefined}
-      title={lang}
-      className={`flex min-w-0 items-center gap-2 rounded-seil border px-2 py-2 text-left transition-colors hover:border-seil-accent ${rahmen}`}
+      aria-current={status === "in_progress" ? "step" : undefined}
+      title={`${schritt.nr}. ${schritt.lang} – ${meta.label}`}
+      className={`flex min-w-0 items-center gap-1.5 rounded-seil border px-2 py-1.5 text-left transition-colors hover:border-seil-accent ${rahmen}`}
     >
-      <span className={`flex w-4 shrink-0 justify-center text-kicker ${marke}`} aria-hidden>
-        {status === "abgeschlossen" ? (
+      <span className={`flex w-5 shrink-0 justify-center text-kicker tabular-nums ${meta.marke}`} aria-hidden>
+        {status === "done" ? (
           <Check size={ICON_SM} strokeWidth={ICON_STROKE} />
-        ) : freigabeSchritt ? (
+        ) : status === "na" ? (
+          <CircleSlash size={ICON_SM} strokeWidth={ICON_STROKE} />
+        ) : freigabe ? (
           <UserCheck size={ICON_SM} strokeWidth={ICON_STROKE} />
         ) : (
-          nr
+          schritt.nr
         )}
       </span>
-      {/* Status haengt nie an der Farbe allein: aktiv traegt zusaetzlich Gewicht + sr-Text. */}
-      <span className={`truncate text-kicker ${text} ${status === "aktiv" ? "font-medium" : ""}`}>
-        {kurz}
-        <span className="sr-only">
-          {status === "aktiv"
-            ? " – aktueller Schritt"
-            : status === "abgeschlossen"
-              ? " – abgeschlossen"
-              : " – offen"}
-        </span>
+      <span className={`truncate text-kicker ${meta.text} ${status === "in_progress" ? "font-medium" : ""}`}>
+        {schritt.kurz}
+        <span className="sr-only"> – {meta.label}</span>
       </span>
     </button>
   );
 }
 
-function SchrittDetail({
-  objekt,
-  refSchritt,
-  panelId,
-}: {
-  objekt: Objekt;
-  refSchritt: SchrittRef;
-  panelId: string;
-}) {
-  const investorenSeite = refSchritt.seite === "i";
-  const lang = investorenSeite
-    ? INVESTOREN_SCHRITTE[refSchritt.index]
-    : EIGENTUEMER_SCHRITTE[refSchritt.index];
-  const info: SchrittInfo = investorenSeite
-    ? INVESTOREN_SCHRITT_INFO[refSchritt.index]
-    : EIGENTUEMER_SCHRITT_INFO[refSchritt.index];
-  const status = investorenSeite
-    ? objekt.investorenPhasen[refSchritt.index]
-    : objekt.eigentuemerPhasen[refSchritt.index];
-  const vMeta = verantwortungMeta[info.verantwortung];
-
-  const aktiv = status === "aktiv";
+function SchrittDetail({ objekt, index, panelId }: { objekt: Objekt; index: number; panelId: string }) {
+  const schritt = PROZESS_SCHRITTE[index];
+  const status = objekt.schritte[index];
+  const vMeta = verantwortungMeta[schritt.verantwortung];
+  const sMeta = statusMeta[status];
+  const aktiv = status === "in_progress";
   const offeneAufgaben = aktiv ? aufgabenZuObjekt(objekt.id) : [];
   const letzteAktivitaeten = aktiv ? aktivitaetenZu({ objektId: objekt.id }).slice(0, 3) : [];
 
   return (
-    <div
-      id={panelId}
-      className="flex flex-col gap-3 rounded-seil border border-seil-line bg-seil-surface px-3 py-3"
-    >
+    <div id={panelId} className="flex flex-col gap-3 rounded-seil border border-seil-line bg-seil-surface px-3 py-3">
       <div className="flex flex-wrap items-center gap-3">
         <span className="text-body text-seil-text">
-          {refSchritt.index + 1}. {lang}
+          {schritt.nr}. {schritt.lang}
         </span>
         <Badge tone={vMeta.tone} icon={vMeta.icon}>
           {vMeta.label}
         </Badge>
-        <Badge tone={status === "abgeschlossen" ? "success" : aktiv ? "accent" : "neutral"}>
-          {status === "abgeschlossen" ? "abgeschlossen" : aktiv ? "aktueller Schritt" : "offen"}
-        </Badge>
+        <Badge tone={status === "done" ? "success" : aktiv ? "accent" : "neutral"}>{sMeta.label}</Badge>
+        <span className="ml-auto text-kicker text-seil-muted">
+          Verantwortlich: {schritt.verantwortlich} · Tool heute: {schritt.tool}
+        </span>
       </div>
-      <p className="max-w-[80ch] text-seil-muted">{info.beschreibung}</p>
+      <p className="max-w-[80ch] text-seil-muted">{schritt.beschreibung}</p>
 
       {aktiv && offeneAufgaben.length > 0 ? (
         <div className="flex flex-col gap-1.5 border-t border-seil-line pt-3">
@@ -162,15 +121,7 @@ function SchrittDetail({
               return (
                 <li key={t.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
                   <span className="text-seil-body">{t.titel}</span>
-                  <span
-                    className={
-                      f.ton === "crit"
-                        ? "text-kicker text-seil-danger"
-                        : f.ton === "warn"
-                          ? "text-kicker text-seil-warning"
-                          : "text-kicker text-seil-muted"
-                    }
-                  >
+                  <span className={f.ton === "crit" ? "text-kicker text-seil-danger" : f.ton === "warn" ? "text-kicker text-seil-warning" : "text-kicker text-seil-muted"}>
                     {f.text} · {zust?.kuerzel}
                   </span>
                 </li>
@@ -197,95 +148,55 @@ function SchrittDetail({
   );
 }
 
-function Seite({
-  label,
-  kurz,
-  schritte,
-  status,
-  seite,
-  auswahl,
-  panelId,
-  onToggle,
-}: {
-  label: string;
-  kurz: readonly string[];
-  schritte: readonly string[];
-  status: PhaseStatus[];
-  seite: "e" | "i";
-  auswahl: SchrittRef | null;
-  panelId: string;
-  onToggle: (ref: SchrittRef) => void;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <Kicker>{label}</Kicker>
-      <div className="grid grid-cols-3 gap-2 lg:grid-cols-6">
-        {schritte.map((lang, i) => (
-          <SchrittChip
-            key={lang}
-            nr={i + 1}
-            kurz={kurz[i]}
-            lang={`${i + 1}. ${lang}`}
-            status={status[i]}
-            freigabeSchritt={seite === "i" && i === FREIGABE_SCHRITT_INDEX}
-            ausgewaehlt={auswahl?.seite === seite && auswahl.index === i}
-            panelId={panelId}
-            onToggle={() => onToggle({ seite, index: i })}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /**
- * Prozessleiste über beide Seiten – interaktiv, wie im Kickoff gewünscht:
- * jeder Schritt ist anklickbar und öffnet ein Detailpanel (Beschreibung,
- * Verantwortung, beim aktiven Schritt zusätzlich Aufgaben und letzte Aktivitäten).
+ * Prozessleiste nach der Team-Excel: 26 Schritte in 4 Phasen, Statusvokabular
+ * Done / In Progress / Pending / N.A. – mehrere Schritte können parallel laufen.
+ * Jeder Schritt ist klickbar und öffnet ein Detailpanel (Beschreibung,
+ * Verantwortung, Tool; beim laufenden Schritt Aufgaben + letzte Aktivitäten).
  */
 export function Prozessleiste({ objekt }: { objekt: Objekt }) {
   const panelId = useId();
+  const start = objekt.schritte.findIndex((st) => st === "in_progress");
+  const [auswahl, setAuswahl] = useState<number | null>(start >= 0 ? start : null);
+  const f = prozessFortschritt(objekt);
 
-  // Vorauswahl: der aktive Schritt (Investorenseite hat Vorrang).
-  const iAktiv = objekt.investorenPhasen.indexOf("aktiv");
-  const eAktiv = objekt.eigentuemerPhasen.indexOf("aktiv");
-  const start: SchrittRef | null =
-    iAktiv >= 0 ? { seite: "i", index: iAktiv } : eAktiv >= 0 ? { seite: "e", index: eAktiv } : null;
-
-  const [auswahl, setAuswahl] = useState<SchrittRef | null>(start);
-
-  const toggle = (ref: SchrittRef) =>
-    setAuswahl((cur) => (cur && cur.seite === ref.seite && cur.index === ref.index ? null : ref));
+  const toggle = (i: number) => setAuswahl((cur) => (cur === i ? null : i));
 
   return (
     <div className="flex flex-col gap-4">
-      <Seite
-        label="Eigentümerseite · Akquise & Datenraum"
-        schritte={EIGENTUEMER_SCHRITTE}
-        kurz={EIGENTUEMER_SCHRITTE_KURZ}
-        status={objekt.eigentuemerPhasen}
-        seite="e"
-        auswahl={auswahl}
-        panelId={panelId}
-        onToggle={toggle}
-      />
-      <Seite
-        label="Investorenseite · Vermarktung & Follow-up"
-        schritte={INVESTOREN_SCHRITTE}
-        kurz={INVESTOREN_SCHRITTE_KURZ}
-        status={objekt.investorenPhasen}
-        seite="i"
-        auswahl={auswahl}
-        panelId={panelId}
-        onToggle={toggle}
-      />
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <Kicker>Transaktionsprozess · Struktur aus der Team-Liste</Kicker>
+        <span className="text-kicker text-seil-muted">
+          {f.done}/{f.gesamt} Schritten erledigt · N.A. zählt nicht mit
+        </span>
+      </div>
 
-      {auswahl ? (
-        <SchrittDetail objekt={objekt} refSchritt={auswahl} panelId={panelId} />
+      {PROZESS_PHASEN.map((phase) => (
+        <div key={phase.titel} className="flex flex-col gap-2">
+          <Kicker>{phase.titel}</Kicker>
+          <div className="flex flex-wrap gap-1.5">
+            {PROZESS_SCHRITTE.map((sch, i) =>
+              sch.nr >= phase.vonNr && sch.nr <= phase.bisNr ? (
+                <SchrittChip
+                  key={sch.nr}
+                  index={i}
+                  status={objekt.schritte[i]}
+                  ausgewaehlt={auswahl === i}
+                  panelId={panelId}
+                  onToggle={() => toggle(i)}
+                />
+              ) : null,
+            )}
+          </div>
+        </div>
+      ))}
+
+      {auswahl !== null ? (
+        <SchrittDetail objekt={objekt} index={auswahl} panelId={panelId} />
       ) : (
         <p id={panelId} className="flex items-center gap-2 text-kicker text-seil-muted">
           <ChevronDown size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
-          Schritt anklicken für Details – Beschreibung, Verantwortung, Aufgaben.
+          Schritt anklicken für Details – Beschreibung, Verantwortung, heutiges Tool.
         </p>
       )}
     </div>
