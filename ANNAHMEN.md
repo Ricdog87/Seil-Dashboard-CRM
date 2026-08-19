@@ -85,20 +85,26 @@ Der Prototyp ist ein Klickdummy – alle folgenden Punkte sind **nur als Anzeige
 simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
 
 20. **Se Circle:** Im Kickoff als zentrale Entscheidung benannt. Im Prototyp als
-    Quelle-Kennzeichnung am Objekt (Boardinghouse Europaviertel) und als
-    Sync-Aktivität dargestellt. Welche Felder Se Circle liefert und in welche
-    Richtung synchronisiert wird, ist offen.
-21. **KI-Extraktion aus dem Datenraum** (Grundbuch, Mieterlisten): als
-    „KI-ausgelesen“-Zeile in der Datenraum-Karte und als Aktivitäten mit
-    Quelle „KI“ dargestellt. Das konkrete Feldmapping ins CRM ist offen.
-22. **KI-generierte Teaser & Listings:** als Aktivität am Wohnportfolio
-    dargestellt (Entwurf → menschliche Prüfung → Abstimmung mit Auftraggeberin).
+    eigene Karte am Se-Circle-Objekt (Richtung, letzter Sync, synchronisierte
+    Feldgruppen), als Sync-Aktivitäten und im Systemstatus der Übersicht
+    dargestellt. Welche Felder Se Circle konkret liefert und ob zurückgeschrieben
+    wird, ist offen – angenommen ist ein täglicher Sync Se Circle → Cockpit.
+21. **KI-Extraktion aus dem Datenraum** (Grundbuch, Mieterlisten): je Objekt als
+    Feldliste mit Wert, Quelldokument und Prüfstatus dargestellt. Annahme: die
+    Übernahme ins CRM bestätigt ein Mitarbeiter (Human-in-the-Loop, gleiche
+    Philosophie wie die Listen-Freigabe); unsichere Werte (Staffelmieten,
+    Flächenabweichung beim Distressed Asset) werden zur Prüfung markiert.
+    Der Demo-Klick „Prüfen & übernehmen“ wirkt nur in der Sitzung.
+22. **KI-generierte Teaser & Listings:** als Pipeline auf der Vermarktung
+    dargestellt (KI-Entwurf → Prüfung durch das Team → Versand); beim
+    Wohnportfolio wartet der geprüfte Teaser auf die Listen-Freigabe.
     Ob die Prüfung verpflichtend sein soll, ist eine Annahme.
 23. **Pipedrive-Migration:** Der einmalige Export/Import aus dem Angebot ist als
     Quelle-Tag am Investor („Pipedrive-Import“) dargestellt – ein eigener
     Import-Screen würde die Fünf-Screen-Grenze sprengen.
-24. **Status-Reports via Telegram:** als Statuszeile auf der Übersicht angedeutet
-    („heute 08:00 versendet“). Inhalt, Frequenz und Empfängerkreis sind offen.
+24. **Status-Reports via Telegram:** als Systemstatus-Block auf der Übersicht
+    angedeutet (Telegram-Report 08:00, Se Circle-Sync 06:00, Modul-01-Stand
+    07:30). Inhalt, Frequenz und Empfängerkreis sind offen.
 25. **Presound-Mail an BCC-Verteiler vs. KI-personalisierte Ansprache:** Das
     Angebot nennt eine „KI-personalisierte Ansprache mit Freigabe-Workflow“, im
     Kickoff wurde der heutige Ist-Prozess als Presound-Mail an einen
@@ -111,18 +117,26 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
     Dokumente) dargestellt. Ob Distressed-Fälle eine eigene Prozessvariante
     brauchen, ist offen.
 27. **Flexible Gestaltbarkeit:** Im Kickoff wurde gewünscht, dass das Dashboard
-    Prozessänderungen erlaubt (z. B. Aufgaben verschieben, Schritte umsortieren).
-    Das ist eine Eigenschaft des späteren Systems und im Klickdummy nicht
-    abgebildet – die Prozessschritte sind hier bewusst fest verdrahtet.
+    Prozessänderungen erlaubt. Im Klickdummy demonstriert: Aufgaben lassen sich
+    neu zuweisen, um 2 Tage verschieben und abhaken (nur in der Sitzung,
+    „Zurücksetzen“ stellt den Stand wieder her). Das Umsortieren der
+    Prozessschritte selbst bleibt dem echten System vorbehalten – die Schritte
+    sind hier bewusst fest verdrahtet.
+28. **Interaktiver Prozess:** „Das Dashboard soll den gesamten
+    Transaktionsprozess interaktiv abbilden“ (Kickoff) ist als klickbare
+    Prozessleiste umgesetzt: jeder Schritt öffnet ein Detailpanel mit
+    Beschreibung, Verantwortung (Team / Automatik / manuelle Freigabe) und –
+    beim aktiven Schritt – offenen Aufgaben und letzten Aktivitäten. Die
+    Texte je Schritt sind eine Setzung und bitte fachlich gegenzulesen.
 
 ## Corporate Design
 
-28. **CI-Quelle:** Palette, Typo-Raster und Abstände sind verbindlich aus der
+29. **CI-Quelle:** Palette, Typo-Raster und Abstände sind verbindlich aus der
     SEIL-Präsentationsvorlage übernommen (siehe `DESIGN.md`). Die Statusfarben
     sind bewusst entsättigt ergänzt – sie sind nicht Teil der Präsentations-CI.
-29. **Schrift:** Die Vorlage setzt Avenir Next (lizenzpflichtig); im Web ersetzt
+30. **Schrift:** Die Vorlage setzt Avenir Next (lizenzpflichtig); im Web ersetzt
     durch Inter, lokal gehostet. Freigabe durch SEIL steht aus.
-30. **Logo:** Die Logo-Datei aus der Vorlage ist beschnitten und wird deshalb
+31. **Logo:** Die Logo-Datei aus der Vorlage ist beschnitten und wird deshalb
     nicht angezeigt (typografische Wortmarke als Platzhalter). Auf seil.com liegt
     ein vollständiges SVG, aber nur in dunkler Farbe – für die dunkle Kopfleiste
     wird eine weiße SVG-Variante von SEIL benötigt („nie einfärben“-Regel).

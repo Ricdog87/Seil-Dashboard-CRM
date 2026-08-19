@@ -19,6 +19,12 @@ Gegenparteien. Genau das, was Pipedrive + Excel heute nicht können.
 | 4 | Vermarktung | `/vermarktung` | Investorenliste je Objekt, Antwortstatus je Kontakt, Follow-up-Stufe, oben der Freigabe-Schritt (Human-in-the-Loop) |
 | 5 | Aufgaben | `/aufgaben` | Nach Mitarbeiter gefiltert, Broker Calls hervorgehoben |
 
+Der Klickdummy ist an den im Kickoff gewünschten Stellen interaktiv: die
+Prozessleiste öffnet je Schritt ein Detailpanel, KI-extrahierte Werte lassen
+sich prüfen und übernehmen, Aufgaben lassen sich neu zuweisen, verschieben und
+abhaken (Änderungen gelten nur in der Sitzung), und die Vermarktung zeigt
+Antwortquote und Teaser-Pipeline (KI-Entwurf → Prüfung → Versand).
+
 Objekt- und Investor-Detail sind bewusst nur über Verlinkungen erreichbar (Zeilen in
 Tabellen anklicken) – es gibt keine Listen-Screens über die fünf Screens hinaus.
 
