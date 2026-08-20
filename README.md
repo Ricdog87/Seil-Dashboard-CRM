@@ -41,6 +41,14 @@ verschieben und abhaken, und die Vermarktung zeigt Antwortquote und
 Teaser-Pipeline (KI-Entwurf → Prüfung → Versand). Alle Eingriffe gelten nur in
 der laufenden Sitzung – ein Reload stellt den Demostand wieder her.
 
+Bewegung ist bewusst dosiert – Broker-Terminal, kein Spielzeug: Auf der
+Übersicht läuft ein **Aktivitäten-Ticker** (Hover pausiert), die KPI-Zahlen
+zählen beim Laden hoch, die 7-Tage-Sparklines zeichnen sich, laufende
+Prozessschritte pulsieren sanft, die Zähler in der Kopfleiste poppen bei
+Änderungen und Seiteninhalte ziehen gestaffelt ein. Wer im Betriebssystem
+„Bewegung reduzieren“ aktiviert hat, bekommt das Cockpit komplett ruhig
+(`prefers-reduced-motion`, ANNAHMEN.md, Punkt 42).
+
 Das Cockpit ist **responsiv**: Am Smartphone bricht die Kopfleiste in zwei
 Zeilen, die Board-Spalten stapeln untereinander und breite Tabellen scrollen
 innerhalb ihrer Karte. Weil Drag & Drop auf Touchscreens nicht existiert,

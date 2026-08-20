@@ -52,7 +52,7 @@ function ObjektKarte({ objekt }: { objekt: Objekt }) {
     <button
       type="button"
       onClick={() => router.push(`/objekte/${objekt.id}`)}
-      className="flex w-full flex-col gap-2 rounded-seil border border-seil-line bg-seil-card px-3 py-3 text-left transition-colors hover:border-seil-accent"
+      className="flex w-full flex-col gap-2 rounded-seil border border-seil-line bg-seil-card px-3 py-3 text-left transition-[border-color,transform] hover:-translate-y-px hover:border-seil-accent motion-reduce:hover:translate-y-0"
     >
       <span className="flex items-start justify-between gap-2">
         <span>

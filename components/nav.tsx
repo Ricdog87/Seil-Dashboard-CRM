@@ -62,7 +62,9 @@ export function TopNav() {
                 {p.label}
                 {zaehler[p.href] ? (
                   <span
-                    className="ml-1.5 rounded-seil bg-seil-card-alt px-1.5 text-kicker tabular-nums text-seil-muted"
+                    // key = Wert: bei Änderung remountet der Badge und poppt kurz.
+                    key={zaehler[p.href]}
+                    className="seil-pop ml-1.5 rounded-seil bg-seil-card-alt px-1.5 text-kicker tabular-nums text-seil-muted"
                     aria-label={`${zaehler[p.href]} offen`}
                   >
                     {zaehler[p.href]}

@@ -30,6 +30,8 @@ function Sparkline({ punkte }: { punkte: number[] }) {
       aria-hidden
     >
       <polyline
+        className="seil-zeichnen"
+        pathLength={1}
         points={xy.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ")}
         fill="none"
         stroke="currentColor"
@@ -37,7 +39,7 @@ function Sparkline({ punkte }: { punkte: number[] }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx={lx} cy={ly} r="2.5" fill="currentColor" />
+      <circle className="seil-punkt-spaet" cx={lx} cy={ly} r="2.5" fill="currentColor" />
     </svg>
   );
 }
@@ -67,12 +69,17 @@ export function KpiKachelLive({
   delta?: KpiDelta;
 }) {
   const [anzeige, setAnzeige] = useState(wert);
-  const vorher = useRef(wert);
+  // null = noch nie animiert → erster Effekt zählt von 0 hoch (Boot-Moment).
+  const vorher = useRef<number | null>(null);
 
   useEffect(() => {
-    const von = vorher.current;
+    const von = vorher.current ?? 0;
     vorher.current = wert;
     if (von === wert) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setAnzeige(wert);
+      return;
+    }
     const start = performance.now();
     const dauer = 400;
     let raf = 0;
@@ -113,7 +120,7 @@ export function KpiKachelLive({
     return (
       <Link
         href={href}
-        className="block rounded-seil border border-seil-line bg-seil-card px-4 py-3 transition-colors hover:border-seil-accent"
+        className="block rounded-seil border border-seil-line bg-seil-card px-4 py-3 transition-[border-color,transform] hover:-translate-y-px hover:border-seil-accent motion-reduce:hover:translate-y-0"
       >
         {inhalt}
       </Link>

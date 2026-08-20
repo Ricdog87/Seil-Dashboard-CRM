@@ -55,3 +55,116 @@
     color: var(--seil-text);
   }
 }
+
+/* --- Bewegung -----------------------------------------------------------
+   Leben ins Cockpit, aber diszipliniert: kurze Ease-Out-Einzüge, zählende
+   Zahlen, ein langsamer Aktivitäten-Ticker. Alles nur bei
+   prefers-reduced-motion: no-preference – sonst steht das Bild still. */
+@media (prefers-reduced-motion: no-preference) {
+  /* Seiteninhalte ziehen gestaffelt ein – bei jedem Seitenwechsel. */
+  main > * {
+    animation: seil-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  main > *:nth-child(2) { animation-delay: 60ms; }
+  main > *:nth-child(3) { animation-delay: 120ms; }
+  main > *:nth-child(4) { animation-delay: 180ms; }
+  main > *:nth-child(5) { animation-delay: 240ms; }
+  main > *:nth-child(n + 6) { animation-delay: 300ms; }
+
+  /* Sparkline zeichnet sich beim Laden, der Endpunkt kommt zuletzt. */
+  .seil-zeichnen {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: seil-zeichnen 0.9s cubic-bezier(0.33, 1, 0.68, 1) 0.25s forwards;
+  }
+  .seil-punkt-spaet {
+    opacity: 0;
+    animation: seil-einblenden 0.3s ease-out 1.05s forwards;
+  }
+
+  /* Laufender Prozessschritt: ruhiger Puls statt greller Blinker. */
+  .seil-puls-sanft {
+    animation: seil-puls-sanft 2.6s ease-in-out infinite;
+  }
+
+  /* Zähler-Badge poppt kurz, wenn sich der Wert ändert (per React-Key neu gemountet). */
+  .seil-pop {
+    animation: seil-pop 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Board-Karte blendet beim Umhängen/Erscheinen weich ein. */
+  .seil-fade-rein {
+    animation: seil-fade-rein 0.25s ease-out both;
+  }
+
+  /* Aktivitäten-Ticker: eine Bahn, zwei Kopien, endlos – Hover pausiert. */
+  .seil-ticker-spur {
+    animation: seil-ticker 55s linear infinite;
+  }
+  .seil-ticker:hover .seil-ticker-spur {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Ohne Lauf keine zweite Kopie – der Ticker steht als stille Zeile. */
+  .seil-ticker-kopie {
+    display: none;
+  }
+}
+
+@keyframes seil-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes seil-zeichnen {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes seil-einblenden {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes seil-puls-sanft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+@keyframes seil-pop {
+  from {
+    transform: scale(1.25);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes seil-fade-rein {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes seil-ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

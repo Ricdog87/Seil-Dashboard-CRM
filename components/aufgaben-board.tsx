@@ -76,7 +76,7 @@ function AufgabenKarte({
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className={`relative flex cursor-grab flex-col gap-2 rounded-seil border px-3 py-2.5 active:cursor-grabbing ${
+      className={`seil-fade-rein relative flex cursor-grab flex-col gap-2 rounded-seil border px-3 py-2.5 active:cursor-grabbing ${
         amZiehen ? "border-seil-accent opacity-60" : "border-seil-line"
       } ${brokerCall ? "bg-seil-accent-bg" : "bg-seil-card"}`}
     >

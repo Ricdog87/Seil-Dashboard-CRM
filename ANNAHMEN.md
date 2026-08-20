@@ -213,3 +213,13 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
     (gleiche Wirkung wie Ziehen); die Suche öffnet mobil über das
     Lupen-Symbol. Annahme: Eine responsive Web-App genügt – keine native
     App, kein separates Mobil-Layout mit reduziertem Funktionsumfang.
+42. **Bewegung (Motion-Design):** Das Cockpit nutzt dosierte Bewegung im Stil
+    eines Handelsterminals – Aktivitäten-Ticker auf der Übersicht, hochzählende
+    KPI-Zahlen, sich zeichnende Sparklines, sanft pulsierende laufende
+    Prozessschritte, kurz aufpoppende Zähler. Alles dient der Orientierung
+    (was ist neu, was läuft), nichts ist Dekoration; Dauer 150–450 ms, der
+    Ticker läuft langsam und pausiert bei Hover. Nutzer mit „Bewegung
+    reduzieren“ im Betriebssystem sehen das Cockpit vollständig statisch
+    (prefers-reduced-motion). Annahme: Diese Dosierung ist gewollt – mehr
+    Effekte (z. B. animierte Diagramme, Parallax) bitte nur auf expliziten
+    Wunsch.

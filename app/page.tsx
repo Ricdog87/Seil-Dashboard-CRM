@@ -22,6 +22,7 @@ import { KpiAufgabenLive, KpiKachelLive } from "@/components/kpi-live";
 import { WeltUhren } from "@/components/weltuhren";
 import { MeineAufgaben } from "@/components/meine-aufgaben";
 import { Posteingang } from "@/components/posteingang";
+import { AktivitaetenTicker } from "@/components/ticker";
 import { TransaktionenAnsicht } from "@/components/transaktionen-ansicht";
 
 export default function UebersichtSeite() {
@@ -51,6 +52,10 @@ export default function UebersichtSeite() {
             </p>
           </div>
         </div>
+      </div>
+
+      <div className="mb-4">
+        <AktivitaetenTicker />
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

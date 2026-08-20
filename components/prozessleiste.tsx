@@ -67,7 +67,12 @@ function SchrittChip({
       title={`${schritt.nr}. ${schritt.lang} – ${meta.label}`}
       className={`flex min-w-0 items-center gap-1.5 rounded-seil border px-2 py-1.5 text-left transition-colors hover:border-seil-accent ${rahmen}`}
     >
-      <span className={`flex w-5 shrink-0 justify-center text-kicker tabular-nums ${meta.marke}`} aria-hidden>
+      <span
+        className={`flex w-5 shrink-0 justify-center text-kicker tabular-nums ${meta.marke} ${
+          status === "in_progress" ? "seil-puls-sanft" : ""
+        }`}
+        aria-hidden
+      >
         {status === "done" ? (
           <Check size={ICON_SM} strokeWidth={ICON_STROKE} />
         ) : status === "na" ? (
