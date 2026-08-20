@@ -41,6 +41,14 @@ verschieben und abhaken, und die Vermarktung zeigt Antwortquote und
 Teaser-Pipeline (KI-Entwurf → Prüfung → Versand). Alle Eingriffe gelten nur in
 der laufenden Sitzung – ein Reload stellt den Demostand wieder her.
 
+**Rollen-Sicht Geschäftsführung:** „Arbeiten als“ **Max Seil (Geschäftsführer)**
+schaltet die Übersicht auf ein eigenes, **rein lesendes GF-Dashboard** –
+Projektsummen (Pipeline gesamt / in aktiver Vermarktung), Honorarpotenzial
+(Modellrechnung 1,5 %, Satz offen), Antwortquote, Projektsummen je Phase,
+Vermarktungs-Funnel, alle Mandate nach Volumen, Risiken und Team-Auslastung.
+Kein Posteingang, keine Eingaben; der GF taucht auch nicht in
+Aufgaben-Filter oder -Zuweisung auf (ANNAHMEN.md, Punkt 43).
+
 Bewegung ist bewusst dosiert – Broker-Terminal, kein Spielzeug: Auf der
 Übersicht läuft ein **Aktivitäten-Ticker** (Hover pausiert), die KPI-Zahlen
 zählen beim Laden hoch, die 7-Tage-Sparklines zeichnen sich, laufende
@@ -92,6 +100,9 @@ Alles davon ist reine Anzeige mit Demodaten – keine echte Automation im Protot
 
 **Aufgaben**
 ![Aufgaben](docs/screenshots/05-aufgaben.png)
+
+**GF-Dashboard („Arbeiten als“ Max Seil)**
+![GF-Dashboard](docs/screenshots/08-gf-dashboard.png)
 
 **Mobil (390 px): Übersicht und Aufgaben-Board mit Verschieben-Menü**
 
@@ -163,9 +174,10 @@ DESIGN.md                  Design-System: Palette, Typo, Abstände, Do's und Don
 ## Leitplanken
 
 - Keine echten SEIL-Daten, keine echten Investorennamen, keine Kundendokumente –
-  alles frei erfunden (E-Mail-Domains enden auf `.example`). Einzige bewusste
-  Ausnahme: Nino Grubisic (Leitung Sales) ist auf Wunsch als echter Nutzer für
-  die Demo angelegt – ohne Kontaktdaten (ANNAHMEN.md, Punkt 16).
+  alles frei erfunden (E-Mail-Domains enden auf `.example`). Zwei bewusste
+  Ausnahmen: Nino Grubisic (Leitung Sales) und Max Seil (Geschäftsführer) sind
+  auf Wunsch als echte Nutzer für die Demo angelegt – ohne Kontaktdaten
+  (ANNAHMEN.md, Punkte 16 und 43).
 - Modul 01 (Datenraum-Automatik) ist **nicht** angebunden; der Datenraum-Status wird
   nur als Anzeige simuliert und ist entsprechend gekennzeichnet.
 - Der Freigabe-Button in der Vermarktung ist eine reine UI-Demonstration.

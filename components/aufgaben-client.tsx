@@ -15,7 +15,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { faelligLabel, investorVon, objektVon, plusTage } from "@/lib/derive";
-import { aufgaben, mitarbeiter } from "@/lib/mock-data";
+import { aufgaben, GF_ID, mitarbeiter } from "@/lib/mock-data";
 import type { Aufgabe, AufgabenTyp } from "@/lib/types";
 import {
   Badge,
@@ -83,9 +83,12 @@ export function AufgabenListe() {
   const offenJeMitarbeiter = (id: string) =>
     effektiv.filter((t) => t.mitarbeiterId === id && !t.erledigt).length;
 
+  // Die GF-Rolle taucht hier nicht auf: Max trägt nichts ein und bekommt nichts zugewiesen.
+  const operativesTeam = mitarbeiter.filter((m) => m.id !== GF_ID);
+
   const filter = [
     { id: "alle", label: "Alle", count: effektiv.filter((t) => !t.erledigt).length },
-    ...mitarbeiter.map((m) => ({ id: m.id, label: m.name, count: offenJeMitarbeiter(m.id) })),
+    ...operativesTeam.map((m) => ({ id: m.id, label: m.name, count: offenJeMitarbeiter(m.id) })),
   ];
 
   const geaendert = Object.keys(aufgabenPatches).length;
@@ -194,7 +197,7 @@ export function AufgabenListe() {
                       onChange={(e) => patch(t.id, { mitarbeiterId: e.target.value })}
                       disabled={t.erledigt}
                     >
-                      {mitarbeiter.map((m) => (
+                      {operativesTeam.map((m) => (
                         <option key={m.id} value={m.id}>
                           {m.name}
                         </option>

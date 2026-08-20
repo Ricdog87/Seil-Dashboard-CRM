@@ -95,8 +95,14 @@ export const FREIGABE_SCHRITT_INDEX = 14;
 // Team
 // ---------------------------------------------------------------------------
 
+/** Geschäftsführer-Konto: „Arbeiten als“ Max schaltet die Übersicht auf den
+ *  rein lesenden GF-Blick (Projektsummen statt operativem Tag). */
+export const GF_ID = "m6";
+
 export const mitarbeiter: Mitarbeiter[] = [
-  // Auf Wunsch als einzige echte Person für die Demo angelegt – alle übrigen Namen bleiben erfunden.
+  // Auf Wunsch als echte Personen für die Demo angelegt (Nino, Max) –
+  // alle übrigen Namen bleiben erfunden.
+  { id: GF_ID, name: "Max Seil", kuerzel: "MS", rolle: "Geschäftsführer" },
   { id: "m5", name: "Nino Grubisic", kuerzel: "NG", rolle: "Leitung Sales" },
   { id: "m1", name: "Katharina Vogt", kuerzel: "KV", rolle: "Transaction Managerin" },
   { id: "m2", name: "Daniel Mertens", kuerzel: "DM", rolle: "Senior Transaction Manager" },

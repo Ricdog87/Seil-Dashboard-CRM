@@ -22,7 +22,7 @@ function frankfurterStunde(): number {
  * Die Begrüßung richtet sich live nach der Frankfurter Uhrzeit; das Datum bleibt
  * bewusst der fixe Demo-Referenztag (siehe ANNAHMEN.md, Referenzdatum).
  */
-export function HeuteKopf() {
+export function HeuteKopf({ untertitel }: { untertitel?: string }) {
   const { mitarbeiterId } = useSitzung();
   const ich = mitarbeiterVon(mitarbeiterId);
   const vorname = ich?.name.split(" ")[0] ?? "";
@@ -52,7 +52,8 @@ export function HeuteKopf() {
         {gruss}, <span className="text-seil-accent">{vorname}</span>
       </h1>
       <p className="mt-1 max-w-[70ch] text-seil-muted">
-        Donnerstag, 20.08.2026 – Signale, Aufgaben und alle laufenden Transaktionen auf einen Blick.
+        {untertitel ??
+          "Donnerstag, 20.08.2026 – Signale, Aufgaben und alle laufenden Transaktionen auf einen Blick."}
       </p>
     </div>
   );

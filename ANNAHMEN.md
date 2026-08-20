@@ -78,11 +78,13 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
     abgeleitet und als wichtigste Steuerungsgrößen angenommen.
 15. **„Investoren ohne Rückmeldung“** = angeschriebene Kontakte ohne jede Antwort;
     „mit Handlungsbedarf“ = Follow-up überfällig oder Stufe 3 ausgeschöpft.
-16. **Team-Modell:** 5 Personen inkl. „Investment-Team“ als zuweisbare Einheit für
-    Preisanfragen. Rollen, Namen und Zuständigkeiten sind frei erfunden – mit
-    **einer bewussten Ausnahme:** Nino Grubisic (Leitung Sales) wurde auf
-    ausdrücklichen Wunsch als echter Nutzer für die Demo angelegt (ohne
-    Kontaktdaten). Alle Objekte, Investoren und übrigen Personen bleiben fiktiv.
+16. **Team-Modell:** 5 operative Personen inkl. „Investment-Team“ als zuweisbare
+    Einheit für Preisanfragen, dazu die Geschäftsführung. Rollen, Namen und
+    Zuständigkeiten sind frei erfunden – mit **zwei bewussten Ausnahmen:**
+    Nino Grubisic (Leitung Sales) und Max Seil (Geschäftsführer) wurden auf
+    ausdrücklichen Wunsch als echte Nutzer für die Demo angelegt (ohne
+    Kontaktdaten; zum GF-Konto siehe Punkt 43). Alle Objekte, Investoren und
+    übrigen Personen bleiben fiktiv.
 
 ## Struktur & Design
 
@@ -223,3 +225,16 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
     (prefers-reduced-motion). Annahme: Diese Dosierung ist gewollt – mehr
     Effekte (z. B. animierte Diagramme, Parallax) bitte nur auf expliziten
     Wunsch.
+43. **GF-Konto (Max Seil) mit eigenem Dashboard:** „Arbeiten als“ Max Seil
+    schaltet die Übersicht auf eine **rein lesende Geschäftsführungs-Sicht**:
+    Projektsummen (Pipeline gesamt, in aktiver Vermarktung), Honorarpotenzial,
+    Antwortquote, Projektsummen je Prozessphase, Vermarktungs-Funnel, alle
+    Mandate nach Volumen, Risiken („Braucht Aufmerksamkeit“) und die
+    Auslastung im Team. Kein Posteingang, keine Aufgabenliste, keine
+    Eingabemöglichkeiten – der GF trägt nichts ein; er taucht deshalb auch
+    nicht im Aufgaben-Filter oder in der Zuweisung auf, und die Notiz-Erfassung
+    ist in seiner Sicht ausgeblendet. Zwei Annahmen dazu: (a) Das
+    **Honorarpotenzial ist eine reine Modellrechnung mit 1,5 %** auf die
+    Pipeline – der echte Satz (und ob je Mandat individuell) ist mit SEIL zu
+    klären. (b) Im echten System wird diese Rollen-Sicht über Login/Rechte
+    gesteuert, nicht über den Umschalter.

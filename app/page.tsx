@@ -17,6 +17,7 @@ import {
   FollowUpStufe,
   Fortschritt,
 } from "@/components/cockpit";
+import { GfDashboard } from "@/components/gf-dashboard";
 import { HeuteKopf } from "@/components/heute-kopf";
 import { KpiAufgabenLive, KpiKachelLive } from "@/components/kpi-live";
 import { WeltUhren } from "@/components/weltuhren";
@@ -24,13 +25,15 @@ import { MeineAufgaben } from "@/components/meine-aufgaben";
 import { Posteingang } from "@/components/posteingang";
 import { AktivitaetenTicker } from "@/components/ticker";
 import { TransaktionenAnsicht } from "@/components/transaktionen-ansicht";
+import { UebersichtWeiche } from "@/components/uebersicht-weiche";
 
 export default function UebersichtSeite() {
   const k = kpis();
   const stumm = ohneRueckmeldung();
   const luecken = objekte.filter(hatDatenraumLuecke);
 
-  return (
+  // „Arbeiten als“ Max Seil (GF) → Zahlen-Dashboard statt operativem Tag.
+  const operativ = (
     <>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <HeuteKopf />
@@ -186,4 +189,6 @@ export default function UebersichtSeite() {
       </div>
     </>
   );
+
+  return <UebersichtWeiche gf={<GfDashboard />} operativ={operativ} />;
 }

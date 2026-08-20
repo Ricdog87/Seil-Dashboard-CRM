@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { StickyNote } from "lucide-react";
 import { mitarbeiterVon } from "@/lib/derive";
+import { GF_ID } from "@/lib/mock-data";
 import { Button, ICON_SM, ICON_STROKE, Input } from "@/components/ui";
 import { useSitzung } from "./sitzung";
 
@@ -22,8 +23,13 @@ export function NotizErfassen({ objektId }: { objektId: string }) {
     setText("");
   };
 
+  // GF-Konto ist Nur-Lese-Sicht: keine Erfassung, vorhandene Sitzungsnotizen bleiben sichtbar.
+  const nurLesen = mitarbeiterId === GF_ID;
+  if (nurLesen && meine.length === 0) return null;
+
   return (
     <div className="border-b border-seil-line">
+      {nurLesen ? null : (
       <form
         className="flex items-center gap-2 px-4 py-3"
         onSubmit={(e) => {
@@ -42,8 +48,9 @@ export function NotizErfassen({ objektId }: { objektId: string }) {
           Notiz erfassen
         </Button>
       </form>
+      )}
       {meine.length > 0 ? (
-        <ul className="divide-y divide-seil-line border-t border-seil-line">
+        <ul className={`divide-y divide-seil-line ${nurLesen ? "" : "border-t border-seil-line"}`}>
           {meine.map((n) => {
             const autor = mitarbeiterVon(n.mitarbeiterId);
             return (

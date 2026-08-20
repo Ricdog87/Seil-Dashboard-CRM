@@ -49,6 +49,15 @@ anklicken seine Objekte – der Kern, den Pipedrive nicht konnte. `⌘K` /
 - **Triage** der Signale, die die Automatik nicht selbst zuordnet
 - Broker Calls, Besichtigungen, Verhandlung – wie immer
 
+## Der GF-Blick
+
+„Arbeiten als“ **Max Seil** schaltet die Übersicht auf das
+Geschäftsführungs-Dashboard: Pipeline gesamt und in aktiver Vermarktung,
+Honorarpotenzial (Modellrechnung), Antwortquote, Summen je Phase,
+Vermarktungs-Funnel, alle Mandate nach Volumen, Risiken und die Auslastung
+im Team – **nur Zahlen, nichts zum Eintragen**. Zurück zur operativen
+Sicht: einfach wieder einen Mitarbeiter wählen.
+
 ## Unterwegs auf dem Handy
 
 Das Cockpit läuft im Browser auch auf dem Smartphone – gleiche Daten,
