@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { Bot, Check, ChevronDown, CircleSlash, Handshake, UserCheck, Users } from "lucide-react";
+import { Bot, Briefcase, Check, ChevronDown, CircleSlash, Handshake, UserCheck, Users } from "lucide-react";
 import {
   FREIGABE_SCHRITT_INDEX,
   PROZESS_PHASEN,
@@ -22,6 +22,8 @@ import { Kicker } from "@/components/cockpit";
 
 const verantwortungMeta: Record<SchrittVerantwortung, { label: string; icon: typeof Users; tone: "neutral" | "info" | "warning" | "accent" }> = {
   team: { label: "Team", icon: Users, tone: "neutral" },
+  // Demo-Check 20.08.: administrative Vorbereitung liegt beim Backoffice.
+  backoffice: { label: "Backoffice", icon: Briefcase, tone: "neutral" },
   automatik: { label: "Automatik", icon: Bot, tone: "info" },
   freigabe: { label: "Manuelle Freigabe", icon: UserCheck, tone: "warning" },
   extern: { label: "Extern (Client/Legal/Broker)", icon: Handshake, tone: "accent" },

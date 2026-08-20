@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useMemo, useState } from "react";
-import type { Aufgabe } from "@/lib/types";
+import type { Aufgabe, Investor } from "@/lib/types";
 
 /**
  * Sitzungszustand des Klickdummys – simuliert die Anmeldung und alle
@@ -11,6 +11,9 @@ import type { Aufgabe } from "@/lib/types";
  */
 
 export type AufgabenPatch = Partial<Pick<Aufgabe, "mitarbeiterId" | "faellig" | "erledigt">>;
+
+/** Ankaufsprofil-Pflege direkt im CRM (Demo-Check 20.08.) – statt externer Excel. */
+export type ProfilPatch = Partial<Pick<Investor, "regionen" | "ticketMinMio" | "ticketMaxMio">>;
 
 export interface SitzungsNotiz {
   id: string;
@@ -29,6 +32,8 @@ interface Sitzung {
   verarbeiteSignal: (id: string, hinweis: string) => void;
   notizen: SitzungsNotiz[];
   notizErfassen: (objektId: string, text: string) => void;
+  profilPatches: Record<string, ProfilPatch>; // investorId → geänderte Profilfelder
+  patchProfil: (investorId: string, patch: ProfilPatch) => void;
 }
 
 const SitzungsContext = createContext<Sitzung | null>(null);
@@ -38,6 +43,7 @@ export function SitzungsProvider({ children }: { children: React.ReactNode }) {
   const [aufgabenPatches, setAufgabenPatches] = useState<Record<string, AufgabenPatch>>({});
   const [signalErledigt, setSignalErledigt] = useState<Record<string, string>>({});
   const [notizen, setNotizen] = useState<SitzungsNotiz[]>([]);
+  const [profilPatches, setProfilPatches] = useState<Record<string, ProfilPatch>>({});
 
   const wert = useMemo<Sitzung>(
     () => ({
@@ -56,8 +62,11 @@ export function SitzungsProvider({ children }: { children: React.ReactNode }) {
           { id: `n${cur.length + 1}`, objektId, text, mitarbeiterId },
           ...cur,
         ]),
+      profilPatches,
+      patchProfil: (investorId, patch) =>
+        setProfilPatches((cur) => ({ ...cur, [investorId]: { ...cur[investorId], ...patch } })),
     }),
-    [mitarbeiterId, aufgabenPatches, signalErledigt, notizen],
+    [mitarbeiterId, aufgabenPatches, signalErledigt, notizen, profilPatches],
   );
 
   return <SitzungsContext.Provider value={wert}>{children}</SitzungsContext.Provider>;

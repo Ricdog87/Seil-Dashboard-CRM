@@ -26,8 +26,8 @@ Urteilskraft brauchen.
 |---|---|
 | **Übersicht** | Euer Tag: Posteingang, eigene Aufgaben, KPIs mit 7-Tage-Trend, alle Transaktionen |
 | **Objekt-Detail** | Prozessleiste (26 Schritte, je Schritt Beschreibung + offene Aufgaben), Datenraum-Checkliste aus Modul 01, KI-ausgelesene Kennwerte, verknüpfte Investoren, komplette Historie, Notizen |
-| **Investor-Detail** | Ankaufsprofil (Ticket, Assetklasse, Region), alle verknüpften Objekte mit Antwortstatus, Kommunikationshistorie |
-| **Vermarktung** | Verteiler je Objekt mit Antwortstatus und Follow-up-Stufe – oben die Freigabe |
+| **Investor-Detail** | Ankaufsprofil – Zielregionen und Ticket direkt bearbeitbar (statt Excel), alle verknüpften Objekte mit Antwortstatus, Kommunikationshistorie |
+| **Vermarktung** | Automatik-Kette (Datenraum → Matching → Freigabe → Follow-up), Verteiler je Objekt mit Match- und Antwortstatus – oben die Freigabe |
 | **Aufgaben** | Kanban (Spalten = Fälligkeit, Karten ziehen oder per Griff-Menü verschieben = umplanen) oder Liste, nach Mitarbeiter filterbar, Broker Calls hervorgehoben |
 
 **Alles ist verbunden:** Objekt anklicken zeigt seine Investoren, Investor
@@ -36,11 +36,17 @@ anklicken seine Objekte – der Kern, den Pipedrive nicht konnte. `⌘K` /
 
 ## Das läuft automatisch
 
-- Follow-ups alle 2 Tage, max. 3 Stufen; danach Nachfass-Aufgabe
+- Matching der Investorenliste – Standort zuerst, dann Assetklasse und Ticket
+- Follow-ups alle 2 Tage (max. 3 Stufen) über E-Mail + WhatsApp (Superchat);
+  Stufe 2 und die Absage-Bestätigung fragen nach Zielregionen – Antworten
+  aktualisieren das Profil
 - Antworterkennung: Interesse → Broker Call beim Zuständigen, Preisanfrage → Investment-Team
 - Datenraum-Status und Dokumenten-Checkliste aus Modul 01
 - Se-Circle-Sync für Off-Market-Objekte, KI-Extraktion aus Datenraum-Dokumenten, KI-Teaser-Entwürfe
 - Täglicher Status-Report an das Team
+
+Dazwischen: das **Backoffice** bereitet vor (Rent Roll, Datenraum, NDA-Versand,
+Fotograf) – der Vertrieb übernimmt erst bei konkretem Interesse.
 
 ## Hier entscheidet ihr
 

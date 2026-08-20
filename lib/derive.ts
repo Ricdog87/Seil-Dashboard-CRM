@@ -13,7 +13,7 @@ import {
   PROZESS_PHASEN,
   PROZESS_SCHRITTE,
 } from "./mock-data";
-import type { Aktivitaet, Objekt, ObjektInvestorLink } from "./types";
+import type { Aktivitaet, Investor, Objekt, ObjektInvestorLink } from "./types";
 
 // --- Lookups ---------------------------------------------------------------
 
@@ -73,6 +73,34 @@ export function pipelineStufe(objekt: Objekt): number {
 /** Objekte, deren Vermarktung vorbereitet oder gestartet ist (ab Matching-Liste erledigt). */
 export const inVermarktungskontext = (objekt: Objekt): boolean =>
   objekt.schritte[13] === "done";
+
+// --- Matching (Kernstück lt. Demo-Check 20.08.) -----------------------------
+
+export interface MatchKriterien {
+  standort: boolean;
+  assetklasse: boolean;
+  ticket: boolean;
+}
+
+/**
+ * Abgleich Objekt ↔ Ankaufsprofil, Standort zuerst (Entscheidung Demo-Check).
+ * Standort: alle Demo-Objekte liegen im Rhein-Main-Gebiet, daher genügt der
+ * Abgleich gegen die regionalen Obermengen. Assetklasse tolerant („Hotel /
+ * Serviced Apartments" matcht „Serviced Apartments"), Ticket als Spanne.
+ * Ein Nicht-Treffer ist kein Ausschluss – die Liste bleibt manuell erweiterbar.
+ */
+const RHEIN_MAIN_OBERMENGEN = ["Rhein-Main", "Hessen", "Deutschland", "Deutschland Top-7", "DACH"];
+
+export function matchKriterien(objekt: Objekt, investor: Investor): MatchKriterien {
+  const standort = investor.regionen.some((r) => RHEIN_MAIN_OBERMENGEN.includes(r));
+  const teile = objekt.assetklasse.split(" / ");
+  const assetklasse = investor.assetklassen.some((a) =>
+    teile.some((t) => a.includes(t) || t.includes(a)),
+  );
+  const ticket =
+    investor.ticketMinMio <= objekt.kaufpreisMio && objekt.kaufpreisMio <= investor.ticketMaxMio;
+  return { standort, assetklasse, ticket };
+}
 
 // --- Datenraum -------------------------------------------------------------
 

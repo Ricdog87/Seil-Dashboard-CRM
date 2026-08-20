@@ -11,6 +11,8 @@ import {
 import { objekte } from "@/lib/mock-data";
 import type { Objekt } from "@/lib/types";
 import type { KontaktStatus } from "@/lib/types";
+import { AutomatikKette } from "@/components/automatik-kette";
+import { MatchZelle } from "@/components/match-zelle";
 import { FreigabeKarte, ObjektAuswahl } from "@/components/vermarktung-client";
 import {
   Card,
@@ -157,10 +159,12 @@ export default async function VermarktungSeite({
         </div>
       ) : null}
 
+      <AutomatikKette objekt={objekt} />
+
       <FreigabeKarte
         ausstehend={freigabeAusstehend}
         anzahlInvestoren={links.length}
-        abgleichKriterien={`${objekt.assetklasse}, Ticket passend, Region Rhein-Main/Top-7`}
+        abgleichKriterien="Standort zuerst, dann Assetklasse und Ticket-Spanne"
         freigegebenDurch={freigegebenDurch}
         freigegebenAm={fmtDatum(objekt.freigabe?.am)}
       />
@@ -174,7 +178,7 @@ export default async function VermarktungSeite({
               Verteiler: <EntityLink href={`/objekte/${objekt.id}`}>{objekt.name}</EntityLink>
             </>
           }
-          meta="Automatik: Presound-Mail an BCC-Verteiler · Follow-up alle 2 Tage (max. 3 Stufen) · Interesse → Broker Call · Preisanfrage → Investment-Team"
+          meta="Automatik: Presound-Mail an BCC-Verteiler · Follow-ups über E-Mail + WhatsApp (Superchat), Stufe 2 fragt Zielregionen ab · Interesse → Broker Call · Preisanfrage → Investment-Team"
         />
         {(() => {
           const geantwortet = links.filter((l) =>
@@ -212,6 +216,7 @@ export default async function VermarktungSeite({
               <TH>Investor</TH>
               <TH>Ansprechpartner</TH>
               <TH numeric>Ticket</TH>
+              <TH>Match</TH>
               <TH>Antwortstatus</TH>
               <TH>Follow-up</TH>
               <TH>Letzter Kontakt</TH>
@@ -230,6 +235,9 @@ export default async function VermarktungSeite({
                   </TD>
                   <TD className="text-seil-muted">{inv.ansprechpartner}</TD>
                   <TD numeric>{fmtTicket(inv.ticketMinMio, inv.ticketMaxMio)}</TD>
+                  <TD>
+                    <MatchZelle objektId={objekt.id} investorId={inv.id} />
+                  </TD>
                   <TD>
                     <KontaktStatusBadge status={l.status} />
                     {l.hinweis ? (

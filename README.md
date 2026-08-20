@@ -17,8 +17,8 @@ Gegenparteien. Genau das, was Pipedrive + Excel heute nicht können.
 |---|--------|-------|--------|
 | 1 | Übersicht | `/` | Laufende Transaktionen mit Phase, offene Aufgaben, Investoren ohne Rückmeldung, Datenräume mit Lücken |
 | 2 | Objekt-Detail | `/objekte/[id]` | Prozessleiste über beide Seiten, Datenraum-Status (aus Modul 01), Dokumenten-Checkliste, verknüpfte Investoren, Aktivitäten |
-| 3 | Investor-Detail | `/investoren/[id]` | Ankaufsprofil (Ticket, Assetklasse, Region), verknüpfte Objekte, Kommunikationshistorie |
-| 4 | Vermarktung | `/vermarktung` | Investorenliste je Objekt, Antwortstatus je Kontakt, Follow-up-Stufe, oben der Freigabe-Schritt (Human-in-the-Loop) |
+| 3 | Investor-Detail | `/investoren/[id]` | Ankaufsprofil (Zielregionen und Ticket direkt bearbeitbar), verknüpfte Objekte, Kommunikationshistorie |
+| 4 | Vermarktung | `/vermarktung` | Automatik-Kette, Investorenliste je Objekt mit Match- und Antwortstatus, Follow-up-Stufe, oben der Freigabe-Schritt (Human-in-the-Loop) |
 | 5 | Aufgaben | `/aufgaben` | Nach Mitarbeiter gefiltert, Broker Calls hervorgehoben |
 
 Die Übersicht zeigt die laufenden Transaktionen wahlweise als dichte Tabelle
@@ -36,7 +36,9 @@ Investoren und offene Aufgaben. Der Aufgaben-Screen ist ein **Kanban-Board**
 per Drag & Drop umplanen und abhaken; die Liste bleibt als zweite Ansicht. Dazu ist der Prototyp an den im Kickoff
 gewünschten Stellen interaktiv: die Prozessleiste öffnet je Schritt ein
 Detailpanel, KI-extrahierte Werte lassen sich prüfen und übernehmen, Notizen
-lassen sich direkt am Objekt erfassen, Aufgaben lassen sich neu zuweisen,
+lassen sich direkt am Objekt erfassen, Ankaufsprofile lassen sich direkt am
+Investor pflegen (Zielregionen, Ticket – das Matching zieht live mit),
+Aufgaben lassen sich neu zuweisen,
 verschieben und abhaken, und die Vermarktung zeigt Antwortquote und
 Teaser-Pipeline (KI-Entwurf → Prüfung → Versand). Alle Eingriffe gelten nur in
 der laufenden Sitzung – ein Reload stellt den Demostand wieder her.
@@ -83,6 +85,19 @@ Tabellen anklicken) – es gibt keine Listen-Screens über die fünf Screens hin
 | Presound-Mails an BCC-Verteiler | Benennung in Freigabe-Karte und Automatik-Zeile der Vermarktung |
 
 Alles davon ist reine Anzeige mit Demodaten – keine echte Automation im Prototyp.
+
+### Demo-Check 20.08. (11:30, mit Nino) – eingearbeitet
+
+| Beschluss aus dem Meeting | Im Prototyp sichtbar als |
+|---|---|
+| Automatisierung des Transaktionsprozesses = oberste Priorität | **Automatik-Kette** auf der Vermarktung: Datenraum einlesen → Matching → E-Mails vorbereiten → Freigabe → Versand & Follow-ups → Antworterkennung – nur die Freigabe stoppt |
+| Matching als Kernstück, Standort als erstes Kriterium | Match-Spalte im Verteiler (Standort · Klasse · Ticket, in dieser Reihenfolge); nicht volle Treffer sind als „manuell ergänzt“ markiert – die Liste bleibt offen |
+| Anforderungsprofile direkt im CRM, keine externen Excel | Ankaufsprofil am Investor **editierbar** (Zielregionen, Ticket) – das Matching in der Vermarktung zieht live mit |
+| Zielregionen-Rückfrage in den Follow-up-Prozess | Follow-up Stufe 2 und die Absage-Bestätigung fragen Zielregionen ab; Antworten erscheinen als „Profil-Update“ im Posteingang und aktualisieren das Profil automatisch |
+| WhatsApp datenschutzkonform über Superchat | Follow-up-Kanal „E-Mail + WhatsApp (Superchat)“ in Kette und Automatik-Zeile, Superchat-Aktivitäten in der Historie |
+| Backoffice übernimmt die administrative Vorbereitung | Eigene Verantwortung **Backoffice** in der 26-Schritte-Prozessleiste (Rent Roll, Standarddokumente, Datenraum-Aufbau, Fotograf); NDA-Versand als Hinweis am Schritt „NDA Vermarktung“ – das Drafting bleibt beim Legal Team |
+
+Details und offene Punkte dazu: ANNAHMEN.md, Punkt 44.
 
 ### Screenshots
 

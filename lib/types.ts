@@ -170,7 +170,7 @@ export interface Aktivitaet {
   investorId?: string;
   auftraggeberId?: string;
   mitarbeiterId?: string;
-  quelle?: "Modul 01" | "Automatik" | "KI" | "Se Circle";
+  quelle?: "Modul 01" | "Automatik" | "KI" | "Se Circle" | "Superchat";
 }
 
 export interface Mitarbeiter {
@@ -181,7 +181,7 @@ export interface Mitarbeiter {
 }
 
 /** Eingegangene Antwort aus der Antworterkennung – der Posteingang des Cockpits. */
-export type SignalArt = "interesse" | "preisanfrage" | "besichtigung" | "frage" | "absage";
+export type SignalArt = "interesse" | "preisanfrage" | "besichtigung" | "frage" | "absage" | "profil";
 
 export interface Signal {
   id: string;

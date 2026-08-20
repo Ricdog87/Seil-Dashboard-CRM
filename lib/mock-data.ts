@@ -34,7 +34,7 @@ export const HEUTE = "2026-08-20";
  * Alles bitte im Kundengespräch bestätigen – siehe ANNAHMEN.md Punkt 2.
  */
 
-export type SchrittVerantwortung = "team" | "automatik" | "freigabe" | "extern";
+export type SchrittVerantwortung = "team" | "backoffice" | "automatik" | "freigabe" | "extern";
 
 export interface ProzessSchritt {
   nr: number;
@@ -62,20 +62,20 @@ export const PROZESS_PHASEN: readonly ProzessPhase[] = [
 export const PROZESS_SCHRITTE: readonly ProzessSchritt[] = [
   { nr: 1, kurz: "Portfolio für Exit", lang: "Portfolio for potential Exit", verantwortlich: "Client", verantwortung: "extern", tool: "Word/PDF", beschreibung: "Der Auftraggeber liefert das Portfolio bzw. Objekt für einen möglichen Exit – Ausgangspunkt jedes Mandats." },
   { nr: 2, kurz: "NDA Auftraggeber", lang: "Draft NDA", verantwortlich: "Legal Team", verantwortung: "extern", tool: "Word/PDF", beschreibung: "NDA mit dem Auftraggeber – Grundlage für den Austausch vertraulicher Unterlagen." },
-  { nr: 3, kurz: "Rent Roll anfordern", lang: "Request Rent Roll / Data Room (via E-Mail)", verantwortlich: "Team", verantwortung: "team", tool: "Outlook", beschreibung: "Mieterliste und erste Datenraum-Unterlagen beim Auftraggeber anfordern." },
+  { nr: 3, kurz: "Rent Roll anfordern", lang: "Request Rent Roll / Data Room (via E-Mail)", verantwortlich: "Backoffice", verantwortung: "backoffice", tool: "Outlook", beschreibung: "Mieterliste und erste Datenraum-Unterlagen beim Auftraggeber anfordern – seit Demo-Check (20.08.) Aufgabe des Backoffice." },
   { nr: 4, kurz: "Excel-Valuation", lang: "Excel Valuation on single Property Basis", verantwortlich: "Investment Team", verantwortung: "team", tool: "Excel", beschreibung: "Bewertung je Einzelobjekt – künftig mit KI-extrahierten Kennwerten aus dem Datenraum." },
   { nr: 5, kurz: "Valuation-Präsentation", lang: "Presentation with Valuation and Sales Strategy", verantwortlich: "Team", verantwortung: "team", tool: "PowerPoint", beschreibung: "Präsentation mit Bewertung und Vermarktungsstrategie für den Auftraggeber." },
   { nr: 6, kurz: "Service Agreement", lang: "Draft Service Agreement (via E-Mail)", verantwortlich: "Legal Team", verantwortung: "extern", tool: "Word/PDF", beschreibung: "Internes Service Agreement – Mandatsgrundlage." },
   { nr: 7, kurz: "Legitimation", lang: "Draft Legitimation (via E-Mail)", verantwortlich: "Legal Team", verantwortung: "extern", tool: "Word/PDF", beschreibung: "Externe Legitimation/Vollmacht – SEIL vertritt den Auftraggeber nach außen." },
-  { nr: 8, kurz: "Standarddokumente", lang: "Request for Standard Documents (via E-Mail)", verantwortlich: "Team", verantwortung: "team", tool: "Outlook", beschreibung: "Standard-Dokumentenliste beim Auftraggeber anfordern – Eingang prüft künftig Modul 01." },
-  { nr: 9, kurz: "Datenraum aufbauen", lang: "Create Data Room according to Standard Structure", verantwortlich: "Team", verantwortung: "team", tool: "OneDrive", beschreibung: "Datenraum nach Standardstruktur aufbauen – Status und Checkliste liefert künftig Modul 01." },
+  { nr: 8, kurz: "Standarddokumente", lang: "Request for Standard Documents (via E-Mail)", verantwortlich: "Backoffice", verantwortung: "backoffice", tool: "Outlook", beschreibung: "Standard-Dokumentenliste beim Auftraggeber anfordern – Backoffice bereitet vor, den Eingang prüft künftig Modul 01." },
+  { nr: 9, kurz: "Datenraum aufbauen", lang: "Create Data Room according to Standard Structure", verantwortlich: "Backoffice", verantwortung: "backoffice", tool: "OneDrive", beschreibung: "Datenraum nach Standardstruktur aufbauen – Backoffice-Aufgabe; Status und Checkliste liefert künftig Modul 01. Der Vertrieb steigt erst bei konkretem Interesse ein." },
   { nr: 10, kurz: "Deal im CRM", lang: "Create new Deal", verantwortlich: "Team", verantwortung: "team", tool: "Pipedrive", beschreibung: "Deal anlegen – künftig automatisch im Cockpit statt in Pipedrive." },
   { nr: 11, kurz: "Onepager/Teaser", lang: "Create Onepager", verantwortlich: "Team", verantwortung: "team", tool: "PowerPoint", beschreibung: "Onepager/Teaser erstellen – künftig KI-generiert mit Prüfung durch das Team." },
-  { nr: 12, kurz: "NDA Vermarktung", lang: "Draft NDA (Vermarktung)", verantwortlich: "Legal Team", verantwortung: "extern", tool: "Word/PDF", beschreibung: "Vermarktungs-NDA je Interessent – Voraussetzung für jeden Datenraumzugang." },
-  { nr: 13, kurz: "Fotograf", lang: "Organize Photographers for Property Pictures", verantwortlich: "Team", verantwortung: "team", tool: "Outlook", beschreibung: "Fotograf für Objektaufnahmen organisieren." },
-  { nr: 14, kurz: "Matching-Liste", lang: "Matching / Investors List (E-Mail Addresses)", verantwortlich: "Team", verantwortung: "team", tool: "Pipedrive", beschreibung: "Investorenliste per Abgleich mit den Ankaufsprofilen (Assetklasse, Ticket, Region) – künftig automatisch." },
+  { nr: 12, kurz: "NDA Vermarktung", lang: "Draft NDA (Vermarktung)", verantwortlich: "Legal Team", verantwortung: "extern", tool: "Word/PDF", beschreibung: "Vermarktungs-NDA je Interessent – Voraussetzung für jeden Datenraumzugang; den Versand übernimmt das Backoffice." },
+  { nr: 13, kurz: "Fotograf", lang: "Organize Photographers for Property Pictures", verantwortlich: "Backoffice", verantwortung: "backoffice", tool: "Outlook", beschreibung: "Fotograf für Objektaufnahmen organisieren – administrative Vorbereitung durch das Backoffice." },
+  { nr: 14, kurz: "Matching-Liste", lang: "Matching / Investors List (E-Mail Addresses)", verantwortlich: "Automatik", verantwortung: "automatik", tool: "Pipedrive", beschreibung: "Investorenliste per Abgleich mit den Ankaufsprofilen – Standort zuerst, dann Assetklasse und Ticket (Demo-Check 20.08.). Läuft automatisch, bleibt manuell erweiterbar." },
   { nr: 15, kurz: "Approach-Mailing", lang: "Investors Approach E-Mail (BCC Mailing)", verantwortlich: "Team", verantwortung: "freigabe", tool: "Outlook (BCC)", beschreibung: "Versand an den Verteiler – startet erst nach manueller Freigabe der Liste (Human-in-the-Loop)." },
-  { nr: 16, kurz: "Follow-ups & Q&A", lang: "Standard Process / E-Mails: Follow-Ups, Q&A, NDA", verantwortlich: "Team", verantwortung: "automatik", tool: "Outlook", beschreibung: "Follow-up alle 2 Tage (max. 3 Stufen), Q&A und NDA-Handling – übernimmt künftig die Automatik mit Antworterkennung." },
+  { nr: 16, kurz: "Follow-ups & Q&A", lang: "Standard Process / E-Mails: Follow-Ups, Q&A, NDA", verantwortlich: "Team", verantwortung: "automatik", tool: "Outlook", beschreibung: "Follow-up alle 2 Tage (max. 3 Stufen) über E-Mail und WhatsApp (Superchat), Q&A und NDA-Handling – übernimmt die Automatik mit Antworterkennung; Stufe 2 fragt aktiv nach aktuellen Zielregionen." },
   { nr: 17, kurz: "Broker Call", lang: "Broker Call: Feedback, Pricing, Site Visit", verantwortlich: "Broker", verantwortung: "team", tool: "Telefon", beschreibung: "Persönliches Gespräch bei Interesse – Fragen, Preis, Besichtigungswunsch. Entsteht als Aufgabe aus der Antworterkennung." },
   { nr: 18, kurz: "Datenraum Light", lang: "Datenraum Light", verantwortlich: "Team", verantwortung: "team", tool: "OneDrive", beschreibung: "Reduzierter Datenraum für qualifizierte Interessenten nach NDA." },
   { nr: 19, kurz: "Indikatives Angebot", lang: "Indikatives Angebot / LOI", verantwortlich: "Investment Team", verantwortung: "extern", tool: "Word/PDF", beschreibung: "Indikative Angebote bzw. LOI der Interessenten einsammeln und bewerten." },
@@ -445,7 +445,7 @@ export const investoren: Investor[] = [
     email: "lang@corvus-fo.example",
     telefon: "+49 69 555 466-8",
     ticketMinMio: 15,
-    ticketMaxMio: 55,
+    ticketMaxMio: 40,
     assetklassen: ["Büro", "Gesundheitsimmobilie"],
     regionen: ["Hessen"],
   },
@@ -460,7 +460,7 @@ export const investoren: Investor[] = [
     ticketMinMio: 10,
     ticketMaxMio: 50,
     assetklassen: ["Einzelhandel", "Nahversorgung", "Büro"],
-    regionen: ["Deutschland"],
+    regionen: ["Rhein-Main", "Nordrhein-Westfalen"],
     notiz: "Sucht aktiv Fachmarktzentren mit Ankermieter Lebensmittel.",
   },
   {
@@ -585,6 +585,9 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak13", datum: "2026-08-17T15:10", typ: "mail_eingang", text: "Belvedere Grund Invest sagt ab – kein Büro-Ankauf in 2026.", objektId: "o1", investorId: "i9" },
   { id: "ak14", datum: "2026-08-18T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 3 an Corvus Family Office versendet – maximale Stufe erreicht.", objektId: "o1", investorId: "i8" },
   { id: "ak15", datum: "2026-08-19T11:05", typ: "anruf", text: "Rückfragen von Hartmann & Cie. zur Mieter- & Flächenliste beantwortet.", objektId: "o1", investorId: "i3", mitarbeiterId: "m1" },
+  { id: "ak53", datum: "2026-08-18T08:10", typ: "system", quelle: "Superchat", text: "Follow-up Stufe 2 zusätzlich als WhatsApp über Superchat zugestellt – inkl. Rückfrage nach aktuellen Zielregionen.", objektId: "o2", investorId: "i4" },
+  { id: "ak56", datum: "2026-08-17T16:40", typ: "system", quelle: "Automatik", text: "Absage bestätigt – automatische Rückfrage nach aktuellen Zielregionen versendet.", objektId: "o1", investorId: "i9" },
+  { id: "ak54", datum: "2026-08-20T09:12", typ: "system", quelle: "Automatik", text: "Zielregion „Nordrhein-Westfalen“ aus der Antwort auf die Zielregionen-Rückfrage ins Ankaufsprofil übernommen – kein Excel-Umweg.", investorId: "i9" },
   { id: "ak49", datum: "2026-08-20T08:41", typ: "mail_eingang", text: "Hartmann & Cie. bittet um Besichtigung in KW 35 – Antworterkennung: Signal im Posteingang.", objektId: "o1", investorId: "i3" },
 
   { id: "ak46", datum: "2026-08-19T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 2 automatisch versendet an Rheingold Asset Management.", objektId: "o1", investorId: "i4" },
@@ -605,7 +608,7 @@ export const aktivitaeten: Aktivitaet[] = [
   // Wohnportfolio Sachsenhausen (o3)
   { id: "ak24", datum: "2026-08-01T09:00", typ: "system", quelle: "Modul 01", text: "Datenraum vollständig – 12/12 Standarddokumente abgelegt.", objektId: "o3" },
   { id: "ak43", datum: "2026-08-02T08:20", typ: "system", quelle: "KI", text: "KI-Extraktion: Grundbuchdaten der 3 Liegenschaften ausgelesen und ins CRM übernommen.", objektId: "o3" },
-  { id: "ak50", datum: "2026-08-02T08:25", typ: "system", quelle: "KI", text: "Ø-Kaltmiete 14,90 €/m² ermittelt – wegen Staffelmieten in 8 Verträgen zur Prüfung markiert.", objektId: "o3" },
+  { id: "ak55", datum: "2026-08-02T08:25", typ: "system", quelle: "KI", text: "Ø-Kaltmiete 14,90 €/m² ermittelt – wegen Staffelmieten in 8 Verträgen zur Prüfung markiert.", objektId: "o3" },
   { id: "ak25", datum: "2026-08-07T11:30", typ: "notiz", text: "Fotograf beauftragt, Termin 10.08. vor Ort.", objektId: "o3", mitarbeiterId: "m1" },
   { id: "ak44", datum: "2026-08-11T10:00", typ: "system", quelle: "KI", text: "Teaser und Listing automatisch generiert – Entwurf zur Prüfung an Katharina Vogt.", objektId: "o3" },
   { id: "ak26", datum: "2026-08-13T17:15", typ: "notiz", text: "Teaser und Listing final abgestimmt mit Auftraggeberin.", objektId: "o3", auftraggeberId: "a2", mitarbeiterId: "m1" },
@@ -616,7 +619,7 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak29", datum: "2026-07-30T10:00", typ: "mail_ausgang", text: "Datenraum-Anforderung mit Standard-Checkliste an HL Retail Estate versendet.", objektId: "o4", auftraggeberId: "a4", mitarbeiterId: "m2" },
   { id: "ak30", datum: "2026-08-07T13:20", typ: "system", quelle: "Modul 01", text: "5/12 Standarddokumente abgelegt.", objektId: "o4" },
   { id: "ak31", datum: "2026-08-14T09:10", typ: "system", quelle: "Modul 01", text: "Mieter- & Flächenliste abgelegt – automatische Prüfung läuft (7/12).", objektId: "o4" },
-  { id: "ak49", datum: "2026-08-14T09:15", typ: "system", quelle: "KI", text: "KI-Extraktion: Mietfläche lt. Liste 8.310 m² – Abweichung zum Exposé (8.400 m²) zur Prüfung markiert.", objektId: "o4" },
+  { id: "ak52", datum: "2026-08-14T09:15", typ: "system", quelle: "KI", text: "KI-Extraktion: Mietfläche lt. Liste 8.310 m² – Abweichung zum Exposé (8.400 m²) zur Prüfung markiert.", objektId: "o4" },
   { id: "ak32", datum: "2026-08-17T08:55", typ: "mail_ausgang", text: "Erinnerung an fehlende Unterlagen (4 offen) an Frau Sommerfeld.", objektId: "o4", auftraggeberId: "a4", mitarbeiterId: "m2" },
   { id: "ak33", datum: "2026-08-18T15:30", typ: "mail_eingang", text: "Belvedere Grund Invest fragt proaktiv nach Fachmarktzentren – für Vermarktungsstart vorgemerkt.", objektId: "o4", investorId: "i9" },
 
@@ -659,6 +662,17 @@ export const signale: Signal[] = [
     auszug: "„… vor dem Call zwei Fragen: Resthaltbarkeit des Mietvertrags Halle 2 und Erweiterungsreserve auf dem Grundstück?“",
     empfehlung: "Q&A beantworten, Unterlagen für Broker Call heute bereitlegen",
     status: "offen",
+  },
+  {
+    id: "s5",
+    eingegangen: "2026-08-20T09:12",
+    objektId: "o1",
+    investorId: "i9",
+    art: "profil",
+    auszug: "„… für 2026 bleibt es beim Nein im Büro-Segment. Nahversorgung suchen wir weiterhin aktiv – neu auch in Nordrhein-Westfalen, gern dort Objekte zeigen.“",
+    empfehlung: "Profil übernehmen – das nächste passende Mandat matcht automatisch",
+    status: "verarbeitet",
+    verarbeitungsHinweis: "Ankaufsprofil aktualisiert: Zielregion „Nordrhein-Westfalen“ ergänzt (Automatik)",
   },
   {
     id: "s3",

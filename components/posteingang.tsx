@@ -1,7 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { CalendarClock, CircleCheck, CircleX, Euro, Handshake, MessageCircleQuestion } from "lucide-react";
+import { CalendarClock, CircleCheck, CircleX, Euro, Handshake, MapPin, MessageCircleQuestion } from "lucide-react";
 import { fmtDatumKurz, investorVon, mitarbeiterVon, objektVon } from "@/lib/derive";
 import { signale } from "@/lib/mock-data";
 import type { SignalArt } from "@/lib/types";
@@ -15,6 +15,8 @@ const artMeta: Record<SignalArt, { label: string; tone: Tone; icon: LucideIcon }
   besichtigung: { label: "Besichtigung", tone: "success", icon: CalendarClock },
   frage: { label: "Rückfrage", tone: "info", icon: MessageCircleQuestion },
   absage: { label: "Absage", tone: "neutral", icon: CircleX },
+  // Antwort auf die Zielregionen-Rückfrage aus dem Follow-up (Demo-Check 20.08.).
+  profil: { label: "Profil-Update", tone: "info", icon: MapPin },
 };
 
 /**

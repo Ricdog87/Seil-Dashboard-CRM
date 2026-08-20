@@ -238,3 +238,39 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
     Pipeline – der echte Satz (und ob je Mandat individuell) ist mit SEIL zu
     klären. (b) Im echten System wird diese Rollen-Sicht über Login/Rechte
     gesteuert, nicht über den Umschalter.
+44. **Anpassungen aus dem Demo-Check (20.08., 11:30, mit Nino):** Die
+    Automatisierung des Transaktionsprozesses hat oberste Priorität und ist im
+    Prototyp als **Automatik-Kette** auf der Vermarktung sichtbar (Datenraum
+    einlesen → Matching → E-Mails vorbereiten → Freigabe → Versand &
+    Follow-ups → Antworterkennung; einziger manueller Stopp: die Freigabe).
+    Konkrete Setzungen daraus, bitte bestätigen:
+    - **Matching, Standort zuerst:** Der Abgleich prüft Standort, dann
+      Assetklasse, dann Ticket-Spanne. Da alle Demo-Objekte im
+      Rhein-Main-Gebiet liegen, gilt der Standort bei den regionalen
+      Obermengen (Rhein-Main, Hessen, Deutschland, Top-7, DACH) als
+      getroffen – die echte Geometrie (PLZ/Radius?) ist offen. Kein voller
+      Treffer schließt nicht aus: solche Kontakte sind als „manuell ergänzt“
+      markiert – das System bleibt für menschliche Eingriffe offen.
+    - **Anforderungsprofile im CRM:** Zielregionen und Ticket sind direkt am
+      Investor editierbar (keine externen Excel-Tabellen); das Matching in
+      der Vermarktung zieht live mit. Prototyp: nur für die Sitzung.
+    - **Zielregionen-Rückfrage im Follow-up:** Stufe 2 und die
+      Absage-Bestätigung fragen aktiv nach aktuellen Zielregionen; erkannte
+      Antworten erscheinen als „Profil-Update“ im Posteingang und
+      aktualisieren das Ankaufsprofil automatisch (Demo: Rückfrage, Antwort
+      und Profil-Übernahme am Beispiel einer Absage mit neuem
+      Regionswunsch).
+    - **WhatsApp über Superchat:** Follow-ups laufen zusätzlich als WhatsApp
+      über eine professionelle Lösung (Superchat, datenschutzkonform, keine
+      privaten Accounts). Die Eignungsprüfung von Superchat ist laut Meeting
+      noch offen – im Prototyp nur als Kanal-Anzeige simuliert.
+    - **Backoffice-Verantwortung:** Administrative Vorbereitung (Rent Roll,
+      Standarddokumente, Datenraum-Aufbau, Fotograf) liegt beim Backoffice –
+      in der Prozessleiste als eigene Verantwortung sichtbar. Der
+      NDA-**Versand** ist als Hinweis am Schritt „NDA Vermarktung“ vermerkt;
+      das Drafting bleibt beim Legal Team (Verantwortung „Extern“). Der
+      Vertrieb übernimmt erst ab konkretem Interesse.
+    - **Neuer Vertriebs-Mitarbeiter nicht als Nutzer angelegt:** Die im
+      Meeting vorgestellte operative Unterstützung im Vertrieb ist bewusst
+      **nicht** als echte Person im Prototyp – Namensregel wie bei allen
+      echten Personen; auf ausdrücklichen Wunsch ergänzbar (wie Nino/Max).

@@ -5,14 +5,13 @@ import {
   aktivitaetenZu,
   fmtDatum,
   fmtMio,
-  fmtTicket,
   investorVon,
   linksZuInvestor,
   objektVon,
 } from "@/lib/derive";
 import { Aktivitaeten } from "@/components/aktivitaeten";
+import { AnkaufsprofilKarte } from "@/components/ankaufsprofil-karte";
 import {
-  Badge,
   Card,
   CardHeader,
   EmptyState,
@@ -25,12 +24,7 @@ import {
   THead,
   TR,
 } from "@/components/ui";
-import {
-  EntityLink,
-  FollowUpStufe,
-  Kicker,
-  KontaktStatusBadge,
-} from "@/components/cockpit";
+import { EntityLink, FollowUpStufe, KontaktStatusBadge } from "@/components/cockpit";
 
 export default async function InvestorDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -57,71 +51,7 @@ export default async function InvestorDetail({ params }: { params: Promise<{ id:
       </div>
 
       <div className="grid items-start gap-6 lg:grid-cols-[5fr_7fr]">
-        <Card>
-          <CardHeader title="Ankaufsprofil" meta="Buy-Side" />
-          <dl className="flex flex-col gap-4 px-4 py-4">
-            <div>
-              <dt>
-                <Kicker>Ticketgröße</Kicker>
-              </dt>
-              <dd className="mt-1 text-seil-text">
-                {fmtTicket(investor.ticketMinMio, investor.ticketMaxMio)}
-              </dd>
-            </div>
-            <div>
-              <dt>
-                <Kicker>Assetklassen</Kicker>
-              </dt>
-              <dd className="mt-2 flex flex-wrap gap-1.5">
-                {investor.assetklassen.map((a) => (
-                  <Badge key={a} tone="neutral">
-                    {a}
-                  </Badge>
-                ))}
-              </dd>
-            </div>
-            <div>
-              <dt>
-                <Kicker>Regionen</Kicker>
-              </dt>
-              <dd className="mt-2 flex flex-wrap gap-1.5">
-                {investor.regionen.map((r) => (
-                  <Badge key={r} tone="neutral">
-                    {r}
-                  </Badge>
-                ))}
-              </dd>
-            </div>
-            <div>
-              <dt>
-                <Kicker>Kontakt</Kicker>
-              </dt>
-              <dd className="mt-1 text-seil-body">
-                {investor.telefon}
-                <br />
-                {investor.email}
-              </dd>
-            </div>
-            {investor.notiz ? (
-              <div>
-                <dt>
-                  <Kicker>Notiz</Kicker>
-                </dt>
-                <dd className="mt-1 text-seil-body">{investor.notiz}</dd>
-              </div>
-            ) : null}
-            {investor.quelle ? (
-              <div>
-                <dt>
-                  <Kicker>Quelle</Kicker>
-                </dt>
-                <dd className="mt-2">
-                  <Badge tone="neutral">{investor.quelle}</Badge>
-                </dd>
-              </div>
-            ) : null}
-          </dl>
-        </Card>
+        <AnkaufsprofilKarte investor={investor} />
 
         <Card>
           <CardHeader title={`Verknüpfte Objekte (${links.length})`} meta="Antwortstatus je Objekt" />
