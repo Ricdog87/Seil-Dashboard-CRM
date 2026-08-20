@@ -1,0 +1,59 @@
+# SEIL Cockpit · Leitfaden
+
+Das Cockpit ersetzt Pipedrive und die Excel-Liste durch **ein** System:
+Objekte, Investoren und Auftraggeber sind relational verknüpft, der
+Transaktionsprozess (26 Schritte in 4 Phasen, wie eure Team-Liste) ist je
+Objekt sichtbar, und die Routinearbeit – Follow-ups, Antworterkennung,
+Datenraum-Status – läuft automatisch. Ihr entscheidet an den Stellen, die
+Urteilskraft brauchen.
+
+## Der Morgen in 4 Schritten
+
+1. **Anmelden.** Oben rechts „Arbeiten als“ wählen – das Cockpit stellt sich
+   auf euch ein (Begrüßung, eure Aufgaben, euer Name an Notizen).
+2. **Posteingang triagieren.** Die Antworterkennung legt jede eingegangene
+   Antwort mit Kernaussage und Vorschlag ab. Standardfälle (Interesse →
+   Broker Call, Preisanfrage → Investment-Team) hat die Automatik schon
+   verarbeitet; den Rest macht ihr mit einem Klick zur Aufgabe.
+3. **Meine Aufgaben abarbeiten.** Heute Fälliges und Überfälliges steht
+   direkt auf der Übersicht – Abhaken genügt, alle Zähler ziehen live mit.
+4. **Pipeline prüfen.** Laufende Transaktionen als Tabelle (sortierbar per
+   Spaltenkopf) oder als Board – eine Spalte je Phase.
+
+## Die fünf Bereiche
+
+| Bereich | Wofür |
+|---|---|
+| **Übersicht** | Euer Tag: Posteingang, eigene Aufgaben, KPIs mit 7-Tage-Trend, alle Transaktionen |
+| **Objekt-Detail** | Prozessleiste (26 Schritte, je Schritt Beschreibung + offene Aufgaben), Datenraum-Checkliste aus Modul 01, KI-ausgelesene Kennwerte, verknüpfte Investoren, komplette Historie, Notizen |
+| **Investor-Detail** | Ankaufsprofil (Ticket, Assetklasse, Region), alle verknüpften Objekte mit Antwortstatus, Kommunikationshistorie |
+| **Vermarktung** | Verteiler je Objekt mit Antwortstatus und Follow-up-Stufe – oben die Freigabe |
+| **Aufgaben** | Kanban (Spalten = Fälligkeit, Karten ziehen = umplanen) oder Liste, nach Mitarbeiter filterbar, Broker Calls hervorgehoben |
+
+**Alles ist verbunden:** Objekt anklicken zeigt seine Investoren, Investor
+anklicken seine Objekte – der Kern, den Pipedrive nicht konnte. `⌘K` /
+`Strg+K` öffnet die Suche über alles.
+
+## Das läuft automatisch
+
+- Follow-ups alle 2 Tage, max. 3 Stufen; danach Nachfass-Aufgabe
+- Antworterkennung: Interesse → Broker Call beim Zuständigen, Preisanfrage → Investment-Team
+- Datenraum-Status und Dokumenten-Checkliste aus Modul 01
+- Se-Circle-Sync für Off-Market-Objekte, KI-Extraktion aus Datenraum-Dokumenten, KI-Teaser-Entwürfe
+- Täglicher Status-Report an das Team
+
+## Hier entscheidet ihr
+
+- **Freigabe der Investorenliste** vor jedem Versand – der einzige Pflicht-Stopp
+- **Übernahme KI-gelesener Werte** ins CRM („Prüfen & übernehmen“)
+- **Triage** der Signale, die die Automatik nicht selbst zuordnet
+- Broker Calls, Besichtigungen, Verhandlung – wie immer
+
+## Stand heute
+
+Dies ist der **Klickdummy zur Abstimmung**: alle Daten sind erfunden
+(Ausnahme: Nino als Demo-Nutzer), Eingriffe gelten nur für die laufende
+Sitzung, ein Reload stellt den Demostand wieder her. Das produktive
+Modul 02 ergänzt Persistenz, Mail-Anbindung, echte Automatik und den
+einmaligen Pipedrive-Import. Was wir vor dem Bau von euch bestätigt
+brauchen, steht in [`ANNAHMEN.md`](ANNAHMEN.md).

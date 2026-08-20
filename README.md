@@ -148,6 +148,8 @@ DESIGN.md                  Design-System: Palette, Typo, Abstände, Do's und Don
   nur als Anzeige simuliert und ist entsprechend gekennzeichnet.
 - Der Freigabe-Button in der Vermarktung ist eine reine UI-Demonstration.
 
+Nutzungsleitfaden für das Team: siehe [`ANLEITUNG.md`](ANLEITUNG.md).
+
 Offene Punkte für das Kundengespräch: siehe [`ANNAHMEN.md`](ANNAHMEN.md).
 
 Design-System (Palette, Typografie, Abstände, Bausteine): siehe `DESIGN.md`.
