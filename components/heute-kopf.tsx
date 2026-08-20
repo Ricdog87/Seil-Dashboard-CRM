@@ -52,7 +52,7 @@ export function HeuteKopf() {
         {gruss}, <span className="text-seil-accent">{vorname}</span>
       </h1>
       <p className="mt-1 max-w-[70ch] text-seil-muted">
-        Dienstag, 18.08.2026 – Signale, Aufgaben und alle laufenden Transaktionen auf einen Blick.
+        Donnerstag, 20.08.2026 – Signale, Aufgaben und alle laufenden Transaktionen auf einen Blick.
       </p>
     </div>
   );

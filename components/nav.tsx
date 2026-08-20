@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { aufgaben, signale } from "@/lib/mock-data";
 import { ArbeitenAls } from "./arbeiten-als";
 import { BefehlsPalette } from "./befehlspalette";
 import { SeilLogo } from "./seil-logo";
+import { useSitzung } from "./sitzung";
 
 const punkte = [
   { href: "/", label: "Übersicht", auchAktivBei: ["/objekte", "/investoren"] },
@@ -14,6 +16,16 @@ const punkte = [
 
 export function TopNav() {
   const pathname = usePathname();
+  const { aufgabenPatches, signalErledigt } = useSitzung();
+
+  // Live-Zähler: hängen am Sitzungszustand und sinken beim Abhaken/Triagieren mit.
+  const offeneAufgaben = aufgaben
+    .map((t) => ({ ...t, ...aufgabenPatches[t.id] }))
+    .filter((t) => !t.erledigt).length;
+  const offeneSignale = signale.filter(
+    (sg) => sg.status === "offen" && !signalErledigt[sg.id],
+  ).length;
+  const zaehler: Record<string, number> = { "/": offeneSignale, "/aufgaben": offeneAufgaben };
 
   return (
     <header className="sticky top-0 z-20 border-b border-seil-line bg-seil-surface">
@@ -46,6 +58,14 @@ export function TopNav() {
                 }`}
               >
                 {p.label}
+                {zaehler[p.href] ? (
+                  <span
+                    className="ml-1.5 rounded-seil bg-seil-card-alt px-1.5 text-kicker tabular-nums text-seil-muted"
+                    aria-label={`${zaehler[p.href]} offen`}
+                  >
+                    {zaehler[p.href]}
+                  </span>
+                ) : null}
               </Link>
             );
           })}

@@ -10,15 +10,15 @@ import {
   objektVon,
   ohneRueckmeldung,
 } from "@/lib/derive";
-import { objekte } from "@/lib/mock-data";
+import { KPI_TRENDS, objekte } from "@/lib/mock-data";
 import { Badge, Card, CardHeader, ICON_SM, ICON_STROKE, Table, TBody, TD, TH, THead, TR } from "@/components/ui";
 import {
   EntityLink,
   FollowUpStufe,
   Fortschritt,
-  KpiKachel,
 } from "@/components/cockpit";
 import { HeuteKopf } from "@/components/heute-kopf";
+import { KpiAufgabenLive, KpiKachelLive } from "@/components/kpi-live";
 import { WeltUhren } from "@/components/weltuhren";
 import { MeineAufgaben } from "@/components/meine-aufgaben";
 import { Posteingang } from "@/components/posteingang";
@@ -54,23 +54,28 @@ export default function UebersichtSeite() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiKachel label="Laufende Transaktionen" wert={k.transaktionen} sub="davon 3 in Vermarktung" />
-        <KpiKachel
-          label="Offene Aufgaben"
-          wert={k.offeneAufgaben}
-          sub={`davon ${k.brokerCalls} Broker Calls`}
-          href="/aufgaben"
+        <KpiKachelLive
+          label="Laufende Transaktionen"
+          wert={k.transaktionen}
+          sub="davon 3 in Vermarktung"
+          trend={KPI_TRENDS.transaktionen}
+          delta={{ text: "+2 in 7 Tagen" }}
         />
-        <KpiKachel
+        <KpiAufgabenLive trend={KPI_TRENDS.offeneAufgaben} />
+        <KpiKachelLive
           label="Investoren ohne Rückmeldung"
           wert={k.ohneRueckmeldung}
           sub={`${k.handlungsbedarf} mit Handlungsbedarf`}
           href="/vermarktung"
+          trend={KPI_TRENDS.ohneRueckmeldung}
+          delta={{ text: "−4 in 7 Tagen", gut: true }}
         />
-        <KpiKachel
+        <KpiKachelLive
           label="Datenräume mit Lücken"
           wert={k.datenraumLuecken}
           sub="Checklisten unvollständig"
+          trend={KPI_TRENDS.datenraumLuecken}
+          delta={{ text: "−2 in 7 Tagen", gut: true }}
         />
       </div>
 

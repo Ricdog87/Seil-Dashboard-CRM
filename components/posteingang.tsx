@@ -48,7 +48,7 @@ export function Posteingang() {
           const hinweis = signalErledigt[s.id] ?? s.verarbeitungsHinweis;
           const istOffen = s.status === "offen" && !signalErledigt[s.id];
           return (
-            <li key={s.id} className="flex flex-col gap-2 px-4 py-3">
+            <li key={s.id} className="flex flex-col gap-2 px-4 py-3 transition-colors hover:bg-seil-card-alt/40">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span className="w-[92px] shrink-0 text-kicker text-seil-muted">
                   {fmtDatumKurz(s.eingegangen)}

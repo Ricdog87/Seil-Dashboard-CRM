@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronRight, TriangleAlert } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight, TriangleAlert } from "lucide-react";
 import {
   aktiverSchritt,
   aufgabenZuObjekt,
@@ -125,26 +125,99 @@ function TransaktionsBoard() {
   );
 }
 
-/* --- Tabelle (bisherige Ansicht) ------------------------------------------- */
+/* --- Tabelle (sortierbar) --------------------------------------------------- */
+
+type SortKey = "name" | "preis" | "phase" | "datenraum" | "aufgaben" | "investoren";
+
+const sortWert: Record<SortKey, (o: Objekt) => number | string> = {
+  name: (o) => o.name,
+  preis: (o) => o.kaufpreisMio,
+  phase: (o) => aktiverSchritt(o).nr,
+  datenraum: (o) => datenraumFortschritt(o)?.vorhanden ?? -1,
+  aufgaben: (o) => aufgabenZuObjekt(o.id).length,
+  investoren: (o) => linksZuObjekt(o.id).length,
+};
+
+function SortKopf({
+  spalte,
+  label,
+  numeric = false,
+  sortKey,
+  richtung,
+  onSort,
+}: {
+  spalte: SortKey;
+  label: string;
+  numeric?: boolean;
+  sortKey: SortKey | null;
+  richtung: 1 | -1;
+  onSort: (k: SortKey) => void;
+}) {
+  const aktiv = sortKey === spalte;
+  const Pfeil = aktiv ? (richtung === 1 ? ArrowUp : ArrowDown) : ArrowUpDown;
+  return (
+    <TH numeric={numeric} aria-sort={aktiv ? (richtung === 1 ? "ascending" : "descending") : "none"}>
+      <button
+        type="button"
+        onClick={() => onSort(spalte)}
+        className={`inline-flex items-center gap-1 tracking-kicker uppercase transition-colors ${
+          aktiv ? "text-seil-text" : "hover:text-seil-text"
+        }`}
+      >
+        {label}
+        <Pfeil
+          size={ICON_SM}
+          strokeWidth={ICON_STROKE}
+          className={aktiv ? "" : "text-seil-line"}
+          aria-hidden
+        />
+      </button>
+    </TH>
+  );
+}
 
 function TransaktionsTabelle() {
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [richtung, setRichtung] = useState<1 | -1>(1);
+
+  const sortiere = (k: SortKey) => {
+    if (sortKey === k) {
+      setRichtung((r) => (r === 1 ? -1 : 1));
+    } else {
+      setSortKey(k);
+      setRichtung(k === "name" ? 1 : -1); // Zahlen standardmäßig absteigend
+    }
+  };
+
+  const zeilen = [...objekte];
+  if (sortKey) {
+    zeilen.sort((a, b) => {
+      const wa = sortWert[sortKey](a);
+      const wb = sortWert[sortKey](b);
+      const cmp = typeof wa === "string" ? wa.localeCompare(wb as string, "de") : (wa as number) - (wb as number);
+      return cmp * richtung;
+    });
+  }
+
+  const kopf = { sortKey, richtung, onSort: sortiere };
+
   return (
     <Table>
       <THead>
         <TR>
-          <TH>Objekt</TH>
+          <SortKopf spalte="name" label="Objekt" {...kopf} />
           <TH>Assetklasse</TH>
-          <TH numeric>Kaufpreis</TH>
-          <TH>Aktuelle Phase</TH>
-          <TH>Datenraum</TH>
-          <TH numeric>Aufgaben</TH>
-          <TH numeric>Investoren</TH>
+          <SortKopf spalte="preis" label="Kaufpreis" numeric {...kopf} />
+          <SortKopf spalte="phase" label="Aktuelle Phase" {...kopf} />
+          <SortKopf spalte="datenraum" label="Datenraum" {...kopf} />
+          <SortKopf spalte="aufgaben" label="Aufgaben" numeric {...kopf} />
+          <SortKopf spalte="investoren" label="Investoren" numeric {...kopf} />
           <TH>Zuständig</TH>
           <TH aria-hidden />
         </TR>
       </THead>
       <TBody>
-        {objekte.map((o) => {
+        {zeilen.map((o) => {
           const phase = aktiverSchritt(o);
           const dr = datenraumFortschritt(o);
           const links = linksZuObjekt(o.id);

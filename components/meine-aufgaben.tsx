@@ -57,7 +57,7 @@ export function MeineAufgaben() {
             const obj = t.objektId ? objektVon(t.objektId) : undefined;
             const faellig = faelligLabel(t.faellig);
             return (
-              <li key={t.id} className="flex items-center gap-3 px-4 py-2.5">
+              <li key={t.id} className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-seil-card-alt/40">
                 <Button
                   variant="ghost"
                   icon={Check}
