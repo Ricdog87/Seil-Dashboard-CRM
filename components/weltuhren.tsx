@@ -36,7 +36,10 @@ export function WeltUhren() {
   }, []);
 
   return (
-    <div className="flex flex-wrap items-baseline justify-end gap-x-4 gap-y-1" aria-label="Weltuhren">
+    <div
+      className="flex flex-wrap items-baseline justify-start gap-x-4 gap-y-1 sm:justify-end"
+      aria-label="Weltuhren"
+    >
       <span className="inline-flex items-center gap-1.5">
         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-seil-success" aria-hidden />
         <span className="text-kicker tracking-kicker text-seil-muted uppercase">Live</span>

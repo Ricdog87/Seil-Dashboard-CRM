@@ -33,10 +33,10 @@ export default function UebersichtSeite() {
     <>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <HeuteKopf />
-        <div className="flex flex-col items-end gap-3">
+        <div className="flex flex-col items-start gap-3 sm:items-end">
           <WeltUhren />
           {/* Systemstatus: die drei Anbindungen aus Angebot und Kickoff, still im Hintergrund. */}
-          <div className="flex flex-col items-end gap-1 text-kicker text-seil-muted">
+          <div className="flex flex-col items-start gap-1 text-kicker text-seil-muted sm:items-end">
           <p className="inline-flex items-center gap-2">
             <Send size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
             Status-Report heute 08:00 an das Team versendet

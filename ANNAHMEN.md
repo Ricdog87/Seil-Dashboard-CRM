@@ -204,3 +204,12 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
     Transaktionen sind absichtlich **nicht** per Drag & Drop verschiebbar:
     Das wäre eine Statusänderung mit Folgewirkungen (Freigaben, Automatik)
     und gehört mit Regeln ins echte System.
+41. **Mobilnutzung:** Das Cockpit ist als responsive Web-Oberfläche auch am
+    Smartphone lesbar und bedienbar – Anlass: mindestens ein Teammitglied
+    arbeitet ausschließlich mobil. Die Kopfleiste bricht in zwei Zeilen,
+    Board-Spalten stapeln untereinander, breite Tabellen scrollen innerhalb
+    ihrer Karte seitlich. Weil es Drag & Drop auf Touchscreens nicht gibt,
+    öffnet das Griff-Symbol jeder Board-Karte ein „Verschieben nach …“-Menü
+    (gleiche Wirkung wie Ziehen); die Suche öffnet mobil über das
+    Lupen-Symbol. Annahme: Eine responsive Web-App genügt – keine native
+    App, kein separates Mobil-Layout mit reduziertem Funktionsumfang.

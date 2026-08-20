@@ -101,13 +101,17 @@ export function BefehlsPalette() {
         className="inline-flex h-control items-center gap-2 rounded-seil border border-seil-line bg-seil-card-alt px-2.5 text-body text-seil-muted transition-colors hover:text-seil-text"
       >
         <Search size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
-        <span className="hidden md:inline">Suchen</span>
-        <kbd className="rounded-seil border border-seil-line px-1 text-kicker">⌘K</kbd>
+        <span className="sr-only">Suchen</span>
+        <span className="hidden md:inline" aria-hidden>
+          Suchen
+        </span>
+        {/* Der Shortcut-Hinweis hilft nur dort, wo es eine Tastatur gibt. */}
+        <kbd className="hidden rounded-seil border border-seil-line px-1 text-kicker sm:inline">⌘K</kbd>
       </button>
 
       {offen ? (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center bg-seil-bg/80 px-4 pt-24"
+          className="fixed inset-0 z-50 flex items-start justify-center bg-seil-bg/80 px-4 pt-14 sm:pt-24"
           onClick={() => setOffen(false)}
           role="dialog"
           aria-modal="true"

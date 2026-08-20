@@ -103,7 +103,7 @@ function TransaktionsBoard() {
   }));
 
   return (
-    <div className="grid grid-cols-2 items-start gap-3 md:grid-cols-4 lg:grid-cols-4" role="list">
+    <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2 md:grid-cols-4" role="list">
       {spalten.map((sp) => (
         <div
           key={sp.label}

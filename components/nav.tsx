@@ -29,11 +29,13 @@ export function TopNav() {
 
   return (
     <header className="sticky top-0 z-20 border-b border-seil-line bg-seil-surface">
-      <div className="mx-auto flex h-14 max-w-[1200px] items-center gap-8 px-6">
+      {/* Mobil bricht die Leiste in zwei Zeilen: oben Logo + Bedienung, darunter die Navigation.
+          Ab md ist alles eine Zeile – nichts darf das Dokument breiter als den Viewport machen. */}
+      <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-4 px-4 sm:px-6 md:h-14 md:flex-nowrap md:gap-8">
         {/* Mindestabstand rechts = halbe Logohoehe */}
         <Link
           href="/"
-          className="flex items-center gap-3 pr-3"
+          className="flex h-12 items-center gap-3 pr-3 md:h-auto"
           aria-label="SEIL Cockpit, Startseite"
         >
           <SeilLogo height={24} />
@@ -42,7 +44,7 @@ export function TopNav() {
           </span>
         </Link>
 
-        <nav className="flex h-full">
+        <nav className="order-last -mx-4 flex h-11 w-[100vw] overflow-x-auto border-t border-seil-line px-2 sm:-mx-6 sm:px-4 md:order-none md:mx-0 md:h-14 md:w-auto md:border-t-0 md:px-0">
           {punkte.map((p) => {
             const aktiv =
               pathname === p.href || p.auchAktivBei.some((prefix) => pathname.startsWith(prefix));
@@ -51,7 +53,7 @@ export function TopNav() {
                 key={p.href}
                 href={p.href}
                 aria-current={aktiv ? "page" : undefined}
-                className={`flex items-center border-b px-3 text-body transition-colors ${
+                className={`flex items-center whitespace-nowrap border-b px-3 text-body transition-colors ${
                   aktiv
                     ? "border-seil-accent text-seil-text"
                     : "border-transparent text-seil-muted hover:text-seil-text"

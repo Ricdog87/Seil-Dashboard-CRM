@@ -7,7 +7,10 @@ export function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className={`rounded-seil border border-seil-line bg-seil-card ${className}`}>
+    // min-w-0: Als Grid-Item darf die Karte schmaler werden als ihre Tabelle –
+    // sonst zwingt deren min-content-Breite mobil das ganze Dokument breit,
+    // und der Scroll-Container in <Table> kommt nie zum Zug.
+    <section className={`min-w-0 rounded-seil border border-seil-line bg-seil-card ${className}`}>
       {children}
     </section>
   );

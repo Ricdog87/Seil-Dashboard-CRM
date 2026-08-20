@@ -41,6 +41,13 @@ verschieben und abhaken, und die Vermarktung zeigt Antwortquote und
 Teaser-Pipeline (KI-Entwurf → Prüfung → Versand). Alle Eingriffe gelten nur in
 der laufenden Sitzung – ein Reload stellt den Demostand wieder her.
 
+Das Cockpit ist **responsiv**: Am Smartphone bricht die Kopfleiste in zwei
+Zeilen, die Board-Spalten stapeln untereinander und breite Tabellen scrollen
+innerhalb ihrer Karte. Weil Drag & Drop auf Touchscreens nicht existiert,
+öffnet das Griff-Symbol jeder Board-Karte ein „Verschieben nach …“-Menü mit
+gleicher Wirkung; die Suche öffnet mobil über das Lupen-Symbol
+(ANNAHMEN.md, Punkt 41).
+
 Objekt- und Investor-Detail sind bewusst nur über Verlinkungen erreichbar (Zeilen in
 Tabellen anklicken) – es gibt keine Listen-Screens über die fünf Screens hinaus.
 
@@ -77,6 +84,13 @@ Alles davon ist reine Anzeige mit Demodaten – keine echte Automation im Protot
 
 **Aufgaben**
 ![Aufgaben](docs/screenshots/05-aufgaben.png)
+
+**Mobil (390 px): Übersicht und Aufgaben-Board mit Verschieben-Menü**
+
+<p>
+  <img src="docs/screenshots/06-mobil-uebersicht.png" width="300" alt="Übersicht auf dem Smartphone" />
+  <img src="docs/screenshots/07-mobil-aufgaben.png" width="300" alt="Aufgaben-Board auf dem Smartphone, Verschieben-Menü geöffnet" />
+</p>
 
 ## Start (lokal)
 

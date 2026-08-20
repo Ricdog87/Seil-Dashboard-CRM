@@ -28,7 +28,7 @@ Urteilskraft brauchen.
 | **Objekt-Detail** | Prozessleiste (26 Schritte, je Schritt Beschreibung + offene Aufgaben), Datenraum-Checkliste aus Modul 01, KI-ausgelesene Kennwerte, verknüpfte Investoren, komplette Historie, Notizen |
 | **Investor-Detail** | Ankaufsprofil (Ticket, Assetklasse, Region), alle verknüpften Objekte mit Antwortstatus, Kommunikationshistorie |
 | **Vermarktung** | Verteiler je Objekt mit Antwortstatus und Follow-up-Stufe – oben die Freigabe |
-| **Aufgaben** | Kanban (Spalten = Fälligkeit, Karten ziehen = umplanen) oder Liste, nach Mitarbeiter filterbar, Broker Calls hervorgehoben |
+| **Aufgaben** | Kanban (Spalten = Fälligkeit, Karten ziehen oder per Griff-Menü verschieben = umplanen) oder Liste, nach Mitarbeiter filterbar, Broker Calls hervorgehoben |
 
 **Alles ist verbunden:** Objekt anklicken zeigt seine Investoren, Investor
 anklicken seine Objekte – der Kern, den Pipedrive nicht konnte. `⌘K` /
@@ -48,6 +48,16 @@ anklicken seine Objekte – der Kern, den Pipedrive nicht konnte. `⌘K` /
 - **Übernahme KI-gelesener Werte** ins CRM („Prüfen & übernehmen“)
 - **Triage** der Signale, die die Automatik nicht selbst zuordnet
 - Broker Calls, Besichtigungen, Verhandlung – wie immer
+
+## Unterwegs auf dem Handy
+
+Das Cockpit läuft im Browser auch auf dem Smartphone – gleiche Daten,
+gleiche Funktionen, kein abgespecktes Extra-Layout:
+
+- **Board-Karten verschieben:** Griff-Symbol antippen → „Verschieben nach …“
+  (ersetzt das Ziehen, das es auf Touchscreens nicht gibt)
+- **Breite Tabellen:** innerhalb der Karte seitlich wischen
+- **Suche:** Lupen-Symbol oben in der Kopfleiste (statt `⌘K`)
 
 ## Stand heute
 

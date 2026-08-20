@@ -15,9 +15,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <SitzungsProvider>
           <TopNav />
-          <main className="mx-auto max-w-[1200px] px-6 py-8">{children}</main>
+          <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6 sm:py-8">{children}</main>
         </SitzungsProvider>
-        <footer className="mx-auto max-w-[1200px] border-t border-seil-line px-6 py-6 text-kicker text-seil-muted">
+        <footer className="mx-auto max-w-[1200px] border-t border-seil-line px-4 py-6 text-kicker text-seil-muted sm:px-6">
           SEIL Cockpit · Modul 02 · Visueller Prototyp mit frei erfundenen Demodaten – keine echten
           Objekte, Investoren oder Dokumente. Datenraum-Status: Anzeige aus Modul 01 (hier
           simuliert).

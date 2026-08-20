@@ -120,7 +120,7 @@ export function AufgabenListe() {
       </div>
       <p className="mb-4 text-kicker text-seil-muted">
         {ansicht === "board"
-          ? "Karten ziehen: Spalte = neue Fälligkeit, „Erledigt“ hakt ab – Prototyp: Änderungen gelten nur in dieser Sitzung."
+          ? "Karten ziehen oder am Griff das Verschieben-Menü öffnen (fürs Handy): Spalte = neue Fälligkeit, „Erledigt“ hakt ab – Prototyp: Änderungen gelten nur in dieser Sitzung."
           : "Zuweisung und Fälligkeit lassen sich direkt in der Liste ändern – Prototyp: Änderungen gelten nur in dieser Sitzung."}
       </p>
 

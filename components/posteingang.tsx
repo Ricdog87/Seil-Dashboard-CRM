@@ -50,7 +50,7 @@ export function Posteingang() {
           return (
             <li key={s.id} className="flex flex-col gap-2 px-4 py-3 transition-colors hover:bg-seil-card-alt/40">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <span className="w-[92px] shrink-0 text-kicker text-seil-muted">
+                <span className="w-full shrink-0 text-kicker text-seil-muted sm:w-[92px]">
                   {fmtDatumKurz(s.eingegangen)}
                 </span>
                 <Badge tone={meta.tone} icon={meta.icon}>
@@ -60,8 +60,9 @@ export function Posteingang() {
                 <span className="text-kicker text-seil-muted">zu</span>
                 <EntityLink href={`/objekte/${obj.id}`}>{obj.name}</EntityLink>
               </div>
-              <p className="pl-[92px] text-seil-body">{s.auszug}</p>
-              <div className="flex flex-wrap items-center gap-3 pl-[92px]">
+              {/* Der hängende Einzug lohnt sich erst, wenn Platz da ist – mobil volle Breite. */}
+              <p className="text-seil-body sm:pl-[92px]">{s.auszug}</p>
+              <div className="flex flex-wrap items-center gap-3 sm:pl-[92px]">
                 {istOffen ? (
                   <>
                     <Button
