@@ -19,6 +19,7 @@ import {
   KpiKachel,
 } from "@/components/cockpit";
 import { HeuteKopf } from "@/components/heute-kopf";
+import { WeltUhren } from "@/components/weltuhren";
 import { MeineAufgaben } from "@/components/meine-aufgaben";
 import { Posteingang } from "@/components/posteingang";
 import { TransaktionenAnsicht } from "@/components/transaktionen-ansicht";
@@ -32,8 +33,10 @@ export default function UebersichtSeite() {
     <>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <HeuteKopf />
-        {/* Systemstatus: die drei Anbindungen aus Angebot und Kickoff, still im Hintergrund. */}
-        <div className="flex flex-col items-end gap-1 text-kicker text-seil-muted">
+        <div className="flex flex-col items-end gap-3">
+          <WeltUhren />
+          {/* Systemstatus: die drei Anbindungen aus Angebot und Kickoff, still im Hintergrund. */}
+          <div className="flex flex-col items-end gap-1 text-kicker text-seil-muted">
           <p className="inline-flex items-center gap-2">
             <Send size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
             Status-Report heute 08:00 an das Team versendet
@@ -42,10 +45,11 @@ export default function UebersichtSeite() {
             <RefreshCw size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
             Se Circle-Sync heute 06:00 – keine Änderungen
           </p>
-          <p className="inline-flex items-center gap-2">
-            <FolderCheck size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
-            Modul 01: Datenraum-Status heute 07:30 aktualisiert
-          </p>
+            <p className="inline-flex items-center gap-2">
+              <FolderCheck size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
+              Modul 01: Datenraum-Status heute 07:30 aktualisiert
+            </p>
+          </div>
         </div>
       </div>
 

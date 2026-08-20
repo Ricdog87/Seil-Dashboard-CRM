@@ -99,7 +99,9 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
     („17,4 Mio. €“, „18.08.2026“).
 21. **Referenzdatum:** Der Prototyp „lebt“ am 18.08.2026 – Überfälligkeiten und
     „heute fällig“ beziehen sich auf dieses fixe Datum (`HEUTE` in
-    `lib/mock-data.ts`).
+    `lib/mock-data.ts`). Die Weltuhren-Leiste und die tageszeitabhängige
+    Begrüßung laufen dagegen bewusst live (Frankfurt · London · New York ·
+    Dubai · Singapur) – Zonenauswahl bitte bestätigen.
 22. **Demodaten-Dramaturgie:** Damit auf fünf Screens alle Zustände gleichzeitig
     sichtbar sind (Interesse, Preisanfrage, Absage, Stufe 1–3, Freigabe ausstehend,
     Datenraum-Lücken …), sind einzelne Zeitabstände in den Demodaten bewusst
