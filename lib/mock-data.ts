@@ -96,6 +96,8 @@ export const FREIGABE_SCHRITT_INDEX = 14;
 // ---------------------------------------------------------------------------
 
 export const mitarbeiter: Mitarbeiter[] = [
+  // Auf Wunsch als einzige echte Person für die Demo angelegt – alle übrigen Namen bleiben erfunden.
+  { id: "m5", name: "Nino Grubisic", kuerzel: "NG", rolle: "Leitung Sales" },
   { id: "m1", name: "Katharina Vogt", kuerzel: "KV", rolle: "Transaction Managerin" },
   { id: "m2", name: "Daniel Mertens", kuerzel: "DM", rolle: "Senior Transaction Manager" },
   { id: "m3", name: "Sofia Ricci", kuerzel: "SR", rolle: "Analystin Valuation & Unterlagen" },
@@ -318,8 +320,8 @@ export const objekte: Objekt[] = [
     flaeche: "3.100 m² Mietfläche",
     kaufpreisMio: 9.6,
     auftraggeberId: "a6",
-    zustaendigId: "m1",
-    vertretungId: "m2",
+    zustaendigId: "m5",
+    vertretungId: "m1",
     standNotiz: "NDA-Rücklauf steht aus – Wiedervorlage heute.",
     kennzahlen: { renditeProzent: 4.9, baujahr: 2005, einheiten: 9, leerstandProzent: 6.0 },
     schritte: schritteMit(1, { 2: "in_progress" }),
@@ -543,12 +545,13 @@ export const aufgaben: Aufgabe[] = [
   { id: "t4", titel: "Investorenliste freigeben – Wohnportfolio Sachsenhausen", typ: "freigabe", faellig: "2026-08-18", mitarbeiterId: "m1", objektId: "o3", erledigt: false },
   { id: "t5", titel: "Fehlende Datenraum-Dokumente nachfassen (4 offen)", typ: "datenraum", faellig: "2026-08-20", mitarbeiterId: "m2", objektId: "o4", erledigt: false },
   { id: "t6", titel: "Valuation Boardinghouse Europaviertel abschließen", typ: "sonstiges", faellig: "2026-08-21", mitarbeiterId: "m3", objektId: "o5", erledigt: false },
-  { id: "t7", titel: "NDA-Rücklauf Auftraggeber nachhalten", typ: "nda", faellig: "2026-08-18", mitarbeiterId: "m1", objektId: "o6", erledigt: false },
+  { id: "t7", titel: "NDA-Rücklauf Auftraggeber nachhalten", typ: "nda", faellig: "2026-08-18", mitarbeiterId: "m5", objektId: "o6", erledigt: false },
   { id: "t8", titel: "Manuell nachfassen – Corvus Family Office (Stufe 3 ohne Antwort)", typ: "sonstiges", faellig: "2026-08-20", mitarbeiterId: "m1", objektId: "o1", investorId: "i8", erledigt: false },
   { id: "t15", titel: "Manuell nachfassen – Novaris Invest (Stufe 3 ohne Antwort)", typ: "sonstiges", faellig: "2026-08-20", mitarbeiterId: "m2", objektId: "o2", investorId: "i2", erledigt: false },
   { id: "t9", titel: "Versand vorbereiten – Verteiler Sachsenhausen (nach Freigabe)", typ: "sonstiges", faellig: "2026-08-19", mitarbeiterId: "m1", objektId: "o3", erledigt: false },
   { id: "t10", titel: "Exposé um Altlastenauskunft ergänzen", typ: "unterlagen", faellig: "2026-08-24", mitarbeiterId: "m3", objektId: "o2", erledigt: false },
   { id: "t11", titel: "Nebenkostenabrechnungen beim Auftraggeber anfordern", typ: "datenraum", faellig: "2026-08-15", mitarbeiterId: "m2", objektId: "o4", erledigt: false },
+  { id: "t16", titel: "Sales-Weekly: Pipeline-Durchsprache vorbereiten", typ: "sonstiges", faellig: "2026-08-19", mitarbeiterId: "m5", erledigt: false },
   { id: "t12", titel: "NDA Vermarktung an Hartmann & Cie. versenden", typ: "nda", faellig: "2026-08-11", mitarbeiterId: "m1", objektId: "o1", investorId: "i3", erledigt: true },
   { id: "t13", titel: "Datenraum-Zugang für Quercus Real Assets einrichten", typ: "datenraum", faellig: "2026-08-06", mitarbeiterId: "m1", objektId: "o1", investorId: "i12", erledigt: true },
   { id: "t14", titel: "Legitimation & Vollmacht Albrecht prüfen", typ: "sonstiges", faellig: "2026-08-12", mitarbeiterId: "m1", objektId: "o3", erledigt: true },
@@ -620,10 +623,10 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak37", datum: "2026-08-14T10:30", typ: "anruf", text: "Rückfrage zum Pachtvertrag mit Betreiber – Unterlagen werden nachgereicht.", objektId: "o5", auftraggeberId: "a5", mitarbeiterId: "m3" },
 
   // Ärztehaus Bad Homburg (o6)
-  { id: "ak38", datum: "2026-08-07T09:00", typ: "mail_ausgang", text: "Erstinformation / Client Portfolio an Dr. Weiss versendet.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m1" },
-  { id: "ak39", datum: "2026-08-12T11:00", typ: "anruf", text: "Erstgespräch geführt – Mandatsumfang und Zeitplan besprochen.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m1" },
-  { id: "ak40", datum: "2026-08-13T15:45", typ: "mail_ausgang", text: "NDA-Entwurf an Auftraggeberin versendet.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m1" },
-  { id: "ak41", datum: "2026-08-18T08:30", typ: "notiz", text: "NDA-Rücklauf steht aus – Wiedervorlage heute.", objektId: "o6", mitarbeiterId: "m1" },
+  { id: "ak38", datum: "2026-08-07T09:00", typ: "mail_ausgang", text: "Erstinformation / Client Portfolio an Dr. Weiss versendet.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m5" },
+  { id: "ak39", datum: "2026-08-12T11:00", typ: "anruf", text: "Erstgespräch geführt – Mandatsumfang und Zeitplan besprochen.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m5" },
+  { id: "ak40", datum: "2026-08-13T15:45", typ: "mail_ausgang", text: "NDA-Entwurf an Auftraggeberin versendet.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m5" },
+  { id: "ak41", datum: "2026-08-18T08:30", typ: "notiz", text: "NDA-Rücklauf steht aus – Wiedervorlage heute.", objektId: "o6", mitarbeiterId: "m5" },
 ];
 
 // ---------------------------------------------------------------------------

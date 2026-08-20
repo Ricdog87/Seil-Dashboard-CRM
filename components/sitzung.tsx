@@ -34,7 +34,7 @@ interface Sitzung {
 const SitzungsContext = createContext<Sitzung | null>(null);
 
 export function SitzungsProvider({ children }: { children: React.ReactNode }) {
-  const [mitarbeiterId, setMitarbeiterId] = useState("m1");
+  const [mitarbeiterId, setMitarbeiterId] = useState("m5");
   const [aufgabenPatches, setAufgabenPatches] = useState<Record<string, AufgabenPatch>>({});
   const [signalErledigt, setSignalErledigt] = useState<Record<string, string>>({});
   const [notizen, setNotizen] = useState<SitzungsNotiz[]>([]);

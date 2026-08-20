@@ -141,7 +141,9 @@ DESIGN.md                  Design-System: Palette, Typo, Abstände, Do's und Don
 ## Leitplanken
 
 - Keine echten SEIL-Daten, keine echten Investorennamen, keine Kundendokumente –
-  alles frei erfunden (E-Mail-Domains enden auf `.example`).
+  alles frei erfunden (E-Mail-Domains enden auf `.example`). Einzige bewusste
+  Ausnahme: Nino Grubisic (Leitung Sales) ist auf Wunsch als echter Nutzer für
+  die Demo angelegt – ohne Kontaktdaten (ANNAHMEN.md, Punkt 16).
 - Modul 01 (Datenraum-Automatik) ist **nicht** angebunden; der Datenraum-Status wird
   nur als Anzeige simuliert und ist entsprechend gekennzeichnet.
 - Der Freigabe-Button in der Vermarktung ist eine reine UI-Demonstration.

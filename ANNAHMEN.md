@@ -78,8 +78,11 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
     abgeleitet und als wichtigste Steuerungsgrößen angenommen.
 15. **„Investoren ohne Rückmeldung“** = angeschriebene Kontakte ohne jede Antwort;
     „mit Handlungsbedarf“ = Follow-up überfällig oder Stufe 3 ausgeschöpft.
-16. **Team-Modell:** 4 Personen inkl. „Investment-Team“ als zuweisbare Einheit für
-    Preisanfragen. Rollen, Namen und Zuständigkeiten sind frei erfunden.
+16. **Team-Modell:** 5 Personen inkl. „Investment-Team“ als zuweisbare Einheit für
+    Preisanfragen. Rollen, Namen und Zuständigkeiten sind frei erfunden – mit
+    **einer bewussten Ausnahme:** Nino Grubisic (Leitung Sales) wurde auf
+    ausdrücklichen Wunsch als echter Nutzer für die Demo angelegt (ohne
+    Kontaktdaten). Alle Objekte, Investoren und übrigen Personen bleiben fiktiv.
 
 ## Struktur & Design
 
