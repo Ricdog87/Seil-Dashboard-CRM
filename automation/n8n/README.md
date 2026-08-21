@@ -54,5 +54,44 @@ Alle sechs sind bewusst **inaktiv** (`active: false`).
 - Antworten mit Regions-/Profilinformation erzeugen ein
   **Ankaufsprofil-Update** – Investorendaten leben im CRM, nicht in Excel.
 
+## Anbindung Modul 01 (Datenraum-Automatik – echte Daten)
+
+Modul 01 ist die erste echte Datenquelle der Kette. Ziel ist immer der
+Webhook von WF 01:
+
+```
+POST https://N8N-BASIS-URL/webhook/seil/datenraum
+Header: X-Seil-Secret: <gemeinsames Secret>
+Body:
+{
+  "objektId": "…",              // oder objektName, solange es keine Cockpit-DB gibt
+  "quelle": "modul01",
+  "stand": "2026-08-21T12:00:00Z",
+  "dokumente": [
+    { "name": "Grundbuchauszug", "status": "vorhanden" },   // vorhanden | in_pruefung | ausstehend
+    { "name": "Mieterliste",     "status": "ausstehend" }
+  ],
+  "kennwerte": [                 // optional: KI-ausgelesene Werte
+    { "feld": "Mietflaeche", "wert": "8.310 m²", "quelle": "Mieterliste", "pruefstatus": "pruefen" }
+  ]
+}
+```
+
+Je nachdem, wie Modul 01 technisch gebaut ist, gibt es drei Andock-Varianten:
+
+- **A – Modul 01 läuft selbst in n8n:** Am Ende des Modul-01-Workflows ein
+  HTTP-Request- oder Execute-Workflow-Node auf WF 01 (kleinster Eingriff,
+  bevorzugt).
+- **B – Modul 01 schreibt in OneDrive/Ordnerstruktur:** In WF 01 den
+  Webhook-Trigger durch einen OneDrive-Trigger ersetzen; die
+  Normalisierung dahinter bleibt gleich.
+- **C – Modul 01 liefert Exporte (Excel/CSV):** Vorgeschalteter
+  Parser-Workflow, der den Export auf obigen Vertrag mappt.
+
+Grundsätze: Der Klickdummy (dieses Repo) bleibt demo-only – echte
+SEIL-Daten laufen ausschließlich durch die n8n-Instanz und landen nie im
+Prototyp oder in diesem Repository. Feld-Mapping wird an EINEM
+Beispiel-Export festgelegt, nicht am Gesamtbestand.
+
 Die Workflows enthalten ausschließlich Struktur und Platzhalter –
 keine echten Daten, keine Zugangsdaten.
