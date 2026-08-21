@@ -1,0 +1,96 @@
+{
+  "name": "SEIL 01 · Datenraum-Intake",
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "nodes": [
+    {
+      "id": "sticky-01",
+      "name": "Hinweis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [180, 40],
+      "parameters": {
+        "content": "## Glied 1 der Automatik-Kette: Datenraum einlesen\n\nTrigger: Modul 01 meldet neue/aktualisierte Datenraum-Dokumente per Webhook (alternativ: OneDrive-Trigger-Node einhängen).\n\nSKELETT – vor Aktivierung:\n1. Webhook-URL bei Modul 01 hinterlegen\n2. Ablage-Ziel setzen (Cockpit-DB, sobald vorhanden; übergangsweise n8n Data Table)\n3. KI-Extraktion: eigenen LLM-/Agent-Node zwischen Normalisieren und Ablage hängen (Grundbuch, Mieterliste → Kennwerte mit Quellenangabe + Prüfstatus 'pruefen')\n\nWorkflow bleibt bewusst inaktiv (active:false).",
+        "width": 420,
+        "height": 300
+      }
+    },
+    {
+      "id": "webhook-01",
+      "name": "Modul 01 Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 400],
+      "parameters": { "httpMethod": "POST", "path": "seil/datenraum", "options": {} }
+    },
+    {
+      "id": "code-01",
+      "name": "Checkliste normalisieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 400],
+      "parameters": {
+        "jsCode": "// Erwartet: { objektId, dokumente: [{ name, status }] }\n// Status-Vokabular vereinheitlichen: vorhanden | in_pruefung | ausstehend\nconst MAP = { ok: 'vorhanden', done: 'vorhanden', pruefung: 'in_pruefung', fehlt: 'ausstehend', offen: 'ausstehend' };\nconst d = $input.first().json;\nconst dokumente = (d.dokumente ?? []).map((x) => ({\n  name: String(x.name ?? '').trim(),\n  status: MAP[String(x.status ?? '').toLowerCase()] ?? String(x.status ?? 'ausstehend'),\n}));\nconst vorhanden = dokumente.filter((x) => x.status === 'vorhanden').length;\nreturn [{ json: { objektId: d.objektId, stand: new Date().toISOString(), dokumente, vorhanden, gesamt: dokumente.length } }];"
+      }
+    },
+    {
+      "id": "noop-01",
+      "name": "Ablage (Cockpit-DB / Data Table)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [680, 400],
+      "parameters": {}
+    },
+    {
+      "id": "if-01",
+      "name": "Checkliste vollständig?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [920, 400],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.vorhanden === $json.gesamt && $json.gesamt > 0 }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "http-01",
+      "name": "Matching anstoßen (WF 02)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1160, 320],
+      "parameters": {
+        "method": "POST",
+        "url": "https://N8N-BASIS-URL/webhook/seil/matching",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ objektId: $json.objektId }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "noop-02",
+      "name": "Lücken-Aufgabe fürs Backoffice",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1160, 500],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Modul 01 Webhook": { "main": [[{ "node": "Checkliste normalisieren", "type": "main", "index": 0 }]] },
+    "Checkliste normalisieren": { "main": [[{ "node": "Ablage (Cockpit-DB / Data Table)", "type": "main", "index": 0 }]] },
+    "Ablage (Cockpit-DB / Data Table)": { "main": [[{ "node": "Checkliste vollständig?", "type": "main", "index": 0 }]] },
+    "Checkliste vollständig?": {
+      "main": [
+        [{ "node": "Matching anstoßen (WF 02)", "type": "main", "index": 0 }],
+        [{ "node": "Lücken-Aufgabe fürs Backoffice", "type": "main", "index": 0 }]
+      ]
+    }
+  }
+}

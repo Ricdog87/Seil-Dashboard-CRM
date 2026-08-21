@@ -183,6 +183,8 @@ public/
   fonts/                   Inter (variabel, lokal gehostet – kein Google-CDN)
   seil-logo.png            Weiße Logo-Variante aus der Präsentationsvorlage
 docs/screenshots/          Screenshots der fünf Screens
+automation/n8n/            Importierbare n8n-Workflow-Skelette der Automatik-Kette
+                           (für die produktive Umsetzung – eigenes README dort)
 DESIGN.md                  Design-System: Palette, Typo, Abstände, Do's und Don'ts
 ```
 

@@ -1,0 +1,65 @@
+{
+  "name": "SEIL 04 · Freigabe-Gate (Human-in-the-Loop)",
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "nodes": [
+    {
+      "id": "sticky-04",
+      "name": "Hinweis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [180, 20],
+      "parameters": {
+        "content": "## Glied 4: Freigabe – der EINZIGE manuelle Stopp\n\nDer Freigabe-Button im Cockpit ruft diesen Webhook auf. Ohne diesen Aufruf startet kein Versand – WF 05 prüft den Freigabe-Status vor jeder Aussendung erneut (doppelter Boden).\n\nErwarteter Body: { objektId, freigegebenDurch, zeitpunkt }\n\nSKELETT – vor Aktivierung:\n1. Absicherung: Header-Auth/Secret zwischen Cockpit und n8n setzen (Webhook-Node → Authentication)\n2. Ablage-Ziel für den Freigabe-Status setzen\n3. Audit: jede Freigabe als Aktivität ins Cockpit schreiben (wer, wann, wie viele Kontakte)",
+        "width": 440,
+        "height": 280
+      }
+    },
+    {
+      "id": "webhook-04",
+      "name": "Freigabe-Webhook (vom Cockpit)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 380],
+      "parameters": { "httpMethod": "POST", "path": "seil/freigabe", "options": {} }
+    },
+    {
+      "id": "code-04",
+      "name": "Freigabe validieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 380],
+      "parameters": {
+        "jsCode": "const b = $input.first().json.body ?? $input.first().json;\nif (!b.objektId || !b.freigegebenDurch) {\n  throw new Error('Freigabe unvollständig: objektId und freigegebenDurch sind Pflicht.');\n}\nreturn [{ json: { objektId: b.objektId, freigegebenDurch: b.freigegebenDurch, zeitpunkt: b.zeitpunkt ?? new Date().toISOString(), status: 'erteilt' } }];"
+      }
+    },
+    {
+      "id": "noop-08",
+      "name": "Freigabe-Status ablegen + Audit-Eintrag",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [680, 380],
+      "parameters": {}
+    },
+    {
+      "id": "http-04",
+      "name": "Erstversand anstoßen (WF 05)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 380],
+      "parameters": {
+        "method": "POST",
+        "url": "https://N8N-BASIS-URL/webhook/seil/versand",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ objektId: $json.objektId, anlass: 'erstversand' }) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Freigabe-Webhook (vom Cockpit)": { "main": [[{ "node": "Freigabe validieren", "type": "main", "index": 0 }]] },
+    "Freigabe validieren": { "main": [[{ "node": "Freigabe-Status ablegen + Audit-Eintrag", "type": "main", "index": 0 }]] },
+    "Freigabe-Status ablegen + Audit-Eintrag": { "main": [[{ "node": "Erstversand anstoßen (WF 05)", "type": "main", "index": 0 }]] }
+  }
+}

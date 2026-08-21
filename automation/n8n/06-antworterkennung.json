@@ -1,0 +1,123 @@
+{
+  "name": "SEIL 06 · Antworterkennung (Trigger-Wörter → Aufgaben)",
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "nodes": [
+    {
+      "id": "sticky-06",
+      "name": "Hinweis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [140, -40],
+      "parameters": {
+        "content": "## Glied 6: Antworterkennung\n\nEingehende Antworten (E-Mail; Superchat-Webhook für WhatsApp analog einhängen) werden klassifiziert und geroutet:\n– Interesse → Aufgabe 'Broker Call' beim Objektzuständigen\n– Preisanfrage → Aufgabe ans Investment-Team\n– Besichtigung → Termin-Aufgabe\n– Zielregionen-Antwort → Profil-Update-Vorschlag (Ankaufsprofil im CRM)\n– Rest → Signal 'offen' im Cockpit-Posteingang (Mensch triagiert)\n\nSKELETT – vor Aktivierung:\n1. IMAP-Credential im Credential-Store anlegen (Vertriebs-Postfach)\n2. Die Keyword-Heuristik ist der Fallback – produktiv LLM-Klassifikation davor schalten, Heuristik bleibt als Absicherung\n3. Ablage-Ziele (Signale, Aufgaben, Profil-Updates) anbinden",
+        "width": 460,
+        "height": 340
+      }
+    },
+    {
+      "id": "imap-06",
+      "name": "Posteingang (IMAP-Credential nötig)",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [160, 420],
+      "parameters": { "options": {} }
+    },
+    {
+      "id": "code-06",
+      "name": "Klassifizieren (Trigger-Wörter)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, 420],
+      "parameters": {
+        "jsCode": "// Fallback-Heuristik – produktiv sitzt davor eine LLM-Klassifikation.\nconst m = $input.first().json;\nconst text = `${m.subject ?? ''} ${m.textPlain ?? m.text ?? ''}`.toLowerCase();\nconst hat = (woerter) => woerter.some((w) => text.includes(w));\nlet art = 'frage';\nif (hat(['kein interesse', 'absage', 'nicht weiter', 'sehen wir ab'])) art = 'absage';\nelse if (hat(['besichtigung', 'vor ort', 'terminvorschlag'])) art = 'besichtigung';\nelse if (hat(['preis', 'kaufpreisvorstellung', 'faktor', 'indikation'])) art = 'preisanfrage';\nelse if (hat(['interesse', 'ansprechpartner', 'unterlagen', 'exposé', 'expose'])) art = 'interesse';\nif (hat(['region', 'regionen', 'standort', 'suchen wir', 'ankaufsprofil'])) {\n  // Zielregionen-Info kann jede Art begleiten → eigenes Flag fürs Profil-Update\n  return [{ json: { ...m, art, profilUpdate: true } }];\n}\nreturn [{ json: { ...m, art, profilUpdate: false } }];"
+      }
+    },
+    {
+      "id": "switch-06",
+      "name": "Routing",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [680, 420],
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.art }}",
+        "rules": {
+          "rules": [
+            { "value2": "interesse" },
+            { "value2": "preisanfrage" },
+            { "value2": "besichtigung" }
+          ]
+        },
+        "fallbackOutput": 3
+      }
+    },
+    {
+      "id": "noop-12",
+      "name": "Aufgabe: Broker Call (Objektzuständiger)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [940, 260],
+      "parameters": {}
+    },
+    {
+      "id": "noop-13",
+      "name": "Aufgabe: Investment-Team",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [940, 380],
+      "parameters": {}
+    },
+    {
+      "id": "noop-14",
+      "name": "Aufgabe: Besichtigung koordinieren",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [940, 500],
+      "parameters": {}
+    },
+    {
+      "id": "noop-15",
+      "name": "Signal 'offen' in den Posteingang",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [940, 620],
+      "parameters": {}
+    },
+    {
+      "id": "if-06",
+      "name": "Profil-Update dabei?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1200, 420],
+      "parameters": {
+        "conditions": { "boolean": [{ "value1": "={{ $json.profilUpdate }}", "value2": true }] }
+      }
+    },
+    {
+      "id": "noop-16",
+      "name": "Ankaufsprofil-Update vorschlagen/übernehmen",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1440, 420],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Posteingang (IMAP-Credential nötig)": { "main": [[{ "node": "Klassifizieren (Trigger-Wörter)", "type": "main", "index": 0 }]] },
+    "Klassifizieren (Trigger-Wörter)": { "main": [[{ "node": "Routing", "type": "main", "index": 0 }]] },
+    "Routing": {
+      "main": [
+        [{ "node": "Aufgabe: Broker Call (Objektzuständiger)", "type": "main", "index": 0 }],
+        [{ "node": "Aufgabe: Investment-Team", "type": "main", "index": 0 }],
+        [{ "node": "Aufgabe: Besichtigung koordinieren", "type": "main", "index": 0 }],
+        [{ "node": "Signal 'offen' in den Posteingang", "type": "main", "index": 0 }]
+      ]
+    },
+    "Aufgabe: Broker Call (Objektzuständiger)": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
+    "Aufgabe: Investment-Team": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
+    "Aufgabe: Besichtigung koordinieren": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
+    "Signal 'offen' in den Posteingang": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
+    "Profil-Update dabei?": { "main": [[{ "node": "Ankaufsprofil-Update vorschlagen/übernehmen", "type": "main", "index": 0 }]] }
+  }
+}

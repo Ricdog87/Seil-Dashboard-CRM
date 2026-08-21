@@ -1,0 +1,74 @@
+{
+  "name": "SEIL 02 · Matching (Standort zuerst)",
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "nodes": [
+    {
+      "id": "sticky-02",
+      "name": "Hinweis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [180, 20],
+      "parameters": {
+        "content": "## Glied 2: Matching – das Kernstück (Demo-Check 20.08.)\n\nReihenfolge der Kriterien fix: 1. Standort, 2. Assetklasse, 3. Ticket-Spanne.\nKein voller Treffer = kein Ausschluss → Kandidat landet mit Markierung 'manuell pruefen' in der Liste, die Liste bleibt manuell erweiterbar.\n\nSKELETT – vor Aktivierung:\n1. Investoren-Quelle anbinden (Cockpit-DB; übergangsweise der aus dem Pipedrive-Export strukturierte Bestand)\n2. Standort-Geometrie mit SEIL klären (aktuell Regionen-Obermengen wie im Prototyp; produktiv PLZ/Radius?)\n3. Ergebnis-Ablage: Verteiler-Vorschlag mit Status 'vorgemerkt' – Versand erst nach Freigabe (WF 04)",
+        "width": 440,
+        "height": 320
+      }
+    },
+    {
+      "id": "webhook-02",
+      "name": "Matching-Anstoß",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 420],
+      "parameters": { "httpMethod": "POST", "path": "seil/matching", "options": {} }
+    },
+    {
+      "id": "noop-03",
+      "name": "Objekt + Investoren laden",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [440, 420],
+      "parameters": {}
+    },
+    {
+      "id": "code-02",
+      "name": "Abgleich: Standort → Klasse → Ticket",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 420],
+      "parameters": {
+        "jsCode": "// Gleiche Logik wie im Cockpit-Prototyp (lib/derive.ts, matchKriterien) –\n// Standort zuerst, Entscheidung im Demo-Check 20.08.\n// Erwartet: { objekt: { region, assetklasse, kaufpreisMio }, investoren: [{ id, regionen, assetklassen, ticketMinMio, ticketMaxMio }] }\nconst OBERMENGEN = ['Rhein-Main', 'Hessen', 'Deutschland', 'Deutschland Top-7', 'DACH'];\nconst { objekt, investoren } = $input.first().json;\nconst treffer = (investoren ?? []).map((inv) => {\n  const standort = (inv.regionen ?? []).some((r) => OBERMENGEN.includes(r) || r === objekt.region);\n  const teile = String(objekt.assetklasse ?? '').split(' / ');\n  const assetklasse = (inv.assetklassen ?? []).some((a) => teile.some((t) => a.includes(t) || t.includes(a)));\n  const ticket = inv.ticketMinMio <= objekt.kaufpreisMio && objekt.kaufpreisMio <= inv.ticketMaxMio;\n  const voll = standort && assetklasse && ticket;\n  return { json: { investorId: inv.id, standort, assetklasse, ticket, voll, hinweis: voll ? null : 'manuell pruefen' } };\n});\n// Standort ist K.-o. nur fuer den AUTOMATISCHEN Vorschlag – Rest sortiert nach Trefferzahl.\nreturn treffer.sort((a, b) => Number(b.json.voll) - Number(a.json.voll));"
+      }
+    },
+    {
+      "id": "noop-04",
+      "name": "Verteiler-Vorschlag ablegen (vorgemerkt)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [920, 420],
+      "parameters": {}
+    },
+    {
+      "id": "http-02",
+      "name": "Mail-Vorbereitung anstoßen (WF 03)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1160, 420],
+      "parameters": {
+        "method": "POST",
+        "url": "https://N8N-BASIS-URL/webhook/seil/mail-vorbereitung",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ objektId: $('Matching-Anstoß').first().json.body?.objektId ?? $('Matching-Anstoß').first().json.objektId }) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Matching-Anstoß": { "main": [[{ "node": "Objekt + Investoren laden", "type": "main", "index": 0 }]] },
+    "Objekt + Investoren laden": { "main": [[{ "node": "Abgleich: Standort → Klasse → Ticket", "type": "main", "index": 0 }]] },
+    "Abgleich: Standort → Klasse → Ticket": { "main": [[{ "node": "Verteiler-Vorschlag ablegen (vorgemerkt)", "type": "main", "index": 0 }]] },
+    "Verteiler-Vorschlag ablegen (vorgemerkt)": { "main": [[{ "node": "Mail-Vorbereitung anstoßen (WF 03)", "type": "main", "index": 0 }]] }
+  }
+}

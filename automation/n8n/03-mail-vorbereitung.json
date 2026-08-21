@@ -1,0 +1,67 @@
+{
+  "name": "SEIL 03 · Mail-Vorbereitung (Entwürfe, kein Versand)",
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "nodes": [
+    {
+      "id": "sticky-03",
+      "name": "Hinweis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [180, 20],
+      "parameters": {
+        "content": "## Glied 3: E-Mails vorbereiten – hier wird NICHTS versendet\n\nDer Workflow erzeugt nur Entwürfe (Presound-Mail je Verteiler, Teaser-Text) und legt sie mit Status 'wartet_auf_freigabe' ab. Versand ausschließlich über WF 05, und der startet nur nach dem Freigabe-Gate (WF 04).\n\nSKELETT – vor Aktivierung:\n1. LLM-/Agent-Node für die Textgenerierung einhängen (Vorlagen: Ninos Kommunikations-Excel als Basis, Platzhalter {{anrede}}, {{objekt}}, {{teaser_link}})\n2. Personalisierung je Investor vs. BCC-Sammelmail ist offener Klärungspunkt (ANNAHMEN.md Punkt 28 im Cockpit-Repo)\n3. Ablage-Ziel setzen",
+        "width": 440,
+        "height": 300
+      }
+    },
+    {
+      "id": "webhook-03",
+      "name": "Vorbereitung anstoßen",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 400],
+      "parameters": { "httpMethod": "POST", "path": "seil/mail-vorbereitung", "options": {} }
+    },
+    {
+      "id": "noop-05",
+      "name": "Objektdaten + Vorlagen laden",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [440, 400],
+      "parameters": {}
+    },
+    {
+      "id": "code-03",
+      "name": "Entwurf aus Vorlage füllen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 400],
+      "parameters": {
+        "jsCode": "// Platzhalter-Füllung als Fallback; produktiv übernimmt der LLM-Node davor\n// die Feinformulierung, die Vorlage bleibt die Leitplanke.\nconst d = $input.first().json;\nconst vorlage = d.vorlage ?? 'Sehr geehrte Damen und Herren,\\n\\nfür ein Objekt ({{assetklasse}}, {{region}}) suchen wir ausgewählte Investoren. Details nach NDA.\\n\\nMit freundlichen Grüßen\\nSEIL Real Estate';\nconst text = vorlage\n  .replaceAll('{{assetklasse}}', d.objekt?.assetklasse ?? '')\n  .replaceAll('{{region}}', d.objekt?.region ?? '');\nreturn [{ json: { objektId: d.objektId, entwurf: text, status: 'wartet_auf_freigabe', erstellt: new Date().toISOString() } }];"
+      }
+    },
+    {
+      "id": "noop-06",
+      "name": "Entwurf ablegen (wartet auf Freigabe)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [920, 400],
+      "parameters": {}
+    },
+    {
+      "id": "noop-07",
+      "name": "Cockpit benachrichtigen: Freigabe fällig",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1160, 400],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Vorbereitung anstoßen": { "main": [[{ "node": "Objektdaten + Vorlagen laden", "type": "main", "index": 0 }]] },
+    "Objektdaten + Vorlagen laden": { "main": [[{ "node": "Entwurf aus Vorlage füllen", "type": "main", "index": 0 }]] },
+    "Entwurf aus Vorlage füllen": { "main": [[{ "node": "Entwurf ablegen (wartet auf Freigabe)", "type": "main", "index": 0 }]] },
+    "Entwurf ablegen (wartet auf Freigabe)": { "main": [[{ "node": "Cockpit benachrichtigen: Freigabe fällig", "type": "main", "index": 0 }]] }
+  }
+}

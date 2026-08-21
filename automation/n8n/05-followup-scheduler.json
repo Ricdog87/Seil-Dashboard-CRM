@@ -1,0 +1,133 @@
+{
+  "name": "SEIL 05 · Versand & Follow-up-Scheduler (E-Mail + WhatsApp)",
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "nodes": [
+    {
+      "id": "sticky-05",
+      "name": "Hinweis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [140, -60],
+      "parameters": {
+        "content": "## Glied 5: Versand & Follow-ups – alle 2 Tage, max. 3 Stufen\n\nZwei Eingänge: Erstversand-Webhook (aus WF 04, nur nach Freigabe) und Tages-Scheduler 07:00 für fällige Follow-ups.\n\nRegeln (Demo-Check 20.08.):\n– Kanal: E-Mail + WhatsApp über Superchat (professionelle Lösung, KEINE privaten Accounts)\n– Stufe 2 fragt aktiv nach aktuellen Zielregionen\n– nach Stufe 3 ohne Antwort: manuelle Nachfass-Aufgabe, keine weitere Mail\n– vor JEDEM Versand wird der Freigabe-Status erneut geprüft (doppelter Boden)\n\nSKELETT – vor Aktivierung:\n1. SMTP-Credential im n8n-Credential-Store anlegen (niemals im Workflow-JSON)\n2. Superchat-API-Credential anlegen, URL/Payload lt. Superchat-Doku setzen\n3. Kontakt-Quelle (fällige Follow-ups) anbinden\n4. ERST NACH TESTLAUF MIT INTERNEN ADRESSEN AKTIVIEREN",
+        "width": 460,
+        "height": 380
+      }
+    },
+    {
+      "id": "webhook-05",
+      "name": "Erstversand (nach Freigabe)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [160, 420],
+      "parameters": { "httpMethod": "POST", "path": "seil/versand", "options": {} }
+    },
+    {
+      "id": "cron-05",
+      "name": "Täglich 07:00 – fällige Follow-ups",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [160, 600],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 7 * * 1-5" }] }
+      }
+    },
+    {
+      "id": "noop-09",
+      "name": "Kontakte laden + Freigabe prüfen",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [420, 510],
+      "parameters": {}
+    },
+    {
+      "id": "if-05",
+      "name": "Stufe < 3?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [660, 510],
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{ $json.followUpStufe ?? 0 }}", "operation": "smaller", "value2": 3 }]
+        }
+      }
+    },
+    {
+      "id": "code-05",
+      "name": "Nachricht bauen (Stufe 2 = Zielregionen-Frage)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 420],
+      "parameters": {
+        "jsCode": "const k = $input.first().json;\nconst stufe = (k.followUpStufe ?? 0) + 1;\nlet zusatz = '';\nif (stufe === 2) {\n  // Beschluss Demo-Check: Stufe 2 fragt aktiv nach aktuellen Zielregionen –\n  // die Antwort pflegt das Ankaufsprofil (WF 06 erkennt und übernimmt sie).\n  zusatz = '\\n\\nUnabhängig davon: In welchen Regionen suchen Sie aktuell aktiv an? So können wir Ihnen künftig passgenauer Objekte zeigen.';\n}\nreturn [{ json: { ...k, neueStufe: stufe, betreff: `Erinnerung: ${k.objektName ?? 'Objektangebot'}`, text: `${k.basistext ?? 'kurze Nachfrage zu unserem Angebot – besteht Interesse an weiteren Unterlagen?'}${zusatz}` } }];"
+      }
+    },
+    {
+      "id": "mail-05",
+      "name": "E-Mail senden (SMTP-Credential nötig)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1140, 340],
+      "parameters": {
+        "fromEmail": "vertrieb@BEISPIEL-DOMAIN.de",
+        "toEmail": "={{ $json.email }}",
+        "subject": "={{ $json.betreff }}",
+        "text": "={{ $json.text }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "http-05",
+      "name": "WhatsApp über Superchat-API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1140, 500],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.superchat.com/v1.0/messages",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ to: $json.whatsapp, content: { type: 'text', body: $json.text } }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "noop-10",
+      "name": "Stufe + nächstes Follow-up (+2 Tage) ablegen",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1380, 420],
+      "parameters": {}
+    },
+    {
+      "id": "noop-11",
+      "name": "Stufe 3 ausgeschöpft → Nachfass-Aufgabe",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [900, 620],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Erstversand (nach Freigabe)": { "main": [[{ "node": "Kontakte laden + Freigabe prüfen", "type": "main", "index": 0 }]] },
+    "Täglich 07:00 – fällige Follow-ups": { "main": [[{ "node": "Kontakte laden + Freigabe prüfen", "type": "main", "index": 0 }]] },
+    "Kontakte laden + Freigabe prüfen": { "main": [[{ "node": "Stufe < 3?", "type": "main", "index": 0 }]] },
+    "Stufe < 3?": {
+      "main": [
+        [{ "node": "Nachricht bauen (Stufe 2 = Zielregionen-Frage)", "type": "main", "index": 0 }],
+        [{ "node": "Stufe 3 ausgeschöpft → Nachfass-Aufgabe", "type": "main", "index": 0 }]
+      ]
+    },
+    "Nachricht bauen (Stufe 2 = Zielregionen-Frage)": {
+      "main": [
+        [
+          { "node": "E-Mail senden (SMTP-Credential nötig)", "type": "main", "index": 0 },
+          { "node": "WhatsApp über Superchat-API", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "E-Mail senden (SMTP-Credential nötig)": { "main": [[{ "node": "Stufe + nächstes Follow-up (+2 Tage) ablegen", "type": "main", "index": 0 }]] },
+    "WhatsApp über Superchat-API": { "main": [[{ "node": "Stufe + nächstes Follow-up (+2 Tage) ablegen", "type": "main", "index": 0 }]] }
+  }
+}
