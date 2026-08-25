@@ -197,7 +197,7 @@ export function GfDashboard() {
   return (
     <>
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <HeuteKopf untertitel="Donnerstag, 20.08.2026 – Geschäftsführungs-Blick: alle Mandate, Summen und Risiken auf einen Blick." />
+        <HeuteKopf untertitel="Montag, 25.08.2026 – Geschäftsführungs-Blick: alle Mandate, Summen und Risiken auf einen Blick." />
         <div className="flex flex-col items-start gap-3 sm:items-end">
           <WeltUhren />
           <span className="inline-flex items-center gap-2 text-kicker text-seil-muted">

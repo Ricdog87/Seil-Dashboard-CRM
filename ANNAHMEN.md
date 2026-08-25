@@ -99,7 +99,7 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
 20. **Begriffe:** Der Denglisch-Mix aus dem Auftrag (Valuation, Broker Call, Listing,
     Teaser) wurde im UI beibehalten; Datums- und Zahlenformate sind deutsch
     („17,4 Mio. €“, „20.08.2026“).
-21. **Referenzdatum:** Der Prototyp „lebt“ am 20.08.2026 – Überfälligkeiten und
+21. **Referenzdatum:** Der Prototyp „lebt“ am 25.08.2026 – Überfälligkeiten und
     „heute fällig“ beziehen sich auf dieses fixe Datum (`HEUTE` in
     `lib/mock-data.ts`). Die Weltuhren-Leiste und die tageszeitabhängige
     Begrüßung laufen dagegen bewusst live (Frankfurt · London · New York ·
