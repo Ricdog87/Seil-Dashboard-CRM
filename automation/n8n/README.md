@@ -93,5 +93,34 @@ SEIL-Daten laufen ausschließlich durch die n8n-Instanz und landen nie im
 Prototyp oder in diesem Repository. Feld-Mapping wird an EINEM
 Beispiel-Export festgelegt, nicht am Gesamtbestand.
 
+## Betriebsmodell (Beschluss 25.08.)
+
+- **Server gehört SEIL:** Die n8n-Instanz läuft auf einem VPS im eigenen
+  Hostinger-Konto der SEIL Group – nicht bei RSG. Da noch nichts produktiv
+  ist, gibt es keinen „Umzug“: Der Server wird direkt im SEIL-Konto frisch
+  aufgesetzt (Hostinger-n8n-Template), die Workflows hier werden importiert.
+  Datenhoheit und Kosten liegen damit von Tag 1 beim Kunden; RSG arbeitet
+  als Dienstleister mit eigenem n8n-Nutzer + n8n-API-Key
+  (Auftragsverarbeitungsvertrag SEIL ↔ RSG schließen).
+- **Claude-API-Key gehört SEIL:** SEIL legt ein eigenes Konto in der
+  Anthropic Console an (empfohlen: eigener Workspace „SEIL Cockpit“ mit
+  monatlichem Budget-Limit als Kostenairbag) und erzeugt dort den API-Key.
+  Der Key wird **ausschließlich im n8n-Credential-Store** hinterlegt –
+  nie in Workflow-JSONs, nie bei RSG.
+- **Modell:** Standard für alle KI-Nodes ist `claude-opus-5`
+  (Mail-/Teaser-Entwürfe, Zielregionen-Extraktion, Klassifikation der
+  Antworterkennung). Aufruf: `POST https://api.anthropic.com/v1/messages`
+  mit Header `x-api-key` aus dem Credential-Store und
+  `anthropic-version: 2023-06-01`. Die Mengen sind klein (Klassifikation
+  ≈ Bruchteile von Cents, Entwurf ≈ wenige Cents) – ein Modellwechsel auf
+  günstigere Stufen ist eine reine Kostenentscheidung von SEIL/RSG, kein
+  technisches Muss.
+- **Reihenfolge zur Modul-2-Anbindung:** (1) SEIL-VPS + n8n,
+  (2) Workflows importieren + Claude-Key als Credential,
+  (3) Modul 01 andocken (Daten-Vertrag oben), (4) Produktivbasis des
+  Cockpits (Datenbank + Login) – erst danach (5) die Cockpit-Webhooks
+  (`seil/freigabe` u. a.). Bis (4) arbeitet n8n eigenständig
+  (Data Tables als Ablage), der Klickdummy bleibt Demo.
+
 Die Workflows enthalten ausschließlich Struktur und Platzhalter –
 keine echten Daten, keine Zugangsdaten.
