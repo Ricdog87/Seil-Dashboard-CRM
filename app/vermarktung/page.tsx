@@ -46,7 +46,7 @@ const statusReihenfolge: KontaktStatus[] = [
   "abgesagt",
 ];
 
-/** Teaser & Listing: KI-Entwurf → menschliche Prüfung → Versand (Kickoff-Anforderung). */
+/** Teaser & Listing: KI-Entwurf → menschliche Prüfung → Versand (Anforderung aus dem Kundentermin). */
 function TeaserPipeline({ objekt }: { objekt: Objekt }) {
   const t = objekt.teaser;
   if (!t) return null;
@@ -109,7 +109,7 @@ function TeaserPipeline({ objekt }: { objekt: Objekt }) {
           );
         })}
         <span className="ml-auto text-kicker text-seil-muted">
-          KI-generiert, Prüfung durch das Team – produktiv Teil von Modul 02
+          KI-Entwurf, Prüfung durch das Team – im Prototyp simuliert
         </span>
       </div>
     </Card>
