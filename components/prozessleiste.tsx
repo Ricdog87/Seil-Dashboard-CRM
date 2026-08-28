@@ -6,6 +6,7 @@ import {
   FREIGABE_SCHRITT_INDEX,
   PROZESS_PHASEN,
   PROZESS_SCHRITTE,
+  SEITEN_LABEL,
   type SchrittVerantwortung,
 } from "@/lib/mock-data";
 import {
@@ -158,6 +159,8 @@ function SchrittDetail({ objekt, index, panelId }: { objekt: Objekt; index: numb
 /**
  * Prozessleiste nach der Team-Excel: 26 Schritte in 4 Phasen, Statusvokabular
  * Done / In Progress / Pending / N.A. – mehrere Schritte können parallel laufen.
+ * Die 4 Phasen sind sichtbar zweigeteilt (Auftraggeber- → Investorenseite,
+ * Anforderung aus dem Kundentermin – siehe ANNAHMEN.md Punkt 47).
  * Jeder Schritt ist klickbar und öffnet ein Detailpanel (Beschreibung,
  * Verantwortung, Tool; beim laufenden Schritt Aufgaben + letzte Aktivitäten).
  */
@@ -178,8 +181,16 @@ export function Prozessleiste({ objekt }: { objekt: Objekt }) {
         </span>
       </div>
 
-      {PROZESS_PHASEN.map((phase) => (
+      {PROZESS_PHASEN.map((phase, p) => (
         <div key={phase.titel} className="flex flex-col gap-2">
+          {p === 0 || PROZESS_PHASEN[p - 1].seite !== phase.seite ? (
+            <div className={`flex items-center gap-3 ${p === 0 ? "" : "mt-2"}`}>
+              <span className="text-kicker tracking-kicker uppercase text-seil-body">
+                {SEITEN_LABEL[phase.seite]}
+              </span>
+              <span className="h-px flex-1 bg-seil-line" aria-hidden />
+            </div>
+          ) : null}
           <Kicker>{phase.titel}</Kicker>
           <div className="flex flex-wrap gap-1.5">
             {PROZESS_SCHRITTE.map((sch, i) =>

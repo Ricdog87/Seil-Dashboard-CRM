@@ -7,7 +7,7 @@ import { Badge, Button, ICON_SM, ICON_STROKE } from "@/components/ui";
 import { Kicker } from "@/components/cockpit";
 
 /**
- * KI-Extraktion aus den Datenraum-Dokumenten (Kickoff: Grundbuch, Mieterlisten
+ * KI-Extraktion aus den Datenraum-Dokumenten (Kundentermin: Grundbuch, Mieterlisten
  * automatisch ins CRM). Übernahme ist bewusst ein Human-in-the-Loop-Schritt –
  * dieselbe Philosophie wie bei der Listen-Freigabe. Der Klick ist eine reine
  * UI-Demonstration und wirkt nur in dieser Sitzung.

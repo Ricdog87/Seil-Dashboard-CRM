@@ -51,7 +51,7 @@ const typMeta: Record<AufgabenTyp, { label: string; tone: Tone; icon: LucideIcon
 type Override = Partial<Pick<Aufgabe, "mitarbeiterId" | "faellig" | "erledigt">>;
 
 /**
- * Aufgabenliste mit den im Kickoff gewünschten Eingriffen: Aufgaben lassen
+ * Aufgabenliste mit den im Kundentermin gewünschten Eingriffen: Aufgaben lassen
  * sich neu zuweisen, verschieben und abhaken. Klickdummy: Änderungen leben
  * nur im Speicher dieser Sitzung – "Zurücksetzen" stellt den Stand wieder her.
  */
