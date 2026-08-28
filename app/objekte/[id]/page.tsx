@@ -228,8 +228,9 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
                   </div>
                 </div>
                 <p className="text-kicker text-seil-muted">
-                  Keine manuelle Excel-Übertragung mehr – Off-Market-Daten laufen direkt ins
-                  Cockpit. Anbindung ist Umsetzungsteil von Modul 02, hier simuliert.
+                  Ziel: keine manuelle Excel-Übertragung mehr. Die Anbindung ist als
+                  Ausbaustufe vorgesehen – die Umsetzung startet mit einem
+                  Se-Circle-Statusfeld am Objekt; diese Karte simuliert den Zielzustand.
                 </p>
               </CardBody>
             </Card>
