@@ -46,18 +46,28 @@ export interface ProzessSchritt {
   beschreibung: string;
 }
 
+/** Zweiteilung des Prozesses (Kundentermin): erst Auftraggeber-, dann Investorenseite. */
+export type ProzessSeite = "auftraggeber" | "investoren";
+
 export interface ProzessPhase {
   titel: string;
   vonNr: number;
   bisNr: number;
+  seite: ProzessSeite;
 }
 
 export const PROZESS_PHASEN: readonly ProzessPhase[] = [
-  { titel: "PHASE 1 · Mandat & Bewertung", vonNr: 1, bisNr: 7 },
-  { titel: "PHASE 2 · Vermarktungsvorbereitung", vonNr: 8, bisNr: 14 },
-  { titel: "PHASE 3 · Aktive Vermarktung", vonNr: 15, bisNr: 18 },
-  { titel: "PHASE 4 · Angebote & Reporting (laufend)", vonNr: 19, bisNr: 26 },
+  { titel: "PHASE 1 · Mandat & Bewertung", vonNr: 1, bisNr: 7, seite: "auftraggeber" },
+  { titel: "PHASE 2 · Vermarktungsvorbereitung", vonNr: 8, bisNr: 14, seite: "auftraggeber" },
+  { titel: "PHASE 3 · Aktive Vermarktung", vonNr: 15, bisNr: 18, seite: "investoren" },
+  { titel: "PHASE 4 · Angebote & Reporting (laufend)", vonNr: 19, bisNr: 26, seite: "investoren" },
 ] as const;
+
+/** Sichtbare Benennung der beiden Prozessseiten – siehe ANNAHMEN.md Punkt 47. */
+export const SEITEN_LABEL: Record<ProzessSeite, string> = {
+  auftraggeber: "Auftraggeberseite",
+  investoren: "Investorenseite",
+};
 
 export const PROZESS_SCHRITTE: readonly ProzessSchritt[] = [
   { nr: 1, kurz: "Portfolio für Exit", lang: "Portfolio for potential Exit", verantwortlich: "Client", verantwortung: "extern", tool: "Word/PDF", beschreibung: "Der Auftraggeber liefert das Portfolio bzw. Objekt für einen möglichen Exit – Ausgangspunkt jedes Mandats." },

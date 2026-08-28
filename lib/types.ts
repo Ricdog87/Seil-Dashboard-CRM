@@ -28,7 +28,7 @@ export interface KiFeld {
   hinweis?: string;
 }
 
-/** Anzeige-Stand der Se-Circle-Anbindung (zentrale Entscheidung aus dem Kickoff). */
+/** Anzeige-Stand der Se-Circle-Anbindung (Kundentermin; Umsetzung als Ausbaustufe). */
 export interface SeCircleSync {
   letzterSync: string; // ISO-Datum mit Uhrzeit
   richtung: string; // z. B. "Se Circle → Cockpit"
@@ -53,7 +53,7 @@ export interface Objekt {
   kaufpreisMio: number; // Kaufpreisvorstellung in Mio. €
   auftraggeberId: string;
   zustaendigId: string;
-  /** Herkunft des Objekts – Se Circle wird produktiv direkt angebunden. */
+  /** Herkunft des Objekts – die Se-Circle-Anbindung ist als Ausbaustufe vorgesehen. */
   quelle?: "Se Circle" | "Manuell";
   /** Besonderes Merkmal, z. B. Distressed Asset (Transkript: Notlagen-Immobilien). */
   merkmal?: string;
