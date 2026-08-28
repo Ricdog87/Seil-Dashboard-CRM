@@ -109,16 +109,23 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
     Datenraum-Lücken …), sind einzelne Zeitabstände in den Demodaten bewusst
     gestreckt und nicht in jedem Fall streng im 2-Tage-Raster.
 
-## Integrationen & Automationen (aus Angebot AG2026-SEIL-03 und Kickoff 17.08.)
+## Integrationen & Automationen (aus Angebot AG2026-SEIL-03 und Kundentermin 17.08.)
 
 Der Prototyp ist ein Klickdummy – alle folgenden Punkte sind **nur als Anzeige
-simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
+simuliert**. Die echte Anbindung ist Umsetzungsteil von Modul 02 – mit Ausnahme
+der ausdrücklich als **Ausbaustufe** markierten Punkte (Se Circle,
+Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
 
-23. **Se Circle:** Im Kickoff als zentrale Entscheidung benannt. Im Prototyp als
-    eigene Karte am Se-Circle-Objekt (Richtung, letzter Sync, synchronisierte
-    Feldgruppen), als Sync-Aktivitäten und im Systemstatus der Übersicht
-    dargestellt. Welche Felder Se Circle konkret liefert und ob zurückgeschrieben
-    wird, ist offen – angenommen ist ein täglicher Sync Se Circle → Cockpit.
+23. **Se Circle:** Im Kundentermin als zentrale Entscheidung benannt.
+    **Scope-Klarstellung (Projektstand 28.08.):** Die Anbindung ist als
+    Ausbaustufe nach der 8-Wochen-Umsetzung vorgesehen; das Zielsystem startet
+    mit einem Se-Circle-**Statusfeld** am Objekt. Der Prototyp zeigt darüber
+    hinaus, wie die spätere Anbindung aussehen könnte: als eigene Karte am
+    Se-Circle-Objekt (Richtung, letzter Sync, synchronisierte Feldgruppen), als
+    Sync-Aktivitäten und im Systemstatus der Übersicht – entsprechend
+    gekennzeichnet. Welche Felder Se Circle konkret liefert und ob
+    zurückgeschrieben wird, ist offen – angenommen ist ein täglicher Sync
+    Se Circle → Cockpit.
 24. **KI-Extraktion aus dem Datenraum** (Grundbuch, Mieterlisten): je Objekt als
     Feldliste mit Wert, Quelldokument und Prüfstatus dargestellt. Annahme: die
     Übernahme ins CRM bestätigt ein Mitarbeiter (Human-in-the-Loop, gleiche
@@ -133,22 +140,30 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
     Quelle-Tag am Investor („Pipedrive-Import“) dargestellt – ein eigener
     Import-Screen würde die Fünf-Screen-Grenze sprengen.
 27. **Status-Reports:** Im Angebot enthalten („Status-Reports“, dort mit
-    Telegram nur als Beispiel genannt); im Kickoff wurde kein Kanal besprochen.
+    Telegram nur als Beispiel genannt); im Kundentermin wurde kein Kanal besprochen.
     Die Anzeige ist deshalb bewusst kanalneutral („Status-Report heute 08:00 an
     das Team versendet“). Kanal, Inhalt, Frequenz und Empfängerkreis sind im
     Kundengespräch festzulegen.
 28. **Presound-Mail an BCC-Verteiler vs. KI-personalisierte Ansprache:** Das
     Angebot nennt eine „KI-personalisierte Ansprache mit Freigabe-Workflow“, im
-    Kickoff wurde der heutige Ist-Prozess als Presound-Mail an einen
+    Kundentermin wurde der heutige Ist-Prozess als Presound-Mail an einen
     BCC-Verteiler beschrieben. Der Prototyp zeigt den Versand als Sammelmail
-    (Benennung aus dem Kickoff) – ob die Ansprache künftig je Investor
+    (Benennung aus dem Kundentermin) – ob die Ansprache künftig je Investor
     KI-personalisiert erzeugt und einzeln freigegeben wird, ist zu klären; das
     verändert Freigabe-Granularität und Datenmodell.
-29. **Distressed Assets:** Im Kickoff als Sonderfall mit typisch unvollständigen
+    **Präzisierung E-Mail-Abgleich (Projektstand 28.08.):** Der Mail-Sync läuft
+    über die **gemeinsame Sales-Adresse** (BCC-Sync). Einbezogen werden die
+    Postfächer des Investment-Teams; die Postfächer von Max Seil und Nino
+    Grubisic ausdrücklich **nicht**. Die Automatik deckt die drei Szenarien aus
+    dem Angebot ab (Response, Preisanfrage, kein Rücklauf) – inklusive
+    automatischer Eingangsbestätigung bei eingehenden Antworten. Der einzige
+    Human-in-the-Loop-Schritt im Versandprozess ist die Listen-Freigabe
+    (Punkt 9); alles danach läuft automatisch.
+29. **Distressed Assets:** Im Kundentermin als Sonderfall mit typisch unvollständigen
     Unterlagen genannt – im Prototyp als Merkmal am Fachmarktzentrum (7/12
     Dokumente) dargestellt. Ob Distressed-Fälle eine eigene Prozessvariante
     brauchen, ist offen.
-30. **Flexible Gestaltbarkeit:** Im Kickoff wurde gewünscht, dass das Dashboard
+30. **Flexible Gestaltbarkeit:** Im Kundentermin wurde gewünscht, dass das Dashboard
     Prozessänderungen erlaubt. Im Klickdummy demonstriert: Aufgaben lassen sich
     neu zuweisen, um 2 Tage verschieben und abhaken (nur in der Sitzung,
     „Zurücksetzen“ stellt den Stand wieder her). Das Umsortieren der
@@ -161,7 +176,7 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
     Verschieben von Karten wäre im echten System eine Statusänderung und ist
     im Klickdummy bewusst nicht simuliert.
 32. **Interaktiver Prozess:** „Das Dashboard soll den gesamten
-    Transaktionsprozess interaktiv abbilden“ (Kickoff) ist als klickbare
+    Transaktionsprozess interaktiv abbilden“ (Kundentermin) ist als klickbare
     Prozessleiste umgesetzt: jeder Schritt öffnet ein Detailpanel mit
     Beschreibung, Verantwortung (Team / Automatik / manuelle Freigabe) und –
     beim aktiven Schritt – offenen Aufgaben und letzten Aktivitäten. Die
@@ -274,3 +289,32 @@ simuliert**; die echte Anbindung ist Umsetzungsteil von Modul 02.
       Meeting vorgestellte operative Unterstützung im Vertrieb ist bewusst
       **nicht** als echte Person im Prototyp – Namensregel wie bei allen
       echten Personen; auf ausdrücklichen Wunsch ergänzbar (wie Nino/Max).
+
+## Projektstand-Abgleich (28.08.)
+
+45. **Begriffe & Zeitplan:** Der Termin am 17.08. war ein Kundentermin
+    (Vorgespräch) – in diesem Repository durchgängig so benannt. Der
+    vertragliche **Kickoff-Workshop** zu Modul 02 steht noch aus; die
+    8-Wochen-Umsetzung beginnt mit dem Kickoff-Workshop, nicht mit den
+    Vorgesprächen.
+
+46. **Ausbaustufen – nicht im 8-Wochen-Scope:** Investoren-**Profilanreicherung**
+    und **automatisches Matching** (Objekt ↔ Ankaufsprofil) sind produktiv als
+    Ausbaustufe vorgesehen, ebenso die **Se-Circle-Anbindung** (Punkt 23).
+    Im Prototyp bleiben Matching-Spalte, Profil-Pflege und die Matching-Stufe
+    der Automatik-Kette auf Wunsch aus dem Demo-Check (Punkt 44) sichtbar –
+    sie zeigen den **Zielzustand** der Ausbaustufe. Für die 8-Wochen-Umsetzung
+    gilt: Die Investorenliste je Objekt erstellt das Team, Ankaufsprofile
+    werden manuell gepflegt. Die Priorisierung (Demo-Check: „Matching als
+    Kernstück“ vs. Scope der Beauftragung) bitte im Kickoff-Workshop
+    festhalten.
+
+47. **Zweiteilung des Prozesses in der UI:** Der Transaktionsprozess ist
+    zweigeteilt – erst Auftraggeber-/Eigentümerseite, dann Investorenseite –
+    und soll so in der UI erscheinen. Umsetzung im Prototyp: Die Prozessleiste
+    gruppiert die 4 Phasen der Team-Excel unter zwei Seiten-Überschriften,
+    **„Auftraggeberseite“** (Phasen 1–2, Schritte 1–14) und
+    **„Investorenseite“** (Phasen 3–4, Schritte 15–26). Die Grenze liegt am
+    Freigabe-Schritt 14 (Approach-Mailing) – konsistent mit Punkt 19
+    („Investorenseite gestartet“). Zuordnung und Benennung („Auftraggeber-“
+    vs. „Eigentümerseite“) bitte bestätigen.

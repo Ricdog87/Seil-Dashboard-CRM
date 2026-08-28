@@ -33,7 +33,7 @@ mit Triage per Klick) und **Meine Aufgaben** (direkt abhakbar, synchron mit dem
 Aufgaben-Screen). **⌘K / Strg+K** öffnet die globale Suche über Objekte,
 Investoren und offene Aufgaben. Der Aufgaben-Screen ist ein **Kanban-Board**
 (Spalten = Fälligkeit: Heute, Morgen, Später, Erledigt) – Karten lassen sich
-per Drag & Drop umplanen und abhaken; die Liste bleibt als zweite Ansicht. Dazu ist der Prototyp an den im Kickoff
+per Drag & Drop umplanen und abhaken; die Liste bleibt als zweite Ansicht. Dazu ist der Prototyp an den im Kundentermin
 gewünschten Stellen interaktiv: die Prozessleiste öffnet je Schritt ein
 Detailpanel, KI-extrahierte Werte lassen sich prüfen und übernehmen, Notizen
 lassen sich direkt am Objekt erfassen, Ankaufsprofile lassen sich direkt am
@@ -69,7 +69,7 @@ gleicher Wirkung; die Suche öffnet mobil über das Lupen-Symbol
 Objekt- und Investor-Detail sind bewusst nur über Verlinkungen erreichbar (Zeilen in
 Tabellen anklicken) – es gibt keine Listen-Screens über die fünf Screens hinaus.
 
-## Abdeckung Angebot AG2026-SEIL-03 & Kickoff (17.08.)
+## Abdeckung Angebot AG2026-SEIL-03 & Kundentermin (17.08.)
 
 | Leistungsbaustein | Im Prototyp sichtbar als |
 |---|---|
@@ -79,7 +79,7 @@ Tabellen anklicken) – es gibt keine Listen-Screens über die fünf Screens hin
 | Zentrales Dashboard: Phasen, Investoren, Objekte, Datenraum-Status | Die fünf Screens; Prozessleiste über beide Seiten; Datenraum aus Modul 01 |
 | Pipedrive-Export/-Import (einmalig) | Quelle-Tag „Pipedrive-Import“ am Investor |
 | Status-Reports an das Team | Statuszeile auf der Übersicht – Kanal bewusst offen |
-| Se-Circle-Anbindung (Kickoff) | Quelle „Se Circle“ am Objekt + Sync-Aktivität |
+| Se-Circle-Anbindung (Kundentermin; Umsetzung als Ausbaustufe) | Quelle „Se Circle“ am Objekt + Sync-Karte – simuliert (ANNAHMEN.md, Punkt 23) |
 | KI liest Datenraum aus (Grundbuch, Mieterlisten) | „KI-ausgelesen“-Kennwerte in der Datenraum-Karte + Aktivitäten mit Quelle „KI“ |
 | KI generiert Teaser & Listings | Aktivität „Teaser und Listing automatisch generiert – zur Prüfung“ |
 | Presound-Mails an BCC-Verteiler | Benennung in Freigabe-Karte und Automatik-Zeile der Vermarktung |
@@ -98,6 +98,14 @@ Alles davon ist reine Anzeige mit Demodaten – keine echte Automation im Protot
 | Backoffice übernimmt die administrative Vorbereitung | Eigene Verantwortung **Backoffice** in der 26-Schritte-Prozessleiste (Rent Roll, Standarddokumente, Datenraum-Aufbau, Fotograf); NDA-Versand als Hinweis am Schritt „NDA Vermarktung“ – das Drafting bleibt beim Legal Team |
 
 Details und offene Punkte dazu: ANNAHMEN.md, Punkt 44.
+
+**Scope-Abgrenzung (Projektstand 28.08.):** Die Se-Circle-Anbindung sowie
+Investoren-Profilanreicherung und automatisches Matching sind produktiv als
+**Ausbaustufe** vorgesehen und nicht Teil der 8-Wochen-Umsetzung – der Prototyp
+zeigt sie auf Wunsch aus dem Demo-Check als Zielzustand, entsprechend
+gekennzeichnet. Der vertragliche Kickoff-Workshop zu Modul 02 steht noch aus;
+die 8-Wochen-Laufzeit beginnt mit dem Kickoff-Workshop, nicht mit den
+Vorgesprächen (ANNAHMEN.md, Punkte 45–47).
 
 ### Screenshots
 
