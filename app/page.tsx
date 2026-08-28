@@ -39,7 +39,7 @@ export default function UebersichtSeite() {
         <HeuteKopf />
         <div className="flex flex-col items-start gap-3 sm:items-end">
           <WeltUhren />
-          {/* Systemstatus: die drei Anbindungen aus Angebot und Kickoff, still im Hintergrund. */}
+          {/* Systemstatus: die drei Anbindungen aus Angebot und Kundentermin, still im Hintergrund. */}
           <div className="flex flex-col items-start gap-1 text-kicker text-seil-muted sm:items-end">
           <p className="inline-flex items-center gap-2">
             <Send size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
