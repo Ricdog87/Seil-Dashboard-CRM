@@ -1,0 +1,75 @@
+{
+  "name": "SEIL 07 · Status-Bericht (werktäglich 08:00, HTML)",
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "nodes": [
+    {
+      "id": "sticky-07",
+      "name": "Hinweis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [140, -80],
+      "parameters": {
+        "content": "## Glied 7: Status-Bericht – das Reporting als Produkt (Update-Call 28.08.)\n\nWerktäglich 08:00: Kennzahlen einsammeln, HTML-Bericht im SEIL-CI bauen, an Geschäftsführung + Leitung Vertrieb senden. Gleiche Logik und Optik wie der Knopf „Bericht exportieren“ im Cockpit – der Bericht ist ein eigenständiges HTML-Dokument ohne Anhänge-Chaos.\n\nInhalt (Struktur wie Cockpit-Bericht):\n– KPI-Zeile: Pipeline-Volumen, aktive Mandate, Antwortquote, offene Aufgaben\n– Mandate-Tabelle mit Phase und Stand\n– „Braucht Aufmerksamkeit“: überfällige Aufgaben, wartende Freigaben, unbeantwortete Signale\n\nOFFEN: SEIL liefert ggf. eine eigene Reporting-Vorlage nach – dann Layout hier angleichen (Platzhalter im Code-Node markiert).\n\nSKELETT – vor Aktivierung:\n1. Kennzahlen-Quelle anbinden (CRM-Daten / Data-Store; solange das Cockpit Klick-Dummy ist, liefert Modul 01 die ersten echten Zahlen)\n2. SMTP-Credential im Credential-Store anlegen (niemals im Workflow-JSON)\n3. Empfänger festlegen (Geschäftsführung + Leitung Vertrieb)\n4. ERST NACH TESTLAUF MIT INTERNEN ADRESSEN AKTIVIEREN",
+        "width": 520,
+        "height": 460
+      }
+    },
+    {
+      "id": "cron-07",
+      "name": "Werktäglich 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [160, 520],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * 1-5" }] }
+      }
+    },
+    {
+      "id": "noop-25",
+      "name": "Kennzahlen sammeln (CRM / Modul 01)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [420, 520],
+      "parameters": {}
+    },
+    {
+      "id": "code-07",
+      "name": "HTML-Bericht bauen (SEIL-CI)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 520],
+      "parameters": {
+        "jsCode": "// Baut den täglichen Statusbericht als eigenständiges HTML-Dokument im SEIL-CI.\n// Struktur = Bericht-Export im Cockpit (Modul 02). Sobald SEIL eine eigene\n// Reporting-Vorlage liefert, hier das Layout angleichen.\nconst z = $input.first().json; // erwartete Felder siehe Kennzahlen-Node\nconst heute = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });\nconst kpi = (wert, label) => `<td style=\"padding:14px 16px;border:1px solid #37373f;border-radius:6px;background:#232328\"><div style=\"font-size:22px;font-weight:600;color:#f4f5f6\">${wert ?? '–'}</div><div style=\"font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a8f97\">${label}</div></td>`;\nconst html = `<!doctype html><html lang=\"de\"><meta charset=\"utf-8\"><body style=\"margin:0;background:#121214;color:#c2c6cc;font-family:Inter,system-ui,sans-serif\"><div style=\"max-width:720px;margin:0 auto;padding:32px 24px\"><div style=\"display:flex;justify-content:space-between;border-bottom:1px solid #37373f;padding-bottom:12px\"><span style=\"font-size:18px;font-weight:600;letter-spacing:.18em;color:#f4f5f6\">SEIL</span><span style=\"font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8a8f97\">Statusbericht · ${heute}</span></div><table style=\"width:100%;border-collapse:separate;border-spacing:8px;margin:20px -8px\"><tr>${kpi(z.pipelineMio ? z.pipelineMio + ' Mio €' : null, 'Pipeline')}${kpi(z.mandate, 'Aktive Mandate')}${kpi(z.antwortquote ? z.antwortquote + ' %' : null, 'Antwortquote')}${kpi(z.offeneAufgaben, 'Offene Aufgaben')}</tr></table><p style=\"font-size:12px;color:#8a8f97\">Mandate-Tabelle und „Braucht Aufmerksamkeit“ folgen hier – Struktur wie der Bericht-Export im Cockpit.</p><p style=\"font-size:10px;color:#8a8f97;border-top:1px solid #37373f;padding-top:10px\">Automatisch erstellt von SEIL Cockpit · n8n Workflow 07</p></div></body></html>`;\nreturn [{ json: { ...z, betreff: `SEIL Statusbericht ${heute}`, html } }];"
+      }
+    },
+    {
+      "id": "mail-07",
+      "name": "Bericht senden: GF + Leitung (SMTP nötig)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [940, 520],
+      "parameters": {
+        "fromEmail": "cockpit@BEISPIEL-DOMAIN.de",
+        "toEmail": "geschaeftsfuehrung@BEISPIEL-DOMAIN.de, vertriebsleitung@BEISPIEL-DOMAIN.de",
+        "subject": "={{ $json.betreff }}",
+        "html": "={{ $json.html }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "noop-26",
+      "name": "Bericht archivieren (Ablage)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1200, 520],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Werktäglich 08:00": { "main": [[{ "node": "Kennzahlen sammeln (CRM / Modul 01)", "type": "main", "index": 0 }]] },
+    "Kennzahlen sammeln (CRM / Modul 01)": { "main": [[{ "node": "HTML-Bericht bauen (SEIL-CI)", "type": "main", "index": 0 }]] },
+    "HTML-Bericht bauen (SEIL-CI)": { "main": [[{ "node": "Bericht senden: GF + Leitung (SMTP nötig)", "type": "main", "index": 0 }]] },
+    "Bericht senden: GF + Leitung (SMTP nötig)": { "main": [[{ "node": "Bericht archivieren (Ablage)", "type": "main", "index": 0 }]] }
+  }
+}

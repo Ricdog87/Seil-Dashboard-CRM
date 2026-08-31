@@ -99,7 +99,7 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
 20. **Begriffe:** Der Denglisch-Mix aus dem Auftrag (Valuation, Broker Call, Listing,
     Teaser) wurde im UI beibehalten; Datums- und Zahlenformate sind deutsch
     („17,4 Mio. €“, „20.08.2026“).
-21. **Referenzdatum:** Der Prototyp „lebt“ am 25.08.2026 – Überfälligkeiten und
+21. **Referenzdatum:** Der Prototyp „lebt“ am 31.08.2026 – Überfälligkeiten und
     „heute fällig“ beziehen sich auf dieses fixe Datum (`HEUTE` in
     `lib/mock-data.ts`). Die Weltuhren-Leiste und die tageszeitabhängige
     Begrüßung laufen dagegen bewusst live (Frankfurt · London · New York ·
@@ -343,3 +343,48 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
     - **Ausstehende Unterlagen von SEIL:** Prozess-Excel (mehrere Reiter),
       dokumentierter Standard-Kommunikationsprozess, Reporting-Info/HTML –
       Input für die Verfeinerung der Workflows vor dem Workshop.
+
+## Unterlagen vom 31.08. (Flowchart & Standardprozess)
+
+49. **Zwei SEIL-Dokumente eingetroffen und eingearbeitet – nur die
+    Struktur, keine Inhalte:** Am 31.08. lagen das
+    Transaktionsprozess-Flowchart (der Prozess, den SEIL als Referenz für
+    die Automatik autorisieren soll) und der dokumentierte Standardprozess
+    Investorenkommunikation (Entscheidungstabelle, Stand 09/2024) vor.
+    Konsequenzen und bewusste Abgrenzungen:
+    - **Flowchart-Deltas zum bisherigen Modell:** (a) Vor dem Broker Call
+      sitzt ein telefonischer Erstkontakt durch ein **Call-Center**
+      (Standardfragen), eröffnet durch ein **Kickoff-Briefing**
+      (Teams-Termin) – bislang nicht in der Automatik-Kette abgebildet,
+      als Workshop-Thema vorgemerkt (eigenes Glied bzw. Aufgaben-Route in
+      WF 06). (b) **Aktivitäten-Logging** im CRM ist im Flowchart
+      explizit – deckt sich mit der Aktivitäten-Historie des Prototyps.
+      (c) Am Matching-Schritt steht eine offene **„Excel?“-Anmerkung** –
+      die Lücke, die Ankaufsprofile im CRM + WF 02 schließen sollen.
+      (d) Das Flowchart endet am Broker Call – die Kette deckt den
+      gezeichneten Prozess damit vollständig ab.
+    - **Standardprozess → WF 05/06:** Die Stufenlogik (zwei feste
+      Vorlagen, danach alternierend, Abschluss mit Final-Mail; Leitung
+      optional im BCC) steckt jetzt in WF 05; der Entscheidungsbaum
+      (Absage → Kriterien-Rückfrage, Kriterien erhalten → Übergabe +
+      Termin, Preisanfragen nur telefonisch durch die Geschäftsführung,
+      Unterlagen-Anfragen mit drei Unterfällen, Telefonwunsch-Routing,
+      Besichtigungs-Ablauf mit Kalendereintrag) in WF 06. Die
+      Absage-Rückfrage bestätigt nachträglich die im Prototyp erzählte
+      Zielregionen-Geschichte (Punkt 44).
+    - **Vorlagentexte bewusst nicht übernommen:** Die Mail-Vorlagen,
+      Namen und Postfach-Adressen aus dem Standardprozess-Dokument
+      bleiben außerhalb des Repositorys (Namensregel Punkt 16). Beim
+      Setup wandern die Vorlagen als Einträge in den n8n-Data-Store,
+      Quelle ist das SEIL-Dokument selbst.
+    - **⚠ Diskrepanz Follow-up-Stufen (Workshop-Frage):** Angebot und
+      Demo-Check sagen „alle 2 Tage, maximal 3 Stufen“; das
+      Standardprozess-Dokument beschreibt eine offene Follow-up-Kette mit
+      abschließender Final-Mail. WF 05 ist auf maximal 3 Stufen
+      voreingestellt (pro Kampagne überschreibbar); die verbindliche
+      Regel legt der Workshop fest.
+    - **Neu: WF 07 Status-Bericht** ergänzt die Kette als flankierenden
+      Workflow (werktäglich 08:00, HTML-Bericht im SEIL-CI an
+      Geschäftsführung + Leitung Vertrieb) – die produktive Seite des
+      „Bericht exportieren“-Knopfs aus Punkt 48; Layout wird an die noch
+      ausstehende Reporting-Vorlage von SEIL angeglichen.

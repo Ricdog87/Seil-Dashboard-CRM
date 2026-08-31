@@ -1,9 +1,10 @@
 # n8n-Workflows · SEIL Automatik-Kette (Skelette)
 
-Sechs importierbare n8n-Workflows, 1:1 entlang der Automatik-Kette aus dem
-Demo-Check vom 20.08. – das Ausführungs-Gegenstück zur Anzeige im Cockpit
-(Vermarktungs-Screen). Gedacht für die n8n-Instanz auf dem Hostinger-Server
-(„n8n Seil“).
+Sieben importierbare n8n-Workflows: sechs bilden 1:1 die Automatik-Kette aus
+dem Demo-Check vom 20.08. ab – das Ausführungs-Gegenstück zur Anzeige im
+Cockpit (Vermarktungs-Screen) –, Workflow 07 flankiert sie mit dem täglichen
+Statusbericht (Update-Call 28.08.). Gedacht für die n8n-Instanz auf dem
+Hostinger-Server („n8n Seil“).
 
 | # | Workflow | Kettenglied | Trigger |
 |---|---|---|---|
@@ -13,11 +14,12 @@ Demo-Check vom 20.08. – das Ausführungs-Gegenstück zur Anzeige im Cockpit
 | 04 | Freigabe-Gate | Freigabe (Human-in-the-Loop) | Webhook `seil/freigabe` (Cockpit-Button) |
 | 05 | Versand & Follow-up-Scheduler | Versand & Follow-ups | Webhook `seil/versand` + Cron 07:00 (Mo–Fr) |
 | 06 | Antworterkennung | Antworterkennung | IMAP (Vertriebs-Postfach) |
+| 07 | Status-Bericht | – (flankierend: Reporting) | Cron 08:00 (Mo–Fr) |
 
 ## Import
 
 n8n → Workflows → **Import from File** → JSON wählen. Reihenfolge egal.
-Alle sechs sind bewusst **inaktiv** (`active: false`).
+Alle sieben sind bewusst **inaktiv** (`active: false`).
 
 ## Vor der Aktivierung – Pflicht
 
@@ -46,13 +48,61 @@ Alle sechs sind bewusst **inaktiv** (`active: false`).
 - **Matching-Reihenfolge:** Standort zuerst, dann Assetklasse, dann
   Ticket-Spanne. Kein voller Treffer = kein Ausschluss (Markierung
   „manuell pruefen“, Liste bleibt manuell erweiterbar).
-- **Follow-ups:** alle 2 Tage, maximal 3 Stufen; Stufe 2 fragt aktiv nach
-  aktuellen Zielregionen; nach Stufe 3 ohne Antwort nur noch eine manuelle
-  Nachfass-Aufgabe.
+- **Follow-ups:** alle 2 Tage; Stufe 1 und 2 mit festen Vorlagen, Stufe 2
+  fragt aktiv nach aktuellen Zielregionen; weitere Stufen mit zwei
+  alternierenden Vorlagen; die letzte Stufe ist eine Final-Mail, danach nur
+  noch eine manuelle Nachfass-Aufgabe. Voreinstellung: maximal 3 Stufen
+  (Angebot/Demo-Check) – siehe Workshop-Frage unten.
 - **WhatsApp nur über Superchat** (professionelle Lösung,
   datenschutzkonform) – keine privaten Accounts, keine direkte Meta-API.
 - Antworten mit Regions-/Profilinformation erzeugen ein
   **Ankaufsprofil-Update** – Investorendaten leben im CRM, nicht in Excel.
+
+## Unterlagen vom 31.08. – Prozess-Flowchart & Standardprozess Investorenkommunikation
+
+Am 31.08. hat SEIL zwei Dokumente geliefert. Beide sind eingearbeitet –
+**nur die Struktur**, keine Vorlagentexte, Namen oder Adressen (die bleiben
+bewusst außerhalb dieses Repositorys, siehe unten).
+
+**1. Transaktionsprozess-Flowchart – der zu autorisierende Prozess.**
+Das Flowchart ist die Referenz, gegen die SEIL die Automatik-Kette
+freigeben soll („Workflow autorisieren“). Abgleich mit unserem Modell:
+
+- Die Kette deckt den Flowchart-Ablauf bis zum Broker Call ab (dort endet
+  das Chart); Datenraum → Matching → Mailversand → Antwort → Broker Call
+  entsprechen WF 01–06.
+- **Neu aus dem Flowchart – Call-Center-Rolle:** Vor dem Broker Call sitzt
+  ein telefonischer Erstkontakt durch ein Call-Center (Standardfragen),
+  eröffnet durch ein Kickoff-Briefing (Teams-Termin). In der Kette bislang
+  nicht abgebildet → Kandidat für ein eigenes Glied bzw. eine
+  Aufgaben-Route in WF 06 (Workshop-Thema).
+- **Aktivitäten-Logging:** Das Flowchart protokolliert Aktivitäten im
+  bisherigen CRM. Das Cockpit übernimmt das (Aktivitäten-Historie ist im
+  Prototyp bereits angelegt); in n8n schreiben die Ablage-Nodes später in
+  dieselbe Historie.
+- Am Matching-Schritt steht im Flowchart eine offene „Excel?“-Anmerkung –
+  genau die Lücke, die Ankaufsprofile im CRM + WF 02 schließen.
+
+**2. Standardprozess Investorenkommunikation (Entscheidungstabelle).**
+Die Struktur steckt jetzt in WF 05 (Stufenlogik: zwei feste Vorlagen,
+danach alternierend, Abschluss mit Final-Mail; Leitung optional im BCC)
+und WF 06 (Routing: Anfrage, Absage → Kriterien-Rückfrage, Kriterien
+erhalten → Übergabe + Termin, Preisanfrage → nur telefonisch durch die
+Geschäftsführung mit Leitung im BCC, Unterlagen-Anfrage mit drei
+Unterfällen nach Datenraum-Abgleich, Telefonwunsch → Geschäftsführung,
+Besichtigung → Bestätigung + Verkäuferseite + Kalendereintrag mit fester
+Titelkonvention).
+
+**Vorlagentexte bleiben draußen:** Die Mail-Vorlagen aus dem
+Standardprozess-Dokument werden beim Setup als Einträge im
+n8n-Data-Store hinterlegt (Quelle: das SEIL-Dokument selbst) – sie
+gehören nicht in dieses Repository und nicht in die Workflow-JSONs.
+
+**⚠ Workshop-Frage – Follow-up-Stufen:** Angebot und Demo-Check sagen
+„alle 2 Tage, maximal 3 Stufen“; das Standardprozess-Dokument beschreibt
+eine offene Follow-up-Kette mit abschließender Final-Mail. WF 05 ist auf
+`maxStufen = 3` voreingestellt und pro Kampagne überschreibbar – die
+verbindliche Regel legt der Workshop fest.
 
 ## Anbindung Modul 01 (Datenraum-Automatik – echte Daten)
 
@@ -109,13 +159,17 @@ Beispiel-Export festgelegt, nicht am Gesamtbestand.
   Kosten – Konsens im Call).
 - **Workshop nach Live-Gang:** Feinabstimmung der Kette am echten Prozess.
   Bereits benannte Erweiterungspunkte: **NDA-Handling**,
-  **Datenraum-Freigaben** und **Broker-Benachrichtigungen** als eigene
-  Glieder bzw. Verfeinerungen von WF 05/06. Input: Prozess-Excel (Reiter)
-  und Standard-Kommunikationsprozess, die SEIL nachliefert.
+  **Datenraum-Freigaben**, **Broker-Benachrichtigungen** und die
+  **Call-Center-Rolle aus dem Flowchart** als eigene Glieder bzw.
+  Verfeinerungen von WF 05/06. Input liegt seit 31.08. vor:
+  Transaktionsprozess-Flowchart und Standardprozess
+  Investorenkommunikation (siehe Abschnitt oben); offen ist nur noch die
+  Reporting-Vorlage.
 - **Reporting-Anbindung:** Der Statusbericht ist als HTML-Produkt
   definiert – im Cockpit als Export-Button umgesetzt („Bericht exportieren
-  (HTML)“); produktiv erzeugt und versendet ihn ein Report-Workflow
-  werktäglich 08:00 (wird nach der Reporting-Vorlage von SEIL ergänzt).
+  (HTML)“); produktiv erzeugt und versendet ihn **WF 07** werktäglich
+  08:00 an Geschäftsführung + Leitung Vertrieb. Sobald SEIL die eigene
+  Reporting-Vorlage nachliefert, wird das Layout im Code-Node angeglichen.
 - **Claude-API-Key gehört SEIL:** SEIL legt ein eigenes Konto in der
   Anthropic Console an (empfohlen: eigener Workspace „SEIL Cockpit“ mit
   monatlichem Budget-Limit als Kostenairbag) und erzeugt dort den API-Key.

@@ -8,11 +8,11 @@
       "name": "Hinweis",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [140, -60],
+      "position": [140, -120],
       "parameters": {
-        "content": "## Glied 5: Versand & Follow-ups – alle 2 Tage, max. 3 Stufen\n\nZwei Eingänge: Erstversand-Webhook (aus WF 04, nur nach Freigabe) und Tages-Scheduler 07:00 für fällige Follow-ups.\n\nRegeln (Demo-Check 20.08.):\n– Kanal: E-Mail + WhatsApp über Superchat (professionelle Lösung, KEINE privaten Accounts)\n– Stufe 2 fragt aktiv nach aktuellen Zielregionen\n– nach Stufe 3 ohne Antwort: manuelle Nachfass-Aufgabe, keine weitere Mail\n– vor JEDEM Versand wird der Freigabe-Status erneut geprüft (doppelter Boden)\n\nSKELETT – vor Aktivierung:\n1. SMTP-Credential im n8n-Credential-Store anlegen (niemals im Workflow-JSON)\n2. Superchat-API-Credential anlegen, URL/Payload lt. Superchat-Doku setzen\n3. Kontakt-Quelle (fällige Follow-ups) anbinden\n4. ERST NACH TESTLAUF MIT INTERNEN ADRESSEN AKTIVIEREN",
-        "width": 460,
-        "height": 380
+        "content": "## Glied 5: Versand & Follow-ups – Stufenlogik nach Standardprozess\n\nZwei Eingänge: Erstversand-Webhook (aus WF 04, nur nach Freigabe) und Tages-Scheduler 07:00 für fällige Follow-ups.\n\nStufenlogik (Standardprozess Investorenkommunikation, Struktur übernommen):\n– Stufe 1 und 2: feste Vorlagen; Stufe 2 fragt zusätzlich aktiv nach Zielregionen (Demo-Check 20.08.)\n– weitere Stufen: zwei alternierende Vorlagen\n– letzte Stufe: Final-Mail (kündigt das Ende der Kette an) – danach keine weitere Mail, nur manuelle Nachfass-Aufgabe\n– Leitung Vertrieb optional im BCC (bccLeitung-Feld) – Regel aus dem Standardprozess\n\nDie Vorlagentexte liegen BEWUSST NICHT in dieser Datei: Ablage als Einträge im n8n-Data-Store (Quelle: Standardprozess-Dokument von SEIL), der Workflow lädt sie über den Vorlagen-Schlüssel.\n\n⚠ WORKSHOP-FRAGE: Angebot/Demo-Check sagen „max. 3 Stufen“, das Standardprozess-Dokument beschreibt eine offene Kette mit Final-Mail. Voreinstellung hier: maxStufen = 3 (überschreibbar pro Kampagne). Im Workshop entscheiden.\n\nRegeln (Demo-Check 20.08.):\n– Kanal: E-Mail + WhatsApp über Superchat (professionelle Lösung, KEINE privaten Accounts)\n– vor JEDEM Versand wird der Freigabe-Status erneut geprüft (doppelter Boden)\n\nSKELETT – vor Aktivierung:\n1. SMTP-Credential im n8n-Credential-Store anlegen (niemals im Workflow-JSON)\n2. Superchat-API-Credential anlegen, URL/Payload lt. Superchat-Doku setzen\n3. Vorlagen aus dem Standardprozess-Dokument in den Data-Store übernehmen\n4. Kontakt-Quelle (fällige Follow-ups) anbinden\n5. ERST NACH TESTLAUF MIT INTERNEN ADRESSEN AKTIVIEREN",
+        "width": 520,
+        "height": 560
       }
     },
     {
@@ -20,7 +20,7 @@
       "name": "Erstversand (nach Freigabe)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [160, 420],
+      "position": [160, 560],
       "parameters": { "httpMethod": "POST", "path": "seil/versand", "options": {} }
     },
     {
@@ -28,7 +28,7 @@
       "name": "Täglich 07:00 – fällige Follow-ups",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [160, 600],
+      "position": [160, 740],
       "parameters": {
         "rule": { "interval": [{ "field": "cronExpression", "expression": "0 7 * * 1-5" }] }
       }
@@ -38,40 +38,55 @@
       "name": "Kontakte laden + Freigabe prüfen",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [420, 510],
+      "position": [420, 650],
       "parameters": {}
     },
     {
       "id": "if-05",
-      "name": "Stufe < 3?",
+      "name": "Stufe < Maximum?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
-      "position": [660, 510],
+      "position": [660, 650],
       "parameters": {
         "conditions": {
-          "number": [{ "value1": "={{ $json.followUpStufe ?? 0 }}", "operation": "smaller", "value2": 3 }]
+          "number": [
+            {
+              "value1": "={{ $json.followUpStufe ?? 0 }}",
+              "operation": "smaller",
+              "value2": "={{ $json.maxStufen ?? 3 }}"
+            }
+          ]
         }
       }
     },
     {
       "id": "code-05",
-      "name": "Nachricht bauen (Stufe 2 = Zielregionen-Frage)",
+      "name": "Vorlage wählen (Stufenlogik Standardprozess)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [900, 420],
+      "position": [900, 560],
       "parameters": {
-        "jsCode": "const k = $input.first().json;\nconst stufe = (k.followUpStufe ?? 0) + 1;\nlet zusatz = '';\nif (stufe === 2) {\n  // Beschluss Demo-Check: Stufe 2 fragt aktiv nach aktuellen Zielregionen –\n  // die Antwort pflegt das Ankaufsprofil (WF 06 erkennt und übernimmt sie).\n  zusatz = '\\n\\nUnabhängig davon: In welchen Regionen suchen Sie aktuell aktiv an? So können wir Ihnen künftig passgenauer Objekte zeigen.';\n}\nreturn [{ json: { ...k, neueStufe: stufe, betreff: `Erinnerung: ${k.objektName ?? 'Objektangebot'}`, text: `${k.basistext ?? 'kurze Nachfrage zu unserem Angebot – besteht Interesse an weiteren Unterlagen?'}${zusatz}` } }];"
+        "jsCode": "// Stufenlogik aus dem Standardprozess-Dokument – NUR die Struktur.\n// Die Texte selbst liegen als Vorlagen im n8n-Data-Store (Schlüssel unten),\n// niemals in dieser Datei.\nconst k = $input.first().json;\nconst stufe = (k.followUpStufe ?? 0) + 1;\nconst max = k.maxStufen ?? 3; // Workshop-Frage: 3 (Angebot) vs. offene Kette (Standardprozess)\nlet vorlage;\nlet zielregionenFrage = false;\nif (stufe === 1) {\n  vorlage = 'followup-1'; // feste Vorlage 1\n} else if (stufe === 2) {\n  vorlage = 'followup-2'; // feste Vorlage 2\n  // Beschluss Demo-Check: Stufe 2 fragt aktiv nach aktuellen Zielregionen –\n  // die Antwort pflegt das Ankaufsprofil (WF 06 erkennt und übernimmt sie).\n  zielregionenFrage = true;\n} else if (stufe >= max) {\n  vorlage = 'followup-final'; // Final-Mail: kündigt das Ende der Kette an\n} else {\n  // weitere Stufen: zwei alternierende Vorlagen (Standardprozess)\n  vorlage = stufe % 2 === 1 ? 'followup-a' : 'followup-b';\n}\nreturn [{ json: { ...k, neueStufe: stufe, vorlage, zielregionenFrage, istFinal: stufe >= max, bccLeitung: k.bccLeitung ?? '' } }];"
       }
+    },
+    {
+      "id": "noop-17",
+      "name": "Vorlage aus Data-Store laden",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1120, 560],
+      "parameters": {}
     },
     {
       "id": "mail-05",
       "name": "E-Mail senden (SMTP-Credential nötig)",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2,
-      "position": [1140, 340],
+      "position": [1340, 480],
       "parameters": {
         "fromEmail": "vertrieb@BEISPIEL-DOMAIN.de",
         "toEmail": "={{ $json.email }}",
+        "bccEmail": "={{ $json.bccLeitung }}",
         "subject": "={{ $json.betreff }}",
         "text": "={{ $json.text }}",
         "options": {}
@@ -82,7 +97,7 @@
       "name": "WhatsApp über Superchat-API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1140, 500],
+      "position": [1340, 640],
       "parameters": {
         "method": "POST",
         "url": "https://api.superchat.com/v1.0/messages",
@@ -97,29 +112,30 @@
       "name": "Stufe + nächstes Follow-up (+2 Tage) ablegen",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [1380, 420],
+      "position": [1580, 560],
       "parameters": {}
     },
     {
       "id": "noop-11",
-      "name": "Stufe 3 ausgeschöpft → Nachfass-Aufgabe",
+      "name": "Kette ausgeschöpft → Nachfass-Aufgabe (manuell)",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [900, 620],
+      "position": [900, 760],
       "parameters": {}
     }
   ],
   "connections": {
     "Erstversand (nach Freigabe)": { "main": [[{ "node": "Kontakte laden + Freigabe prüfen", "type": "main", "index": 0 }]] },
     "Täglich 07:00 – fällige Follow-ups": { "main": [[{ "node": "Kontakte laden + Freigabe prüfen", "type": "main", "index": 0 }]] },
-    "Kontakte laden + Freigabe prüfen": { "main": [[{ "node": "Stufe < 3?", "type": "main", "index": 0 }]] },
-    "Stufe < 3?": {
+    "Kontakte laden + Freigabe prüfen": { "main": [[{ "node": "Stufe < Maximum?", "type": "main", "index": 0 }]] },
+    "Stufe < Maximum?": {
       "main": [
-        [{ "node": "Nachricht bauen (Stufe 2 = Zielregionen-Frage)", "type": "main", "index": 0 }],
-        [{ "node": "Stufe 3 ausgeschöpft → Nachfass-Aufgabe", "type": "main", "index": 0 }]
+        [{ "node": "Vorlage wählen (Stufenlogik Standardprozess)", "type": "main", "index": 0 }],
+        [{ "node": "Kette ausgeschöpft → Nachfass-Aufgabe (manuell)", "type": "main", "index": 0 }]
       ]
     },
-    "Nachricht bauen (Stufe 2 = Zielregionen-Frage)": {
+    "Vorlage wählen (Stufenlogik Standardprozess)": { "main": [[{ "node": "Vorlage aus Data-Store laden", "type": "main", "index": 0 }]] },
+    "Vorlage aus Data-Store laden": {
       "main": [
         [
           { "node": "E-Mail senden (SMTP-Credential nötig)", "type": "main", "index": 0 },

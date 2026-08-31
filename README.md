@@ -120,6 +120,25 @@ gekennzeichnet. Der vertragliche Kickoff-Workshop zu Modul 02 steht noch aus;
 die 8-Wochen-Laufzeit beginnt mit dem Kickoff-Workshop, nicht mit den
 Vorgesprächen (ANNAHMEN.md, Punkte 45–47).
 
+### Unterlagen vom 31.08. – eingearbeitet
+
+- **Transaktionsprozess-Flowchart:** Referenz für die Autorisierung der
+  Automatik durch SEIL; Abgleich und Deltas (Call-Center-Rolle,
+  Aktivitäten-Logging, „Excel?“-Lücke am Matching) in
+  `automation/n8n/README.md` und ANNAHMEN.md, Punkt 49.
+- **Standardprozess Investorenkommunikation:** Die Struktur der
+  Entscheidungstabelle steckt jetzt in den Workflows 05 (Stufenlogik mit
+  Final-Mail) und 06 (Routing inkl. Absage-Rückfrage, GF-Rückruf bei
+  Preisanfragen, Unterlagen-Unterfällen, Besichtigungs-Ablauf) – bewusst
+  ohne die Vorlagentexte, Namen und Adressen des Dokuments.
+- **Neu: Workflow 07 „Status-Bericht“** (werktäglich 08:00, HTML im
+  SEIL-CI) – die produktive Seite des „Bericht exportieren“-Knopfs.
+- **Übergabe-Vorbereitung:** Checkliste für SEIL mit Freigaben, Zugängen,
+  Konten/Verträgen, Unterlagen und Workshop-Punkten:
+  [`docs/SEIL-Uebergabe-Checkliste.pdf`](docs/SEIL-Uebergabe-Checkliste.pdf).
+  Die Automatik-Kette als Onepager:
+  [`docs/SEIL-Automatik-Kette-Onepager.pdf`](docs/SEIL-Automatik-Kette-Onepager.pdf).
+
 ### Screenshots
 
 **Übersicht**

@@ -1,5 +1,5 @@
 {
-  "name": "SEIL 06 · Antworterkennung (Trigger-Wörter → Aufgaben)",
+  "name": "SEIL 06 · Antworterkennung (Entscheidungsbaum Standardprozess)",
   "active": false,
   "settings": { "executionOrder": "v1" },
   "nodes": [
@@ -8,11 +8,11 @@
       "name": "Hinweis",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [140, -40],
+      "position": [120, -180],
       "parameters": {
-        "content": "## Glied 6: Antworterkennung\n\nEingehende Antworten (E-Mail; Superchat-Webhook für WhatsApp analog einhängen) werden klassifiziert und geroutet:\n– Interesse → Aufgabe 'Broker Call' beim Objektzuständigen\n– Preisanfrage → Aufgabe ans Investment-Team\n– Besichtigung → Termin-Aufgabe\n– Zielregionen-Antwort → Profil-Update-Vorschlag (Ankaufsprofil im CRM)\n– Rest → Signal 'offen' im Cockpit-Posteingang (Mensch triagiert)\n\nSKELETT – vor Aktivierung:\n1. IMAP-Credential im Credential-Store anlegen (Vertriebs-Postfach)\n2. Die Keyword-Heuristik ist der Fallback – produktiv LLM-Klassifikation davor schalten, Heuristik bleibt als Absicherung\n3. Ablage-Ziele (Signale, Aufgaben, Profil-Updates) anbinden",
-        "width": 460,
-        "height": 340
+        "content": "## Glied 6: Antworterkennung – Entscheidungsbaum aus dem Standardprozess\n\nEingehende Antworten (zentrales Vertriebs-Postfach per IMAP; Superchat-Webhook für WhatsApp analog einhängen) werden klassifiziert und nach dem Standardprozess Investorenkommunikation geroutet – hier NUR die Struktur, die Antwort-Vorlagen liegen im n8n-Data-Store:\n\n– Anfrage/Interesse → Antwort mit Vorlage + Aufgabe „Broker Call“ beim Objektzuständigen\n– Absage → Bestätigung + Kriterien-Rückfrage (aktuelle Ankaufskriterien; Antwort pflegt das Ankaufsprofil)\n– Kriterien erhalten → Übergabe an das Team + Terminvorschlag\n– Preisanfrage → NIE schriftlich beantworten: Aufgabe „Rückruf durch Geschäftsführung“, Leitung Vertrieb im BCC/CC\n– Unterlagen angefragt → Datenraum-Abgleich (Modul 01), drei Unterfälle:\n   · vorhanden → Unterlagen senden\n   · nicht im Datenraum → Rückfrage an die Verkäuferseite\n   · unklar → interne Rücksprache im Team\n– Telefonwunsch → Routing an die Geschäftsführung\n– Besichtigungswunsch → Bestätigung, Verkäuferseite anfragen, Terminbestätigung + Kalendereintrag (feste Titelkonvention)\n– Rest → Signal „offen“ im Cockpit-Posteingang (Mensch triagiert)\n\nZielregionen-Antworten (z. B. auf die Stufe-2-Frage aus WF 05) setzen zusätzlich das Profil-Update-Flag → Ankaufsprofil im CRM wird aktualisiert.\n\nSKELETT – vor Aktivierung:\n1. IMAP-Credential im Credential-Store anlegen (zentrales Vertriebs-Postfach, nach Office-365-Umzug)\n2. Die Keyword-Heuristik ist der Fallback – produktiv LLM-Klassifikation (Claude) davor schalten, Heuristik bleibt als Absicherung\n3. Antwort-Vorlagen aus dem Standardprozess-Dokument in den Data-Store übernehmen\n4. Ablage-Ziele (Signale, Aufgaben, Profil-Updates, Kalender) anbinden",
+        "width": 560,
+        "height": 620
       }
     },
     {
@@ -20,7 +20,7 @@
       "name": "Posteingang (IMAP-Credential nötig)",
       "type": "n8n-nodes-base.emailReadImap",
       "typeVersion": 2,
-      "position": [160, 420],
+      "position": [160, 620],
       "parameters": { "options": {} }
     },
     {
@@ -28,52 +28,130 @@
       "name": "Klassifizieren (Trigger-Wörter)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [420, 420],
+      "position": [420, 620],
       "parameters": {
-        "jsCode": "// Fallback-Heuristik – produktiv sitzt davor eine LLM-Klassifikation.\nconst m = $input.first().json;\nconst text = `${m.subject ?? ''} ${m.textPlain ?? m.text ?? ''}`.toLowerCase();\nconst hat = (woerter) => woerter.some((w) => text.includes(w));\nlet art = 'frage';\nif (hat(['kein interesse', 'absage', 'nicht weiter', 'sehen wir ab'])) art = 'absage';\nelse if (hat(['besichtigung', 'vor ort', 'terminvorschlag'])) art = 'besichtigung';\nelse if (hat(['preis', 'kaufpreisvorstellung', 'faktor', 'indikation'])) art = 'preisanfrage';\nelse if (hat(['interesse', 'ansprechpartner', 'unterlagen', 'exposé', 'expose'])) art = 'interesse';\nif (hat(['region', 'regionen', 'standort', 'suchen wir', 'ankaufsprofil'])) {\n  // Zielregionen-Info kann jede Art begleiten → eigenes Flag fürs Profil-Update\n  return [{ json: { ...m, art, profilUpdate: true } }];\n}\nreturn [{ json: { ...m, art, profilUpdate: false } }];"
+        "jsCode": "// Fallback-Heuristik – produktiv sitzt davor eine LLM-Klassifikation (Claude).\n// Kategorien = Entscheidungsbaum aus dem Standardprozess Investorenkommunikation.\nconst m = $input.first().json;\nconst text = `${m.subject ?? ''} ${m.textPlain ?? m.text ?? ''}`.toLowerCase();\nconst hat = (woerter) => woerter.some((w) => text.includes(w));\nlet art = 'sonstiges';\nif (hat(['kein interesse', 'absage', 'nicht weiter', 'sehen wir ab', 'passt nicht'])) art = 'absage';\nelse if (hat(['unsere kriterien', 'unser ankaufsprofil', 'wir suchen aktuell', 'suchprofil'])) art = 'kriterien';\nelse if (hat(['besichtigung', 'vor ort', 'objektbesichtigung', 'terminvorschlag'])) art = 'besichtigung';\nelse if (hat(['preis', 'kaufpreisvorstellung', 'faktor', 'indikation'])) art = 'preisanfrage';\nelse if (hat(['unterlagen', 'exposé', 'expose', 'datenraum', 'mietaufstellung', 'grundriss'])) art = 'unterlagen';\nelse if (hat(['rückruf', 'telefonat', 'anrufen', 'telefonisch'])) art = 'telefonat';\nelse if (hat(['interesse', 'ansprechpartner', 'mehr informationen'])) art = 'interesse';\nconst profilUpdate = hat(['region', 'regionen', 'standort', 'zielregion', 'suchen wir', 'ankaufsprofil']);\nreturn [{ json: { ...m, art, profilUpdate } }];"
       }
     },
     {
       "id": "switch-06",
-      "name": "Routing",
+      "name": "Routing (Standardprozess)",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 1,
-      "position": [680, 420],
+      "position": [700, 620],
       "parameters": {
         "dataType": "string",
         "value1": "={{ $json.art }}",
         "rules": {
           "rules": [
             { "value2": "interesse" },
+            { "value2": "absage" },
+            { "value2": "kriterien" },
             { "value2": "preisanfrage" },
+            { "value2": "unterlagen" },
+            { "value2": "telefonat" },
             { "value2": "besichtigung" }
           ]
         },
-        "fallbackOutput": 3
+        "fallbackOutput": 7
       }
     },
     {
       "id": "noop-12",
-      "name": "Aufgabe: Broker Call (Objektzuständiger)",
+      "name": "Antwort-Vorlage + Aufgabe: Broker Call",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [940, 260],
+      "position": [1000, 120],
+      "parameters": {}
+    },
+    {
+      "id": "noop-18",
+      "name": "Bestätigung + Kriterien-Rückfrage (pflegt Profil)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1000, 260],
+      "parameters": {}
+    },
+    {
+      "id": "noop-19",
+      "name": "Kriterien erhalten → Übergabe Team + Termin",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1000, 400],
       "parameters": {}
     },
     {
       "id": "noop-13",
-      "name": "Aufgabe: Investment-Team",
+      "name": "Preis: Aufgabe Rückruf GF (Leitung im BCC)",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [940, 380],
+      "position": [1000, 540],
+      "parameters": {}
+    },
+    {
+      "id": "noop-20",
+      "name": "Datenraum-Abgleich (Modul 01)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1000, 680],
+      "parameters": {}
+    },
+    {
+      "id": "switch-06b",
+      "name": "Unterlage vorhanden?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [1240, 680],
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.unterlageStatus ?? 'unklar' }}",
+        "rules": {
+          "rules": [
+            { "value2": "vorhanden" },
+            { "value2": "nicht_im_datenraum" }
+          ]
+        },
+        "fallbackOutput": 2
+      }
+    },
+    {
+      "id": "noop-21",
+      "name": "Unterlagen senden (Vorlage)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1500, 600],
+      "parameters": {}
+    },
+    {
+      "id": "noop-22",
+      "name": "Rückfrage an Verkäuferseite",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1500, 700],
+      "parameters": {}
+    },
+    {
+      "id": "noop-23",
+      "name": "Interne Rücksprache (Team)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1500, 800],
+      "parameters": {}
+    },
+    {
+      "id": "noop-24",
+      "name": "Telefonwunsch → Routing an GF",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1000, 820],
       "parameters": {}
     },
     {
       "id": "noop-14",
-      "name": "Aufgabe: Besichtigung koordinieren",
+      "name": "Besichtigung: Bestätigung + Verkäufer + Kalender",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [940, 500],
+      "position": [1000, 960],
       "parameters": {}
     },
     {
@@ -81,7 +159,7 @@
       "name": "Signal 'offen' in den Posteingang",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [940, 620],
+      "position": [1000, 1100],
       "parameters": {}
     },
     {
@@ -89,7 +167,7 @@
       "name": "Profil-Update dabei?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
-      "position": [1200, 420],
+      "position": [1780, 620],
       "parameters": {
         "conditions": { "boolean": [{ "value1": "={{ $json.profilUpdate }}", "value2": true }] }
       }
@@ -99,24 +177,42 @@
       "name": "Ankaufsprofil-Update vorschlagen/übernehmen",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [1440, 420],
+      "position": [2020, 620],
       "parameters": {}
     }
   ],
   "connections": {
     "Posteingang (IMAP-Credential nötig)": { "main": [[{ "node": "Klassifizieren (Trigger-Wörter)", "type": "main", "index": 0 }]] },
-    "Klassifizieren (Trigger-Wörter)": { "main": [[{ "node": "Routing", "type": "main", "index": 0 }]] },
-    "Routing": {
+    "Klassifizieren (Trigger-Wörter)": { "main": [[{ "node": "Routing (Standardprozess)", "type": "main", "index": 0 }]] },
+    "Routing (Standardprozess)": {
       "main": [
-        [{ "node": "Aufgabe: Broker Call (Objektzuständiger)", "type": "main", "index": 0 }],
-        [{ "node": "Aufgabe: Investment-Team", "type": "main", "index": 0 }],
-        [{ "node": "Aufgabe: Besichtigung koordinieren", "type": "main", "index": 0 }],
+        [{ "node": "Antwort-Vorlage + Aufgabe: Broker Call", "type": "main", "index": 0 }],
+        [{ "node": "Bestätigung + Kriterien-Rückfrage (pflegt Profil)", "type": "main", "index": 0 }],
+        [{ "node": "Kriterien erhalten → Übergabe Team + Termin", "type": "main", "index": 0 }],
+        [{ "node": "Preis: Aufgabe Rückruf GF (Leitung im BCC)", "type": "main", "index": 0 }],
+        [{ "node": "Datenraum-Abgleich (Modul 01)", "type": "main", "index": 0 }],
+        [{ "node": "Telefonwunsch → Routing an GF", "type": "main", "index": 0 }],
+        [{ "node": "Besichtigung: Bestätigung + Verkäufer + Kalender", "type": "main", "index": 0 }],
         [{ "node": "Signal 'offen' in den Posteingang", "type": "main", "index": 0 }]
       ]
     },
-    "Aufgabe: Broker Call (Objektzuständiger)": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
-    "Aufgabe: Investment-Team": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
-    "Aufgabe: Besichtigung koordinieren": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
+    "Datenraum-Abgleich (Modul 01)": { "main": [[{ "node": "Unterlage vorhanden?", "type": "main", "index": 0 }]] },
+    "Unterlage vorhanden?": {
+      "main": [
+        [{ "node": "Unterlagen senden (Vorlage)", "type": "main", "index": 0 }],
+        [{ "node": "Rückfrage an Verkäuferseite", "type": "main", "index": 0 }],
+        [{ "node": "Interne Rücksprache (Team)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Antwort-Vorlage + Aufgabe: Broker Call": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
+    "Bestätigung + Kriterien-Rückfrage (pflegt Profil)": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
+    "Kriterien erhalten → Übergabe Team + Termin": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
+    "Preis: Aufgabe Rückruf GF (Leitung im BCC)": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
+    "Unterlagen senden (Vorlage)": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
+    "Rückfrage an Verkäuferseite": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
+    "Interne Rücksprache (Team)": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
+    "Telefonwunsch → Routing an GF": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
+    "Besichtigung: Bestätigung + Verkäufer + Kalender": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
     "Signal 'offen' in den Posteingang": { "main": [[{ "node": "Profil-Update dabei?", "type": "main", "index": 0 }]] },
     "Profil-Update dabei?": { "main": [[{ "node": "Ankaufsprofil-Update vorschlagen/übernehmen", "type": "main", "index": 0 }]] }
   }

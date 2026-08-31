@@ -53,7 +53,7 @@ export function HeuteKopf({ untertitel }: { untertitel?: string }) {
       </h1>
       <p className="mt-1 max-w-[70ch] text-seil-muted">
         {untertitel ??
-          "Montag, 25.08.2026 – Signale, Aufgaben und alle laufenden Transaktionen auf einen Blick."}
+          "Montag, 31.08.2026 – Signale, Aufgaben und alle laufenden Transaktionen auf einen Blick."}
       </p>
     </div>
   );
