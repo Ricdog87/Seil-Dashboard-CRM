@@ -99,6 +99,19 @@ Alles davon ist reine Anzeige mit Demodaten – keine echte Automation im Protot
 
 Details und offene Punkte dazu: ANNAHMEN.md, Punkt 44.
 
+### Update-Call 28.08. – eingearbeitet
+
+- **Reporting als Exportprodukt:** „Bericht exportieren (HTML)“ auf der
+  Übersicht und im GF-Blick erzeugt den Statusbericht als eigenständige
+  HTML-Datei im SEIL-CI mit den Live-Zahlen der Sitzung – dasselbe
+  HTML-Produkt, das produktiv die Automatik werktäglich 08:00 versendet.
+- **Server-Migration beschlossen:** Die n8n-Automatik zieht in die Domain
+  der SEIL Group; Live-Gang erst nach Office-365-/Tenant-Migration durch
+  den neuen IT-Dienstleister (siehe `automation/n8n/README.md`).
+- **Workshop nach Live-Gang:** NDA-Handling, Datenraum-Freigaben und
+  Broker-Benachrichtigungen werden dort als Erweiterungen der
+  Automatik-Kette feinabgestimmt (ANNAHMEN.md, Punkt 48).
+
 **Scope-Abgrenzung (Projektstand 28.08.):** Die Se-Circle-Anbindung sowie
 Investoren-Profilanreicherung und automatisches Matching sind produktiv als
 **Ausbaustufe** vorgesehen und nicht Teil der 8-Wochen-Umsetzung – der Prototyp

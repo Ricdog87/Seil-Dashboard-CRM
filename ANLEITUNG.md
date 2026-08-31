@@ -64,6 +64,11 @@ Vermarktungs-Funnel, alle Mandate nach Volumen, Risiken und die Auslastung
 im Team – **nur Zahlen, nichts zum Eintragen**. Zurück zur operativen
 Sicht: einfach wieder einen Mitarbeiter wählen.
 
+**Bericht exportieren:** Auf Übersicht und GF-Blick erzeugt „Bericht
+exportieren (HTML)“ den Statusbericht als Datei zum Weitergeben –
+dasselbe HTML-Produkt, das die Automatik werktäglich um 08:00 an das
+Team versendet.
+
 ## Unterwegs auf dem Handy
 
 Das Cockpit läuft im Browser auch auf dem Smartphone – gleiche Daten,

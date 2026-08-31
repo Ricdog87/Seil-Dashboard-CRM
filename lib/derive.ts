@@ -13,7 +13,7 @@ import {
   PROZESS_PHASEN,
   PROZESS_SCHRITTE,
 } from "./mock-data";
-import type { Aktivitaet, Investor, Objekt, ObjektInvestorLink } from "./types";
+import type { Aktivitaet, Investor, KontaktStatus, Objekt, ObjektInvestorLink } from "./types";
 
 // --- Lookups ---------------------------------------------------------------
 
@@ -73,6 +73,17 @@ export function pipelineStufe(objekt: Objekt): number {
 /** Objekte, deren Vermarktung vorbereitet oder gestartet ist (ab Matching-Liste erledigt). */
 export const inVermarktungskontext = (objekt: Objekt): boolean =>
   objekt.schritte[13] === "done";
+
+// --- Antwortstatus-Gruppen ---------------------------------------------------
+
+/** Kontakt hat geantwortet (inkl. Absage) – Basis für Antwortquote und Funnel. */
+export const GEANTWORTET: KontaktStatus[] = [
+  "interesse",
+  "preisanfrage",
+  "nda_unterzeichnet",
+  "datenraum_freigegeben",
+  "abgesagt",
+];
 
 // --- Matching (Kernstück lt. Demo-Check 20.08.) -----------------------------
 

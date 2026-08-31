@@ -318,3 +318,28 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
     Freigabe-Schritt 14 (Approach-Mailing) – konsistent mit Punkt 19
     („Investorenseite gestartet“). Zuordnung und Benennung („Auftraggeber-“
     vs. „Eigentümerseite“) bitte bestätigen.
+48. **Beschlüsse aus dem Update-Call (28.08., mit Nino und dem Vertrieb):**
+    - **Server-Migration beschlossen:** Die n8n-Instanz (läuft derzeit auf
+      RSG-Infrastruktur) wird zeitnah in die Domain der SEIL Group
+      übertragen. Voraussetzung für den Live-Gang der Automatik ist der
+      Office-365-/IMAP-Zugang – der entsteht mit der Entkopplung vom
+      bisherigen IT-Dienstleister durch den neuen Dienstleister
+      (3-Monats-Testphase vereinbart). Laut Geschäftsführung hat die
+      Lösung des Onboarding-/Tenant-Migrations-Themas oberste Priorität;
+      bis dahin keine Tests mit Demodaten auf der Automatik (doppelte
+      Arbeit, unnötige Kosten – Konsens im Call).
+    - **Workshop zur Prozess-Feinabstimmung** nach IT-Migration und
+      Live-Gang. Dort werden insbesondere die im Call benannten Lücken der
+      Automatik-Kette geschlossen: NDA-Handling, Datenraum-Freigaben und
+      Broker-Benachrichtigungen als eigene Glieder bzw. Verfeinerungen.
+    - **Reporting als Exportprodukt:** Der Statusbericht soll unkompliziert
+      direkt aus dem Dashboard exportierbar sein und als HTML-Produkt an
+      die Automatik angebunden werden. Im Prototyp umgesetzt als
+      „Bericht exportieren (HTML)“ auf Übersicht und GF-Blick – erzeugt
+      eine eigenständige HTML-Datei im SEIL-CI mit den Live-Zahlen der
+      Sitzung; produktiv erzeugt und versendet die Automatik denselben
+      Bericht werktäglich 08:00. Die Reporting-Vorlage von SEIL steht noch
+      aus und kann Layout/Inhalte ändern.
+    - **Ausstehende Unterlagen von SEIL:** Prozess-Excel (mehrere Reiter),
+      dokumentierter Standard-Kommunikationsprozess, Reporting-Info/HTML –
+      Input für die Verfeinerung der Workflows vor dem Workshop.

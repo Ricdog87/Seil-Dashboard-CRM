@@ -93,15 +93,29 @@ SEIL-Daten laufen ausschließlich durch die n8n-Instanz und landen nie im
 Prototyp oder in diesem Repository. Feld-Mapping wird an EINEM
 Beispiel-Export festgelegt, nicht am Gesamtbestand.
 
-## Betriebsmodell (Beschluss 25.08.)
+## Betriebsmodell (Beschluss 25.08., präzisiert im Update-Call 28.08.)
 
-- **Server gehört SEIL:** Die n8n-Instanz läuft auf einem VPS im eigenen
-  Hostinger-Konto der SEIL Group – nicht bei RSG. Da noch nichts produktiv
-  ist, gibt es keinen „Umzug“: Der Server wird direkt im SEIL-Konto frisch
-  aufgesetzt (Hostinger-n8n-Template), die Workflows hier werden importiert.
-  Datenhoheit und Kosten liegen damit von Tag 1 beim Kunden; RSG arbeitet
-  als Dienstleister mit eigenem n8n-Nutzer + n8n-API-Key
-  (Auftragsverarbeitungsvertrag SEIL ↔ RSG schließen).
+- **Server gehört SEIL – Migration beschlossen:** Die n8n-Instanz läuft
+  derzeit noch auf RSG-Infrastruktur und wird zeitnah in die Domain der
+  SEIL Group übertragen (Konsens aus dem Update-Call). Datenhoheit und
+  Kosten liegen damit beim Kunden; RSG arbeitet als Dienstleister mit
+  eigenem n8n-Nutzer + n8n-API-Key (Auftragsverarbeitungsvertrag
+  SEIL ↔ RSG schließen).
+- **Voraussetzung für den Live-Gang:** Zugang zu Office 365 (Maildomain,
+  IMAP) der SEIL Group. Der entsteht mit der Entkopplung vom bisherigen
+  IT-Dienstleister durch den neuen Dienstleister (3-Monats-Testphase);
+  die Tenant-Migration hat laut Geschäftsführung oberste Priorität. Bis
+  dahin bewusst keine Testläufe mit Demodaten (doppelte Arbeit, unnötige
+  Kosten – Konsens im Call).
+- **Workshop nach Live-Gang:** Feinabstimmung der Kette am echten Prozess.
+  Bereits benannte Erweiterungspunkte: **NDA-Handling**,
+  **Datenraum-Freigaben** und **Broker-Benachrichtigungen** als eigene
+  Glieder bzw. Verfeinerungen von WF 05/06. Input: Prozess-Excel (Reiter)
+  und Standard-Kommunikationsprozess, die SEIL nachliefert.
+- **Reporting-Anbindung:** Der Statusbericht ist als HTML-Produkt
+  definiert – im Cockpit als Export-Button umgesetzt („Bericht exportieren
+  (HTML)“); produktiv erzeugt und versendet ihn ein Report-Workflow
+  werktäglich 08:00 (wird nach der Reporting-Vorlage von SEIL ergänzt).
 - **Claude-API-Key gehört SEIL:** SEIL legt ein eigenes Konto in der
   Anthropic Console an (empfohlen: eigener Workspace „SEIL Cockpit“ mit
   monatlichem Budget-Limit als Kostenairbag) und erzeugt dort den API-Key.

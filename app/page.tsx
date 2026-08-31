@@ -17,6 +17,7 @@ import {
   FollowUpStufe,
   Fortschritt,
 } from "@/components/cockpit";
+import { BerichtExport } from "@/components/bericht-export";
 import { GfDashboard } from "@/components/gf-dashboard";
 import { HeuteKopf } from "@/components/heute-kopf";
 import { KpiAufgabenLive, KpiKachelLive } from "@/components/kpi-live";
@@ -54,6 +55,9 @@ export default function UebersichtSeite() {
               Modul 01: Datenraum-Status heute 07:30 aktualisiert
             </p>
           </div>
+          {/* Reporting als Exportprodukt direkt aus dem Dashboard (Update-Call 28.08.):
+              derselbe HTML-Bericht, den die Automatik werktäglich 08:00 versendet. */}
+          <BerichtExport />
         </div>
       </div>
 

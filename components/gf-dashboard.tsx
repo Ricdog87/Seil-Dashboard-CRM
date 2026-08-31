@@ -4,6 +4,7 @@ import { Eye, FolderOpen, TriangleAlert } from "lucide-react";
 import {
   aktiverSchritt,
   fmtMio,
+  GEANTWORTET,
   hatDatenraumLuecke,
   inVermarktungskontext,
   istUeberfaellig,
@@ -29,6 +30,7 @@ import {
   TR,
 } from "@/components/ui";
 import { EntityLink, Kicker } from "@/components/cockpit";
+import { BerichtExport } from "@/components/bericht-export";
 import { HeuteKopf } from "@/components/heute-kopf";
 import { KlickZeile } from "@/components/klick-zeile";
 import { AktivitaetenTicker } from "@/components/ticker";
@@ -38,13 +40,6 @@ import { useSitzung } from "./sitzung";
 /** Honorarmodell nur als Platzhalter – Satz ist mit SEIL zu klären (ANNAHMEN.md, Punkt 43). */
 const HONORAR_SATZ = 0.015;
 
-const GEANTWORTET: KontaktStatus[] = [
-  "interesse",
-  "preisanfrage",
-  "nda_unterzeichnet",
-  "datenraum_freigegeben",
-  "abgesagt",
-];
 const POSITIV: KontaktStatus[] = [
   "interesse",
   "preisanfrage",
@@ -204,6 +199,8 @@ export function GfDashboard() {
             <Eye size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
             Nur-Lese-Sicht – Eingaben macht das Team im operativen Cockpit
           </span>
+          {/* Reporting als Exportprodukt direkt aus dem Dashboard (Update-Call 28.08.). */}
+          <BerichtExport />
         </div>
       </div>
 
