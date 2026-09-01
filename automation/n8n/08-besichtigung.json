@@ -1,0 +1,277 @@
+{
+  "name": "SEIL 08 · Besichtigungs-Koordination (Standardprozess)",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "id": "sticky-08",
+      "name": "Hinweis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        140,
+        -120
+      ],
+      "parameters": {
+        "content": "## Glied 8: Besichtigungs-Koordination (Standardprozess, vier Schritte)\n\nAusgelöst von WF 06 bei Besichtigungswunsch. Ablauf laut Standardprozess:\n1. Bestätigung an den Investor (Vorlage 'besichtigung-bestaetigung')\n2. Anfrage an die Verkäuferseite (Vorlage 'besichtigung-anfrage-verkaeufer')\n3. Warten auf die Antwort der Verkäuferseite (Wait-Node, Fortsetzung per Webhook – die Resume-URL steht in der Verkäufer-Mail/Aufgabe; Zeitlimit 3 Tage)\n4. Terminbestätigung an den Investor (Vorlage 'besichtigung-terminbestaetigung') + Kalendereintrag im zentralen Vertriebskalender nach Titelkonvention, besichtigendes Teammitglied einladen\n\nAlle Mails laufen über WF 05 (einziger Versandpunkt: BCC-Regel, Freigabe-Prüfung, Protokoll). Titelkonvention aus dem Standardprozess: „BES mit <Kürzel Teammitglied> und <Investor / Telefon>“.\n\nSKELETT – vor Aktivierung: N8N-BASIS-URL ersetzen; Kalender-Anbindung (Outlook/Microsoft-Graph-Credential nach Office-365-Umzug) am letzten Node; Verkäufer-Kontakt aus dem Mandat laden.",
+        "width": 560,
+        "height": 520
+      }
+    },
+    {
+      "id": "webhook-08",
+      "name": "Besichtigungswunsch (aus WF 06)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        160,
+        520
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "seil/besichtigung",
+        "options": {}
+      }
+    },
+    {
+      "id": "code-08a",
+      "name": "Vorgang anlegen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        520
+      ],
+      "parameters": {
+        "jsCode": "// Besichtigungsvorgang anlegen – verarbeitet alle eingehenden Wünsche.\nreturn $input.all().map(({ json }) => {\n  const b = json.body ?? json;\n  return { json: { kontaktId: b.kontaktId, objektId: b.objektId, investorEmail: b.investorEmail,\n                   wunsch: b.wunsch ?? '', verkaeuferEmail: b.verkaeuferEmail ?? '', teamKuerzel: b.teamKuerzel ?? '',\n                   angelegt: new Date().toISOString() } };\n});"
+      }
+    },
+    {
+      "id": "http-08a",
+      "name": "1 · Bestätigung an Investor (über WF 05)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        520
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://N8N-BASIS-URL/webhook/seil/versand",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ kontaktId: $json.kontaktId, objektId: $json.objektId, email: $json.investorEmail, vorlage: 'besichtigung-bestaetigung', quelle: 'besichtigung' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "http-08b",
+      "name": "2 · Anfrage an Verkäuferseite (über WF 05)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        940,
+        520
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://N8N-BASIS-URL/webhook/seil/versand",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ kontaktId: $json.kontaktId, objektId: $json.objektId, email: $json.verkaeuferEmail, vorlage: 'besichtigung-anfrage-verkaeufer', quelle: 'besichtigung' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "wait-08",
+      "name": "3 · Warten auf Verkäufer-Antwort (max. 3 Tage)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        520
+      ],
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 3,
+        "resumeUnit": "days",
+        "options": {}
+      }
+    },
+    {
+      "id": "if-08",
+      "name": "Termin bestätigt?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1460,
+        520
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.body?.bestaetigt === true }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "http-08c",
+      "name": "4 · Terminbestätigung an Investor (über WF 05)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1720,
+        420
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://N8N-BASIS-URL/webhook/seil/versand",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ kontaktId: $json.kontaktId, objektId: $json.objektId, email: $json.investorEmail, vorlage: 'besichtigung-terminbestaetigung', quelle: 'besichtigung' }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "code-08b",
+      "name": "Kalendereintrag nach Titelkonvention",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        420
+      ],
+      "parameters": {
+        "jsCode": "// Kalendereintrag nach Titelkonvention des Standardprozesses – nur Struktur.\nreturn $input.all().map(({ json }) => {\n  const b = json.body ?? json;\n  const titel = `BES mit ${b.teamKuerzel || json.teamKuerzel || '<Kürzel>'} und ${b.investorName ?? b.investorTelefon ?? json.investorEmail ?? '<Investor>'}`;\n  return { json: { ...json, kalender: { titel, ort: b.objektAdresse ?? '', beginn: b.termin ?? null,\n                                        teilnehmer: [b.teamEmail].filter(Boolean) } } };\n});"
+      }
+    },
+    {
+      "id": "noop-08a",
+      "name": "Termin im zentralen Vertriebskalender + Teammitglied einladen (Outlook/Graph-Credential nötig)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2240,
+        420
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "noop-08b",
+      "name": "Aufgabe: Verkäuferseite nachfassen / Alternativtermin",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1720,
+        640
+      ],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Besichtigungswunsch (aus WF 06)": {
+      "main": [
+        [
+          {
+            "node": "Vorgang anlegen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vorgang anlegen": {
+      "main": [
+        [
+          {
+            "node": "1 · Bestätigung an Investor (über WF 05)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1 · Bestätigung an Investor (über WF 05)": {
+      "main": [
+        [
+          {
+            "node": "2 · Anfrage an Verkäuferseite (über WF 05)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2 · Anfrage an Verkäuferseite (über WF 05)": {
+      "main": [
+        [
+          {
+            "node": "3 · Warten auf Verkäufer-Antwort (max. 3 Tage)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3 · Warten auf Verkäufer-Antwort (max. 3 Tage)": {
+      "main": [
+        [
+          {
+            "node": "Termin bestätigt?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Termin bestätigt?": {
+      "main": [
+        [
+          {
+            "node": "4 · Terminbestätigung an Investor (über WF 05)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Aufgabe: Verkäuferseite nachfassen / Alternativtermin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4 · Terminbestätigung an Investor (über WF 05)": {
+      "main": [
+        [
+          {
+            "node": "Kalendereintrag nach Titelkonvention",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kalendereintrag nach Titelkonvention": {
+      "main": [
+        [
+          {
+            "node": "Termin im zentralen Vertriebskalender + Teammitglied einladen (Outlook/Graph-Credential nötig)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -119,7 +119,7 @@ export type KontaktStatus =
   | "vorgemerkt" // im Verteiler, Versand noch nicht freigegeben
   | "angeschrieben" // versendet, bisher keine Rückmeldung
   | "interesse" // Antwort erkannt: Interesse → Broker Call
-  | "preisanfrage" // Antwort erkannt: Preisanfrage → Investment-Team
+  | "preisanfrage" // Antwort erkannt: Preisanfrage → Rückruf durch die Geschäftsführung (Standardprozess: nur telefonisch)
   | "nda_unterzeichnet"
   | "datenraum_freigegeben"
   | "abgesagt";
@@ -181,7 +181,17 @@ export interface Mitarbeiter {
 }
 
 /** Eingegangene Antwort aus der Antworterkennung – der Posteingang des Cockpits. */
-export type SignalArt = "interesse" | "preisanfrage" | "besichtigung" | "frage" | "absage" | "profil";
+// Kategorien der Antworterkennung – seit 31.08. deckungsgleich mit dem Entscheidungsbaum
+// des Standardprozesses Investorenkommunikation (unterlagen, telefonat ergänzt).
+export type SignalArt =
+  | "interesse"
+  | "preisanfrage"
+  | "besichtigung"
+  | "frage"
+  | "absage"
+  | "profil"
+  | "unterlagen"
+  | "telefonat";
 
 export interface Signal {
   id: string;

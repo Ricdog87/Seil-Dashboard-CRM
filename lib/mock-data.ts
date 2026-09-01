@@ -521,7 +521,7 @@ export const investoren: Investor[] = [
 export const objektInvestorLinks: ObjektInvestorLink[] = [
   // Büroensemble Westend-Karree – Vermarktung weit fortgeschritten
   { objektId: "o1", investorId: "i1", status: "interesse", followUpStufe: 1, letzterKontakt: "2026-08-27", hinweis: "Broker Call vereinbart" },
-  { objektId: "o1", investorId: "i2", status: "preisanfrage", followUpStufe: 1, letzterKontakt: "2026-08-25", hinweis: "Indikation über Investment-Team" },
+  { objektId: "o1", investorId: "i2", status: "preisanfrage", followUpStufe: 1, letzterKontakt: "2026-08-25", hinweis: "Preisauskunft nur telefonisch – Rückruf GF koordiniert" },
   { objektId: "o1", investorId: "i3", status: "nda_unterzeichnet", followUpStufe: 1, letzterKontakt: "2026-08-30" },
   { objektId: "o1", investorId: "i4", status: "angeschrieben", followUpStufe: 2, letzterKontakt: "2026-08-30", naechstesFollowUp: "2026-09-01" },
   { objektId: "o1", investorId: "i8", status: "angeschrieben", followUpStufe: 3, letzterKontakt: "2026-08-29", hinweis: "Stufe 3 ohne Antwort – manuell nachfassen" },
@@ -556,8 +556,9 @@ export const objektInvestorLinks: ObjektInvestorLink[] = [
 
 export const aufgaben: Aufgabe[] = [
   { id: "t1", titel: "Broker Call – Falkenstein Capital Partners", typ: "broker_call", faellig: "2026-09-01", mitarbeiterId: "m1", objektId: "o1", investorId: "i1", erledigt: false },
+  { id: "t21", titel: "Rückruf GF koordinieren – Quercus Real Assets (Telefonwunsch)", typ: "sonstiges", faellig: "2026-08-28", mitarbeiterId: "m1", objektId: "o1", investorId: "i12", erledigt: true },
   { id: "t2", titel: "Broker Call – Portus Logistics Capital", typ: "broker_call", faellig: "2026-08-31", mitarbeiterId: "m2", objektId: "o2", investorId: "i7", erledigt: false },
-  { id: "t3", titel: "Preisindikation für Novaris Invest abstimmen", typ: "preisanfrage", faellig: "2026-09-01", mitarbeiterId: "m4", objektId: "o1", investorId: "i2", erledigt: false },
+  { id: "t3", titel: "Rückruf GF vorbereiten – Novaris Invest (Preisauskunft nur telefonisch)", typ: "preisanfrage", faellig: "2026-09-01", mitarbeiterId: "m1", objektId: "o1", investorId: "i2", erledigt: false },
   { id: "t4", titel: "Investorenliste freigeben – Wohnportfolio Sachsenhausen", typ: "freigabe", faellig: "2026-08-31", mitarbeiterId: "m1", objektId: "o3", erledigt: false },
   { id: "t5", titel: "Fehlende Datenraum-Dokumente nachfassen (4 offen)", typ: "datenraum", faellig: "2026-09-02", mitarbeiterId: "m2", objektId: "o4", erledigt: false },
   { id: "t6", titel: "Valuation Boardinghouse Europaviertel abschließen", typ: "sonstiges", faellig: "2026-09-03", mitarbeiterId: "m3", objektId: "o5", erledigt: false },
@@ -589,7 +590,7 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak07", datum: "2026-08-07T10:15", typ: "mail_eingang", text: "Quercus Real Assets: NDA unterzeichnet, bittet um Datenraumzugang.", objektId: "o1", investorId: "i12" },
   { id: "ak08", datum: "2026-08-08T09:00", typ: "system", quelle: "Modul 01", text: "Datenraum-Zugang für Quercus Real Assets eingerichtet.", objektId: "o1", investorId: "i12" },
   { id: "ak09", datum: "2026-08-14T13:48", typ: "mail_eingang", text: "Novaris Invest fragt Preisvorstellung und Faktor an.", objektId: "o1", investorId: "i2" },
-  { id: "ak10", datum: "2026-08-14T13:49", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Preisanfrage – Aufgabe für das Investment-Team erstellt.", objektId: "o1", investorId: "i2" },
+  { id: "ak10", datum: "2026-08-14T13:49", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Preisanfrage – Erstantwort versendet, Aufgabe „Rückruf durch die Geschäftsführung“ für Katharina Vogt erstellt (Leitung im BCC).", objektId: "o1", investorId: "i2" },
   { id: "ak11", datum: "2026-08-16T09:31", typ: "mail_eingang", text: "Falkenstein Capital meldet konkretes Interesse, bittet um Gespräch.", objektId: "o1", investorId: "i1" },
   { id: "ak12", datum: "2026-08-16T09:32", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Interesse – Aufgabe „Broker Call“ für Katharina Vogt erstellt.", objektId: "o1", investorId: "i1" },
   { id: "ak13", datum: "2026-08-17T15:10", typ: "mail_eingang", text: "Belvedere Grund Invest sagt ab – kein Büro-Ankauf in 2026.", objektId: "o1", investorId: "i9" },
@@ -646,6 +647,12 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak39", datum: "2026-08-14T11:00", typ: "anruf", text: "Erstgespräch geführt – Mandatsumfang und Zeitplan besprochen.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m5" },
   { id: "ak40", datum: "2026-08-15T15:45", typ: "mail_ausgang", text: "NDA-Entwurf an Auftraggeberin versendet.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m5" },
   { id: "ak41", datum: "2026-08-20T08:30", typ: "notiz", text: "NDA-Rücklauf steht aus – Wiedervorlage heute.", objektId: "o6", mitarbeiterId: "m5" },
+  // Standardprozess-Kategorien (31.08.): Unterlagen-Anfrage und Telefonwunsch in der Historie.
+  { id: "ak57", datum: "2026-08-28T10:15", typ: "mail_eingang", text: "Portus Logistics bittet um Mieterliste und Flächenaufstellung Halle 1–3.", objektId: "o2", investorId: "i7" },
+  { id: "ak58", datum: "2026-08-28T10:16", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Unterlagen-Anfrage – Datenraum-Abgleich: vorhanden, Unterlagen mit Vorlage versendet (Leitung im BCC).", objektId: "o2", investorId: "i7" },
+  { id: "ak59", datum: "2026-08-27T15:20", typ: "mail_eingang", text: "Quercus Real Assets bittet um ein kurzes Telefonat zu den offenen Punkten im Datenraum.", objektId: "o1", investorId: "i12" },
+  { id: "ak60", datum: "2026-08-27T15:21", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Telefonwunsch – Aufgabe „Rückruf durch die Geschäftsführung“ für Katharina Vogt erstellt (Leitung im BCC).", objektId: "o1", investorId: "i12" },
+  { id: "ak61", datum: "2026-08-28T11:30", typ: "anruf", text: "Rückruf durch die Geschäftsführung erfolgt – offene Datenraum-Punkte mit Quercus Real Assets geklärt.", objektId: "o1", investorId: "i12", mitarbeiterId: "m1" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -702,9 +709,32 @@ export const signale: Signal[] = [
     investorId: "i2",
     art: "preisanfrage",
     auszug: "„… bitte um Ihre Preisvorstellung und den angesetzten Faktor auf die JNKM.“",
-    empfehlung: "An Investment-Team routen",
+    empfehlung: "Rückruf durch die Geschäftsführung koordinieren – Preisauskunft nur telefonisch (Standardprozess)",
     status: "verarbeitet",
-    verarbeitungsHinweis: "Aufgabe für das Investment-Team erstellt (Automatik)",
+    verarbeitungsHinweis: "Erstantwort versendet, Aufgabe „Rückruf GF vorbereiten“ für Katharina Vogt erstellt, Leitung im BCC (Automatik)",
+  },
+  // Kategorien aus dem Standardprozess Investorenkommunikation (31.08.): Unterlagen-Anfrage, Telefonwunsch.
+  {
+    id: "s6",
+    eingegangen: "2026-08-28T10:15",
+    objektId: "o2",
+    investorId: "i7",
+    art: "unterlagen",
+    auszug: "„… könnten Sie uns vor dem Call die aktuelle Mieterliste und die Flächenaufstellung für Halle 1–3 zukommen lassen?“",
+    empfehlung: "Datenraum-Abgleich: Unterlagen vorhanden – mit Vorlage senden, Leitung im BCC",
+    status: "verarbeitet",
+    verarbeitungsHinweis: "Unterlagen aus dem Datenraum versendet, Leitung im BCC (Automatik)",
+  },
+  {
+    id: "s7",
+    eingegangen: "2026-08-27T15:20",
+    objektId: "o1",
+    investorId: "i12",
+    art: "telefonat",
+    auszug: "„… würden die offenen Punkte zum Datenraum gern kurz telefonisch besprechen – wann passt es Ihnen?“",
+    empfehlung: "Telefonwunsch → Rückruf durch die Geschäftsführung (Standardprozess)",
+    status: "verarbeitet",
+    verarbeitungsHinweis: "Aufgabe „Rückruf durch die Geschäftsführung“ für Katharina Vogt erstellt, Leitung im BCC (Automatik)",
   },
 ];
 

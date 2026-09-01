@@ -75,7 +75,7 @@ Tabellen anklicken) – es gibt keine Listen-Screens über die fünf Screens hin
 |---|---|
 | KI-personalisierte Ansprache mit Freigabe-Workflow | Freigabe-Karte (Human-in-the-Loop); Versand im Prototyp als Presound-Sammelmail – Personalisierung je Investor ist Klärungspunkt (ANNAHMEN.md, Punkt 28) |
 | Szenariobasierte Follow-up-Logik (Response, Price Inquiry, kein Rücklauf) | Antwortstatus je Kontakt, Follow-up-Stufen 1–3, „manuell nachfassen“ nach Stufe 3 |
-| Antwort-Erkennung und Zuordnung | Aktivitäten „Antwort erkannt: …“ + automatisch erzeugte Aufgaben (Broker Call, Investment-Team) |
+| Antwort-Erkennung und Zuordnung | Aktivitäten „Antwort erkannt: …“ + automatisch erzeugte Aufgaben (Broker Call, Rückruf durch die Geschäftsführung bei Preisanfragen) |
 | Zentrales Dashboard: Phasen, Investoren, Objekte, Datenraum-Status | Die fünf Screens; Prozessleiste über beide Seiten; Datenraum aus Modul 01 |
 | Pipedrive-Export/-Import (einmalig) | Quelle-Tag „Pipedrive-Import“ am Investor |
 | Status-Reports an das Team | Statuszeile auf der Übersicht – Kanal bewusst offen |
@@ -132,7 +132,13 @@ Vorgesprächen (ANNAHMEN.md, Punkte 45–47).
   Preisanfragen, Unterlagen-Unterfällen, Besichtigungs-Ablauf) – bewusst
   ohne die Vorlagentexte, Namen und Adressen des Dokuments.
 - **Neu: Workflow 07 „Status-Bericht“** (werktäglich 08:00, HTML im
-  SEIL-CI) – die produktive Seite des „Bericht exportieren“-Knopfs.
+  SEIL-CI) – die produktive Seite des „Bericht exportieren“-Knopfs – und
+  **Workflow 08 „Besichtigungs-Koordination“** (vier Schritte mit Warten auf
+  die Verkäuferseite). WF 05 ist der einzige Versandpunkt; WF 06/08 übergeben
+  Versandaufträge. Der Posteingang im Cockpit kennt seit 01.09. dieselben
+  Kategorien wie die Automatik (u. a. Unterlagen-Anfrage, Telefonwunsch);
+  Preisanfragen führen zum Rückruf durch die Geschäftsführung, nicht mehr zu
+  einer Aufgabe ans Investment-Team.
 - **Übergabe-Vorbereitung:** Checkliste für SEIL mit Freigaben, Zugängen,
   Konten/Verträgen, Unterlagen und Workshop-Punkten:
   [`docs/SEIL-Uebergabe-Checkliste.pdf`](docs/SEIL-Uebergabe-Checkliste.pdf).

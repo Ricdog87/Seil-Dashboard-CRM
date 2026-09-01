@@ -13,7 +13,7 @@ Urteilskraft brauchen.
    auf euch ein (Begrüßung, eure Aufgaben, euer Name an Notizen).
 2. **Posteingang triagieren.** Die Antworterkennung legt jede eingegangene
    Antwort mit Kernaussage und Vorschlag ab. Standardfälle (Interesse →
-   Broker Call, Preisanfrage → Investment-Team) hat die Automatik schon
+   Broker Call, Preisanfrage → Rückruf durch die Geschäftsführung) hat die Automatik schon
    verarbeitet; den Rest macht ihr mit einem Klick zur Aufgabe.
 3. **Meine Aufgaben abarbeiten.** Heute Fälliges und Überfälliges steht
    direkt auf der Übersicht – Abhaken genügt, alle Zähler ziehen live mit.
@@ -40,7 +40,7 @@ anklicken seine Objekte – der Kern, den Pipedrive nicht konnte. `⌘K` /
 - Follow-ups alle 2 Tage (max. 3 Stufen) über E-Mail + WhatsApp (Superchat);
   Stufe 2 und die Absage-Bestätigung fragen nach Zielregionen – Antworten
   aktualisieren das Profil
-- Antworterkennung: Interesse → Broker Call beim Zuständigen, Preisanfrage → Investment-Team
+- Antworterkennung nach Standardprozess: Interesse → Broker Call beim Zuständigen, Absage → Kriterien-Rückfrage, Preisanfrage → Rückruf durch die Geschäftsführung (nur telefonisch), Unterlagen → Datenraum-Abgleich, Besichtigung → Termin-Koordination
 - Datenraum-Status und Dokumenten-Checkliste aus Modul 01
 - Se-Circle-Sync für Off-Market-Objekte, KI-Extraktion aus Datenraum-Dokumenten, KI-Teaser-Entwürfe
 - Täglicher Status-Report an das Team

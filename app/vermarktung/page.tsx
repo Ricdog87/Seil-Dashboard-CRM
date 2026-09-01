@@ -178,7 +178,7 @@ export default async function VermarktungSeite({
               Verteiler: <EntityLink href={`/objekte/${objekt.id}`}>{objekt.name}</EntityLink>
             </>
           }
-          meta="Automatik: Presound-Mail an BCC-Verteiler · Follow-ups über E-Mail + WhatsApp (Superchat), Stufe 2 fragt Zielregionen ab · Interesse → Broker Call · Preisanfrage → Investment-Team"
+          meta="Automatik: Presound-Mail an BCC-Verteiler · Follow-ups über E-Mail + WhatsApp (Superchat), Stufe 2 fragt Zielregionen ab · Interesse → Broker Call · Preisanfrage → Rückruf durch die Geschäftsführung (nur telefonisch)"
         />
         {(() => {
           const geantwortet = links.filter((l) =>

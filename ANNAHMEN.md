@@ -47,8 +47,11 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
    weil die Automatik angehalten wurde) – in den Demodaten kommt dieser Fall nicht
    vor, dort entsteht Handlungsbedarf durch die ausgeschöpfte Stufe 3.
 8. **Antworterkennung:** Interesse erzeugt eine Aufgabe „Broker Call“ für den
-   **objektzuständigen** Mitarbeiter (nicht für einen Pool); Preisanfragen werden als
-   Aufgabe an das Investment-Team (im Prototyp: eine Person) geroutet.
+   **objektzuständigen** Mitarbeiter (nicht für einen Pool). Preisanfragen werden
+   nach dem Standardprozess Investorenkommunikation **nie schriftlich beantwortet**:
+   Die Automatik versendet die Erstantwort-Vorlage und erzeugt die Aufgabe „Rückruf
+   durch die Geschäftsführung“ beim Objektzuständigen, Leitung im BCC (bis 31.08.
+   war im Prototyp eine Aufgabe ans Investment-Team hinterlegt, siehe Punkt 50).
 
 ## Freigabe (Human-in-the-Loop)
 
@@ -388,3 +391,33 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
       Geschäftsführung + Leitung Vertrieb) – die produktive Seite des
       „Bericht exportieren“-Knopfs aus Punkt 48; Layout wird an die noch
       ausstehende Reporting-Vorlage von SEIL angeglichen.
+
+50. **Nachschärfung 01.09. – Zeile-für-Zeile-Abgleich mit dem Standardprozess,
+    technische Härtung der Skelette:**
+    - **Ein Versandpunkt:** WF 05 ist der einzige Workflow, der an Investoren
+      und Verkäuferseite versendet. WF 06 (Antworten) und WF 08
+      (Besichtigung) übergeben Versandaufträge mit Vorlagen-Schlüssel;
+      Freigabe-Prüfung, BCC-Regel (Leitung Vertrieb) und Protokoll sitzen an
+      einer Stelle. **Bitte bestätigen:** Standard-Antworten nach
+      Standardprozess gehen automatisch hinaus (Schalter
+      `antwortenAutomatisch`; Alternative: Entwurf zur Bestätigung).
+    - **Rückkopplung:** Nach beantworteter Anfrage und nach der
+      Absage-Rückfrage startet die Follow-up-Kette neu („2 Tage später
+      nachfassen“ laut Tabelle) – bislang endete sie in WF 06.
+    - **Preisanfragen** sind eine Mini-Sequenz (Erstantwort, Rückruf durch
+      die Geschäftsführung, Folge-Aufgabe „Gespräch stattgefunden?“, bei
+      Wiederholung feste Vorlage „nur telefonisch“). Im Prototyp ersetzt das
+      die frühere Aufgabe ans Investment-Team (Punkt 8 angepasst); der
+      Rückruf wird vom Objektzuständigen koordiniert, Leitung im BCC.
+    - **Besichtigung** als eigener Workflow 08 mit Zustand (Warten auf die
+      Verkäuferseite, Terminbestätigung, Kalendereintrag nach
+      Titelkonvention); benötigt nach dem Office-365-Umzug die Anbindung des
+      zentralen Vertriebskalenders.
+    - **Cockpit-Posteingang** kennt jetzt dieselben Kategorien wie die
+      Automatik (Unterlagen-Anfrage, Telefonwunsch ergänzt; je ein
+      verarbeitetes Demo-Signal mit Historie).
+    - **Technik:** Switch-Nodes auf Version 3.2 (Version 1 hat fest vier
+      Ausgänge, das Routing braucht acht), Code-Nodes verarbeiten alle Items
+      eines Laufs, Send-Email-Parameter korrigiert (BCC unter Optionen,
+      HTML-Format explizit). Ohne diese Korrekturen wäre der Import zwar
+      gelungen, das Routing aber stumm falsch gelaufen.

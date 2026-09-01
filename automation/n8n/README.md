@@ -1,10 +1,11 @@
 # n8n-Workflows · SEIL Automatik-Kette (Skelette)
 
-Sieben importierbare n8n-Workflows: sechs bilden 1:1 die Automatik-Kette aus
+Acht importierbare n8n-Workflows: sechs bilden 1:1 die Automatik-Kette aus
 dem Demo-Check vom 20.08. ab – das Ausführungs-Gegenstück zur Anzeige im
 Cockpit (Vermarktungs-Screen) –, Workflow 07 flankiert sie mit dem täglichen
-Statusbericht (Update-Call 28.08.). Gedacht für die n8n-Instanz auf dem
-Hostinger-Server („n8n Seil“).
+Statusbericht (Update-Call 28.08.), Workflow 08 koordiniert Besichtigungen
+(Teilprozess aus dem Standardprozess Investorenkommunikation). Gedacht für die
+n8n-Instanz auf dem Hostinger-Server („n8n Seil“).
 
 | # | Workflow | Kettenglied | Trigger |
 |---|---|---|---|
@@ -15,11 +16,22 @@ Hostinger-Server („n8n Seil“).
 | 05 | Versand & Follow-up-Scheduler | Versand & Follow-ups | Webhook `seil/versand` + Cron 07:00 (Mo–Fr) |
 | 06 | Antworterkennung | Antworterkennung | IMAP (Vertriebs-Postfach) |
 | 07 | Status-Bericht | – (flankierend: Reporting) | Cron 08:00 (Mo–Fr) |
+| 08 | Besichtigungs-Koordination | – (Teilprozess aus WF 06) | Webhook `seil/besichtigung` (aus WF 06) |
+
+**Versandprinzip:** WF 05 ist der einzige Punkt, an dem E-Mails oder
+WhatsApp-Nachrichten an Investoren und Verkäuferseite hinausgehen. WF 06 und
+WF 08 versenden selbst nichts, sondern übergeben *Versandaufträge* mit
+Vorlagen-Schlüssel an `seil/versand`; WF 06 startet über `seil/followup-planen`
+die Follow-up-Kette neu. Dadurch sitzen Freigabe-Prüfung, BCC-Regel und
+Protokoll an genau einer Stelle. WF 07 versendet ausschließlich den internen
+Statusbericht.
 
 ## Import
 
 n8n → Workflows → **Import from File** → JSON wählen. Reihenfolge egal.
-Alle sieben sind bewusst **inaktiv** (`active: false`).
+Alle acht sind bewusst **inaktiv** (`active: false`). Die Skelette nutzen
+Switch-Node 3.2, Set-Node 3.4 und Wait-Node 1.1 – eine aktuelle n8n-1.x-Version
+voraussetzen.
 
 ## Vor der Aktivierung – Pflicht
 
@@ -36,10 +48,16 @@ Alle sieben sind bewusst **inaktiv** (`active: false`).
 5. **KI-Nodes einhängen:** In 03 (Textgenerierung) und 06 (Klassifikation)
    sitzt jeweils eine simple Fallback-Logik – produktiv gehört ein
    LLM-/Agent-Node davor, die Heuristik bleibt als Absicherung.
-6. **Testlauf ausschließlich mit internen Adressen**, erst danach
-   aktivieren. WF 05 ist der einzige Workflow, der etwas versendet – und
-   prüft vor jedem Versand den Freigabe-Status (doppelter Boden zum
-   Freigabe-Gate).
+6. **Konfiguration in WF 05 setzen** (Node „Konfiguration (hier anpassen)“):
+   `bccLeitung` (Leitung Vertrieb im BCC jeder ausgehenden Mail),
+   `antwortenAutomatisch` (Standard-Antworten ohne Klick versenden oder als
+   Entwurf zur Bestätigung ablegen – Workshop-Schalter), `maxStufen`
+   (Voreinstellung 3), `whatsappAktiv`.
+7. **Testlauf ausschließlich mit internen Adressen**, erst danach
+   aktivieren. WF 05 ist der einzige Workflow, der an Investoren versendet –
+   auch die Antwort-Vorlagen aus WF 06 und die Besichtigungs-Mails aus WF 08
+   laufen als Versandaufträge durch ihn – und prüft vor jedem Versand den
+   Freigabe-Status (doppelter Boden zum Freigabe-Gate).
 
 ## Feste Regeln aus dem Demo-Check (bitte nicht aufweichen)
 
@@ -55,6 +73,12 @@ Alle sieben sind bewusst **inaktiv** (`active: false`).
   (Angebot/Demo-Check) – siehe Workshop-Frage unten.
 - **WhatsApp nur über Superchat** (professionelle Lösung,
   datenschutzkonform) – keine privaten Accounts, keine direkte Meta-API.
+- **Preisanfragen werden nie schriftlich beantwortet** (Standardprozess):
+  Erstantwort-Vorlage, Aufgabe „Rückruf durch die Geschäftsführung“,
+  Folge-Aufgabe „Gespräch stattgefunden?“; bei erneuter schriftlicher
+  Preisanfrage die feste Vorlage „Auskunft nur telefonisch“.
+- **Leitung Vertrieb im BCC** jeder ausgehenden Mail – zentraler Parameter
+  in WF 05, nicht je Workflow.
 - Antworten mit Regions-/Profilinformation erzeugen ein
   **Ankaufsprofil-Update** – Investorendaten leben im CRM, nicht in Excel.
 
@@ -84,14 +108,28 @@ freigeben soll („Workflow autorisieren“). Abgleich mit unserem Modell:
   genau die Lücke, die Ankaufsprofile im CRM + WF 02 schließen.
 
 **2. Standardprozess Investorenkommunikation (Entscheidungstabelle).**
-Die Struktur steckt jetzt in WF 05 (Stufenlogik: zwei feste Vorlagen,
-danach alternierend, Abschluss mit Final-Mail; Leitung optional im BCC)
-und WF 06 (Routing: Anfrage, Absage → Kriterien-Rückfrage, Kriterien
-erhalten → Übergabe + Termin, Preisanfrage → nur telefonisch durch die
-Geschäftsführung mit Leitung im BCC, Unterlagen-Anfrage mit drei
-Unterfällen nach Datenraum-Abgleich, Telefonwunsch → Geschäftsführung,
-Besichtigung → Bestätigung + Verkäuferseite + Kalendereintrag mit fester
-Titelkonvention).
+Die Struktur steckt Zeile für Zeile in den Workflows:
+
+- **WF 05** – Stufenlogik (zwei feste Vorlagen, danach alternierend,
+  Abschluss mit Final-Mail), Leitung im BCC als zentraler Parameter,
+  Webhook `seil/followup-planen` für den Neustart der Kette.
+- **WF 06** – Routing: Anfrage → Antwort + Follow-up neu (2 Tage) + Broker
+  Call; Absage → Kriterien-Rückfrage + Follow-up neu (2 Tage); Kriterien
+  erhalten → Übergabe + Termin; Preisanfrage → Mini-Sequenz (Erstantwort,
+  Rückruf GF, Folge-Aufgabe „Gespräch stattgefunden?“, bei Wiederholung feste
+  Vorlage „nur telefonisch“); Unterlagen-Anfrage mit drei Unterfällen nach
+  Datenraum-Abgleich; Telefonwunsch → Geschäftsführung; Besichtigung → WF 08.
+  Jede Route setzt nur Parameter (Vorlage, Follow-up neu?, Aufgabe?), ein
+  generischer Ausführer übergibt an WF 05.
+- **WF 08** – Besichtigungs-Koordination in vier Schritten: Bestätigung an
+  den Investor, Anfrage an die Verkäuferseite, Warten auf deren Antwort
+  (Wait-Node, Zeitlimit 3 Tage), Terminbestätigung + Kalendereintrag im
+  zentralen Vertriebskalender nach Titelkonvention, Teammitglied einladen.
+
+**Technische Härtung (01.09.):** Switch-Nodes auf Version 3.2 (dynamische
+Ausgänge – Version 1 hatte fest vier), Code-Nodes verarbeiten alle Items eines
+Laufs (IMAP-Stapel, fällige Kontakte), Send-Email-Parameter korrigiert (BCC
+unter `options`, HTML-Format explizit).
 
 **Vorlagentexte bleiben draußen:** Die Mail-Vorlagen aus dem
 Standardprozess-Dokument werden beim Setup als Einträge im
