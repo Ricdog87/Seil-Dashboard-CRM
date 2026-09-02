@@ -1,11 +1,12 @@
 # n8n-Workflows · SEIL Automatik-Kette (Skelette)
 
-Acht importierbare n8n-Workflows: sechs bilden 1:1 die Automatik-Kette aus
+Neun importierbare n8n-Workflows: sechs bilden 1:1 die Automatik-Kette aus
 dem Demo-Check vom 20.08. ab – das Ausführungs-Gegenstück zur Anzeige im
 Cockpit (Vermarktungs-Screen) –, Workflow 07 flankiert sie mit dem täglichen
 Statusbericht (Update-Call 28.08.), Workflow 08 koordiniert Besichtigungen
-(Teilprozess aus dem Standardprozess Investorenkommunikation). Gedacht für die
-n8n-Instanz auf dem Hostinger-Server („n8n Seil“).
+(Teilprozess aus dem Standardprozess Investorenkommunikation), Workflow 09
+liefert den Datenraum-Stand aus Modul 01 an das Cockpit. Gedacht für die
+n8n-Instanz auf dem Hostinger-Server („n8n Seil“), auf der Modul 01 bereits läuft.
 
 | # | Workflow | Kettenglied | Trigger |
 |---|---|---|---|
@@ -17,6 +18,7 @@ n8n-Instanz auf dem Hostinger-Server („n8n Seil“).
 | 06 | Antworterkennung | Antworterkennung | IMAP (Vertriebs-Postfach) |
 | 07 | Status-Bericht | – (flankierend: Reporting) | Cron 08:00 (Mo–Fr) |
 | 08 | Besichtigungs-Koordination | – (Teilprozess aus WF 06) | Webhook `seil/besichtigung` (aus WF 06) |
+| 09 | Datenraum-Status-API | – (Leseweg Modul 01 → Cockpit, WF 06) | Webhook GET `seil/datenraum-status` (Header-Auth) |
 
 **Versandprinzip:** WF 05 ist der einzige Punkt, an dem E-Mails oder
 WhatsApp-Nachrichten an Investoren und Verkäuferseite hinausgehen. WF 06 und
@@ -29,7 +31,7 @@ Statusbericht.
 ## Import
 
 n8n → Workflows → **Import from File** → JSON wählen. Reihenfolge egal.
-Alle acht sind bewusst **inaktiv** (`active: false`). Die Skelette nutzen
+Alle neun sind bewusst **inaktiv** (`active: false`). Die Skelette nutzen
 Switch-Node 3.2, Set-Node 3.4 und Wait-Node 1.1 – eine aktuelle n8n-1.x-Version
 voraussetzen.
 
@@ -144,26 +146,63 @@ verbindliche Regel legt der Workshop fest.
 
 ## Anbindung Modul 01 (Datenraum-Automatik – echte Daten)
 
-Modul 01 ist die erste echte Datenquelle der Kette. Ziel ist immer der
-Webhook von WF 01:
+Modul 01 ist die erste echte Datenquelle der Kette – und seit 01.09. auch die
+erste echte Datenquelle des Cockpits. Das Prinzip ist bewusst einfach:
+**Modul 01 schreibt (WF 01), das Cockpit liest (WF 09)** – ein Schreibweg,
+ein Leseweg, eine Ablage (`datenraum_status`, eine Zeile je Objekt).
+
+```
+Modul 01 ──POST seil/datenraum──▶ WF 01 ──▶ Ablage datenraum_status ◀──GET seil/datenraum-status── WF 09
+                                  │  (upsert je Objekt)                        ▲              ▲
+                                  └─ Objekt unbekannt → Deal anlegen      Cockpit-Route     WF 06
+                                     (Nino, 28.08.: „Create data room     /api/modul01/    Datenraum-
+                                      → Deal im CRM“)                     status (Server)  Abgleich
+```
+
+**Schreibweg – Vertrag an WF 01** (Header-Auth-Credential am Webhook, Header
+`X-Seil-Secret`, Wert nur im Credential-Store):
 
 ```
 POST https://N8N-BASIS-URL/webhook/seil/datenraum
 Header: X-Seil-Secret: <gemeinsames Secret>
 Body:
 {
-  "objektId": "…",              // oder objektName, solange es keine Cockpit-DB gibt
+  "objektId": "…",              // Kennung im Cockpit; fehlt sie → neuer Datenraum (Create deal)
+  "objektName": "…",            // Anzeigename, Fallback für die Zuordnung
   "quelle": "modul01",
   "stand": "2026-08-21T12:00:00Z",
+  "objekt": {                   // nur bei neuem Datenraum: legt den Deal im Cockpit an
+    "name": "…", "adresse": "…", "stadt": "…", "assetklasse": "…", "flaeche": "…", "kaufpreisMio": 0
+  },
   "dokumente": [
-    { "name": "Grundbuchauszug", "status": "vorhanden" },   // vorhanden | in_pruefung | ausstehend
+    { "name": "Grundbuchauszug", "status": "vorhanden" },   // vorhanden | in_pruefung | ausstehend (tolerant: ok/done/review/fehlt …)
     { "name": "Mieterliste",     "status": "ausstehend" }
   ],
-  "kennwerte": [                 // optional: KI-ausgelesene Werte
+  "kennwerte": [                 // optional: KI-ausgelesene Werte – Übernahme bleibt Human-in-the-Loop
     { "feld": "Mietflaeche", "wert": "8.310 m²", "quelle": "Mieterliste", "pruefstatus": "pruefen" }
+  ],
+  "freigaben": [                 // optional, Workshop-Thema Datenraum-Freigaben: wer hat wann Zugang bekommen
+    { "investorEmail": "…", "freigegebenAm": "2026-08-22T09:00:00Z" }
   ]
 }
 ```
+
+**Leseweg – Antwort von WF 09** (`GET seil/datenraum-status?objektId=…`,
+Header-Auth wie oben; ohne `objektId` alle Objekte):
+
+```
+{ "stand": "<ISO>", "objekte": [ { "objektId", "objektName", "stand", "dokumente": [...], "kennwerte": [...], "freigaben": [...] } ] }
+```
+
+**Cockpit-Seite:** Die Next.js-Route `/api/modul01/status` ruft WF 09
+serverseitig ab (URL und Secret nur in der Server-Umgebung, siehe
+`.env.example`), ordnet die Datenräume über `MODUL01_OBJEKT_MAP` den
+Cockpit-Objekten zu und liefert dem Browser nur den normalisierten Stand. Ohne
+Konfiguration antwortet sie mit `modus: "demo"` – das Cockpit zeigt dann
+unverändert die Demodaten, sichtbar gekennzeichnet. Live überlagert werden
+ausschließlich Datenraum-Checkliste und KI-Kennwerte; Datenräume ohne Mandat
+im Cockpit werden gezählt („ohne Mandat“) – produktiv legt WF 01 dafür den
+Deal an. Kein Schreibweg vom Cockpit nach Modul 01.
 
 Je nachdem, wie Modul 01 technisch gebaut ist, gibt es drei Andock-Varianten:
 
@@ -223,10 +262,12 @@ Beispiel-Export festgelegt, nicht am Gesamtbestand.
   technisches Muss.
 - **Reihenfolge zur Modul-2-Anbindung:** (1) SEIL-VPS + n8n,
   (2) Workflows importieren + Claude-Key als Credential,
-  (3) Modul 01 andocken (Daten-Vertrag oben), (4) Produktivbasis des
-  Cockpits (Datenbank + Login) – erst danach (5) die Cockpit-Webhooks
-  (`seil/freigabe` u. a.). Bis (4) arbeitet n8n eigenständig
-  (Data Tables als Ablage), der Klickdummy bleibt Demo.
+  (3) Modul 01 andocken (Daten-Vertrag oben) und den Leseweg ins Cockpit
+  scharf schalten (WF 09 aktivieren, `MODUL01_*` in der Cockpit-Umgebung
+  setzen – ab dann zeigt das Cockpit echte Datenraum-Stände, der Rest bleibt
+  Demo), (4) Produktivbasis des Cockpits (Datenbank + Login) – erst danach
+  (5) die Cockpit-Webhooks (`seil/freigabe` u. a.). Bis (4) arbeitet n8n
+  eigenständig (Data Tables als Ablage).
 
 Die Workflows enthalten ausschließlich Struktur und Platzhalter –
 keine echten Daten, keine Zugangsdaten.

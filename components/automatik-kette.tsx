@@ -1,3 +1,5 @@
+"use client";
+
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
@@ -11,6 +13,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { datenraumFortschritt, fmtDatum, linksZuObjekt } from "@/lib/derive";
+import { useObjektLive } from "@/components/modul01";
 import type { KontaktStatus, Objekt } from "@/lib/types";
 import { Card, CardHeader, ICON_SM, ICON_STROKE } from "@/components/ui";
 
@@ -38,7 +41,8 @@ interface Glied {
  * Zwischenschritte – einzig die Freigabe stoppt. Reine Anzeige am Demo-Objekt;
  * jedes Glied bleibt im echten System manuell übersteuerbar.
  */
-export function AutomatikKette({ objekt }: { objekt: Objekt }) {
+export function AutomatikKette({ objekt: basis }: { objekt: Objekt }) {
+  const objekt = useObjektLive(basis);
   const dr = datenraumFortschritt(objekt);
   const links = linksZuObjekt(objekt.id);
   const kontaktiert = links.filter((l) => l.status !== "vorgemerkt");
@@ -50,7 +54,7 @@ export function AutomatikKette({ objekt }: { objekt: Objekt }) {
       icon: FolderOpen,
       label: "Datenraum einlesen",
       detail: dr
-        ? `${dr.vorhanden}/${dr.gesamt} Dokumente · Backoffice + Modul 01`
+        ? `${dr.vorhanden}/${dr.gesamt} Dokumente · ${objekt.datenquelle === "modul01" ? "Modul 01 live" : "Backoffice + Modul 01"}`
         : "noch nicht angefordert",
       status: dr ? "done" : "wartet",
     },

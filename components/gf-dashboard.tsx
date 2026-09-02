@@ -15,6 +15,7 @@ import {
   prozessFortschritt,
 } from "@/lib/derive";
 import { aufgaben, GF_ID, HEUTE, mitarbeiter, objekte } from "@/lib/mock-data";
+import { useObjekteLive } from "@/components/modul01";
 import type { KontaktStatus } from "@/lib/types";
 import {
   Badge,
@@ -138,6 +139,7 @@ function AufmerksamkeitZeile({
  * Aufgaben-Zahlen hängen am Sitzungszustand: hakt das Team ab, zählt es hier mit.
  */
 export function GfDashboard() {
+  const objekteLive = useObjekteLive();
   const { aufgabenPatches } = useSitzung();
 
   // --- Projektsummen -------------------------------------------------------
@@ -179,7 +181,7 @@ export function GfDashboard() {
   const followUpsUeberfaellig = alleLinks.filter(
     (l) => l.status === "angeschrieben" && istUeberfaellig(l.naechstesFollowUp),
   );
-  const luecken = objekte.filter(hatDatenraumLuecke).length;
+  const luecken = objekteLive.filter(hatDatenraumLuecke).length;
 
   const team = mitarbeiter
     .filter((m) => m.id !== GF_ID)

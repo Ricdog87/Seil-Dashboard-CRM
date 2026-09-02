@@ -421,3 +421,29 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
       eines Laufs, Send-Email-Parameter korrigiert (BCC unter Optionen,
       HTML-Format explizit). Ohne diese Korrekturen wäre der Import zwar
       gelungen, das Routing aber stumm falsch gelaufen.
+
+## Anbindung Modul 01 (01.09.)
+
+51. **Modul 01 ist an das Cockpit angedockt – als Leseweg, nicht als Kopie:**
+    - **Ein Schreibweg, ein Leseweg:** Modul 01 schreibt über WF 01 in die
+      Ablage `datenraum_status`; das Cockpit liest über WF 09 und eine
+      serverseitige Route. Das Cockpit schreibt nichts zurück nach Modul 01.
+    - **Zuordnung per Umgebung:** Welcher Datenraum zu welchem Mandat gehört,
+      steht in `MODUL01_OBJEKT_MAP` (Server-Umgebung) – echte Kennungen und
+      Namen bleiben damit außerhalb des Repositorys. Fallback: passt die
+      Kennung direkt zur Cockpit-ID, wird sie ohne Mapping zugeordnet.
+    - **„Create deal“ (Nino, 28.08.):** Ein Datenraum ohne Mandat im Cockpit
+      wird produktiv von WF 01 als Deal angelegt (Objekt-Block im Vertrag). Im
+      Prototyp zählt der Systemstatus solche Datenräume nur („ohne Mandat im
+      Cockpit“) – anlegen braucht die Produktivbasis (Datenbank).
+    - **Was live wird:** ausschließlich Datenraum-Checkliste und KI-Kennwerte
+      (Übernahme ins CRM bleibt Human-in-the-Loop, Punkt 44). Kontakte,
+      Aufgaben, Aktivitäten bleiben Demodaten – Datenraum-Freigaben je Investor
+      sind im Vertrag vorgesehen, die UI dazu ist Workshop-Thema (Punkt 48).
+    - **Betrieb:** Abruf alle 5 Minuten, Zeitlimit 4 s; bei Fehler oder
+      fehlender Konfiguration fällt das Cockpit sichtbar auf Demodaten zurück
+      (Systemstatus „nicht erreichbar“ bzw. „Demo-Daten“). Secret nur im
+      Header `X-Seil-Secret` zwischen Server und n8n.
+    - **Status-Vokabular:** Modul 01 darf eigene Begriffe liefern (ok, done,
+      review, fehlt …) – WF 01 und die Cockpit-Route bilden tolerant auf
+      vorhanden / in Prüfung / ausstehend ab; Unbekanntes gilt als ausstehend.

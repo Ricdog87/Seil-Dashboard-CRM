@@ -25,7 +25,7 @@ Urteilskraft brauchen.
 | Bereich | Wofür |
 |---|---|
 | **Übersicht** | Euer Tag: Posteingang, eigene Aufgaben, KPIs mit 7-Tage-Trend, alle Transaktionen |
-| **Objekt-Detail** | Prozessleiste (26 Schritte, je Schritt Beschreibung + offene Aufgaben), Datenraum-Checkliste aus Modul 01, KI-ausgelesene Kennwerte, verknüpfte Investoren, komplette Historie, Notizen |
+| **Objekt-Detail** | Prozessleiste (26 Schritte, je Schritt Beschreibung + offene Aufgaben), Datenraum-Checkliste live aus Modul 01 (sobald verbunden, sonst Demo – die Karte sagt es), KI-ausgelesene Kennwerte, verknüpfte Investoren, komplette Historie, Notizen |
 | **Investor-Detail** | Ankaufsprofil – Zielregionen und Ticket direkt bearbeitbar (statt Excel), alle verknüpften Objekte mit Antwortstatus, Kommunikationshistorie |
 | **Vermarktung** | Automatik-Kette (Datenraum → Matching → Freigabe → Follow-up), Verteiler je Objekt mit Match- und Antwortstatus – oben die Freigabe |
 | **Aufgaben** | Kanban (Spalten = Fälligkeit, Karten ziehen oder per Griff-Menü verschieben = umplanen) oder Liste, nach Mitarbeiter filterbar, Broker Calls hervorgehoben |
@@ -41,7 +41,7 @@ anklicken seine Objekte – der Kern, den Pipedrive nicht konnte. `⌘K` /
   Stufe 2 und die Absage-Bestätigung fragen nach Zielregionen – Antworten
   aktualisieren das Profil
 - Antworterkennung nach Standardprozess: Interesse → Broker Call beim Zuständigen, Absage → Kriterien-Rückfrage, Preisanfrage → Rückruf durch die Geschäftsführung (nur telefonisch), Unterlagen → Datenraum-Abgleich, Besichtigung → Termin-Koordination
-- Datenraum-Status und Dokumenten-Checkliste aus Modul 01
+- Datenraum-Status und Dokumenten-Checkliste aus Modul 01 – live im Cockpit, sobald die Anbindung konfiguriert ist
 - Se-Circle-Sync für Off-Market-Objekte, KI-Extraktion aus Datenraum-Dokumenten, KI-Teaser-Entwürfe
 - Täglicher Status-Report an das Team
 

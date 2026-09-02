@@ -14,6 +14,7 @@ import {
   prozessFortschritt,
 } from "@/lib/derive";
 import { aufgaben, HEUTE, objekte } from "@/lib/mock-data";
+import { useObjekteLive } from "@/components/modul01";
 import { Button } from "@/components/ui";
 import { useSitzung } from "./sitzung";
 
@@ -28,6 +29,7 @@ const esc = (s: string) =>
  * 08:00 an das Team versendet. Zahlen kommen live aus dem Sitzungszustand.
  */
 export function BerichtExport() {
+  const objekteLive = useObjekteLive();
   const { aufgabenPatches } = useSitzung();
   const [exportiert, setExportiert] = useState(false);
 
@@ -52,7 +54,7 @@ export function BerichtExport() {
     const followUpsUeberfaellig = alleLinks.filter(
       (l) => l.status === "angeschrieben" && istUeberfaellig(l.naechstesFollowUp),
     ).length;
-    const luecken = objekte.filter(hatDatenraumLuecke).length;
+    const luecken = objekteLive.filter(hatDatenraumLuecke).length;
 
     const zeilen = [...objekte]
       .sort((a, b) => b.kaufpreisMio - a.kaufpreisMio)

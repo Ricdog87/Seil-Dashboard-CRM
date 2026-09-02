@@ -1,0 +1,114 @@
+{
+  "name": "SEIL 09 · Datenraum-Status-API (Leseweg Cockpit)",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "id": "sticky-09",
+      "name": "Hinweis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        140,
+        -140
+      ],
+      "parameters": {
+        "content": "## Glied 9: Datenraum-Status-API – Leseweg für das Cockpit\n\nModul 01 (Datenraum-Agent) schreibt über WF 01 in die Ablage `datenraum_status` (eine Zeile je Objekt: stand, dokumente, kennwerte, freigaben). Dieser Workflow stellt den Stand per GET bereit – für das Cockpit (Route `/api/modul01/status`, serverseitig, Secret bleibt beim Server) und für WF 06 (Datenraum-Abgleich bei Unterlagen-Anfragen).\n\nVertrag (Antwort):\n{ \"stand\": \"<ISO>\", \"objekte\": [ { \"objektId\": \"…\", \"objektName\": \"…\", \"stand\": \"<ISO>\", \"dokumente\": [ { \"name\": \"…\", \"status\": \"vorhanden|in_pruefung|ausstehend\" } ], \"kennwerte\": [ { \"feld\": \"…\", \"wert\": \"…\", \"quelle\": \"…\", \"pruefstatus\": \"pruefen|uebernommen\" } ], \"freigaben\": [ { \"investorEmail\": \"…\", \"freigegebenAm\": \"<ISO>\" } ] } ] }\n\nQuery-Parameter `objektId` (optional) filtert auf ein Objekt. Absicherung: Header-Auth-Credential am Webhook (Header `X-Seil-Secret`, Wert nur im Credential-Store) – dasselbe Secret setzt das Cockpit als `MODUL01_SECRET`.\n\nBetrieb: Das Cockpit pollt alle 5 Minuten (konfigurierbar); die Antwort ist klein (ein Objekt ≈ 1–2 KB). Kein Schreibzugriff über diesen Weg – schreiben darf ausschließlich WF 01.\n\nSKELETT – vor Aktivierung: Header-Auth-Credential am Webhook wählen; Ablage-Node auf die echte Data Table / DB zeigen lassen (gleiche Quelle wie WF 01).",
+        "width": 560,
+        "height": 520
+      }
+    },
+    {
+      "id": "webhook-09",
+      "name": "Datenraum-Status abrufen",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        160,
+        480
+      ],
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "seil/datenraum-status",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "noop-09",
+      "name": "Ablage datenraum_status lesen (Data Table / DB)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        420,
+        480
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "code-09",
+      "name": "Antwort im Cockpit-Vertrag bauen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        480
+      ],
+      "parameters": {
+        "jsCode": "// Ablage-Zeilen → Cockpit-Vertrag. Verarbeitet alle gelesenen Zeilen, filtert optional auf objektId.\nconst anfrage = $('Datenraum-Status abrufen').first().json;\nconst filterId = anfrage.query?.objektId ?? null;\nconst zeilen = $input.all().map((i) => i.json).filter((z) => z && (z.objektId || z.objektName));\nconst objekte = zeilen\n  .filter((z) => !filterId || z.objektId === filterId || z.objektName === filterId)\n  .map((z) => ({\n    objektId: z.objektId ?? null,\n    objektName: z.objektName ?? null,\n    stand: z.stand ?? null,\n    dokumente: Array.isArray(z.dokumente) ? z.dokumente : JSON.parse(z.dokumente ?? '[]'),\n    kennwerte: Array.isArray(z.kennwerte) ? z.kennwerte : JSON.parse(z.kennwerte ?? '[]'),\n    freigaben: Array.isArray(z.freigaben) ? z.freigaben : JSON.parse(z.freigaben ?? '[]'),\n  }));\nconst stand = objekte.map((o) => o.stand).filter(Boolean).sort().pop() ?? new Date().toISOString();\nreturn [{ json: { stand, anzahl: objekte.length, objekte } }];"
+      }
+    },
+    {
+      "id": "respond-09",
+      "name": "JSON antworten",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        940,
+        480
+      ],
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Datenraum-Status abrufen": {
+      "main": [
+        [
+          {
+            "node": "Ablage datenraum_status lesen (Data Table / DB)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ablage datenraum_status lesen (Data Table / DB)": {
+      "main": [
+        [
+          {
+            "node": "Antwort im Cockpit-Vertrag bauen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Antwort im Cockpit-Vertrag bauen": {
+      "main": [
+        [
+          {
+            "node": "JSON antworten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

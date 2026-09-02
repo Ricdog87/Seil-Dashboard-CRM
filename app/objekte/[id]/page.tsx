@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CircleCheck, CircleDashed, Search } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import {
   aktivitaetenZu,
   inVermarktungskontext,
   auftraggeberVon,
-  datenraumFortschritt,
   fmtDatum,
   fmtDatumKurz,
   fmtMio,
@@ -15,9 +13,8 @@ import {
   mitarbeiterVon,
   objektVon,
 } from "@/lib/derive";
-import type { DokumentStatus } from "@/lib/types";
 import { Aktivitaeten } from "@/components/aktivitaeten";
-import { KiExtraktion } from "@/components/ki-extraktion";
+import { DatenraumKarte } from "@/components/datenraum-karte";
 import { NotizErfassen } from "@/components/notiz-erfassen";
 import { Prozessleiste } from "@/components/prozessleiste";
 import {
@@ -44,14 +41,6 @@ import {
   KontaktStatusBadge,
 } from "@/components/cockpit";
 
-const dokumentStatusMeta: Record<
-  DokumentStatus,
-  { label: string; tone: Tone; icon: LucideIcon }
-> = {
-  vorhanden: { label: "vorhanden", tone: "success", icon: CircleCheck },
-  in_pruefung: { label: "in Prüfung", tone: "neutral", icon: Search },
-  ausstehend: { label: "ausstehend", tone: "warning", icon: CircleDashed },
-};
 
 function Kennwert({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -72,7 +61,6 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
   const ag = auftraggeberVon(objekt.auftraggeberId)!;
   const zust = mitarbeiterVon(objekt.zustaendigId)!;
   const vertretung = objekt.vertretungId ? mitarbeiterVon(objekt.vertretungId) : undefined;
-  const dr = datenraumFortschritt(objekt);
   const links = linksZuObjekt(objekt.id);
   const eintraege = aktivitaetenZu({ objektId: objekt.id });
 
@@ -138,47 +126,8 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
 
       <div className="grid items-start gap-6 lg:grid-cols-[5fr_7fr]">
         <div className="flex min-w-0 flex-col gap-6">
-          <Card>
-            <CardHeader
-              title="Datenraum"
-              meta={
-                <span className="inline-flex items-center gap-3">
-                  <Badge tone="info">Modul 01</Badge>
-                  {objekt.datenraum.stand ? <>Stand {fmtDatum(objekt.datenraum.stand)}</> : null}
-                </span>
-              }
-            />
-            {dr ? (
-              <>
-                <div className="flex items-center justify-between border-b border-seil-line px-4 py-3">
-                  <span className="text-seil-muted">Standarddokumente</span>
-                  <Fortschritt vorhanden={dr.vorhanden} gesamt={dr.gesamt} breit />
-                </div>
-                <Table>
-                  <TBody>
-                    {objekt.datenraum.dokumente.map((d) => {
-                      const meta = dokumentStatusMeta[d.status];
-                      return (
-                        <TR key={d.name}>
-                          <TD className={d.status === "vorhanden" ? "text-seil-muted" : ""}>
-                            {d.name}
-                          </TD>
-                          <TD className="w-40">
-                            <Badge tone={meta.tone} icon={meta.icon}>
-                              {meta.label}
-                            </Badge>
-                          </TD>
-                        </TR>
-                      );
-                    })}
-                  </TBody>
-                </Table>
-                {objekt.kiFelder?.length ? <KiExtraktion felder={objekt.kiFelder} /> : null}
-              </>
-            ) : (
-              <EmptyState text="Datenraum noch nicht angefordert – folgt mit Schritt 8 „Standarddokumente“ (Phase 2)." />
-            )}
-          </Card>
+          {/* Datenraum: live aus Modul 01, sobald verbunden – sonst Demodaten (gekennzeichnet). */}
+          <DatenraumKarte objektId={objekt.id} />
 
           <Card>
             <CardHeader title="Auftraggeber" meta="Sell-Side" />

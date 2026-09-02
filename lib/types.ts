@@ -82,6 +82,8 @@ export interface Objekt {
     jnkmSollEuro?: number;
   };
   datenraum: Datenraum;
+  /** Herkunft des Datenraum-Status: Demodaten oder live aus Modul 01 (siehe lib/modul01.ts). */
+  datenquelle?: "demo" | "modul01";
   /** Nur für Objekte in Vermarktung: Stand der Listen-Freigabe (Human-in-the-Loop) */
   freigabe?: {
     status: "ausstehend" | "erteilt";

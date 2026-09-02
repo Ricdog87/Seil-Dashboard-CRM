@@ -1,23 +1,19 @@
 import Link from "next/link";
-import { FolderCheck, RefreshCw, Send, TriangleAlert } from "lucide-react";
+import { RefreshCw, Send, TriangleAlert } from "lucide-react";
 import {
-  datenraumFortschritt,
   fmtDatum,
-  hatDatenraumLuecke,
   investorVon,
   istUeberfaellig,
   kpis,
   objektVon,
   ohneRueckmeldung,
 } from "@/lib/derive";
-import { KPI_TRENDS, objekte } from "@/lib/mock-data";
+import { KPI_TRENDS } from "@/lib/mock-data";
 import { Badge, Card, CardHeader, ICON_SM, ICON_STROKE, Table, TBody, TD, TH, THead, TR } from "@/components/ui";
-import {
-  EntityLink,
-  FollowUpStufe,
-  Fortschritt,
-} from "@/components/cockpit";
+import { EntityLink, FollowUpStufe } from "@/components/cockpit";
 import { BerichtExport } from "@/components/bericht-export";
+import { DatenraumLuecken, KpiDatenraumLuecken } from "@/components/datenraum-luecken";
+import { Modul01Status } from "@/components/modul01";
 import { GfDashboard } from "@/components/gf-dashboard";
 import { HeuteKopf } from "@/components/heute-kopf";
 import { KpiAufgabenLive, KpiKachelLive } from "@/components/kpi-live";
@@ -31,7 +27,6 @@ import { UebersichtWeiche } from "@/components/uebersicht-weiche";
 export default function UebersichtSeite() {
   const k = kpis();
   const stumm = ohneRueckmeldung();
-  const luecken = objekte.filter(hatDatenraumLuecke);
 
   // „Arbeiten als“ Max Seil (GF) → Zahlen-Dashboard statt operativem Tag.
   const operativ = (
@@ -50,10 +45,8 @@ export default function UebersichtSeite() {
             <RefreshCw size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
             Se Circle-Sync heute 06:00 – keine Änderungen
           </p>
-            <p className="inline-flex items-center gap-2">
-              <FolderCheck size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
-              Modul 01: Datenraum-Status heute 07:30 aktualisiert
-            </p>
+            {/* Modul 01: live aus der Datenraum-Status-API, sonst ehrlich als Demo gekennzeichnet. */}
+            <Modul01Status />
           </div>
           {/* Reporting als Exportprodukt direkt aus dem Dashboard (Update-Call 28.08.):
               derselbe HTML-Bericht, den die Automatik werktäglich 08:00 versendet. */}
@@ -82,13 +75,7 @@ export default function UebersichtSeite() {
           trend={KPI_TRENDS.ohneRueckmeldung}
           delta={{ text: "−4 in 7 Tagen", gut: true }}
         />
-        <KpiKachelLive
-          label="Datenräume mit Lücken"
-          wert={k.datenraumLuecken}
-          sub="Checklisten unvollständig"
-          trend={KPI_TRENDS.datenraumLuecken}
-          delta={{ text: "−2 in 7 Tagen", gut: true }}
-        />
+        <KpiDatenraumLuecken trend={KPI_TRENDS.datenraumLuecken} delta={{ text: "−2 in 7 Tagen", gut: true }} />
       </div>
 
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-[7fr_5fr]">
@@ -155,41 +142,7 @@ export default function UebersichtSeite() {
           </Table>
         </Card>
 
-        <Card>
-          <CardHeader title="Datenräume mit Lücken" meta="Status aus Modul 01" />
-          <Table>
-            <THead>
-              <TR>
-                <TH>Objekt</TH>
-                <TH>Checkliste</TH>
-                <TH>Fehlt</TH>
-              </TR>
-            </THead>
-            <TBody>
-              {luecken.map((o) => {
-                const dr = datenraumFortschritt(o)!;
-                const fehlend = o.datenraum.dokumente.filter((d) => d.status !== "vorhanden");
-                return (
-                  <TR key={o.id}>
-                    <TD>
-                      <EntityLink href={`/objekte/${o.id}`}>{o.name}</EntityLink>
-                    </TD>
-                    <TD>
-                      <Fortschritt vorhanden={dr.vorhanden} gesamt={dr.gesamt} />
-                    </TD>
-                    <TD className="max-w-[260px] text-seil-muted">
-                      {fehlend
-                        .slice(0, 2)
-                        .map((d) => d.name)
-                        .join(", ")}
-                      {fehlend.length > 2 ? ` +${fehlend.length - 2} weitere` : ""}
-                    </TD>
-                  </TR>
-                );
-              })}
-            </TBody>
-          </Table>
-        </Card>
+        <DatenraumLuecken />
       </div>
     </>
   );

@@ -15,7 +15,7 @@
         -260
       ],
       "parameters": {
-        "content": "## Glied 6: Antworterkennung – Entscheidungsbaum aus dem Standardprozess\n\nEingehende Antworten (zentrales Vertriebs-Postfach per IMAP; Superchat-Webhook für WhatsApp analog) werden klassifiziert und nach dem Standardprozess Investorenkommunikation geroutet. WF 06 versendet selbst NICHTS: Jede Route setzt nur Parameter (Vorlagen-Schlüssel, Follow-up neu?, Aufgabe?) – der generische Ausführer unten übergibt den Versand an WF 05 (einziger Versandpunkt, dort BCC-Regel und Freigabe-Prüfung).\n\nRouten (nur Struktur – Vorlagentexte liegen im n8n-Data-Store):\n– Anfrage/Interesse → Vorlage + Follow-up-Kette neu (2 Tage) + Aufgabe „Broker Call“\n– Absage → Bestätigung mit Kriterien-Rückfrage + Follow-up neu (2 Tage); Antwort pflegt das Ankaufsprofil\n– Kriterien erhalten → Vorlage + Aufgabe „Übergabe an Team + Terminvorschlag“\n– Preisanfrage → NIE schriftlich beantworten: Erstantwort-Vorlage + Aufgabe „Rückruf durch GF“ + Folge-Aufgabe „Gespräch stattgefunden?“; bei ERNEUTER schriftlicher Preisanfrage feste Vorlage „Auskunft nur telefonisch“\n– Unterlagen angefragt → Datenraum-Abgleich (Modul 01): vorhanden → senden · nicht im Datenraum → Rückfrage an Verkäuferseite · unklar → interne Rücksprache (Team, dann Leitung)\n– Telefonwunsch → Vorlage + Aufgabe „Rückruf durch GF“\n– Besichtigung → WF 08 Besichtigungs-Koordination (mehrstufig, eigener Zustand)\n– Rest → Signal „offen“ im Cockpit-Posteingang (Mensch triagiert)\n\nZielregionen-/Profilinformationen in jeder Antwort setzen das Profil-Update-Flag → Ankaufsprofil im CRM.\n\nSKELETT – vor Aktivierung: IMAP-Credential (zentrales Vertriebs-Postfach, nach Office-365-Umzug); LLM-Klassifikation (Claude) vor die Keyword-Heuristik schalten; N8N-BASIS-URL ersetzen; Datenraum-Abgleich und Aufgaben-Ablage anbinden.",
+        "content": "## Glied 6: Antworterkennung – Entscheidungsbaum aus dem Standardprozess\n\nEingehende Antworten (zentrales Vertriebs-Postfach per IMAP; Superchat-Webhook für WhatsApp analog) werden klassifiziert und nach dem Standardprozess Investorenkommunikation geroutet. WF 06 versendet selbst NICHTS: Jede Route setzt nur Parameter (Vorlagen-Schlüssel, Follow-up neu?, Aufgabe?) – der generische Ausführer unten übergibt den Versand an WF 05 (einziger Versandpunkt, dort BCC-Regel und Freigabe-Prüfung).\n\nRouten (nur Struktur – Vorlagentexte liegen im n8n-Data-Store):\n– Anfrage/Interesse → Vorlage + Follow-up-Kette neu (2 Tage) + Aufgabe „Broker Call“\n– Absage → Bestätigung mit Kriterien-Rückfrage + Follow-up neu (2 Tage); Antwort pflegt das Ankaufsprofil\n– Kriterien erhalten → Vorlage + Aufgabe „Übergabe an Team + Terminvorschlag“\n– Preisanfrage → NIE schriftlich beantworten: Erstantwort-Vorlage + Aufgabe „Rückruf durch GF“ + Folge-Aufgabe „Gespräch stattgefunden?“; bei ERNEUTER schriftlicher Preisanfrage feste Vorlage „Auskunft nur telefonisch“\n– Unterlagen angefragt → Datenraum-Abgleich über WF 09 (Modul-01-Stand): vorhanden → senden · nicht im Datenraum → Rückfrage an Verkäuferseite · unklar → interne Rücksprache (Team, dann Leitung)\n– Telefonwunsch → Vorlage + Aufgabe „Rückruf durch GF“\n– Besichtigung → WF 08 Besichtigungs-Koordination (mehrstufig, eigener Zustand)\n– Rest → Signal „offen“ im Cockpit-Posteingang (Mensch triagiert)\n\nZielregionen-/Profilinformationen in jeder Antwort setzen das Profil-Update-Flag → Ankaufsprofil im CRM.\n\nSKELETT – vor Aktivierung: IMAP-Credential (zentrales Vertriebs-Postfach, nach Office-365-Umzug); LLM-Klassifikation (Claude) vor die Keyword-Heuristik schalten; N8N-BASIS-URL ersetzen; Datenraum-Abgleich und Aufgaben-Ablage anbinden.",
         "width": 600,
         "height": 700
       }
@@ -440,15 +440,42 @@
       }
     },
     {
-      "id": "noop-20",
-      "name": "Datenraum-Abgleich (Modul 01)",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
+      "id": "http-20",
+      "name": "Datenraum-Status abrufen (WF 09 / Modul 01)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         1040,
         840
       ],
-      "parameters": {}
+      "parameters": {
+        "method": "GET",
+        "url": "=https://N8N-BASIS-URL/webhook/seil/datenraum-status?objektId={{ $json.objektId ?? '' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "code-20",
+      "name": "Datenraum-Abgleich: Unterlage vorhanden?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1170,
+        840
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Antwort von WF 09 (Modul-01-Stand) gegen die angefragten Unterlagen halten – Heuristik,\n// produktiv übernimmt der LLM-Node die Zuordnung. Läuft je Item, behält den Mail-Kontext.\nconst mail = $('Klassifizieren (Trigger-Wörter)').item.json;\nconst antwort = $input.item.json;\nconst objekt = (antwort.objekte ?? [])[0];\nconst text = `${mail.subject ?? ''} ${mail.textPlain ?? mail.text ?? ''}`.toLowerCase();\nconst WOERTER = ['mieterliste', 'mietaufstellung', 'grundriss', 'grundbuch', 'exposé', 'expose', 'energieausweis',\n  'flächenaufstellung', 'flaechenaufstellung', 'teilungserklärung', 'baugenehmigung', 'altlasten'];\nconst gewuenscht = WOERTER.filter((w) => text.includes(w));\nlet unterlageStatus = 'unklar';\nif (objekt && Array.isArray(objekt.dokumente)) {\n  const treffer = objekt.dokumente.filter((d) => gewuenscht.some((w) => String(d.name ?? '').toLowerCase().includes(w.replace('ä', 'ae'))\n    || String(d.name ?? '').toLowerCase().includes(w)));\n  if (gewuenscht.length && treffer.length && treffer.every((d) => d.status === 'vorhanden')) unterlageStatus = 'vorhanden';\n  else if (gewuenscht.length) unterlageStatus = 'nicht_im_datenraum';\n}\nreturn { json: { ...mail, unterlageStatus, gewuenschteUnterlagen: gewuenscht, datenraumStand: objekt?.stand ?? null } };"
+      }
     },
     {
       "id": "switch-06b",
@@ -884,7 +911,7 @@
         ],
         [
           {
-            "node": "Datenraum-Abgleich (Modul 01)",
+            "node": "Datenraum-Status abrufen (WF 09 / Modul 01)",
             "type": "main",
             "index": 0
           }
@@ -930,7 +957,18 @@
         ]
       ]
     },
-    "Datenraum-Abgleich (Modul 01)": {
+    "Datenraum-Status abrufen (WF 09 / Modul 01)": {
+      "main": [
+        [
+          {
+            "node": "Datenraum-Abgleich: Unterlage vorhanden?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Datenraum-Abgleich: Unterlage vorhanden?": {
       "main": [
         [
           {

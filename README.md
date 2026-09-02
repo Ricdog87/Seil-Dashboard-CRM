@@ -139,11 +139,44 @@ Vorgesprächen (ANNAHMEN.md, Punkte 45–47).
   Kategorien wie die Automatik (u. a. Unterlagen-Anfrage, Telefonwunsch);
   Preisanfragen führen zum Rückruf durch die Geschäftsführung, nicht mehr zu
   einer Aufgabe ans Investment-Team.
+- **Modul 01 im Cockpit angedockt (01.09.):** siehe Abschnitt unten.
 - **Übergabe-Vorbereitung:** Checkliste für SEIL mit Freigaben, Zugängen,
   Konten/Verträgen, Unterlagen und Workshop-Punkten:
   [`docs/SEIL-Uebergabe-Checkliste.pdf`](docs/SEIL-Uebergabe-Checkliste.pdf).
   Die Automatik-Kette als Onepager:
   [`docs/SEIL-Automatik-Kette-Onepager.pdf`](docs/SEIL-Automatik-Kette-Onepager.pdf).
+
+### Modul 01 im Cockpit – angedockt (01.09.)
+
+Modul 01 (der Datenraum-Agent) läuft bereits auf der n8n-Instanz; laut
+Update-Call vom 28.08. wird das Cockpit daran „angedockt“, und der Prozess
+beginnt bei „Create data room → Deal im CRM anlegen“. Umsetzung nach dem
+Prinzip **ein Schreibweg, ein Leseweg, eine Ablage**:
+
+- **Schreibweg:** Modul 01 meldet jeden Datenraum-Stand an Workflow 01
+  (Checkliste, KI-Kennwerte, Freigaben, bei neuem Datenraum den Objekt-Block →
+  Deal wird angelegt). Ablage `datenraum_status`, eine Zeile je Objekt.
+- **Leseweg:** Workflow 09 stellt den Stand per GET bereit (Header-Auth). Die
+  Next.js-Route `app/api/modul01/status/route.ts` ruft ihn **serverseitig** ab –
+  URL, Secret und die Zuordnung Cockpit-Objekt → Datenraum-Kennung stehen nur in
+  der Server-Umgebung (`.env.example`), der Browser sieht den normalisierten
+  Stand. Ohne Konfiguration: Modus „demo“, das Cockpit zeigt unverändert die
+  Demodaten und sagt das auch (Systemstatus, Badge „Modul 01 · Demo“).
+- **Im Cockpit live**, sobald verbunden: Datenraum-Karte am Objekt (Checkliste +
+  KI-Kennwerte, Badge „Modul 01 · live“), KPI und Liste „Datenräume mit
+  Lücken“, Glied 1 der Automatik-Kette, Datenraum-Spalte der Transaktionen,
+  Risiko-Zähler im GF-Blick und Bericht-Export. Alles andere bleibt Demo –
+  echte SEIL-Daten landen nie im Repository, nur zur Laufzeit im Browser.
+- **Logik ohne Framework:** `lib/modul01.ts` (Vertrag, Normalisierung,
+  Zuordnung, Merge) ist reine Funktion und wird vom End-to-End-Test mit einem
+  fiktiven Fixture-Server durchgespielt (Secret-Prüfung, Live-Merge, Demo-Fallback).
+
+| Variable | Bedeutung |
+|---|---|
+| `MODUL01_STATUS_URL` | GET-Endpunkt von Workflow 09 (`…/webhook/seil/datenraum-status`) |
+| `MODUL01_SECRET` | Wert für den Header `X-Seil-Secret`, identisch mit dem Header-Auth-Credential in n8n |
+| `MODUL01_OBJEKT_MAP` | JSON: Cockpit-Objekt-ID → Kennung oder Name des Datenraums in Modul 01 |
+| `MODUL01_TIMEOUT_MS` | Zeitlimit für den Abruf (Standard 4000) |
 
 ### Screenshots
 
@@ -229,7 +262,10 @@ public/
   fonts/                   Inter (variabel, lokal gehostet – kein Google-CDN)
   seil-logo.png            Weiße Logo-Variante aus der Präsentationsvorlage
 docs/screenshots/          Screenshots der fünf Screens
-automation/n8n/            Importierbare n8n-Workflow-Skelette der Automatik-Kette
+automation/n8n/            Importierbare n8n-Workflow-Skelette (Automatik-Kette, Bericht, Besichtigung, Datenraum-API)
+app/api/modul01/status/    Serverseitiger Leseweg zu Modul 01 (Route Handler)
+lib/modul01.ts             Vertrag, Normalisierung und Merge für den Modul-01-Stand
+.env.example               Server-Umgebung für die Modul-01-Anbindung (Platzhalter)
                            (für die produktive Umsetzung – eigenes README dort)
 DESIGN.md                  Design-System: Palette, Typo, Abstände, Do's und Don'ts
 ```

@@ -15,7 +15,7 @@ import {
   pipelineStufe,
   prozessFortschritt,
 } from "@/lib/derive";
-import { objekte } from "@/lib/mock-data";
+import { useObjekteLive } from "@/components/modul01";
 import type { Objekt } from "@/lib/types";
 import {
   Badge,
@@ -97,6 +97,7 @@ function ObjektKarte({ objekt }: { objekt: Objekt }) {
 /* --- Board ----------------------------------------------------------------- */
 
 function TransaktionsBoard() {
+  const objekte = useObjekteLive();
   const spalten = PIPELINE_STUFEN.map((label, i) => ({
     label,
     objekte: objekte.filter((o) => pipelineStufe(o) === i),
@@ -177,6 +178,7 @@ function SortKopf({
 }
 
 function TransaktionsTabelle() {
+  const objekte = useObjekteLive();
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [richtung, setRichtung] = useState<1 | -1>(1);
 

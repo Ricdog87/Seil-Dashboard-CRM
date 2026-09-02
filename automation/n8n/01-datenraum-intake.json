@@ -1,44 +1,63 @@
 {
   "name": "SEIL 01 · Datenraum-Intake",
   "active": false,
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "nodes": [
     {
       "id": "sticky-01",
       "name": "Hinweis",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [180, 40],
+      "position": [
+        180,
+        40
+      ],
       "parameters": {
-        "content": "## Glied 1 der Automatik-Kette: Datenraum einlesen\n\nTrigger: Modul 01 meldet neue/aktualisierte Datenraum-Dokumente per Webhook (alternativ: OneDrive-Trigger-Node einhängen).\n\nSKELETT – vor Aktivierung:\n1. Webhook-URL bei Modul 01 hinterlegen\n2. Ablage-Ziel setzen (Cockpit-DB, sobald vorhanden; übergangsweise n8n Data Table)\n3. KI-Extraktion: eigenen LLM-/Agent-Node zwischen Normalisieren und Ablage hängen (Grundbuch, Mieterliste → Kennwerte mit Quellenangabe + Prüfstatus 'pruefen')\n\nWorkflow bleibt bewusst inaktiv (active:false).",
-        "width": 420,
-        "height": 300
+        "content": "## Glied 1: Datenraum-Intake – Modul 01 dockt hier an\n\nModul 01 (der Datenraum-Agent, läuft bereits auf dieser n8n-Instanz) meldet je Datenraum den Stand: Dokumenten-Checkliste, KI-ausgelesene Kennwerte, Datenraum-Freigaben und – bei einem neuen Datenraum – den Objekt-Block.\n\nAblauf (Transkript 28.08., Nino: „Create data room → Deal im CRM anlegen“):\n1. Header-Auth-Credential prüft `X-Seil-Secret` (Wert nur im Credential-Store)\n2. Vertrag normalisieren (Status-Vokabular vereinheitlichen, alle Items)\n3. Objekt im Cockpit unbekannt? → Deal/Objekt anlegen (Create deal) – sonst Stand aktualisieren\n4. Ablage `datenraum_status` (upsert je objektId) – dieselbe Quelle liest WF 09 für Cockpit und WF 06\n5. Checkliste vollständig → Matching (WF 02); Lücken → Aufgabe fürs Backoffice\n\nAndock-Varianten für Modul 01 (README): A) Execute-Workflow/HTTP am Ende von Modul 01 (bevorzugt), B) OneDrive-Trigger der SEIL Group nach IT-Umzug, C) Export-Parser.\n\nSKELETT – vor Aktivierung: Header-Auth-Credential wählen, Ablage-Node auf Data Table/DB zeigen lassen, N8N-BASIS-URL ersetzen. Echte SEIL-Daten fließen ausschließlich hier durch – nie ins Prototyp-Repository.",
+        "width": 560,
+        "height": 520
       }
     },
     {
       "id": "webhook-01",
-      "name": "Modul 01 Webhook",
+      "name": "Modul 01 Webhook (Header-Auth)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [200, 400],
-      "parameters": { "httpMethod": "POST", "path": "seil/datenraum", "options": {} }
+      "position": [
+        200,
+        400
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "seil/datenraum",
+        "options": {},
+        "authentication": "headerAuth"
+      }
     },
     {
       "id": "code-01",
-      "name": "Checkliste normalisieren",
+      "name": "Vertrag normalisieren (Checkliste, Kennwerte, Objekt)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 400],
+      "position": [
+        440,
+        400
+      ],
       "parameters": {
-        "jsCode": "// Erwartet: { objektId, dokumente: [{ name, status }] }\n// Status-Vokabular vereinheitlichen: vorhanden | in_pruefung | ausstehend\nconst MAP = { ok: 'vorhanden', done: 'vorhanden', pruefung: 'in_pruefung', fehlt: 'ausstehend', offen: 'ausstehend' };\nconst d = $input.first().json;\nconst dokumente = (d.dokumente ?? []).map((x) => ({\n  name: String(x.name ?? '').trim(),\n  status: MAP[String(x.status ?? '').toLowerCase()] ?? String(x.status ?? 'ausstehend'),\n}));\nconst vorhanden = dokumente.filter((x) => x.status === 'vorhanden').length;\nreturn [{ json: { objektId: d.objektId, stand: new Date().toISOString(), dokumente, vorhanden, gesamt: dokumente.length } }];"
+        "jsCode": "// Vertrag Modul 01 → Cockpit (siehe README „Anbindung Modul 01“). Verarbeitet alle Items.\n// Erwartet: { objektId | objektName, quelle: 'modul01', stand?, dokumente: [{ name, status }],\n//             kennwerte?: [{ feld, wert, quelle, pruefstatus }], freigaben?: [{ investorEmail, freigegebenAm }],\n//             objekt?: { name, adresse, stadt, assetklasse, flaeche, kaufpreisMio } }   ← Create deal (Nino, 28.08.)\nconst MAP = { ok: 'vorhanden', done: 'vorhanden', available: 'vorhanden', vorhanden: 'vorhanden',\n              pruefung: 'in_pruefung', in_pruefung: 'in_pruefung', review: 'in_pruefung', 'in prüfung': 'in_pruefung',\n              fehlt: 'ausstehend', offen: 'ausstehend', missing: 'ausstehend', ausstehend: 'ausstehend' };\nreturn $input.all().map(({ json }) => {\n  const d = json.body ?? json;\n  const dokumente = (d.dokumente ?? []).map((x) => ({\n    name: String(x.name ?? '').trim(),\n    status: MAP[String(x.status ?? '').toLowerCase()] ?? 'ausstehend',\n  })).filter((x) => x.name);\n  const kennwerte = (d.kennwerte ?? []).map((k) => ({\n    feld: String(k.feld ?? ''), wert: String(k.wert ?? ''), quelle: String(k.quelle ?? ''),\n    pruefstatus: k.pruefstatus === 'uebernommen' ? 'uebernommen' : 'pruefen',\n  }));\n  const vorhanden = dokumente.filter((x) => x.status === 'vorhanden').length;\n  return { json: {\n    objektId: d.objektId ?? null, objektName: d.objektName ?? d.objekt?.name ?? null,\n    objekt: d.objekt ?? null, // gefüllt = Modul 01 hat einen neuen Datenraum angelegt → Deal im Cockpit anlegen\n    quelle: 'modul01', stand: d.stand ?? new Date().toISOString(),\n    dokumente, kennwerte, freigaben: d.freigaben ?? [], vorhanden, gesamt: dokumente.length,\n    // Platzhalter: Lookup gegen die Cockpit-Ablage – bis dahin gilt: bekannt, wenn eine objektId mitkommt\n    imCockpitBekannt: Boolean(d.objektId),\n  } };\n});"
       }
     },
     {
       "id": "noop-01",
-      "name": "Ablage (Cockpit-DB / Data Table)",
+      "name": "Ablage datenraum_status (upsert objektId)",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [680, 400],
+      "position": [
+        940,
+        400
+      ],
       "parameters": {}
     },
     {
@@ -46,7 +65,10 @@
       "name": "Checkliste vollständig?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
-      "position": [920, 400],
+      "position": [
+        1180,
+        400
+      ],
       "parameters": {
         "conditions": {
           "boolean": [
@@ -63,7 +85,10 @@
       "name": "Matching anstoßen (WF 02)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1160, 320],
+      "position": [
+        1420,
+        320
+      ],
       "parameters": {
         "method": "POST",
         "url": "https://N8N-BASIS-URL/webhook/seil/matching",
@@ -78,18 +103,123 @@
       "name": "Lücken-Aufgabe fürs Backoffice",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [1160, 500],
+      "position": [
+        1420,
+        500
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "if-01b",
+      "name": "Objekt im Cockpit bekannt?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        900,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.imCockpitBekannt }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "noop-01b",
+      "name": "Deal/Objekt im Cockpit anlegen (Create deal)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        420
+      ],
       "parameters": {}
     }
   ],
   "connections": {
-    "Modul 01 Webhook": { "main": [[{ "node": "Checkliste normalisieren", "type": "main", "index": 0 }]] },
-    "Checkliste normalisieren": { "main": [[{ "node": "Ablage (Cockpit-DB / Data Table)", "type": "main", "index": 0 }]] },
-    "Ablage (Cockpit-DB / Data Table)": { "main": [[{ "node": "Checkliste vollständig?", "type": "main", "index": 0 }]] },
     "Checkliste vollständig?": {
       "main": [
-        [{ "node": "Matching anstoßen (WF 02)", "type": "main", "index": 0 }],
-        [{ "node": "Lücken-Aufgabe fürs Backoffice", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Matching anstoßen (WF 02)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lücken-Aufgabe fürs Backoffice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modul 01 Webhook (Header-Auth)": {
+      "main": [
+        [
+          {
+            "node": "Vertrag normalisieren (Checkliste, Kennwerte, Objekt)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vertrag normalisieren (Checkliste, Kennwerte, Objekt)": {
+      "main": [
+        [
+          {
+            "node": "Objekt im Cockpit bekannt?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Objekt im Cockpit bekannt?": {
+      "main": [
+        [
+          {
+            "node": "Ablage datenraum_status (upsert objektId)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Deal/Objekt im Cockpit anlegen (Create deal)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deal/Objekt im Cockpit anlegen (Create deal)": {
+      "main": [
+        [
+          {
+            "node": "Ablage datenraum_status (upsert objektId)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ablage datenraum_status (upsert objektId)": {
+      "main": [
+        [
+          {
+            "node": "Checkliste vollständig?",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   }
