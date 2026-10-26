@@ -12,17 +12,22 @@ export function Input({
 
 export function Checkbox({
   label,
+  labelVerborgen = false,
   className = "",
   ...rest
-}: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) {
+}: React.InputHTMLAttributes<HTMLInputElement> & {
+  label: string;
+  /** Label nur für Screenreader – wenn der sichtbare Text daneben steht. */
+  labelVerborgen?: boolean;
+}) {
   return (
     <label className={`inline-flex items-center gap-2 text-body text-seil-body ${className}`}>
       <input
         type="checkbox"
-        className="h-3.5 w-3.5 rounded-seil border border-seil-line bg-seil-card-alt accent-seil-accent"
+        className="h-3.5 w-3.5 shrink-0 rounded-seil border border-seil-line bg-seil-card-alt accent-seil-accent"
         {...rest}
       />
-      {label}
+      <span className={labelVerborgen ? "sr-only" : ""}>{label}</span>
     </label>
   );
 }

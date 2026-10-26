@@ -447,3 +447,63 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
     - **Status-Vokabular:** Modul 01 darf eigene Begriffe liefern (ok, done,
       review, fehlt …) – WF 01 und die Cockpit-Route bilden tolerant auf
       vorhanden / in Prüfung / ausstehend ab; Unbekanntes gilt als ausstehend.
+
+## Sales-Prozess-Update (28.09.) und Teamübersicht (19.10.)
+
+52. **Beschlüsse aus dem Sales-Update mit Leitung Sales, Head of Sales und
+    Transaction Management – im Prototyp umgesetzt:**
+    - **Sammelfreigabe statt Einzelfreigabe:** Mail-Entwürfe werden gesammelt
+      im Dashboard freigegeben, über alle Mandate hinweg. Das Vier-Augen-Prinzip
+      bleibt (Human in the Loop, ausdrücklich mit Blick auf den EU AI Act), nur
+      der Klickaufwand sinkt. Umgesetzt als Freigabe-Karte auf der Übersicht;
+      WF 04 nimmt eine Liste von Entwürfen entgegen und teilt sie in einzelne,
+      je Entwurf protokollierte Versandaufträge auf.
+    - **Keine gespeicherten Ankaufsprofile – die Liveliste ist die Wahrheit:**
+      Laut Head of Sales pflegt der Vertrieb keine festen Profile, sondern eine
+      **täglich aktualisierte Investorenliste in OneDrive**, die unter anderem
+      die **letzten Ankäufe** je Investor enthält. Diese Liste ist die
+      Vorselektion fürs Matching. Im Cockpit heißt die Karte weiter
+      „Ankaufsprofil“, weist aber die Liveliste als Quelle samt Stand aus und
+      zeigt die letzten Ankäufe. WF 02 nimmt die Liveliste entgegen; „zuletzt
+      Vergleichbares gekauft“ geht als Zusatzsignal in die Sortierung ein,
+      ersetzt aber nie die drei harten Kriterien (Standort, Assetklasse,
+      Ticket). **Offen:** Feld-Mapping an einem echten Auszug der Liste.
+    - **Drei Sichtebenen statt zwei:** Staff sieht die eigenen Mandate, die
+      Sales Leadership zusätzlich eine Portfolio-Ebene über alle Mandate
+      (Volumen, wartende Freigaben, Auslastung je Person), die Geschäftsführung
+      weiterhin den rein lesenden Zahlen-Blick. Der „Arbeiten als“-Umschalter
+      gruppiert nach diesen Ebenen.
+    - **Tagesprioritäten für die Morgenabstimmung:** Je Person ein bis zwei
+      Prioritäten, abhakbar, in der Portfolio-Ebene gebündelt – damit
+      Priorisierungsänderungen im Tool statt im Kalender landen.
+    - **Mehrere Ansprechpartner je Objekt:** Besichtigungen laufen oft über
+      Hausverwaltung oder Hausmeister, Unterlagen über eine andere Person.
+      Das Objekt führt jetzt mehrere Kontakte mit Rolle und Kennzeichen
+      „extern“; die Besichtigungs-Automatik (WF 08) schreibt den dort
+      hinterlegten Kontakt an.
+    - **Datenraum Light und Full:** Modul 01 teilt den unsortierten
+      Kunden-Datenraum nach SOP in zwei Stufen – Light für die erste Ansprache,
+      Full nach NDA. Die Stufe steht im Datenraum-Vertrag (WF 01) und als
+      Kennzeichen an der Datenraum-Karte.
+    - **Persönliche Kommunikation bleibt manuell:** Direkter Kundenaustausch
+      und Verhandlungen werden ausdrücklich nicht automatisiert.
+
+53. **Teamübersicht vom 19.10. – Struktur übernommen, Namen nicht:** Die
+    gelieferte Rollen- und Berichtsstruktur (drei Bereiche Management, Sales
+    Leadership und Staff; je Person Rolle und Funktion wie Buyer Communication,
+    Valuation, Data Room Management, Deal Reporting) ist vollständig im
+    Datenmodell abgebildet. **Nicht übernommen sind die echten Personennamen,
+    E-Mail-Adressen, Abschlüsse und Firmendaten** – sie blieben außerhalb des
+    Repositorys, wie für alle Kundendaten in diesem Projekt vereinbart. Die
+    Namen im Prototyp sind weiterhin Demodaten; Ausnahme bleiben die beiden
+    ausdrücklich gewünschten Konten der Geschäftsführung (Punkt 16). Sollen die
+    echten Personen in der Demo erscheinen, ist das eine bewusste Freigabe und
+    in einem Schritt nachgezogen. Produktiv kommen Personen ohnehin aus dem
+    Verzeichnis des Mandanten, nicht aus Demodaten.
+
+54. **Noch offen aus dem Sales-Update:** Team-Auswertung über die
+    Portfolio-Ebene hinaus (Auswertung je Zeitraum) ist als V2 benannt und
+    nicht gebaut. Ebenfalls offen: die Integration der **Auftraggeber-
+    kommunikation** (Vorschlag der Leitung Sales) und der Umgang mit dem
+    vollständigen 33-Schritte-Prozess – im Prototyp sind 26 Schritte
+    abgebildet (Punkt 2), die Reduktion wurde im Termin kritisch angemerkt.

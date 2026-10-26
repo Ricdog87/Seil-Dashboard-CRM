@@ -68,6 +68,13 @@ voraussetzen.
 - **Matching-Reihenfolge:** Standort zuerst, dann Assetklasse, dann
   Ticket-Spanne. Kein voller Treffer = kein Ausschluss (Markierung
   „manuell pruefen“, Liste bleibt manuell erweiterbar).
+- **Matching-Datenbasis ist die Liveliste** (Sales-Update 28.09.): keine fest
+  gespeicherten Ankaufsprofile, sondern die täglich gepflegte Investorenliste
+  aus OneDrive samt der letzten Ankäufe je Investor. „Zuletzt Vergleichbares
+  gekauft“ sortiert nur, es ersetzt kein Kriterium.
+- **Freigabe erfolgt gesammelt:** WF 04 nimmt eine Liste von Entwürfen entgegen
+  und teilt sie in einzeln protokollierte Versandaufträge. Ohne diesen Aufruf
+  versendet WF 05 nichts – das Vier-Augen-Prinzip bleibt unverändert.
 - **Follow-ups:** alle 2 Tage; Stufe 1 und 2 mit festen Vorlagen, Stufe 2
   fragt aktiv nach aktuellen Zielregionen; weitere Stufen mit zwei
   alternierenden Vorlagen; die letzte Stufe ist eine Final-Mail, danach nur

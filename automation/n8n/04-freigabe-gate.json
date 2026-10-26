@@ -1,18 +1,23 @@
 {
   "name": "SEIL 04 · Freigabe-Gate (Human-in-the-Loop)",
   "active": false,
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "nodes": [
     {
       "id": "sticky-04",
       "name": "Hinweis",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [180, 20],
+      "position": [
+        180,
+        20
+      ],
       "parameters": {
-        "content": "## Glied 4: Freigabe – der EINZIGE manuelle Stopp\n\nDer Freigabe-Button im Cockpit ruft diesen Webhook auf. Ohne diesen Aufruf startet kein Versand – WF 05 prüft den Freigabe-Status vor jeder Aussendung erneut (doppelter Boden).\n\nErwarteter Body: { objektId, freigegebenDurch, zeitpunkt }\n\nSKELETT – vor Aktivierung:\n1. Absicherung: Header-Auth/Secret zwischen Cockpit und n8n setzen (Webhook-Node → Authentication)\n2. Ablage-Ziel für den Freigabe-Status setzen\n3. Audit: jede Freigabe als Aktivität ins Cockpit schreiben (wer, wann, wie viele Kontakte)",
+        "content": "## Glied 4: Freigabe – der einzige Pflicht-Stopp\n\nNimmt den Freigabe-Klick aus dem Cockpit entgegen, schreibt den Audit-Eintrag (wer, wann, welche Entwürfe) und startet erst danach den Versand über WF 05.\n\n**Sammelfreigabe (Sales-Update 28.09.):** Eine Freigabe kann mehrere Entwürfe über mehrere Mandate tragen. Der Workflow teilt sie in einzelne Versandaufträge auf, damit jeder Entwurf einzeln protokolliert bleibt. Das Vier-Augen-Prinzip bleibt unverändert – ohne diesen Aufruf versendet WF 05 nichts.\n\nSKELETT – vor Aktivierung:\n1. Header-Auth zwischen Cockpit und diesem Webhook setzen (wichtigster der seil/*-Webhooks)\n2. Audit-Ablage anbinden (wer, wann, welche Entwürfe, welches Mandat)\n3. N8N-BASIS-URL ersetzen",
         "width": 440,
-        "height": 280
+        "height": 380
       }
     },
     {
@@ -20,17 +25,27 @@
       "name": "Freigabe-Webhook (vom Cockpit)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [200, 380],
-      "parameters": { "httpMethod": "POST", "path": "seil/freigabe", "options": {} }
+      "position": [
+        200,
+        380
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "seil/freigabe",
+        "options": {}
+      }
     },
     {
       "id": "code-04",
-      "name": "Freigabe validieren",
+      "name": "Sammelfreigabe prüfen und aufteilen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 380],
+      "position": [
+        440,
+        380
+      ],
       "parameters": {
-        "jsCode": "const b = $input.first().json.body ?? $input.first().json;\nif (!b.objektId || !b.freigegebenDurch) {\n  throw new Error('Freigabe unvollständig: objektId und freigegebenDurch sind Pflicht.');\n}\nreturn [{ json: { objektId: b.objektId, freigegebenDurch: b.freigegebenDurch, zeitpunkt: b.zeitpunkt ?? new Date().toISOString(), status: 'erteilt' } }];"
+        "jsCode": "// Sammelfreigabe aus dem Cockpit (Beschluss Sales-Update 28.09.): Eine Freigabe trägt\n// mehrere Entwürfe über mehrere Mandate. Das Vier-Augen-Prinzip bleibt (Human in the Loop,\n// EU AI Act) – es sinkt nur der Klickaufwand.\n// Erwartet: { entwuerfe: [\"e1\",\"e2\", …], durchId, am? }  (einzelne Freigabe: ein Eintrag)\nconst b = $input.first().json.body ?? $input.first().json;\nconst ids = Array.isArray(b.entwuerfe) ? b.entwuerfe.filter(Boolean) : [b.entwurfId].filter(Boolean);\nif (ids.length === 0) throw new Error('Freigabe ohne Entwürfe – Versand wird nicht gestartet');\nif (!b.durchId) throw new Error('Freigabe ohne Person – Versand wird nicht gestartet');\nconst am = b.am ?? new Date().toISOString();\n// Ein Item je Entwurf: WF 05 verarbeitet sie einzeln, der Audit-Eintrag bleibt je Entwurf nachvollziehbar.\nreturn ids.map((entwurfId) => ({ json: { entwurfId, durchId: b.durchId, am, sammelfreigabe: ids.length > 1,\n                                         anzahlInFreigabe: ids.length } }));"
       }
     },
     {
@@ -38,7 +53,10 @@
       "name": "Freigabe-Status ablegen + Audit-Eintrag",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [680, 380],
+      "position": [
+        680,
+        380
+      ],
       "parameters": {}
     },
     {
@@ -46,7 +64,10 @@
       "name": "Erstversand anstoßen (WF 05)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [920, 380],
+      "position": [
+        920,
+        380
+      ],
       "parameters": {
         "method": "POST",
         "url": "https://N8N-BASIS-URL/webhook/seil/versand",
@@ -58,8 +79,38 @@
     }
   ],
   "connections": {
-    "Freigabe-Webhook (vom Cockpit)": { "main": [[{ "node": "Freigabe validieren", "type": "main", "index": 0 }]] },
-    "Freigabe validieren": { "main": [[{ "node": "Freigabe-Status ablegen + Audit-Eintrag", "type": "main", "index": 0 }]] },
-    "Freigabe-Status ablegen + Audit-Eintrag": { "main": [[{ "node": "Erstversand anstoßen (WF 05)", "type": "main", "index": 0 }]] }
+    "Freigabe-Webhook (vom Cockpit)": {
+      "main": [
+        [
+          {
+            "node": "Sammelfreigabe prüfen und aufteilen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Freigabe-Status ablegen + Audit-Eintrag": {
+      "main": [
+        [
+          {
+            "node": "Erstversand anstoßen (WF 05)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sammelfreigabe prüfen und aufteilen": {
+      "main": [
+        [
+          {
+            "node": "Freigabe-Status ablegen + Audit-Eintrag",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   }
 }

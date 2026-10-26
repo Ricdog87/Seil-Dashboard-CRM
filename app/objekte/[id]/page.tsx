@@ -129,6 +129,33 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
           {/* Datenraum: live aus Modul 01, sobald verbunden – sonst Demodaten (gekennzeichnet). */}
           <DatenraumKarte objektId={objekt.id} />
 
+          {objekt.ansprechpartner?.length ? (
+            <Card>
+              <CardHeader
+                title="Ansprechpartner"
+                meta="Unterlagen, Besichtigung, Eigentümerseite"
+              />
+              <ul className="flex flex-col divide-y divide-seil-line">
+                {objekt.ansprechpartner.map((a) => (
+                  <li key={`${a.name}-${a.rolle}`} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-4 py-2.5">
+                    <span className="flex flex-col gap-0.5">
+                      <span className="text-seil-text">{a.name}</span>
+                      <span className="text-kicker text-seil-muted">
+                        {a.rolle}
+                        {a.organisation ? ` · ${a.organisation}` : ""}
+                      </span>
+                    </span>
+                    {a.extern ? <Badge tone="neutral">extern</Badge> : null}
+                  </li>
+                ))}
+              </ul>
+              <p className="border-t border-seil-line px-4 py-2.5 text-kicker text-seil-muted">
+                Besichtigungen laufen oft über Hausverwaltung oder Hausmeister – die
+                Besichtigungs-Automatik schreibt den hier hinterlegten Kontakt an.
+              </p>
+            </Card>
+          ) : null}
+
           <Card>
             <CardHeader title="Auftraggeber" meta="Sell-Side" />
             <CardBody>

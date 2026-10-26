@@ -10,7 +10,9 @@ import type {
   Mitarbeiter,
   Objekt,
   ObjektInvestorLink,
+  MailEntwurf,
   Signal,
+  Tagespriorität,
 } from "./types";
 
 /** Fester Referenztag des Prototyps – alle Daten sind darauf abgestimmt. */
@@ -109,15 +111,103 @@ export const FREIGABE_SCHRITT_INDEX = 14;
  *  rein lesenden GF-Blick (Projektsummen statt operativem Tag). */
 export const GF_ID = "m6";
 
+/**
+ * Team nach der Rollen- und Berichtsstruktur, die die Leitung Sales am 19.10. geliefert hat:
+ * drei Bereiche (Management, Sales Leadership, Staff), je Person Rolle und Funktion.
+ * Übernommen sind ausschließlich Struktur, Rollenbezeichnungen und Funktionen –
+ * die Personennamen bleiben Demodaten (ANNAHMEN.md, Punkt 52).
+ */
 export const mitarbeiter: Mitarbeiter[] = [
-  // Auf Wunsch als echte Personen für die Demo angelegt (Nino, Max) –
-  // alle übrigen Namen bleiben erfunden.
-  { id: GF_ID, name: "Max Seil", kuerzel: "MS", rolle: "Geschäftsführer" },
-  { id: "m5", name: "Nino Grubisic", kuerzel: "NG", rolle: "Leitung Sales" },
-  { id: "m1", name: "Katharina Vogt", kuerzel: "KV", rolle: "Transaction Managerin" },
-  { id: "m2", name: "Daniel Mertens", kuerzel: "DM", rolle: "Senior Transaction Manager" },
-  { id: "m3", name: "Sofia Ricci", kuerzel: "SR", rolle: "Analystin Valuation & Unterlagen" },
-  { id: "m4", name: "Jonas Brandt", kuerzel: "JB", rolle: "Investment-Team" },
+  // Management
+  { id: GF_ID, name: "Max Seil", kuerzel: "MS", rolle: "Managing Director", ebene: "fuehrung", bereich: "Management" },
+  { id: "m5", name: "Nino Grubisic", kuerzel: "NG", rolle: "Geschäftsführung", ebene: "fuehrung", bereich: "Management" },
+  // Sales Leadership – sieht zusätzlich die Portfolio-Ebene über alle Mandate
+  {
+    id: "m7",
+    name: "Henrik Baumann",
+    kuerzel: "HB",
+    rolle: "Head of Sales | Investment",
+    ebene: "leitung",
+    bereich: "Sales Leadership",
+    funktionen: ["Seller Communication", "Deal Execution"],
+  },
+  {
+    id: "m8",
+    name: "Clara Weiss",
+    kuerzel: "CW",
+    rolle: "Supervision Transaction | Sales",
+    ebene: "leitung",
+    bereich: "Sales Leadership",
+    funktionen: ["Strategic Sales Process Supervision"],
+  },
+  // Staff – eigene Mandate
+  {
+    id: "m1",
+    name: "Katharina Vogt",
+    kuerzel: "KV",
+    rolle: "Transaction Management | Investment",
+    ebene: "team",
+    bereich: "Staff",
+    funktionen: ["Valuation", "Buyer Communication", "Deal Execution"],
+  },
+  {
+    id: "m2",
+    name: "Daniel Mertens",
+    kuerzel: "DM",
+    rolle: "Transaction Management | Sales",
+    ebene: "team",
+    bereich: "Staff",
+    funktionen: ["Deal Reporting & Sales Operations", "Buyer Communication", "Deal Execution"],
+  },
+  {
+    id: "m4",
+    name: "Jonas Brandt",
+    kuerzel: "JB",
+    rolle: "Support Transaction | Investment",
+    ebene: "team",
+    bereich: "Staff",
+    funktionen: ["Sales Support", "Buyer Communication", "Deal Execution"],
+  },
+  {
+    id: "m3",
+    name: "Sofia Ricci",
+    kuerzel: "SR",
+    rolle: "Analyst | Investment",
+    ebene: "team",
+    bereich: "Staff",
+    funktionen: ["Investor Outreach & Follow-up", "Data Room Management", "Backoffice"],
+  },
+  // Management-Stab ohne eigene Mandate – in der Teamübersicht sichtbar, nicht im Umschalter
+  { id: "m9", name: "Jonathan Pries", kuerzel: "JP", rolle: "Management Associate | Advisor to Board", ebene: "stab", bereich: "Management" },
+  { id: "m10", name: "Marie Tenbrink", kuerzel: "MT", rolle: "Personal Assistant | Operations", ebene: "stab", bereich: "Management" },
+];
+
+/**
+ * Wartende Mail-Entwürfe über alle Mandate – Grundlage der Sammelfreigabe (28.09.).
+ * Die Automatik legt sie an, versendet aber erst nach Freigabe im Dashboard.
+ */
+export const entwuerfe: MailEntwurf[] = [
+  // Fachmarktzentrum Hanauer Landstraße: Erstansprache, Freigabe steht aus
+  { id: "e1", objektId: "o4", investorId: "i4", art: "presound", betreff: "Fachmarktzentrum Rhein-Main – vertrauliche Vorabinformation", erstelltAm: "2026-08-31T07:12" },
+  { id: "e2", objektId: "o4", investorId: "i9", art: "presound", betreff: "Fachmarktzentrum Rhein-Main – vertrauliche Vorabinformation", erstelltAm: "2026-08-31T07:12" },
+  { id: "e3", objektId: "o4", investorId: "i5", art: "presound", betreff: "Fachmarktzentrum Rhein-Main – vertrauliche Vorabinformation", erstelltAm: "2026-08-31T07:12" },
+  { id: "e4", objektId: "o4", investorId: "i2", art: "teaser", betreff: "Fachmarktzentrum Rhein-Main – Teaser und Eckdaten", erstelltAm: "2026-08-31T07:14" },
+  // Westend-Karree: Nachfass-Stufen aus der laufenden Kette
+  { id: "e5", objektId: "o1", investorId: "i4", art: "followup", betreff: "Erinnerung: Büroensemble Westend-Karree", erstelltAm: "2026-08-31T07:02", stufe: 3 },
+  { id: "e6", objektId: "o1", investorId: "i12", art: "antwort", betreff: "Re: Rückfragen zum Datenraum", erstelltAm: "2026-08-30T16:48" },
+  // Gateway Süd: Antwort auf eine Unterlagen-Anfrage
+  { id: "e7", objektId: "o2", investorId: "i1", art: "followup", betreff: "Erinnerung: Logistikpark Gateway Süd", erstelltAm: "2026-08-31T07:02", stufe: 3 },
+];
+
+/** Tagesprioritäten für die Morgenabstimmung – Wunsch der Leitung Sales (28.09.). */
+export const prioritaeten: Tagespriorität[] = [
+  { id: "p1", mitarbeiterId: "m1", text: "Indikative Angebote Westend-Karree konsolidieren", objektId: "o1", erledigt: false },
+  { id: "p2", mitarbeiterId: "m1", text: "Rückruf der Geschäftsführung zur Preisauskunft vorbereiten", objektId: "o1", erledigt: true },
+  { id: "p3", mitarbeiterId: "m2", text: "Broker Call Gateway Süd nachbereiten", objektId: "o2", erledigt: false },
+  { id: "p4", mitarbeiterId: "m3", text: "Datenraum Sachsenhausen auf Vollständigkeit prüfen", objektId: "o3", erledigt: false },
+  { id: "p5", mitarbeiterId: "m4", text: "Verteiler Hanauer Landstraße final durchsehen", objektId: "o4", erledigt: false },
+  { id: "p6", mitarbeiterId: "m7", text: "Auftraggeber-Update Westend-Karree telefonisch", objektId: "o1", erledigt: false },
+  { id: "p7", mitarbeiterId: "m7", text: "Team-Priorisierung für die Woche abstimmen", erledigt: true },
 ];
 
 // ---------------------------------------------------------------------------
@@ -201,10 +291,11 @@ function schritteMit(doneBis: number, ausnahmen: SchrittMap = {}) {
 
 type DokStatusMap = Partial<Record<number, "in_pruefung" | "ausstehend">>;
 
-function datenraumMit(abweichungen: DokStatusMap, stand: string) {
+function datenraumMit(abweichungen: DokStatusMap, stand: string, stufe: "light" | "full" = "full") {
   return {
     angefordert: true,
     stand,
+    stufe,
     dokumente: STANDARD_DOKUMENTE.map((name, i) => ({
       name,
       status: abweichungen[i] ?? ("vorhanden" as const),
@@ -239,6 +330,11 @@ export const objekte: Objekt[] = [
     ],
     teaser: { stand: "versendet", entwurfVom: "2026-08-04", geprueftDurchId: "m1", versendetAm: "2026-08-06" },
     datenraum: datenraumMit({}, "2026-08-30"),
+    ansprechpartner: [
+      { name: "Dr. Thomas Keller", rolle: "Eigentümervertretung", organisation: "Hessische Grundwert GmbH" },
+      { name: "Marcel Dorn", rolle: "Unterlagen & Datenraum", organisation: "Hessische Grundwert GmbH" },
+      { name: "Ingo Wessel", rolle: "Besichtigung vor Ort", organisation: "Hausverwaltung Westend", extern: true },
+    ],
     freigabe: { status: "erteilt", durchId: "m1", am: "2026-08-05" },
   },
   {
@@ -257,6 +353,10 @@ export const objekte: Objekt[] = [
     schritte: schritteMit(15, { 16: "in_progress", 17: "in_progress" }),
     teaser: { stand: "versendet", entwurfVom: "2026-08-17", geprueftDurchId: "m2", versendetAm: "2026-08-19" },
     datenraum: datenraumMit({ 10: "ausstehend" }, "2026-08-29"),
+    ansprechpartner: [
+      { name: "Beate Lindqvist", rolle: "Eigentümervertretung", organisation: "Nordlicht Industrial Holding" },
+      { name: "Sven Ahrens", rolle: "Besichtigung vor Ort", organisation: "Objektbetreuung Gateway", extern: true },
+    ],
     freigabe: { status: "erteilt", durchId: "m2", am: "2026-08-18" },
   },
   {
@@ -280,6 +380,10 @@ export const objekte: Objekt[] = [
     ],
     teaser: { stand: "freigegeben", entwurfVom: "2026-08-22", geprueftDurchId: "m1" },
     datenraum: datenraumMit({}, "2026-08-27"),
+    ansprechpartner: [
+      { name: "Peter Hollmann", rolle: "Eigentümervertretung", organisation: "Sachsenhausen Wohnbau" },
+      { name: "Nadine Brehm", rolle: "Besichtigung vor Ort", organisation: "Hausmeisterservice Süd", extern: true },
+    ],
     freigabe: { status: "ausstehend" },
   },
   {
@@ -304,6 +408,9 @@ export const objekte: Objekt[] = [
       { 3: "in_pruefung", 7: "ausstehend", 8: "ausstehend", 9: "ausstehend", 10: "ausstehend" },
       "2026-08-29",
     ),
+    ansprechpartner: [
+      { name: "Carla Rietberg", rolle: "Unterlagen & Datenraum", organisation: "Rietberg Handelsimmobilien" },
+    ],
   },
   {
     id: "o5",
@@ -353,7 +460,8 @@ export const investoren: Investor[] = [
   {
     id: "i1",
     firma: "Falkenstein Capital Partners",
-    quelle: "Pipedrive-Import",
+    quelle: "Liveliste",
+    listeStand: "2026-08-31",
     typ: "Vermögensverwalter",
     ansprechpartner: "Dr. Robert Steinbach",
     email: "steinbach@falkenstein-cp.example",
@@ -362,12 +470,18 @@ export const investoren: Investor[] = [
     ticketMaxMio: 60,
     assetklassen: ["Büro", "Wohnen", "Logistik"],
     regionen: ["Deutschland Top-7"],
+    letzteAnkaeufe: [
+      { objekt: "Bürohaus Opernturm-Nähe", assetklasse: "Büro", region: "Frankfurt am Main", jahr: 2026 },
+      { objekt: "Logistikhalle Rhein-Neckar", assetklasse: "Logistik", region: "Mannheim", jahr: 2025 },
+      { objekt: "Geschäftshaus Königsallee", assetklasse: "Büro", region: "Düsseldorf", jahr: 2025 },
+    ],
     notiz: "Bevorzugt Core/Core+, Entscheidungen im Investmentkomitee (14-tägig).",
   },
   {
     id: "i2",
     firma: "Novaris Invest AG",
-    quelle: "Pipedrive-Import",
+    quelle: "Liveliste",
+    listeStand: "2026-08-31",
     typ: "Fondsmanager",
     ansprechpartner: "Claudia Bergmann",
     email: "bergmann@novaris-invest.example",
@@ -376,12 +490,18 @@ export const investoren: Investor[] = [
     ticketMaxMio: 100,
     assetklassen: ["Büro", "Logistik"],
     regionen: ["DACH"],
+    letzteAnkaeufe: [
+      { objekt: "Fachmarktzentrum Taunus", assetklasse: "Einzelhandel", region: "Bad Homburg", jahr: 2026 },
+      { objekt: "Büropark Niederrad", assetklasse: "Büro", region: "Frankfurt am Main", jahr: 2025 },
+      { objekt: "Wohnanlage Riedberg", assetklasse: "Wohnen", region: "Frankfurt am Main", jahr: 2024 },
+    ],
     notiz: "Aktueller Fonds in Investitionsphase bis Q2/2027.",
   },
   {
     id: "i3",
     firma: "Hartmann & Cie. Family Office",
-    quelle: "Pipedrive-Import",
+    quelle: "Liveliste",
+    listeStand: "2026-08-31",
     typ: "Family Office",
     ansprechpartner: "Maximilian Hartmann",
     email: "hartmann@hartmann-cie.example",
@@ -390,12 +510,18 @@ export const investoren: Investor[] = [
     ticketMaxMio: 50,
     assetklassen: ["Wohnen", "Büro"],
     regionen: ["Rhein-Main"],
+    letzteAnkaeufe: [
+      { objekt: "Stadtpalais Westend", assetklasse: "Büro", region: "Frankfurt am Main", jahr: 2026 },
+      { objekt: "Ärztehaus Wiesbaden", assetklasse: "Gesundheit", region: "Wiesbaden", jahr: 2025 },
+      { objekt: "Wohnquartier Bockenheim", assetklasse: "Wohnen", region: "Frankfurt am Main", jahr: 2024 },
+    ],
     notiz: "Schnelle Entscheidungswege, off-market bevorzugt.",
   },
   {
     id: "i4",
     firma: "Rheingold Asset Management",
-    quelle: "Pipedrive-Import",
+    quelle: "Liveliste",
+    listeStand: "2026-08-31",
     typ: "Fondsmanager",
     ansprechpartner: "Peter Lindqvist",
     email: "lindqvist@rheingold-am.example",
@@ -417,12 +543,18 @@ export const investoren: Investor[] = [
     ticketMaxMio: 35,
     assetklassen: ["Wohnen"],
     regionen: ["Rhein-Main"],
+    letzteAnkaeufe: [
+      { objekt: "Nahversorger Offenbach", assetklasse: "Einzelhandel", region: "Offenbach", jahr: 2026 },
+      { objekt: "Nahversorger Hanau", assetklasse: "Einzelhandel", region: "Hanau", jahr: 2026 },
+      { objekt: "Fachmarkt Aschaffenburg", assetklasse: "Einzelhandel", region: "Aschaffenburg", jahr: 2025 },
+    ],
     notiz: "Auch Value-Add und Sanierungsobjekte.",
   },
   {
     id: "i6",
     firma: "Vesta Wohnwerte AG",
-    quelle: "Pipedrive-Import",
+    quelle: "Liveliste",
+    listeStand: "2026-08-31",
     typ: "Bestandshalter",
     ansprechpartner: "Georg Winkler",
     email: "winkler@vesta-wohnwerte.example",
@@ -435,7 +567,8 @@ export const investoren: Investor[] = [
   {
     id: "i7",
     firma: "Portus Logistics Capital",
-    quelle: "Pipedrive-Import",
+    quelle: "Liveliste",
+    listeStand: "2026-08-31",
     typ: "Spezialfonds",
     ansprechpartner: "Jan Hoffmeister",
     email: "hoffmeister@portus-logistics.example",
@@ -444,12 +577,18 @@ export const investoren: Investor[] = [
     ticketMaxMio: 45,
     assetklassen: ["Logistik", "Light Industrial"],
     regionen: ["Deutschland", "Benelux"],
+    letzteAnkaeufe: [
+      { objekt: "Logistikzentrum Hafen West", assetklasse: "Logistik", region: "Duisburg", jahr: 2026 },
+      { objekt: "Distributionshalle A5", assetklasse: "Logistik", region: "Darmstadt", jahr: 2025 },
+      { objekt: "Umschlaglager Nordkreuz", assetklasse: "Logistik", region: "Kassel", jahr: 2025 },
+    ],
     notiz: "Fokus auf Last-Mile- und Umschlagimmobilien.",
   },
   {
     id: "i8",
     firma: "Corvus Family Office",
-    quelle: "Pipedrive-Import",
+    quelle: "Liveliste",
+    listeStand: "2026-08-31",
     typ: "Family Office",
     ansprechpartner: "Friederike Lang",
     email: "lang@corvus-fo.example",
@@ -462,7 +601,8 @@ export const investoren: Investor[] = [
   {
     id: "i9",
     firma: "Belvedere Grund Invest",
-    quelle: "Pipedrive-Import",
+    quelle: "Liveliste",
+    listeStand: "2026-08-31",
     typ: "Vermögensverwalter",
     ansprechpartner: "Andreas Roth",
     email: "roth@belvedere-grund.example",
@@ -471,6 +611,11 @@ export const investoren: Investor[] = [
     ticketMaxMio: 50,
     assetklassen: ["Einzelhandel", "Nahversorgung", "Büro"],
     regionen: ["Rhein-Main", "Nordrhein-Westfalen"],
+    letzteAnkaeufe: [
+      { objekt: "Nahversorgungszentrum Ruhr", assetklasse: "Einzelhandel", region: "Essen", jahr: 2026 },
+      { objekt: "Fachmarkt Niederrhein", assetklasse: "Einzelhandel", region: "Krefeld", jahr: 2026 },
+      { objekt: "Supermarkt Bergisches Land", assetklasse: "Einzelhandel", region: "Solingen", jahr: 2025 },
+    ],
     notiz: "Sucht aktiv Fachmarktzentren mit Ankermieter Lebensmittel.",
   },
   {
@@ -502,7 +647,8 @@ export const investoren: Investor[] = [
   {
     id: "i12",
     firma: "Quercus Real Assets",
-    quelle: "Pipedrive-Import",
+    quelle: "Liveliste",
+    listeStand: "2026-08-31",
     typ: "Fondsmanager",
     ansprechpartner: "Miriam Osei",
     email: "osei@quercus-ra.example",

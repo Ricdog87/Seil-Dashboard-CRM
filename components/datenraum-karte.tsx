@@ -16,7 +16,9 @@ const dokumentStatusMeta: Record<DokumentStatus, { label: string; tone: Tone; ic
 };
 
 /**
- * Datenraum-Karte am Objekt: Checkliste und KI-Kennwerte. Ist Modul 01 verbunden und das
+ * Datenraum-Karte am Objekt: Checkliste und KI-Kennwerte. Modul 01 teilt den
+ * unsortierten Kunden-Datenraum nach SOP in zwei Stufen – „Light“ für die erste
+ * Ansprache, „Full“ nach NDA (Sales-Update 28.09.). Ist Modul 01 verbunden und das
  * Objekt zugeordnet, steht hier der echte Stand – sonst die Demodaten, sichtbar gekennzeichnet.
  */
 export function DatenraumKarte({ objektId }: { objektId: string }) {
@@ -33,8 +35,13 @@ function DatenraumKarteLive({ objekt: basis }: { objekt: NonNullable<ReturnType<
       <CardHeader
         title="Datenraum"
         meta={
-          <span className="inline-flex items-center gap-3">
+          <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1">
             <DatenquelleBadge objekt={objekt} />
+            {objekt.datenraum.stufe ? (
+              <Badge tone={objekt.datenraum.stufe === "full" ? "success" : "neutral"}>
+                {objekt.datenraum.stufe === "full" ? "Full" : "Light"}
+              </Badge>
+            ) : null}
             {objekt.datenraum.stand ? <>Stand {fmtDatum(objekt.datenraum.stand)}</> : null}
           </span>
         }

@@ -120,6 +120,21 @@ gekennzeichnet. Der vertragliche Kickoff-Workshop zu Modul 02 steht noch aus;
 die 8-Wochen-Laufzeit beginnt mit dem Kickoff-Workshop, nicht mit den
 Vorgesprächen (ANNAHMEN.md, Punkte 45–47).
 
+### Sales-Update 28.09. und Teamübersicht 19.10. – eingearbeitet
+
+| Beschluss | Im Prototyp sichtbar als |
+|---|---|
+| Mail-Entwürfe gesammelt freigeben statt einzeln | Karte **Freigabe · Mail-Entwürfe** auf der Übersicht: alle wartenden Entwürfe über alle Mandate, Mehrfachauswahl, ein Klick; WF 04 teilt die Sammelfreigabe in einzeln protokollierte Versandaufträge |
+| Keine gespeicherten Ankaufsprofile – tägliche Liveliste in OneDrive | Ankaufsprofil weist **Liveliste als Quelle** samt Stand aus und zeigt die **letzten Ankäufe**; WF 02 matcht gegen die Liveliste, „zuletzt Vergleichbares gekauft“ als Zusatzsignal |
+| Drei Sichtebenen (Staff, Sales Leadership, Geschäftsführung) | **Portfolio-Ebene** für die Leitung über dem eigenen Tag: Volumen, wartende Freigaben, Auslastung je Person; Umschalter nach Ebenen gruppiert |
+| Tägliche Prioritäten für die Morgenabstimmung | Karte **Prioritäten heute** in der Portfolio-Ebene, je Person abhakbar |
+| Besichtigungen laufen oft über Hausverwaltung oder Hausmeister | Mehrere **Ansprechpartner je Objekt** mit Rolle und Kennzeichen „extern“ |
+| Modul 01 teilt den Datenraum nach SOP | Stufe **Light / Full** am Datenraum und im Vertrag von WF 01 |
+
+Die Teamübersicht vom 19.10. ist als **Rollen- und Berichtsstruktur** übernommen
+(Bereiche, Rollen, Funktionen je Person) – die echten Personennamen und
+Kontaktdaten bewusst nicht, siehe ANNAHMEN.md, Punkte 52–54.
+
 ### Unterlagen vom 31.08. – eingearbeitet
 
 - **Transaktionsprozess-Flowchart:** Referenz für die Autorisierung der

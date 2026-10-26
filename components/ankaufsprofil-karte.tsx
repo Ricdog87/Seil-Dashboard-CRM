@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 import { Check, Pencil, Plus, X } from "lucide-react";
-import { fmtTicket } from "@/lib/derive";
+import { fmtDatum, fmtTicket } from "@/lib/derive";
 import type { Investor } from "@/lib/types";
 import { Badge, Button, Card, CardHeader, ICON_SM, ICON_STROKE, Input } from "@/components/ui";
 import { Kicker } from "@/components/cockpit";
 import { useSitzung } from "./sitzung";
 
 /**
- * Ankaufsprofil direkt im CRM pflegen – Beschluss aus dem Demo-Check (20.08.):
- * keine externen Excel-Tabellen mehr. Zielregionen und Ticket sind editierbar
+ * Ankaufsprofil aus der Liveliste. Sales-Update 28.09.: Der Vertrieb pflegt keine
+ * festen Ankaufsprofile, sondern eine täglich aktualisierte Investorenliste in
+ * OneDrive – inklusive der letzten Ankäufe, auf die beim Matching tatsächlich
+ * geschaut wird. Das Cockpit zeigt diesen Satz und macht ihn hier pflegbar
  * (Prototyp: nur diese Sitzung); das Matching in der Vermarktung zieht live mit.
  */
 export function AnkaufsprofilKarte({ investor }: { investor: Investor }) {
@@ -43,8 +45,11 @@ export function AnkaufsprofilKarte({ investor }: { investor: Investor }) {
       <CardHeader
         title="Ankaufsprofil"
         meta={
-          <span className="inline-flex items-center gap-3">
-            <span>Buy-Side</span>
+          <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1">
+            <Badge tone={investor.quelle === "Liveliste" ? "info" : "neutral"}>
+              {investor.quelle === "Liveliste" ? "aus Liveliste" : (investor.quelle ?? "Manuell")}
+            </Badge>
+            {investor.listeStand ? <span>Stand {fmtDatum(investor.listeStand)}</span> : null}
             <Button
               variant="ghost"
               icon={bearbeiten ? Check : Pencil}
@@ -85,6 +90,23 @@ export function AnkaufsprofilKarte({ investor }: { investor: Investor }) {
             )}
           </dd>
         </div>
+        {investor.letzteAnkaeufe?.length ? (
+          <div>
+            <dt>
+              <Kicker>Letzte Ankäufe</Kicker>
+            </dt>
+            <dd className="mt-2 flex flex-col gap-1.5">
+              {investor.letzteAnkaeufe.map((a) => (
+                <span key={`${a.objekt}-${a.jahr}`} className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="text-seil-text">{a.objekt}</span>
+                  <span className="text-kicker text-seil-muted">
+                    {a.assetklasse} · {a.region} · {a.jahr}
+                  </span>
+                </span>
+              ))}
+            </dd>
+          </div>
+        ) : null}
         <div>
           <dt>
             <Kicker>Assetklassen</Kicker>

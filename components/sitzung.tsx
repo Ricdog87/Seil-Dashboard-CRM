@@ -34,16 +34,25 @@ interface Sitzung {
   notizErfassen: (objektId: string, text: string) => void;
   profilPatches: Record<string, ProfilPatch>; // investorId → geänderte Profilfelder
   patchProfil: (investorId: string, patch: ProfilPatch) => void;
+  /** Tagesprioritäten der Morgenabstimmung – abhaken gilt für diese Sitzung (28.09.). */
+  prioritaetPatches: Record<string, boolean>; // prioritaetId → erledigt
+  patchPrioritaet: (id: string, erledigt: boolean) => void;
+  /** Sammelfreigabe: freigegebene Entwürfe dieser Sitzung (Beschluss 28.09.). */
+  freigegebeneEntwuerfe: string[]; // entwurfId
+  entwuerfeFreigeben: (ids: string[]) => void;
 }
 
 const SitzungsContext = createContext<Sitzung | null>(null);
 
 export function SitzungsProvider({ children }: { children: React.ReactNode }) {
-  const [mitarbeiterId, setMitarbeiterId] = useState("m5");
+  // Startet als Sales Leadership: zeigt Portfolio-Ebene und operativen Tag zugleich.
+  const [mitarbeiterId, setMitarbeiterId] = useState("m7");
   const [aufgabenPatches, setAufgabenPatches] = useState<Record<string, AufgabenPatch>>({});
   const [signalErledigt, setSignalErledigt] = useState<Record<string, string>>({});
   const [notizen, setNotizen] = useState<SitzungsNotiz[]>([]);
   const [profilPatches, setProfilPatches] = useState<Record<string, ProfilPatch>>({});
+  const [prioritaetPatches, setPrioritaetPatches] = useState<Record<string, boolean>>({});
+  const [freigegebeneEntwuerfe, setFreigegebeneEntwuerfe] = useState<string[]>([]);
 
   const wert = useMemo<Sitzung>(
     () => ({
@@ -65,8 +74,22 @@ export function SitzungsProvider({ children }: { children: React.ReactNode }) {
       profilPatches,
       patchProfil: (investorId, patch) =>
         setProfilPatches((cur) => ({ ...cur, [investorId]: { ...cur[investorId], ...patch } })),
+      prioritaetPatches,
+      patchPrioritaet: (id, erledigt) =>
+        setPrioritaetPatches((cur) => ({ ...cur, [id]: erledigt })),
+      freigegebeneEntwuerfe,
+      entwuerfeFreigeben: (ids) =>
+        setFreigegebeneEntwuerfe((cur) => [...new Set([...cur, ...ids])]),
     }),
-    [mitarbeiterId, aufgabenPatches, signalErledigt, notizen, profilPatches],
+    [
+      mitarbeiterId,
+      aufgabenPatches,
+      signalErledigt,
+      notizen,
+      profilPatches,
+      prioritaetPatches,
+      freigegebeneEntwuerfe,
+    ],
   );
 
   return <SitzungsContext.Provider value={wert}>{children}</SitzungsContext.Provider>;

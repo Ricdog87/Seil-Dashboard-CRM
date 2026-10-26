@@ -22,13 +22,16 @@ import { MeineAufgaben } from "@/components/meine-aufgaben";
 import { Posteingang } from "@/components/posteingang";
 import { AktivitaetenTicker } from "@/components/ticker";
 import { TransaktionenAnsicht } from "@/components/transaktionen-ansicht";
+import { LeitungPortfolio } from "@/components/leitung-portfolio";
+import { Sammelfreigabe } from "@/components/sammelfreigabe";
 import { UebersichtWeiche } from "@/components/uebersicht-weiche";
 
 export default function UebersichtSeite() {
   const k = kpis();
   const stumm = ohneRueckmeldung();
 
-  // „Arbeiten als“ Max Seil (GF) → Zahlen-Dashboard statt operativem Tag.
+  // Drei Sichtebenen (Sales-Update 28.09.): Geschäftsführung → Zahlen-Blick,
+  // Sales Leadership → Portfolio über dem eigenen Tag, Staff → eigener Tag.
   const operativ = (
     <>
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -81,6 +84,11 @@ export default function UebersichtSeite() {
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-[7fr_5fr]">
         <Posteingang />
         <MeineAufgaben />
+      </div>
+
+      {/* Sammelfreigabe statt Einzelfreigabe – Beschluss Sales-Update 28.09. */}
+      <div className="mt-6">
+        <Sammelfreigabe />
       </div>
 
       <TransaktionenAnsicht />
@@ -147,5 +155,11 @@ export default function UebersichtSeite() {
     </>
   );
 
-  return <UebersichtWeiche gf={<GfDashboard />} operativ={operativ} />;
+  return (
+    <UebersichtWeiche
+      gf={<GfDashboard />}
+      portfolio={<LeitungPortfolio />}
+      operativ={operativ}
+    />
+  );
 }

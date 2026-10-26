@@ -12,10 +12,16 @@ export interface DatenraumDokument {
   status: DokumentStatus;
 }
 
-/** Datenraum-Status – kommt produktiv aus Modul 01, hier nur als Anzeige. */
+/** Datenraum-Status – kommt produktiv aus Modul 01, hier nur als Anzeige.
+ *  Modul 01 teilt den unsortierten Kunden-Datenraum nach SOP in zwei Stufen:
+ *  „Light“ für die erste Ansprache, „Full“ nach NDA (Sales-Update 28.09.). */
+export type DatenraumStufe = "light" | "full";
+
 export interface Datenraum {
   angefordert: boolean;
   stand?: string; // letzter Sync mit Modul 01 (ISO-Datum)
+  /** Welche Stufe Modul 01 bereits aufgebaut hat. */
+  stufe?: DatenraumStufe;
   dokumente: DatenraumDokument[];
 }
 
@@ -82,6 +88,8 @@ export interface Objekt {
     jnkmSollEuro?: number;
   };
   datenraum: Datenraum;
+  /** Mehrere Ansprechpartner je Objekt (Unterlagen, Besichtigung vor Ort …), 28.09. */
+  ansprechpartner?: Ansprechpartner[];
   /** Herkunft des Datenraum-Status: Demodaten oder live aus Modul 01 (siehe lib/modul01.ts). */
   datenquelle?: "demo" | "modul01";
   /** Nur für Objekte in Vermarktung: Stand der Listen-Freigabe (Human-in-the-Loop) */
@@ -112,8 +120,14 @@ export interface Investor {
   assetklassen: string[];
   regionen: string[];
   notiz?: string;
-  /** Herkunft des Kontakts – der einmalige Pipedrive-Import ist Teil von Modul 02. */
-  quelle?: "Pipedrive-Import" | "Manuell";
+  /** Herkunft des Kontakts – der einmalige Pipedrive-Import ist Teil von Modul 02.
+   *  „Liveliste“: Satz stammt aus der täglich gepflegten Investorenliste (OneDrive). */
+  quelle?: "Pipedrive-Import" | "Manuell" | "Liveliste";
+  /** Die letzten Ankäufe aus der Liveliste – laut Sales-Update 28.09. das Kriterium,
+   *  auf das der Vertrieb tatsächlich schaut; ersetzt das feste Ankaufsprofil. */
+  letzteAnkaeufe?: { objekt: string; assetklasse: string; region: string; jahr: number }[];
+  /** Stand des Liveliste-Satzes (ISO-Datum) – die Liste wird täglich aktualisiert. */
+  listeStand?: string;
 }
 
 /** Antwortstatus eines Investors zu einem konkreten Objekt. */
@@ -175,11 +189,55 @@ export interface Aktivitaet {
   quelle?: "Modul 01" | "Automatik" | "KI" | "Se Circle" | "Superchat";
 }
 
+/** Sichtebene im Cockpit – Beschluss Sales-Update 28.09.: drei Stufen statt zwei.
+ *  team = eigene Projekte · leitung = Portfolio über alle Mandate · fuehrung = Gesamtperformance.
+ *  stab = Management-Funktionen ohne eigene Mandate (nicht im „Arbeiten als“-Umschalter). */
+export type Sichtebene = "team" | "leitung" | "fuehrung" | "stab";
+
 export interface Mitarbeiter {
   id: string;
   name: string;
   kuerzel: string;
   rolle: string;
+  ebene: Sichtebene;
+  /** Bereich laut Teamübersicht: Management, Sales Leadership oder Staff. */
+  bereich?: string;
+  /** Funktionen laut Teamübersicht (Buyer Communication, Valuation, Data Room Management …). */
+  funktionen?: string[];
+}
+
+/** Ein wartender Mail-Entwurf. Beschluss Sales-Update 28.09.: Entwürfe werden
+ *  GESAMMELT im Dashboard freigegeben, nicht einzeln – das Vier-Augen-Prinzip
+ *  bleibt (Human in the Loop), der Klickaufwand sinkt. */
+export type EntwurfArt = "presound" | "teaser" | "antwort" | "followup";
+
+export interface MailEntwurf {
+  id: string;
+  objektId: string;
+  investorId: string;
+  art: EntwurfArt;
+  betreff: string;
+  erstelltAm: string; // ISO-Datum mit Uhrzeit
+  /** Follow-up-Stufe, falls der Entwurf aus der Nachfass-Kette stammt. */
+  stufe?: number;
+}
+
+/** Tagespriorität eines Mitarbeiters – für die Morgenabstimmung (Wunsch Leitung Sales, 28.09.). */
+export interface Tagespriorität {
+  id: string;
+  mitarbeiterId: string;
+  text: string;
+  objektId?: string;
+  erledigt: boolean;
+}
+
+/** Ansprechpartner am Objekt. Besichtigungen laufen oft über Hausverwaltung oder
+ *  Hausmeister, Unterlagen über eine andere Person – daher mehrere je Objekt (28.09.). */
+export interface Ansprechpartner {
+  name: string;
+  rolle: string; // z. B. Unterlagen, Besichtigung vor Ort, Eigentümervertretung
+  organisation?: string;
+  extern?: boolean;
 }
 
 /** Eingegangene Antwort aus der Antworterkennung – der Posteingang des Cockpits. */
