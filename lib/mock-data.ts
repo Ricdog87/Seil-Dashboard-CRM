@@ -172,8 +172,11 @@ export const mitarbeiter: Mitarbeiter[] = [
   },
   {
     id: "m3",
-    name: "Quentin Uttenweiler",
-    kuerzel: "QU",
+    // Die Übersicht vom 19.10. führt die Stelle besetzt, die Geschäftsführung
+    // hat sie am 26.10. als offen gemeldet. Rolle und Aufgaben bleiben.
+    name: "Nicht besetzt",
+    kuerzel: "n.b.",
+    unbesetzt: true,
     rolle: "Analyst | Investment",
     ebene: "team",
     bereich: "Staff",

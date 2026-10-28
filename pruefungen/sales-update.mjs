@@ -41,11 +41,15 @@ try {
     ["Amrit Brar", "Transaction Management | Investment"],
     ["Luca Niemann", "Transaction Management | Sales"],
     ["Lütfihan Karakas", "Support Transaction | Investment"],
-    ["Quentin Uttenweiler", "Analyst | Investment"],
   ];
   for (const [person, rolle] of erwartet) {
     ok(teamTafel.includes(person) && teamTafel.includes(rolle), `Team-Tafel: ${person} – ${rolle}`);
   }
+  // Die Analystenstelle ist offen: Rolle sichtbar, kein Name, als offen markiert.
+  ok(teamTafel.includes("Analyst | Investment"), "Team-Tafel: Analystenrolle weiter gelistet");
+  ok(/Stelle offen/.test(teamTafel), "Team-Tafel: offene Stelle ausgewiesen");
+  const umschalter = await page.locator('select[aria-label="Arbeiten als"]').innerText();
+  ok(/Analyst \| Investment \(nicht besetzt\)/.test(umschalter), "Umschalter nennt die offene Stelle über die Rolle");
   // Kontaktdaten gehören nicht ins öffentlich erreichbare Cockpit.
   const ganzeSeite = await page.content();
   ok(!/@seil\.com/.test(ganzeSeite), "Keine echten E-Mail-Adressen im Cockpit");

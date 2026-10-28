@@ -204,6 +204,9 @@ export interface Mitarbeiter {
   bereich?: string;
   /** Funktionen laut Teamübersicht (Buyer Communication, Valuation, Data Room Management …). */
   funktionen?: string[];
+  /** Rolle besteht, Stelle ist offen. Die Aufgaben bleiben sichtbar – genau das
+   *  ist die Arbeit, die die Automatik tragen muss (ANNAHMEN.md, Punkt 55). */
+  unbesetzt?: boolean;
 }
 
 /** Ein wartender Mail-Entwurf. Beschluss Sales-Update 28.09.: Entwürfe werden

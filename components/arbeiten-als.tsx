@@ -33,7 +33,7 @@ export function ArbeitenAls() {
           <optgroup key={ebene} label={label}>
             {leute.map((m) => (
               <option key={m.id} value={m.id}>
-                {m.name}
+                {m.unbesetzt ? `${m.rolle} (nicht besetzt)` : m.name}
               </option>
             ))}
           </optgroup>

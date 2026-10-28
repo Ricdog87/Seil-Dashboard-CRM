@@ -522,11 +522,13 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
       Seil als Geschäftsführung. Da Nino das Projekt auf Kundenseite führt,
       bleibt sein Konto bestehen – ist aber eine Setzung und keine Ableitung
       aus dem Dokument.
-    - *Die Analystenstelle.* Die Übersicht führt sie mit Stand 19.10. besetzt,
-      die Geschäftsführung hat am 26.10. mitgeteilt, dass es keinen Analysten
-      mehr gibt. Im Cockpit steht die Rolle wie im Dokument. Ob sie als
-      unbesetzt geführt werden soll, ist zu entscheiden – die Aufgaben dieser
-      Rolle bleiben in jedem Fall und muss die Automatik übernehmen.
+    - *Die Analystenstelle wird als offen geführt.* Die Übersicht führt sie mit
+      Stand 19.10. besetzt, die Geschäftsführung hat am 26.10. mitgeteilt, dass
+      es keinen Analysten mehr gibt. Entschieden: Rolle und Aufgaben bleiben,
+      der Personenname entfällt (`unbesetzt: true`). Die Team-Tafel weist
+      „Stelle offen“ aus, der Umschalter nennt die Rolle statt eines Namens.
+      Damit zeigt das Cockpit genau die Arbeit, die gerade niemand übernimmt –
+      und das ist die Liste, die die Automatik tragen muss.
     - *Zwei Sammelpostfächer als eigener Bereich.* Die Übersicht führt unter
       „Backoffice“ ein Sammelpostfach für Investorenanfragen und einen
       Sales-Verteiler. Das beantwortet eine bislang offene Frage: Antworten
@@ -535,3 +537,13 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
       Absender braucht. Die Adressen gehören in den n8n-Credential-Store, nicht
       ins Repository. Für den IT-Termin ist damit geklärt, **welches** Postfach
       freigegeben werden muss.
+
+56. **Repository auf privat, Demo-Seite offen:** Mit den echten Personendaten
+    wurde das GitHub-Repository von öffentlich auf privat gestellt. Ausschlag
+    gab die Git-Historie: ein öffentliches Repository ist durchsuchbar und
+    behält die Daten auch nach einer späteren Korrektur. Das Vercel-Deployment
+    bleibt bewusst ohne Anmeldung erreichbar, damit Geschäftsführung und Team
+    den Link ohne Hürde öffnen können – das war die Vorgabe. Dort stehen Name,
+    Kürzel, Rolle und Funktion, keine Kontaktdaten (Punkt 55). Soll auch die
+    Seite geschützt werden, geht das über Vercel Deployment Protection; das
+    kostet jeden Zugreifenden ein Passwort.

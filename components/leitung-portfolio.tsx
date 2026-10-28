@@ -167,7 +167,13 @@ export function LeitungPortfolio() {
                     <TR key={m.id}>
                       <TD>
                         <span className="flex flex-col gap-0.5">
-                          <span className="text-seil-text">{m.name}</span>
+                          {m.unbesetzt ? (
+                            <Badge tone="warning" icon={TriangleAlert}>
+                              Stelle offen
+                            </Badge>
+                          ) : (
+                            <span className="text-seil-text">{m.name}</span>
+                          )}
                           <span className="text-kicker text-seil-muted">{m.rolle}</span>
                         </span>
                       </TD>
