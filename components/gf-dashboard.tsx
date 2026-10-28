@@ -133,7 +133,7 @@ function AufmerksamkeitZeile({
 }
 
 /**
- * Der Geschäftsführungs-Blick: erscheint, wenn „Arbeiten als“ auf Max Seil
+ * Der Geschäftsführungs-Blick: erscheint, wenn „Arbeiten als“ auf Maximilian Seil
  * steht. Rein lesend – Projektsummen, Phasen, Funnel, Auslastung, Risiken.
  * Kein Posteingang, keine Aufgabenliste, kein einziger Eingabeknopf.
  * Aufgaben-Zahlen hängen am Sitzungszustand: hakt das Team ab, zählt es hier mit.

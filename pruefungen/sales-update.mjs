@@ -31,7 +31,25 @@ try {
   ok(JSON.stringify(gruppen) === JSON.stringify(["Geschäftsführung", "Sales Leadership", "Staff"]),
      `Umschalter nach Ebenen gruppiert: ${gruppen.join(", ")}`);
   const namen = await page.locator('select[aria-label="Arbeiten als"] option').evaluateAll((o) => o.map((x) => x.textContent.trim()));
-  ok(!namen.some((n) => /Pries|Tenbrink/.test(n)), "Management-Stab nicht im Umschalter");
+  ok(!namen.some((n) => /Lorenz|Güven/.test(n)), "Management-Stab nicht im Umschalter");
+
+  // --- 1b) Das echte Sales-/Investment-Team aus der Übersicht vom 19.10.
+  const teamTafel = await page.locator("h2:text-is('Team')").locator("xpath=../..").innerText();
+  const erwartet = [
+    ["Tobias Pföhler", "Head of Sales | Investment"],
+    ["Norman Schulz", "Supervision Transaction | Sales"],
+    ["Amrit Brar", "Transaction Management | Investment"],
+    ["Luca Niemann", "Transaction Management | Sales"],
+    ["Lütfihan Karakas", "Support Transaction | Investment"],
+    ["Quentin Uttenweiler", "Analyst | Investment"],
+  ];
+  for (const [person, rolle] of erwartet) {
+    ok(teamTafel.includes(person) && teamTafel.includes(rolle), `Team-Tafel: ${person} – ${rolle}`);
+  }
+  // Kontaktdaten gehören nicht ins öffentlich erreichbare Cockpit.
+  const ganzeSeite = await page.content();
+  ok(!/@seil\.com/.test(ganzeSeite), "Keine echten E-Mail-Adressen im Cockpit");
+  ok(!/Kaiserhofstra|HRB\s*123980/.test(ganzeSeite), "Keine Firmenstammdaten im Cockpit");
 
   // --- 2) Tagespriorität abhaken
   const prioKarte = page.locator("h2:has-text('Prioritäten heute')").locator("xpath=../..");
@@ -58,13 +76,13 @@ try {
   ok((await page.locator("text=7 freigegeben und an den Versand übergeben").count()) === 1, "Freigabe wird protokolliert");
 
   // --- 4) Geschäftsführung: nur Zahlen, kein Portfolio-Block, keine Freigabe
-  await wechsleZu("Max Seil");
+  await wechsleZu("Maximilian Seil");
   ok((await page.locator("h2:text-is('Portfolio')").count()) === 0, "GF sieht keinen Portfolio-Block");
   ok((await page.locator("h2:has-text('Freigabe · Mail-Entwürfe')").count()) === 0, "GF sieht keine Sammelfreigabe");
   ok((await page.locator("text=Geschäftsführungs-Blick").count()) >= 1, "GF-Blick aktiv");
 
   // --- 5) Staff: eigener Tag, kein Portfolio
-  await wechsleZu("Katharina Vogt");
+  await wechsleZu("Amrit Brar");
   ok((await page.locator("h2:text-is('Portfolio')").count()) === 0, "Staff sieht kein Portfolio");
   ok((await page.locator("h2:has-text('Posteingang')").count()) === 1, "Staff sieht den operativen Tag");
   const rolle = await page.locator('select[aria-label="Arbeiten als"]').inputValue();

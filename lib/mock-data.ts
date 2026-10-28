@@ -112,20 +112,22 @@ export const FREIGABE_SCHRITT_INDEX = 14;
 export const GF_ID = "m6";
 
 /**
- * Team nach der Rollen- und Berichtsstruktur, die die Leitung Sales am 19.10. geliefert hat:
- * drei Bereiche (Management, Sales Leadership, Staff), je Person Rolle und Funktion.
- * Übernommen sind ausschließlich Struktur, Rollenbezeichnungen und Funktionen –
- * die Personennamen bleiben Demodaten (ANNAHMEN.md, Punkt 52).
+ * Team nach der Sales-/Investment-Übersicht vom 19.10.: drei Bereiche
+ * (Management, Sales Leadership, Staff), je Person Rolle und Funktion.
+ * Namen, Rollen und Funktionen sind die echten – auf ausdrückliche Weisung,
+ * damit sich jeder im Workshop wiederfindet (ANNAHMEN.md, Punkt 55).
+ * Nicht übernommen: E-Mail-Adressen, Abschlüsse und Firmendaten. Das Cockpit
+ * liegt öffentlich erreichbar, dort haben Postfächer nichts zu suchen.
  */
 export const mitarbeiter: Mitarbeiter[] = [
   // Management
-  { id: GF_ID, name: "Max Seil", kuerzel: "MS", rolle: "Managing Director", ebene: "fuehrung", bereich: "Management" },
+  { id: GF_ID, name: "Maximilian Seil", kuerzel: "MS", rolle: "Managing Director", ebene: "fuehrung", bereich: "Management" },
   { id: "m5", name: "Nino Grubisic", kuerzel: "NG", rolle: "Geschäftsführung", ebene: "fuehrung", bereich: "Management" },
   // Sales Leadership – sieht zusätzlich die Portfolio-Ebene über alle Mandate
   {
     id: "m7",
-    name: "Henrik Baumann",
-    kuerzel: "HB",
+    name: "Tobias Pföhler",
+    kuerzel: "TP",
     rolle: "Head of Sales | Investment",
     ebene: "leitung",
     bereich: "Sales Leadership",
@@ -133,8 +135,8 @@ export const mitarbeiter: Mitarbeiter[] = [
   },
   {
     id: "m8",
-    name: "Clara Weiss",
-    kuerzel: "CW",
+    name: "Norman Schulz",
+    kuerzel: "NS",
     rolle: "Supervision Transaction | Sales",
     ebene: "leitung",
     bereich: "Sales Leadership",
@@ -143,8 +145,8 @@ export const mitarbeiter: Mitarbeiter[] = [
   // Staff – eigene Mandate
   {
     id: "m1",
-    name: "Katharina Vogt",
-    kuerzel: "KV",
+    name: "Amrit Brar",
+    kuerzel: "AB",
     rolle: "Transaction Management | Investment",
     ebene: "team",
     bereich: "Staff",
@@ -152,8 +154,8 @@ export const mitarbeiter: Mitarbeiter[] = [
   },
   {
     id: "m2",
-    name: "Daniel Mertens",
-    kuerzel: "DM",
+    name: "Luca Niemann",
+    kuerzel: "LN",
     rolle: "Transaction Management | Sales",
     ebene: "team",
     bereich: "Staff",
@@ -161,8 +163,8 @@ export const mitarbeiter: Mitarbeiter[] = [
   },
   {
     id: "m4",
-    name: "Jonas Brandt",
-    kuerzel: "JB",
+    name: "Lütfihan Karakas",
+    kuerzel: "LK",
     rolle: "Support Transaction | Investment",
     ebene: "team",
     bereich: "Staff",
@@ -170,16 +172,16 @@ export const mitarbeiter: Mitarbeiter[] = [
   },
   {
     id: "m3",
-    name: "Sofia Ricci",
-    kuerzel: "SR",
+    name: "Quentin Uttenweiler",
+    kuerzel: "QU",
     rolle: "Analyst | Investment",
     ebene: "team",
     bereich: "Staff",
-    funktionen: ["Investor Outreach & Follow-up", "Data Room Management", "Backoffice"],
+    funktionen: ["Investor Outreach & Follow-up", "Data Room Management"],
   },
   // Management-Stab ohne eigene Mandate – in der Teamübersicht sichtbar, nicht im Umschalter
-  { id: "m9", name: "Jonathan Pries", kuerzel: "JP", rolle: "Management Associate | Advisor to Board", ebene: "stab", bereich: "Management" },
-  { id: "m10", name: "Marie Tenbrink", kuerzel: "MT", rolle: "Personal Assistant | Operations", ebene: "stab", bereich: "Management" },
+  { id: "m9", name: "Max Lorenz", kuerzel: "ML", rolle: "Management Associate | Advisor to Board", ebene: "stab", bereich: "Management" },
+  { id: "m10", name: "Aylin Güven", kuerzel: "AG", rolle: "Personal Assistant to M. Seil | Operations", ebene: "stab", bereich: "Management" },
 ];
 
 /**
@@ -736,9 +738,9 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak07", datum: "2026-10-02T10:15", typ: "mail_eingang", text: "Quercus Real Assets: NDA unterzeichnet, bittet um Datenraumzugang.", objektId: "o1", investorId: "i12" },
   { id: "ak08", datum: "2026-10-03T09:00", typ: "system", quelle: "Modul 01", text: "Datenraum-Zugang für Quercus Real Assets eingerichtet.", objektId: "o1", investorId: "i12" },
   { id: "ak09", datum: "2026-10-09T13:48", typ: "mail_eingang", text: "Novaris Invest fragt Preisvorstellung und Faktor an.", objektId: "o1", investorId: "i2" },
-  { id: "ak10", datum: "2026-10-09T13:49", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Preisanfrage – Erstantwort versendet, Aufgabe „Rückruf durch die Geschäftsführung“ für Katharina Vogt erstellt (Leitung im BCC).", objektId: "o1", investorId: "i2" },
+  { id: "ak10", datum: "2026-10-09T13:49", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Preisanfrage – Erstantwort versendet, Aufgabe „Rückruf durch die Geschäftsführung“ für Amrit Brar erstellt (Leitung im BCC).", objektId: "o1", investorId: "i2" },
   { id: "ak11", datum: "2026-10-11T09:31", typ: "mail_eingang", text: "Falkenstein Capital meldet konkretes Interesse, bittet um Gespräch.", objektId: "o1", investorId: "i1" },
-  { id: "ak12", datum: "2026-10-11T09:32", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Interesse – Aufgabe „Broker Call“ für Katharina Vogt erstellt.", objektId: "o1", investorId: "i1" },
+  { id: "ak12", datum: "2026-10-11T09:32", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Interesse – Aufgabe „Broker Call“ für Amrit Brar erstellt.", objektId: "o1", investorId: "i1" },
   { id: "ak13", datum: "2026-10-12T15:10", typ: "mail_eingang", text: "Belvedere Grund Invest sagt ab – kein Büro-Ankauf in 2026.", objektId: "o1", investorId: "i9" },
   { id: "ak14", datum: "2026-10-13T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 3 an Corvus Family Office versendet – maximale Stufe erreicht.", objektId: "o1", investorId: "i8" },
   { id: "ak15", datum: "2026-10-14T11:05", typ: "anruf", text: "Rückfragen von Hartmann & Cie. zur Mieter- & Flächenliste beantwortet.", objektId: "o1", investorId: "i3", mitarbeiterId: "m1" },
@@ -758,7 +760,7 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak47", datum: "2026-10-13T08:05", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 2 automatisch versendet an Rheingold Asset Management.", objektId: "o2", investorId: "i4" },
   { id: "ak48", datum: "2026-10-14T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 2 automatisch versendet an Falkenstein Capital Partners.", objektId: "o2", investorId: "i1" },
   { id: "ak21", datum: "2026-10-12T14:22", typ: "mail_eingang", text: "Portus Logistics Capital meldet Interesse – Objektbesichtigung gewünscht.", objektId: "o2", investorId: "i7" },
-  { id: "ak22", datum: "2026-10-12T14:23", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Interesse – Aufgabe „Broker Call“ für Daniel Mertens erstellt.", objektId: "o2", investorId: "i7" },
+  { id: "ak22", datum: "2026-10-12T14:23", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Interesse – Aufgabe „Broker Call“ für Luca Niemann erstellt.", objektId: "o2", investorId: "i7" },
   { id: "ak50", datum: "2026-10-15T07:58", typ: "mail_eingang", text: "Portus Logistics stellt Fragen zu Mietvertrag Halle 2 und Erweiterungsreserve – Antworterkennung: Signal im Posteingang.", objektId: "o2", investorId: "i7" },
   { id: "ak23", datum: "2026-10-14T16:40", typ: "anruf", text: "Statusupdate an Gateway Industrial: 4 Kontakte angeschrieben, 1 Interessent.", objektId: "o2", auftraggeberId: "a3", mitarbeiterId: "m2" },
 
@@ -767,10 +769,10 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak43", datum: "2026-09-27T08:20", typ: "system", quelle: "KI", text: "KI-Extraktion: Grundbuchdaten der 3 Liegenschaften ausgelesen und ins CRM übernommen.", objektId: "o3" },
   { id: "ak55", datum: "2026-09-27T08:25", typ: "system", quelle: "KI", text: "Ø-Kaltmiete 14,90 €/m² ermittelt – wegen Staffelmieten in 8 Verträgen zur Prüfung markiert.", objektId: "o3" },
   { id: "ak25", datum: "2026-10-02T11:30", typ: "notiz", text: "Fotograf beauftragt, Termin 10.08. vor Ort.", objektId: "o3", mitarbeiterId: "m1" },
-  { id: "ak44", datum: "2026-10-06T10:00", typ: "system", quelle: "KI", text: "Teaser und Listing automatisch generiert – Entwurf zur Prüfung an Katharina Vogt.", objektId: "o3" },
+  { id: "ak44", datum: "2026-10-06T10:00", typ: "system", quelle: "KI", text: "Teaser und Listing automatisch generiert – Entwurf zur Prüfung an Amrit Brar.", objektId: "o3" },
   { id: "ak26", datum: "2026-10-08T17:15", typ: "notiz", text: "Teaser und Listing final abgestimmt mit Auftraggeberin.", objektId: "o3", auftraggeberId: "a2", mitarbeiterId: "m1" },
   { id: "ak27", datum: "2026-10-11T08:45", typ: "system", quelle: "Automatik", text: "Investorenliste abgeglichen: 6 passende Profile (Assetklasse Wohnen, Ticket passend, Region Rhein-Main/Top-7).", objektId: "o3" },
-  { id: "ak28", datum: "2026-10-11T08:46", typ: "system", quelle: "Automatik", text: "Aufgabe „Investorenliste freigeben“ für Katharina Vogt erstellt – Versand wartet auf Freigabe.", objektId: "o3" },
+  { id: "ak28", datum: "2026-10-11T08:46", typ: "system", quelle: "Automatik", text: "Aufgabe „Investorenliste freigeben“ für Amrit Brar erstellt – Versand wartet auf Freigabe.", objektId: "o3" },
 
   // Fachmarktzentrum Hanauer Landstraße (o4)
   { id: "ak29", datum: "2026-09-24T10:00", typ: "mail_ausgang", text: "Datenraum-Anforderung mit Standard-Checkliste an HL Retail Estate versendet.", objektId: "o4", auftraggeberId: "a4", mitarbeiterId: "m2" },
@@ -797,7 +799,7 @@ export const aktivitaeten: Aktivitaet[] = [
   { id: "ak57", datum: "2026-10-23T10:15", typ: "mail_eingang", text: "Portus Logistics bittet um Mieterliste und Flächenaufstellung Halle 1–3.", objektId: "o2", investorId: "i7" },
   { id: "ak58", datum: "2026-10-23T10:16", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Unterlagen-Anfrage – Datenraum-Abgleich: vorhanden, Unterlagen mit Vorlage versendet (Leitung im BCC).", objektId: "o2", investorId: "i7" },
   { id: "ak59", datum: "2026-10-22T15:20", typ: "mail_eingang", text: "Quercus Real Assets bittet um ein kurzes Telefonat zu den offenen Punkten im Datenraum.", objektId: "o1", investorId: "i12" },
-  { id: "ak60", datum: "2026-10-22T15:21", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Telefonwunsch – Aufgabe „Rückruf durch die Geschäftsführung“ für Katharina Vogt erstellt (Leitung im BCC).", objektId: "o1", investorId: "i12" },
+  { id: "ak60", datum: "2026-10-22T15:21", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Telefonwunsch – Aufgabe „Rückruf durch die Geschäftsführung“ für Amrit Brar erstellt (Leitung im BCC).", objektId: "o1", investorId: "i12" },
   { id: "ak61", datum: "2026-10-23T11:30", typ: "anruf", text: "Rückruf durch die Geschäftsführung erfolgt – offene Datenraum-Punkte mit Quercus Real Assets geklärt.", objektId: "o1", investorId: "i12", mitarbeiterId: "m1" },
 ];
 
@@ -846,7 +848,7 @@ export const signale: Signal[] = [
     auszug: "„… haben das Objekt intern vorgestellt, konkretes Interesse – wer ist unser Ansprechpartner für ein Gespräch?“",
     empfehlung: "Broker Call anlegen",
     status: "verarbeitet",
-    verarbeitungsHinweis: "Aufgabe „Broker Call“ für Katharina Vogt erstellt (Automatik)",
+    verarbeitungsHinweis: "Aufgabe „Broker Call“ für Amrit Brar erstellt (Automatik)",
   },
   {
     id: "s4",
@@ -857,7 +859,7 @@ export const signale: Signal[] = [
     auszug: "„… bitte um Ihre Preisvorstellung und den angesetzten Faktor auf die JNKM.“",
     empfehlung: "Rückruf durch die Geschäftsführung koordinieren – Preisauskunft nur telefonisch (Standardprozess)",
     status: "verarbeitet",
-    verarbeitungsHinweis: "Erstantwort versendet, Aufgabe „Rückruf GF vorbereiten“ für Katharina Vogt erstellt, Leitung im BCC (Automatik)",
+    verarbeitungsHinweis: "Erstantwort versendet, Aufgabe „Rückruf GF vorbereiten“ für Amrit Brar erstellt, Leitung im BCC (Automatik)",
   },
   // Kategorien aus dem Standardprozess Investorenkommunikation (31.08.): Unterlagen-Anfrage, Telefonwunsch.
   {
@@ -880,7 +882,7 @@ export const signale: Signal[] = [
     auszug: "„… würden die offenen Punkte zum Datenraum gern kurz telefonisch besprechen – wann passt es Ihnen?“",
     empfehlung: "Telefonwunsch → Rückruf durch die Geschäftsführung (Standardprozess)",
     status: "verarbeitet",
-    verarbeitungsHinweis: "Aufgabe „Rückruf durch die Geschäftsführung“ für Katharina Vogt erstellt, Leitung im BCC (Automatik)",
+    verarbeitungsHinweis: "Aufgabe „Rückruf durch die Geschäftsführung“ für Amrit Brar erstellt, Leitung im BCC (Automatik)",
   },
 ];
 

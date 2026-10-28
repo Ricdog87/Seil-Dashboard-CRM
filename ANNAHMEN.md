@@ -81,13 +81,11 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
     abgeleitet und als wichtigste Steuerungsgrößen angenommen.
 15. **„Investoren ohne Rückmeldung“** = angeschriebene Kontakte ohne jede Antwort;
     „mit Handlungsbedarf“ = Follow-up überfällig oder Stufe 3 ausgeschöpft.
-16. **Team-Modell:** 5 operative Personen inkl. „Investment-Team“ als zuweisbare
-    Einheit für Preisanfragen, dazu die Geschäftsführung. Rollen, Namen und
-    Zuständigkeiten sind frei erfunden – mit **zwei bewussten Ausnahmen:**
-    Nino Grubisic (Leitung Sales) und Max Seil (Geschäftsführer) wurden auf
-    ausdrücklichen Wunsch als echte Nutzer für die Demo angelegt (ohne
-    Kontaktdaten; zum GF-Konto siehe Punkt 43). Alle Objekte, Investoren und
-    übrigen Personen bleiben fiktiv.
+16. **Team-Modell:** Das Sales-/Investment-Team der Übersicht vom 19.10. mit
+    **echten Namen, Rollen und Funktionen** (Punkt 55), dazu „Investment-Team“
+    als zuweisbare Einheit für Preisanfragen. Ohne Kontaktdaten; zum GF-Konto
+    siehe Punkt 43. **Alle Objekte, Auftraggeber und Investoren bleiben fiktiv** –
+    echt ist nur, wer bei SEIL arbeitet, nicht womit.
 
 ## Struktur & Design
 
@@ -160,7 +158,7 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
     verändert Freigabe-Granularität und Datenmodell.
     **Präzisierung E-Mail-Abgleich (Projektstand 28.08.):** Der Mail-Sync läuft
     über die **gemeinsame Sales-Adresse** (BCC-Sync). Einbezogen werden die
-    Postfächer des Investment-Teams; die Postfächer von Max Seil und Nino
+    Postfächer des Investment-Teams; die Postfächer von Maximilian Seil und Nino
     Grubisic ausdrücklich **nicht**. Die Automatik deckt die drei Szenarien aus
     dem Angebot ab (Response, Preisanfrage, kein Rücklauf) – inklusive
     automatischer Eingangsbestätigung bei eingehenden Antworten. Der einzige
@@ -247,7 +245,7 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
     (prefers-reduced-motion). Annahme: Diese Dosierung ist gewollt – mehr
     Effekte (z. B. animierte Diagramme, Parallax) bitte nur auf expliziten
     Wunsch.
-43. **GF-Konto (Max Seil) mit eigenem Dashboard:** „Arbeiten als“ Max Seil
+43. **GF-Konto (Maximilian Seil) mit eigenem Dashboard:** „Arbeiten als“ Maximilian Seil
     schaltet die Übersicht auf eine **rein lesende Geschäftsführungs-Sicht**:
     Projektsummen (Pipeline gesamt, in aktiver Vermarktung), Honorarpotenzial,
     Antwortquote, Projektsummen je Prozessphase, Vermarktungs-Funnel, alle
@@ -492,18 +490,12 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
     - **Persönliche Kommunikation bleibt manuell:** Direkter Kundenaustausch
       und Verhandlungen werden ausdrücklich nicht automatisiert.
 
-53. **Teamübersicht vom 19.10. – Struktur übernommen, Namen nicht:** Die
-    gelieferte Rollen- und Berichtsstruktur (drei Bereiche Management, Sales
-    Leadership und Staff; je Person Rolle und Funktion wie Buyer Communication,
-    Valuation, Data Room Management, Deal Reporting) ist vollständig im
-    Datenmodell abgebildet. **Nicht übernommen sind die echten Personennamen,
-    E-Mail-Adressen, Abschlüsse und Firmendaten** – sie blieben außerhalb des
-    Repositorys, wie für alle Kundendaten in diesem Projekt vereinbart. Die
-    Namen im Prototyp sind weiterhin Demodaten; Ausnahme bleiben die beiden
-    ausdrücklich gewünschten Konten der Geschäftsführung (Punkt 16). Sollen die
-    echten Personen in der Demo erscheinen, ist das eine bewusste Freigabe und
-    in einem Schritt nachgezogen. Produktiv kommen Personen ohnehin aus dem
-    Verzeichnis des Mandanten, nicht aus Demodaten.
+53. **Teamübersicht vom 19.10. – zunächst nur die Struktur:** Die gelieferte
+    Rollen- und Berichtsstruktur (drei Bereiche Management, Sales Leadership und
+    Staff; je Person Rolle und Funktion wie Buyer Communication, Valuation,
+    Data Room Management, Deal Reporting) wurde vollständig abgebildet, die
+    Personennamen zunächst nicht. **Überholt durch Punkt 55** – die echten
+    Namen sind inzwischen freigegeben und gesetzt.
 
 54. **Noch offen aus dem Sales-Update:** Team-Auswertung über die
     Portfolio-Ebene hinaus (Auswertung je Zeitraum) ist als V2 benannt und
@@ -511,3 +503,35 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
     kommunikation** (Vorschlag der Leitung Sales) und der Umgang mit dem
     vollständigen 33-Schritte-Prozess – im Prototyp sind 26 Schritte
     abgebildet (Punkt 2), die Reduktion wurde im Termin kritisch angemerkt.
+
+55. **Echte Namen im Prototyp – auf ausdrückliche Weisung:** Vor dem Workshop am
+    30.10. wurde entschieden, dass sich jeder im Team wiederfinden soll. Gesetzt
+    sind deshalb die echten **Namen, Rollen, Funktionen und Bereiche** des
+    Sales-/Investment-Teams aus der Übersicht vom 19.10.
+
+    **Bewusst nicht übernommen:** E-Mail-Adressen, akademische Abschlüsse,
+    Firmensitz und Handelsregisternummer. Das Cockpit liegt ohne Anmeldung
+    öffentlich erreichbar und das Repository auf GitHub; neun echte Postfächer
+    wären dort abgreifbar. Für die Wiedererkennung genügen Name, Kürzel und
+    Rolle. Adressen gehören produktiv ins Verzeichnis des Mandanten, nicht in
+    Demodaten.
+
+    **Drei Punkte, die beim Übertragen aufgefallen sind:**
+
+    - *Nino Grubisic steht nicht in der Übersicht.* Sie führt allein Maximilian
+      Seil als Geschäftsführung. Da Nino das Projekt auf Kundenseite führt,
+      bleibt sein Konto bestehen – ist aber eine Setzung und keine Ableitung
+      aus dem Dokument.
+    - *Die Analystenstelle.* Die Übersicht führt sie mit Stand 19.10. besetzt,
+      die Geschäftsführung hat am 26.10. mitgeteilt, dass es keinen Analysten
+      mehr gibt. Im Cockpit steht die Rolle wie im Dokument. Ob sie als
+      unbesetzt geführt werden soll, ist zu entscheiden – die Aufgaben dieser
+      Rolle bleiben in jedem Fall und muss die Automatik übernehmen.
+    - *Zwei Sammelpostfächer als eigener Bereich.* Die Übersicht führt unter
+      „Backoffice“ ein Sammelpostfach für Investorenanfragen und einen
+      Sales-Verteiler. Das beantwortet eine bislang offene Frage: Antworten
+      laufen nicht in persönliche Postfächer, sondern in ein Sammelpostfach –
+      genau das, was WF 06 (Antworterkennung) liest und WF 05 (Versand) als
+      Absender braucht. Die Adressen gehören in den n8n-Credential-Store, nicht
+      ins Repository. Für den IT-Termin ist damit geklärt, **welches** Postfach
+      freigegeben werden muss.

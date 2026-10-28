@@ -43,7 +43,7 @@ verschieben und abhaken, und die Vermarktung zeigt Antwortquote und
 Teaser-Pipeline (KI-Entwurf → Prüfung → Versand). Alle Eingriffe gelten nur in
 der laufenden Sitzung – ein Reload stellt den Demostand wieder her.
 
-**Rollen-Sicht Geschäftsführung:** „Arbeiten als“ **Max Seil (Geschäftsführer)**
+**Rollen-Sicht Geschäftsführung:** „Arbeiten als“ **Maximilian Seil (Geschäftsführer)**
 schaltet die Übersicht auf ein eigenes, **rein lesendes GF-Dashboard** –
 Projektsummen (Pipeline gesamt / in aktiver Vermarktung), Honorarpotenzial
 (Modellrechnung 1,5 %, Satz offen), Antwortquote, Projektsummen je Phase,
@@ -210,7 +210,7 @@ Prinzip **ein Schreibweg, ein Leseweg, eine Ablage**:
 **Aufgaben**
 ![Aufgaben](docs/screenshots/05-aufgaben.png)
 
-**GF-Dashboard („Arbeiten als“ Max Seil)**
+**GF-Dashboard („Arbeiten als“ Maximilian Seil)**
 ![GF-Dashboard](docs/screenshots/08-gf-dashboard.png)
 
 **Mobil (390 px): Übersicht und Aufgaben-Board mit Verschieben-Menü**
@@ -287,14 +287,19 @@ DESIGN.md                  Design-System: Palette, Typo, Abstände, Do's und Don
 
 ## Leitplanken
 
-- Keine echten SEIL-Daten, keine echten Investorennamen, keine Kundendokumente –
-  alles frei erfunden (E-Mail-Domains enden auf `.example`). Zwei bewusste
-  Ausnahmen: Nino Grubisic (Leitung Sales) und Max Seil (Geschäftsführer) sind
-  auf Wunsch als echte Nutzer für die Demo angelegt – ohne Kontaktdaten
-  (ANNAHMEN.md, Punkte 16 und 43).
-- Modul 01 (Datenraum-Automatik) ist **nicht** angebunden; der Datenraum-Status wird
-  nur als Anzeige simuliert und ist entsprechend gekennzeichnet.
-- Der Freigabe-Button in der Vermarktung ist eine reine UI-Demonstration.
+- **Personen sind echt, Geschäftsdaten nicht.** Das Sales-/Investment-Team
+  trägt auf ausdrückliche Weisung die echten Namen, Rollen und Funktionen aus
+  der Übersicht vom 19.10. (ANNAHMEN.md, Punkt 55), damit sich im Workshop
+  jeder wiederfindet. **Ohne E-Mail-Adressen, Abschlüsse und Firmendaten** –
+  das Cockpit ist ohne Anmeldung erreichbar, dort haben Postfächer nichts zu
+  suchen.
+- Keine echten Objekte, Auftraggeber oder Investoren, keine Kundendokumente –
+  alles frei erfunden (E-Mail-Domains enden auf `.example`).
+- Modul 01 (Datenraum-Automatik) ist über WF 09 angedockt: Steht keine
+  Verbindung, läuft die Anzeige im Modus `demo` und weist das aus
+  (ANNAHMEN.md, Punkt 51).
+- Der Freigabe-Button in der Vermarktung ist eine reine UI-Demonstration; die
+  Versand-Strecke wird bewusst inaktiv übergeben.
 
 Nutzungsleitfaden für das Team: siehe [`ANLEITUNG.md`](ANLEITUNG.md) –
 auch als PDF zum Weitergeben: [`docs/SEIL-Cockpit-Anleitung.pdf`](docs/SEIL-Cockpit-Anleitung.pdf).
