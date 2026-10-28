@@ -399,7 +399,7 @@
     },
     {
       "id": "set-preis1",
-      "name": "Preis: Vorlage 'preis-erstantwort' + Rückruf GF",
+      "name": "Preis: Erstantwort + Rückruf an die Preisauskunft des Mandats",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
@@ -412,7 +412,7 @@
             {
               "id": "set-preis1-0",
               "name": "vorlage",
-              "value": "preis-erstantwort",
+              "value": "={{ $json.preisauskunftRolle === 'gf' ? 'preis-erstantwort-gf' : 'preis-erstantwort-sales' }}",
               "type": "string"
             },
             {
@@ -424,7 +424,7 @@
             {
               "id": "set-preis1-2",
               "name": "aufgabe",
-              "value": "Rückruf durch die Geschäftsführung (Preisauskunft nur telefonisch)",
+              "value": "={{ 'Rückruf durch ' + ($json.preisauskunftName ?? 'die Preisauskunft des Mandats') + ' (Preisauskunft nur telefonisch)' }}",
               "type": "string"
             },
             {
@@ -654,7 +654,7 @@
     },
     {
       "id": "set-telefonat",
-      "name": "Telefonwunsch: Vorlage 'telefonat-gf' + Rückruf GF",
+      "name": "Telefonwunsch: Vorlage + Rückruf an die Preisauskunft des Mandats",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
@@ -667,7 +667,7 @@
             {
               "id": "set-telefonat-0",
               "name": "vorlage",
-              "value": "telefonat-gf",
+              "value": "={{ $json.preisauskunftRolle === 'gf' ? 'telefonat-gf' : 'telefonat-sales' }}",
               "type": "string"
             },
             {
@@ -679,7 +679,7 @@
             {
               "id": "set-telefonat-2",
               "name": "aufgabe",
-              "value": "Rückruf durch die Geschäftsführung",
+              "value": "={{ 'Rückruf durch ' + ($json.preisauskunftName ?? 'die Preisauskunft des Mandats') }}",
               "type": "string"
             }
           ]
@@ -918,7 +918,7 @@
         ],
         [
           {
-            "node": "Telefonwunsch: Vorlage 'telefonat-gf' + Rückruf GF",
+            "node": "Telefonwunsch: Vorlage + Rückruf an die Preisauskunft des Mandats",
             "type": "main",
             "index": 0
           }
@@ -950,7 +950,7 @@
         ],
         [
           {
-            "node": "Preis: Vorlage 'preis-erstantwort' + Rückruf GF",
+            "node": "Preis: Erstantwort + Rückruf an die Preisauskunft des Mandats",
             "type": "main",
             "index": 0
           }
@@ -1168,7 +1168,7 @@
         ]
       ]
     },
-    "Preis: Vorlage 'preis-erstantwort' + Rückruf GF": {
+    "Preis: Erstantwort + Rückruf an die Preisauskunft des Mandats": {
       "main": [
         [
           {
@@ -1212,7 +1212,7 @@
         ]
       ]
     },
-    "Telefonwunsch: Vorlage 'telefonat-gf' + Rückruf GF": {
+    "Telefonwunsch: Vorlage + Rückruf an die Preisauskunft des Mandats": {
       "main": [
         [
           {

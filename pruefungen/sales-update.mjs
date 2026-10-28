@@ -113,6 +113,19 @@ try {
   const drText = await dr.innerText();
   ok(/Mieterliste/.test(drText) && /Kataster/.test(drText), "SOP-Kategorienamen statt erfundener");
   ok(!/Betriebskosten|Gutachten|Grundsteuer/.test(drText), "Full-only-Kategorien bleiben im Light aus");
+  // SOP 8.1: vorhanden, aber im Dateinamen UNBEKANNT – gehört auf die QC-Liste.
+  ok(/unklar benannt/.test(drText), "Vierter Dokumentzustand sichtbar");
+  ok(/UNBEKANNT/.test(drText), "QC-Hinweis nennt den Grund");
+
+  // --- 7b) Preisauskunft je Mandat (Standardprozess, zwei Varianten)
+  const ansprech = page.locator("h2:text-is('Ansprechpartner')").locator("xpath=../..");
+  const aText = await ansprech.innerText();
+  ok(/Preisauskunft/.test(aText), "Preisauskunft am Mandat hinterlegt");
+  ok(/nur telefonisch/.test(aText), "Preise werden nie schriftlich beantwortet");
+  await page.goto(`${B}/objekte/o2`, { waitUntil: "networkidle" });
+  const a2 = await page.locator("h2:text-is('Ansprechpartner')").locator("xpath=../..").innerText();
+  ok(/Tobias Pföhler/.test(a2), "Regelfall: Head of Sales gibt die Preisauskunft");
+  ok(!/Maximilian Seil/.test(a2), "Geschäftsführung nur bei persönlich betreuten Mandaten");
 
   // --- 8) Mobil: keine Querscroll-Leiste auf der Leitungs-Ansicht
   await page.setViewportSize({ width: 390, height: 844 });

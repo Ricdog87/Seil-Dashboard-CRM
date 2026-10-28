@@ -9,9 +9,9 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
    Liste „SEIL Transaction Process“: bereinigt 26 Schritte in 4 Phasen, je
    Schritt Verantwortung und heutiges Tool (Word/PDF, Excel, PowerPoint,
    Outlook, OneDrive, Pipedrive). Als Verantwortliche führt die Excel Client,
-   Legal Team, Investment Team, **Investment Team (India)**, Broker und Team –
-   im Prototyp ist India unter „Investment Team“ zusammengefasst; welche
-   Schritte real in Indien liegen, bitte im Gespräch klären. Für die kompakte
+   Legal Team, Investment Team, Investment Team (India), Broker und Team.
+   **Die indische Einheit gibt es nicht mehr** (bestätigt am 28.10.); ihre
+   Schritte laufen im Prototyp unter „Investment Team“. Für die kompakte
    Leiste wurden deutsche Kurzlabels gesetzt. → `lib/mock-data.ts`
 2. **Bereinigungen gegenüber der Excel (bitte bestätigen):** Die Excel führt
    real 25 Statusspalten. Zwei kombinierte Einträge wurden für den Prototyp in
@@ -596,29 +596,46 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
     greift die Vorlage „Auskunft nur telefonisch“. Die BCC-Regel und die
     Besichtigungskette samt Kalendertitel „BES mit …“ entsprechen der Vorlage.
 
-    **Offen, bewusst nicht gebaut:**
+    **Am 28.10. entschieden:**
 
-    - *Call-Center.* Zwei Flowchart-Kästen fehlen: „Kickoff with Call center“
-      (Teams-Briefing) und „Phone Call (Standard Process / Questions)“. Das
-      Flowchart sieht dafür eine eigene Spalte und eine Rückkopplung in
-      Pipedrive-Activities vor. Als Erweiterungspunkt benannt, nicht umgesetzt.
-    - *Zweiter Weg bei Preisanfragen.* Die korrigierte Excel enthält neben der
-      Variante „Rückruf durch die Geschäftsführung“ eine zweite, die auf den
-      Partner (Head of Sales) verweist. Modelliert ist nur der erste Weg. Welche
-      Variante wann gilt, ist eine Workshop-Frage.
-    - *Dritter Dokumentzustand.* Die SOP kennt den Fall „Information nicht
-      sicher auffindbar“: Datei wird mit `UNBEKANNT` im Namen abgelegt und in
-      einer QC-Liste vermerkt. Das Cockpit kennt nur vorhanden, in Prüfung und
-      ausstehend – ein vorhandenes, aber unklar benanntes Dokument hat keinen
-      Platz.
-    - *Ordner-Nummerierung.* Die SOP verweist für das fortlaufende Nummerieren
-      auf ein internes Werkzeug („SOP – Datenraum Ordner automatisch
-      sortieren/nummerieren“), das hier nicht vorliegt. Vermutlich Teil von
-      Modul 01; zu bestätigen.
+    - *Call-Center entfällt.* Die beiden Flowchart-Kästen „Kickoff with Call
+      center“ und „Phone Call (Standard Process / Questions)“ gehören nicht zum
+      Umfang. Damit bildet der Prototyp 15 der 17 Kästen ab, und die fehlenden
+      zwei sind eine Entscheidung, kein Rückstand.
+    - *Preisauskunft wird je Mandat hinterlegt.* Die korrigierte Excel enthält
+      zwei Varianten – eine verweist auf die Geschäftsführung, eine auf den
+      Partner (Head of Sales). Keine von beiden ist generell richtig: Die Excel
+      begründet beide gleich („kümmert sich persönlich um **dieses** Mandat“),
+      es ist also eine Eigenschaft des Mandats, nicht des Prozesses. Umgesetzt
+      als `preisauskunftId` am Objekt. **Regelfall ist der Head of Sales**, weil
+      die Funktion laut Teamübersicht Seller Communication und Deal Execution
+      trägt und 50–80 parallele Verkaufsvorhaben nicht über einen einzigen
+      Geschäftsführer laufen können; die Geschäftsführung bleibt die Ausnahme
+      für persönlich betreute Mandate. WF 06 wählt Vorlage und Rückruf-Aufgabe
+      danach aus.
+    - *Dritter Dokumentzustand gebaut.* `unklar` nach SOP 8.1: Das Dokument
+      liegt im richtigen Ordner, eine Angabe im Dateinamen ist UNBEKANNT. Es
+      trägt einen `qcHinweis`, der den Eintrag auf der QC-Liste bildet, und
+      zählt bewusst **nicht** als vorhanden – die Definition of Done der SOP
+      verlangt korrekte Benennung.
+    - *Ordner-Nummerierung bleibt bei Modul 01.* Bestätigt: Das interne Werkzeug
+      aus der SOP ist dort angesiedelt, nicht im Cockpit.
 
-    **Widerspruch in den Unterlagen selbst:** Der Standardprozess trägt den
-    Stand 12.09.2024 und nennt als Bearbeiter „SEIL India“, das Flowchart ein
-    „Investment Team (India)“. Die Teamübersicht vom 19.10.2026 kennt keine
-    indische Einheit. Außerdem arbeitet das Flowchart durchgehend mit Pipedrive,
-    das abgelöst werden soll. Welcher Stand gilt, ist zu klären.
+    **Noch offen zur Ordner-Nummerierung:** Die SOP sagt nicht, **wo** die
+    QC-Liste geführt wird – Datei im Datenraum, Tabelle oder Aufgabe. Der
+    Prototyp führt sie am Dokument; wenn SEIL ein eigenes Format hat, wird
+    darauf abgebildet.
+
+58. **Sammelpostfach steht fest: `deals@seil.com` (28.10.).** Die IT hat es
+    eingerichtet. Es ersetzt die bisherige Annahme `invest@seil.com`, die aus
+    der Kopfzeile des Standardprozesses (Stand 12.09.2024) und der Teamübersicht
+    stammte. Über dieses Postfach läuft alles: WF 06 liest die Antworten daraus,
+    WF 05 sendet darüber, WF 08 legt die Besichtigungstermine in dessen Kalender.
+    In den Workflow-Dateien ist die Adresse gesetzt.
+
+    **Vier Adressen fehlen noch** und stehen weiter als Platzhalter:
+    `leitung@…` (die Leitung im BCC jeder ausgehenden Mail – der Standardprozess
+    nennt hier zwei Personen, keine Sammeladresse), `cockpit@…` als Absender des
+    täglichen Statusberichts sowie dessen beide Empfänger
+    `geschaeftsfuehrung@…` und `vertriebsleitung@…`. Diese werden nicht geraten.
 

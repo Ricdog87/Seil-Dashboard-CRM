@@ -61,6 +61,7 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
   const ag = auftraggeberVon(objekt.auftraggeberId)!;
   const zust = mitarbeiterVon(objekt.zustaendigId)!;
   const vertretung = objekt.vertretungId ? mitarbeiterVon(objekt.vertretungId) : undefined;
+  const preisauskunft = objekt.preisauskunftId ? mitarbeiterVon(objekt.preisauskunftId) : undefined;
   const links = linksZuObjekt(objekt.id);
   const eintraege = aktivitaetenZu({ objektId: objekt.id });
 
@@ -133,9 +134,22 @@ export default async function ObjektDetail({ params }: { params: Promise<{ id: s
             <Card>
               <CardHeader
                 title="Ansprechpartner"
-                meta="Unterlagen, Besichtigung, Eigentümerseite"
+                meta="Preisauskunft, Unterlagen, Besichtigung, Eigentümerseite"
               />
               <ul className="flex flex-col divide-y divide-seil-line">
+                {/* Preise werden nie schriftlich beantwortet (Standardprozess).
+                    Wer den Rückruf macht, ist je Mandat hinterlegt. */}
+                {preisauskunft ? (
+                  <li className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-4 py-2.5">
+                    <span className="flex flex-col gap-0.5">
+                      <span className="text-seil-text">{preisauskunft.name}</span>
+                      <span className="text-kicker text-seil-muted">
+                        Preisauskunft · {preisauskunft.rolle}
+                      </span>
+                    </span>
+                    <Badge tone="warning">nur telefonisch</Badge>
+                  </li>
+                ) : null}
                 {objekt.ansprechpartner.map((a) => (
                   <li key={`${a.name}-${a.rolle}`} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-4 py-2.5">
                     <span className="flex flex-col gap-0.5">

@@ -323,7 +323,12 @@ function schritteMit(doneBis: number, ausnahmen: SchrittMap = {}) {
   );
 }
 
-type DokStatusMap = Partial<Record<number, "in_pruefung" | "ausstehend">>;
+type DokAbweichung =
+  | "in_pruefung"
+  | "ausstehend"
+  /** SOP 8.1: liegt vor, Angabe im Dateinamen unbekannt – mit QC-Hinweis. */
+  | ["unklar", string];
+type DokStatusMap = Partial<Record<number, DokAbweichung>>;
 
 function datenraumMit(
   abweichungen: DokStatusMap,
@@ -336,10 +341,11 @@ function datenraumMit(
     stand,
     stufe,
     schwaerzung,
-    dokumente: STANDARD_DOKUMENTE.map((name, i) => ({
-      name,
-      status: abweichungen[i] ?? ("vorhanden" as const),
-    })).filter((d) => stufe === "full" || LIGHT_KATEGORIEN.includes(d.name)),
+    dokumente: STANDARD_DOKUMENTE.map((name, i) => {
+      const a = abweichungen[i];
+      if (Array.isArray(a)) return { name, status: a[0], qcHinweis: a[1] };
+      return { name, status: a ?? ("vorhanden" as const) };
+    }).filter((d) => stufe === "full" || LIGHT_KATEGORIEN.includes(d.name)),
   };
 }
 
@@ -358,6 +364,8 @@ export const objekte: Objekt[] = [
     kaufpreisMio: 48.5,
     auftraggeberId: "a1",
     zustaendigId: "m1",
+    // Geschäftsführung betreut dieses Mandat persönlich (Standardprozess).
+    preisauskunftId: "m6",
     vertretungId: "m2",
     standNotiz: "Zwei heiße Kandidaten – indikative Angebote für KW 36 avisiert.",
     kennzahlen: { renditeProzent: 4.6, baujahr: 1998, einheiten: 31, leerstandProzent: 4.1, jnkmIstEuro: 2230000, jnkmSollEuro: 2310000 },
@@ -369,7 +377,12 @@ export const objekte: Objekt[] = [
       { feld: "Lasten Abt. II", wert: "Wegerecht (lfd. Nr. 3)", quelleDokument: "Grundbuchauszug", status: "uebernommen" },
     ],
     teaser: { stand: "versendet", entwurfVom: "2026-09-29", geprueftDurchId: "m1", versendetAm: "2026-10-01" },
-    datenraum: datenraumMit({}, "2026-10-25", "light", "offen"),
+    datenraum: datenraumMit(
+      { 5: ["unklar", "Hausnummer und Geschoss im Plan nicht eindeutig – Dateiname trägt UNBEKANNT"] },
+      "2026-10-25",
+      "light",
+      "offen",
+    ),
     ansprechpartner: [
       { name: "Dr. Thomas Keller", rolle: "Eigentümervertretung", organisation: "Hessische Grundwert GmbH" },
       { name: "Marcel Dorn", rolle: "Unterlagen & Datenraum", organisation: "Hessische Grundwert GmbH" },
@@ -387,6 +400,7 @@ export const objekte: Objekt[] = [
     kaufpreisMio: 23.9,
     auftraggeberId: "a3",
     zustaendigId: "m2",
+    preisauskunftId: "m7",
     vertretungId: "m3",
     standNotiz: "Altlastenauskunft beim Amt nachgefordert – Reporting an Auftraggeber läuft.",
     kennzahlen: { renditeProzent: 5.4, baujahr: 2011, einheiten: 4, leerstandProzent: 0 },
@@ -409,6 +423,7 @@ export const objekte: Objekt[] = [
     kaufpreisMio: 31.2,
     auftraggeberId: "a2",
     zustaendigId: "m1",
+    preisauskunftId: "m7",
     vertretungId: "m3",
     standNotiz: "Versand wartet auf Listen-Freigabe – danach übernimmt die Automatik.",
     kennzahlen: { renditeProzent: 3.8, baujahr: 1955, einheiten: 62, leerstandProzent: 3.2, jnkmIstEuro: 867000, jnkmSollEuro: 912000 },
@@ -436,6 +451,7 @@ export const objekte: Objekt[] = [
     kaufpreisMio: 17.4,
     auftraggeberId: "a4",
     zustaendigId: "m2",
+    preisauskunftId: "m7",
     merkmal: "Distressed Asset",
     kiFelder: [
       { feld: "Mietfläche lt. Liste", wert: "8.310 m²", quelleDokument: "Mieter- & Flächenliste", status: "pruefen", hinweis: "Weicht vom Exposé ab (8.400 m²)" },
@@ -462,6 +478,7 @@ export const objekte: Objekt[] = [
     kaufpreisMio: 12.8,
     auftraggeberId: "a5",
     zustaendigId: "m3",
+    preisauskunftId: "m7",
     quelle: "Se Circle",
     seCircleSync: {
       letzterSync: "2026-10-15T06:00",
@@ -484,6 +501,7 @@ export const objekte: Objekt[] = [
     kaufpreisMio: 9.6,
     auftraggeberId: "a6",
     zustaendigId: "m5",
+    preisauskunftId: "m7",
     vertretungId: "m1",
     standNotiz: "NDA-Rücklauf steht aus – Wiedervorlage heute.",
     kennzahlen: { renditeProzent: 4.9, baujahr: 2005, einheiten: 9, leerstandProzent: 6.0 },

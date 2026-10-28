@@ -5,11 +5,16 @@
  *  Pending abgebildet (siehe ANNAHMEN.md Punkt 3). */
 export type SchrittStatus = "done" | "in_progress" | "pending" | "na";
 
-export type DokumentStatus = "vorhanden" | "in_pruefung" | "ausstehend";
+/** Vier Zustände. `unklar` kommt aus SOP 8.1: Das Dokument liegt im richtigen
+ *  Ordner, aber eine benötigte Angabe war nicht sicher auffindbar – im Dateinamen
+ *  steht dann UNBEKANNT, und der Fall gehört auf die QC-Liste. */
+export type DokumentStatus = "vorhanden" | "unklar" | "in_pruefung" | "ausstehend";
 
 export interface DatenraumDokument {
   name: string;
   status: DokumentStatus;
+  /** Nur bei `unklar`: welche Angabe fehlt. Wird zum Eintrag auf der QC-Liste. */
+  qcHinweis?: string;
 }
 
 /** Datenraum-Status – kommt produktiv aus Modul 01, hier nur als Anzeige.
@@ -67,6 +72,12 @@ export interface Objekt {
   kaufpreisMio: number; // Kaufpreisvorstellung in Mio. €
   auftraggeberId: string;
   zustaendigId: string;
+  /** Wer die Preisauskunft gibt. Der Standardprozess kennt zwei Varianten und
+   *  begründet sie je Mandat („kümmert sich persönlich um dieses Mandat“):
+   *  Regelfall ist der Head of Sales, Ausnahme die Geschäftsführung. Preise
+   *  werden nie schriftlich beantwortet – dieser Wert steuert, für wen WF 06
+   *  die Rückruf-Aufgabe anlegt und welche Vorlage greift. */
+  preisauskunftId?: string;
   /** Herkunft des Objekts – die Se-Circle-Anbindung ist als Ausbaustufe vorgesehen. */
   quelle?: "Se Circle" | "Manuell";
   /** Besonderes Merkmal, z. B. Distressed Asset (Transkript: Notlagen-Immobilien). */

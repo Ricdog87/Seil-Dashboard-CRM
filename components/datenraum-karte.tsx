@@ -1,7 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { CircleCheck, CircleDashed, Search } from "lucide-react";
+import { CircleCheck, CircleDashed, Search, TriangleAlert } from "lucide-react";
 import { datenraumFortschritt, fmtDatum, objektVon } from "@/lib/derive";
 import type { DokumentStatus } from "@/lib/types";
 import { Badge, Card, CardHeader, EmptyState, Table, TBody, TD, TR, type Tone } from "@/components/ui";
@@ -11,6 +11,8 @@ import { DatenquelleBadge, useObjektLive } from "@/components/modul01";
 
 const dokumentStatusMeta: Record<DokumentStatus, { label: string; tone: Tone; icon: LucideIcon }> = {
   vorhanden: { label: "vorhanden", tone: "success", icon: CircleCheck },
+  // SOP 8.1: liegt vor, aber eine Angabe im Dateinamen ist UNBEKANNT – QC-Liste.
+  unklar: { label: "unklar benannt", tone: "warning", icon: TriangleAlert },
   in_pruefung: { label: "in Prüfung", tone: "neutral", icon: Search },
   ausstehend: { label: "ausstehend", tone: "warning", icon: CircleDashed },
 };
@@ -62,7 +64,14 @@ function DatenraumKarteLive({ objekt: basis }: { objekt: NonNullable<ReturnType<
                 const meta = dokumentStatusMeta[d.status];
                 return (
                   <TR key={d.name}>
-                    <TD className={d.status === "vorhanden" ? "text-seil-muted" : ""}>{d.name}</TD>
+                    <TD className={d.status === "vorhanden" ? "text-seil-muted" : ""}>
+                      <span className="flex flex-col gap-0.5">
+                        <span>{d.name}</span>
+                        {d.qcHinweis ? (
+                          <span className="text-kicker text-seil-muted">{d.qcHinweis}</span>
+                        ) : null}
+                      </span>
+                    </TD>
                     <TD className="w-40">
                       <Badge tone={meta.tone} icon={meta.icon}>
                         {meta.label}

@@ -253,7 +253,7 @@
         500
       ],
       "parameters": {
-        "fromEmail": "vertrieb@BEISPIEL-DOMAIN.de",
+        "fromEmail": "deals@seil.com",
         "toEmail": "={{ $json.email }}",
         "subject": "={{ $json.betreff }}",
         "emailFormat": "text",

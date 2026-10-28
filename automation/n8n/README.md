@@ -39,7 +39,9 @@ voraussetzen.
 
 1. **Platzhalter ersetzen:** `https://N8N-BASIS-URL/...` in den
    HTTP-Request-Nodes durch die echte Webhook-Basis der Instanz;
-   `vertrieb@BEISPIEL-DOMAIN.de` durch die echte Absenderadresse.
+   Die Absenderadresse ist gesetzt: `deals@seil.com`, das von der IT
+   eingerichtete Sammelpostfach. WF 06 liest daraus, WF 05 sendet darüber,
+   WF 08 legt die Besichtigungstermine in dessen Kalender.
 2. **Credentials nur im n8n-Credential-Store** anlegen (SMTP, IMAP,
    Superchat-API) – niemals in die Workflow-JSONs schreiben.
 3. **Webhook-Absicherung:** Header-Auth/Secret zwischen Cockpit und den
