@@ -8,8 +8,10 @@ verloren gegangen, weil sie nur im temporären Verzeichnis lagen.
 | --- | --- |
 | `SEIL-Workshop-30-10.pdf` | `workshop-30-10.html` |
 | `SEIL-n8n-Import-Aylin.pdf` | `import-aylin.html` |
+| `SEIL-Uebergabe-Checkliste.pdf` | `uebergabe-checkliste.html` |
+| `SEIL-Automatik-Kette-Onepager.pdf` | `automatik-kette-onepager.html` |
 
-Die anderen drei PDFs im Ordner stammen aus einer Zeit ohne abgelegte Quelle.
+Nur `SEIL-Cockpit-Anleitung.pdf` stammt noch aus einer Zeit ohne abgelegte Quelle.
 
 ## Erzeugen
 

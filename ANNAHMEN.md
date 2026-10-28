@@ -639,3 +639,39 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
     täglichen Statusberichts sowie dessen beide Empfänger
     `geschaeftsfuehrung@…` und `vertriebsleitung@…`. Diese werden nicht geraten.
 
+59. **Abgleich über alle elf Projekttermine (29.10.):** Für die Übergabe am 30.10.
+    wurden die Gemini-Protokolle vom 03.08., 05.08. (zwei), 12.08., 14.08., 17.08.
+    (zwei), 20.08., 28.09. und 28.10. (zwei) in ihren strukturierten Teilen
+    vollständig gelesen und die Rohtranskripte gezielt durchsucht. Ergebnis in
+    `docs/SEIL-Uebergabe-Checkliste.pdf` (Quelle `docs/quellen/`). Drei Dinge
+    standen in keinem bisherigen Dokument:
+
+    - **Modul 01 läuft auf einem zweiten Server.** Die Datenraum-Engine samt
+      QM-Center wurde am 03.08. auf einem Hostinger-Server angelegt, der RSG
+      gehört. Der am 28.10. gekaufte SEIL-Server trägt nur die neun
+      Modul-02-Workflows. „Übergeben und nichts mehr damit zu tun haben“
+      setzt den Umzug der Engine voraus – oder die Übertragung des alten
+      Servers. Dazu stehen vier Zusagen zum QM-Center vom 03./05.08. (Hyperlink,
+      lesbare Namen, Dropdown, Ordnerkontext) und die Schwärzung zur
+      Bestätigung offen.
+    - **Cockpit-Hosting und Quellcode liegen auf RSG-Konten.** Vercel-Projekt
+      und GitHub-Repository gehören RSG; eine Übertragung an SEIL wurde nie
+      besprochen. Ohne sie bleibt RSG Betreiber des Cockpits.
+    - **Eine Produktivbasis für das Cockpit war nie Thema.** In keinem Termin
+      fiel das Wort Datenbank oder Anmeldung. Das Cockpit ist ein Prototyp
+      ohne Speicher; „das Team arbeitet im Cockpit“ (Stufe 3) ist damit eine
+      offene Entscheidung, keine Restarbeit.
+
+    Außerdem zur Vollständigkeit festgehalten: der buchhalterische Abschluss
+    von Modul 01 (14.08.) als Voraussetzung der Modul-02-Rechnungen, die
+    Se-Circle-Anbindung (17.08. „zentral“, gebaut als Platzhalter), Pipedrive-
+    Altdaten (nie besprochen), die vier Gesellschaften (14.08., offen). Als
+    überholt markiert: die 482-GB-Kopie (05.08.), der Backup-Freelancer, die
+    Anforderungsprofile im CRM, der Workshop „nach der Migration“.
+
+    **Korrektur am Onepager:** Die Fassung vom 01.09. nannte für WF 03 einen
+    „KI-Node: Claude“ und für WF 02 den Abgleich „gegen alle Ankaufsprofile“.
+    Beides stimmte nicht mehr: WF 03 füllt Vorlagen, der KI-Knoten ist ein
+    Platzhalter; WF 02 arbeitet gegen die Liveliste, der Lade-Knoten ist ein
+    Platzhalter. Der Onepager benennt die Platzhalter jetzt ausdrücklich.
+

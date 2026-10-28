@@ -1,0 +1,257 @@
+<title>Übergabe Modul 01 und 02</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Statustafel: jede Zeile trägt Zustand, Zuständigkeit und eine Zeile Begründung.
+     Blöcke folgen dem kritischen Pfad, nicht der Themenlogik. */
+  :root {
+    --bg: #f4f5f6; --surface: #ffffff; --card: #ffffff; --card-alt: #eceef1;
+    --line: #d6dade; --line-soft: #e4e7ea; --fg: #16181c; --body: #3b4149;
+    --muted: #6b727b; --accent: #41566e; --accent-weich: #e6eaef;
+    --ok: #2f6b48; --ok-weich: #e8f1ea; --warn: #8a6420; --warn-weich: #f8f1e3;
+    --crit: #9c4a42; --crit-weich: #f8eceb; --info: #2f5d8f; --info-weich: #e8eef6;
+    --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --r: 6px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121214; --surface: #1a1a1e; --card: #232328; --card-alt: #2a2a31;
+      --line: #37373f; --line-soft: #2c2c33; --fg: #f4f5f6; --body: #c2c6cc;
+      --muted: #8a8f97; --accent: #9daab8; --accent-weich: #262b31;
+      --ok: #7fb894; --ok-weich: #1e2722; --warn: #c9a56b; --warn-weich: #2a2419;
+      --crit: #d5948e; --crit-weich: #2b1e1d; --info: #86a6d0; --info-weich: #1d2530;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121214; --surface: #1a1a1e; --card: #232328; --card-alt: #2a2a31;
+    --line: #37373f; --line-soft: #2c2c33; --fg: #f4f5f6; --body: #c2c6cc;
+    --muted: #8a8f97; --accent: #9daab8; --accent-weich: #262b31;
+    --ok: #7fb894; --ok-weich: #1e2722; --warn: #c9a56b; --warn-weich: #2a2419;
+    --crit: #d5948e; --crit-weich: #2b1e1d; --info: #86a6d0; --info-weich: #1d2530;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--body); font-family: var(--font);
+    font-size: 14.5px; line-height: 1.55; font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+  .rand {
+    max-width: 960px; margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  h1, h2, h3 { color: var(--fg); font-weight: 400; text-wrap: balance; margin: 0; }
+  h1 { font-size: 1.9rem; line-height: 1.2; letter-spacing: -0.015em; }
+  h2 { font-size: 1.2rem; }
+  h3 { font-size: 0.98rem; font-weight: 500; }
+  p { margin: 0; }
+  code { font-family: var(--mono); font-size: 0.88em; color: var(--fg); background: var(--card-alt); border-radius: 3px; padding: 1px 5px; overflow-wrap: anywhere; }
+  .etikett { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+  header { padding-block: 36px 24px; border-bottom: 1px solid var(--line); }
+  header h1 { margin: 8px 0 10px; }
+  header .unter { max-width: 70ch; }
+  .legende { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 16px; font-size: 0.82rem; color: var(--muted); align-items: center; }
+
+  /* Chips */
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.68rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+    border: 1px solid var(--line); border-radius: var(--r); padding: 2px 7px; white-space: nowrap;
+    color: var(--muted); background: var(--card);
+  }
+  .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+  .chip.ok { color: var(--ok); border-color: var(--ok); background: var(--ok-weich); } .chip.ok::before { background: var(--ok); }
+  .chip.offen { color: var(--warn); border-color: var(--warn); background: var(--warn-weich); } .chip.offen::before { background: var(--warn); }
+  .chip.ent { color: var(--crit); border-color: var(--crit); background: var(--crit-weich); } .chip.ent::before { background: var(--crit); }
+  .chip.best { color: var(--info); border-color: var(--info); background: var(--info-weich); } .chip.best::before { background: var(--info); }
+  .chip.wer { text-transform: none; letter-spacing: 0.02em; } .chip.wer::before { display: none; }
+
+  /* Ehrlichkeits-Kasten */
+  .kasten {
+    border: 1px solid var(--line); border-left: 3px solid var(--warn); border-radius: var(--r);
+    background: var(--surface); padding: 16px 18px; max-width: 78ch;
+  }
+  .kasten h3 { margin-bottom: 8px; }
+  .kasten p + p { margin-top: 9px; }
+  .stufen { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 14px; }
+  .stufe { border: 1px solid var(--line); border-radius: var(--r); background: var(--card); padding: 13px 15px; min-width: 0; }
+  .stufe .etikett { display: block; margin-bottom: 4px; color: var(--accent); }
+  .stufe h3 { margin-bottom: 6px; }
+  .stufe p { font-size: 0.9rem; }
+  .stufe b { color: var(--fg); font-weight: 500; }
+
+  /* Blöcke */
+  section { padding-block: 28px; border-bottom: 1px solid var(--line-soft); }
+  .block-kopf { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-bottom: 14px; }
+  .block-kopf .etikett { color: var(--accent); }
+  .block-kopf p { color: var(--muted); max-width: 70ch; flex-basis: 100%; }
+
+  .zeilen { display: grid; gap: 0; border: 1px solid var(--line); border-radius: var(--r); background: var(--card); overflow: hidden; }
+  .zeile {
+    display: grid; grid-template-columns: 112px 1fr; gap: 6px 14px;
+    padding: 11px 14px; border-top: 1px solid var(--line-soft); min-width: 0;
+  }
+  .zeile:first-child { border-top: none; }
+  .zeile .status { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
+  .zeile .inhalt { min-width: 0; }
+  .zeile .inhalt h3 { margin-bottom: 2px; }
+  .zeile .inhalt p { font-size: 0.9rem; max-width: 76ch; }
+  .zeile .quelle { color: var(--muted); font-size: 0.78rem; margin-top: 3px; }
+  .zeile.erledigt .inhalt h3 { color: var(--muted); font-weight: 400; }
+
+  footer { padding-block: 24px 44px; color: var(--muted); font-size: 0.84rem; }
+  footer .rand { display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: space-between; }
+
+  @media (max-width: 560px) {
+    h1 { font-size: 1.55rem; }
+    .zeile { grid-template-columns: 1fr; }
+    .zeile .status { flex-direction: row; flex-wrap: wrap; }
+  }
+</style>
+
+<header>
+  <div class="rand">
+    <span class="etikett">SEIL Cockpit · Modul 01 + 02 · Stand 29.10.2026, vor dem IT-Termin</span>
+    <h1>Übergabe Modul 01 und 02</h1>
+    <p class="unter">Abgleich über alle elf Projekttermine vom 03.08. bis 28.10. Jede Zeile trägt, was zugesagt oder beschlossen wurde, wo es steht, und wer den nächsten Schritt hat. Reihenfolge der Blöcke ist der kritische Pfad, nicht die Themenlogik.</p>
+    <div class="legende">
+      <span class="chip ok">erledigt</span>
+      <span class="chip offen">offen</span>
+      <span class="chip ent">Entscheidung</span>
+      <span class="chip best">zu bestätigen</span>
+      <span style="margin-left:6px">Zuständig:</span>
+      <span class="chip wer">SEIL</span><span class="chip wer">RSG</span><span class="chip wer">IT</span><span class="chip wer">gemeinsam</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="rand">
+    <div class="kasten">
+      <h3>Was Freitag übergeben wird – und was „live“ bedeutet</h3>
+      <p>Übergeben werden am 30.10.: der Server bei Hostinger auf SEIL, die neun Workflows darauf, das Cockpit mit echtem Team und echter SOP-Logik, die vollständige Dokumentation und alle bis dahin gefallenen Entscheidungen. Das ist ein belastbarer Stand.</p>
+      <p>„Live arbeiten“ ist davon zu trennen. Es gibt drei Stufen mit je eigenen Voraussetzungen, und keine davon ist am Freitag erreicht. Die Blöcke C bis E sagen, was jeweils fehlt. Und: <b>„Übergeben und nichts mehr damit zu tun haben“</b> setzt voraus, dass Block F geklärt ist – heute laufen Modul 01, das Cockpit-Hosting und das Repository noch auf RSG-Konten.</p>
+      <div class="stufen">
+        <div class="stufe"><span class="etikett">Stufe 1</span><h3>Modul 01 arbeitet echt</h3><p>Datenraum-Automatik auf SEIL-Server, liest aus OneDrive, Cockpit zeigt echte Stände. <b>Hängt an: IT (SharePoint) + Umzug der Engine.</b></p></div>
+        <div class="stufe"><span class="etikett">Stufe 2</span><h3>Automatik Modul 02 arbeitet echt</h3><p>Matching, Entwürfe, Freigabe, Versand, Nachfass, Antworterkennung. <b>Hängt an: Postfach, Liveliste, Claude-Konto, vier Adressen, zwei Knoten.</b></p></div>
+        <div class="stufe"><span class="etikett">Stufe 3</span><h3>Team arbeitet im Cockpit</h3><p>Freigaben und Notizen bleiben stehen, Anmeldung mit Microsoft. <b>Hängt an: Datenbank + Login – nicht gebaut, in keinem Termin besprochen.</b></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="block-kopf"><span class="etikett">Block A</span><h2>Steht und ist geprüft</h2></div>
+    <div class="zeilen">
+      <div class="zeile erledigt"><div class="status"><span class="chip ok">erledigt</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>SEIL-Server bei Hostinger</h3><p>KVM 2, 12 Monate, Konto auf SEIL (vorläufig Aylins Adresse). n8n installiert, Besitzerzugang angelegt.</p><p class="quelle">28.10., 13:14</p></div></div>
+      <div class="zeile erledigt"><div class="status"><span class="chip ok">erledigt</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Neun Workflows importiert, alle inaktiv</h3><p>Nino hat 01–09 einzeln hochgeladen und gezählt. Server-Adresse in zehn Aufrufen eingetragen.</p><p class="quelle">28.10., 17:15</p></div></div>
+      <div class="zeile erledigt"><div class="status"><span class="chip ok">erledigt</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Sammelpostfach festgelegt: <code>deals@seil.com</code></h3><p>Nicht personalisiert, von der IT eingerichtet. In WF 05 gesetzt; WF 06 liest daraus, WF 08 nutzt dessen Kalender.</p><p class="quelle">28.10., 17:15</p></div></div>
+      <div class="zeile erledigt"><div class="status"><span class="chip ok">erledigt</span><span class="chip wer">RSG</span></div><div class="inhalt"><h3>Cockpit live auf <code>seil-cockpit.vercel.app</code></h3><p>Stichtag 26.10., echtes Team aus der Übersicht vom 19.10., drei Sichtebenen, Sammelfreigabe, Liveliste statt Ankaufsprofil, Datenraum nach SOP (20 Kategorien, Light = 11, Schwärzungs-Vorbehalt, QC-Zustand), Preisauskunft je Mandat.</p><p class="quelle">Beschlüsse 20.08., 28.09., 28.10.</p></div></div>
+      <div class="zeile erledigt"><div class="status"><span class="chip ok">erledigt</span><span class="chip wer">RSG</span></div><div class="inhalt"><h3>Leseweg Modul 01 → Cockpit gebaut</h3><p>WF 09 liefert den Datenraum-Stand, das Cockpit holt ihn serverseitig. Bis zur Verbindung sichtbar im Modus „demo“.</p><p class="quelle">Beschluss 28.08.</p></div></div>
+      <div class="zeile erledigt"><div class="status"><span class="chip ok">erledigt</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Entscheidungen vom 28.10.</h3><p>Call-Center entfällt · Preisauskunft je Mandat, Regelfall Head of Sales · Analystenstelle als offen geführt · indische Einheit gestrichen · Repository bleibt öffentlich.</p></div></div>
+      <div class="zeile erledigt"><div class="status"><span class="chip ok">erledigt</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Unterlagen vollständig</h3><p>Flowchart, Standardprozess (korrigierte Fassung), SOP Datenraum-Anlage, Terminologie-Tabelle, Team-Übersicht. Alle gegen den Prototyp abgeglichen.</p><p class="quelle">31.08., 19.10., 28.10.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="block-kopf"><span class="etikett">Block B</span><h2>Donnerstag 09:30 mit der IT</h2><p>Erfolgsmaßstab: jeder Punkt hat danach einen Namen und ein Datum. Konfiguriert sein muss noch nichts.</p></div>
+    <div class="zeilen">
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">IT</span></div><div class="inhalt"><h3>Wer ist Administrator, wer gibt Apps frei</h3><p>Ohne diese Person kommt nichts Weiteres voran.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">IT</span></div><div class="inhalt"><h3>Zugriff der Automatik auf <code>deals@seil.com</code> – begrenzt auf dieses eine Postfach</h3><p>RBAC for Applications in Exchange Online, Rollen Mail.ReadWrite, Mail.Send, Calendars.ReadWrite. <b>Falle:</b> eine parallele hausweite Freigabe in Entra hebt die Begrenzung auf – Rechte addieren sich.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">IT</span></div><div class="inhalt"><h3>OneDrive/SharePoint: Liveliste und Mandatsordner</h3><p>Sites.Selected plus Freigabe je Site. Der alte App-Zugriff stammte aus dem früheren Tenant und ist hinfällig – muss im neuen Tenant neu erteilt werden.</p><p class="quelle">Zugriff damals 03.08.; Umstellung 28.09. bestätigt offen</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">IT</span></div><div class="inhalt"><h3>SPF/DKIM der Absenderdomain, DNS-Eintrag für n8n</h3><p>Ohne SPF/DKIM landen Investorenmails im Spam. Die n8n-Subdomain ist Komfort, der Hostinger-Hostname funktioniert heute.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">IT</span></div><div class="inhalt"><h3>Entra-App für den Cockpit-Login</h3><p>Vorbereitung für Stufe 3. Microsoft-Login statt eigener Passwörter – wer legt die App an, wer gibt frei.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip best">zu bestätigen</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Eine Umgebung für die vier Gesellschaften?</h3><p>Seit 14.08. offen, sollte mit der Geschäftsführung geklärt werden. Bestimmt, wie Postfächer und Freigaben geschnitten werden.</p><p class="quelle">14.08.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="block-kopf"><span class="etikett">Block C</span><h2>Stufe 1 – Modul 01 arbeitet echt</h2><p>Die Datenraum-Engine läuft seit 03.08. auf einem Hostinger-Server, den RSG angelegt hat. Der neue SEIL-Server von gestern trägt nur die Modul-02-Workflows. Das ist der größte offene Punkt für „nichts mehr damit zu tun haben“.</p></div>
+    <div class="zeilen">
+      <div class="zeile"><div class="status"><span class="chip ent">Entscheidung</span><span class="chip wer">gemeinsam</span></div><div class="inhalt"><h3>Modul-01-Engine auf den SEIL-Server umziehen</h3><p>Engine-Workflow und QM-Center liegen auf dem alten RSG-Server (21,49 €/Monat). Umzug: Export/Import nach n8n Seil, QM-Center mitnehmen, Zugänge neu. Alternative: alten Server übertragen – dann zwei Server. Ohne Entscheidung bleibt RSG im Betrieb.</p><p class="quelle">Server 03.08.; Übertragungsangebot 05.08.; Migration beschlossen 28.08.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">RSG</span></div><div class="inhalt"><h3>QM-Center (Qualitätscenter) übergeben</h3><p>Wo läuft es, unter welcher Adresse, wer hat Zugang. Es ist das Werkzeug für die manuelle Zuordnung nicht erkannter Dateien.</p><p class="quelle">03.08., 05.08.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip best">zu bestätigen</span><span class="chip wer">RSG</span></div><div class="inhalt"><h3>Schwärzung für den Light-Datenraum</h3><p>Am 03.08. als „nicht integriert, kein Problem“ benannt, am 05.08. die Tokenkosten (~50 €) freigegeben. Ist sie heute im Code? Ohne sie geht der Light-Datenraum mit Eigentümerdaten raus.</p><p class="quelle">03.08., 05.08., SOP 1.1</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip best">zu bestätigen</span><span class="chip wer">RSG</span></div><div class="inhalt"><h3>Zielordner auf Objektebene</h3><p>Beschluss 03.08.: kein Sammelordner, sondern Auswahl des Objekts im QM-Center, dann entstehen <code>00_Datenraum light</code> und <code>99_Datenraum</code> neben den Objektunterlagen. Umgesetzt?</p><p class="quelle">03.08.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip best">zu bestätigen</span><span class="chip wer">RSG</span></div><div class="inhalt"><h3>Vier Zusagen zum QM-Center</h3><p>Hyperlink zum Öffnen der Datei · lesbare Dateinamen statt Kennungen · Dropdown zur manuellen Zuordnung statt „Belassen“ · Ordnerkontext bei der Klassifizierung. Was davon ist drin?</p><p class="quelle">03.08., 05.08.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">RSG</span></div><div class="inhalt"><h3>Signal-Mail an <code>deals@seil.com</code></h3><p>Die Fertigmeldung der Engine geht heute an RSG. Umstellen auf das Sammelpostfach.</p><p class="quelle">03.08.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">gemeinsam</span></div><div class="inhalt"><h3>Cockpit mit Modul 01 verbinden</h3><p>Ein Beispiel-Export, Zuordnung Datenraum → Mandat, dann <code>MODUL01_*</code> in der Cockpit-Umgebung und das Webhook-Secret setzen. Ab dann zeigt das Cockpit echte Stände.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">gemeinsam</span></div><div class="inhalt"><h3>Testlauf mit einem echten Mandat</h3><p>Pilotgruppe wie am 28.09. beschlossen. Erst danach gilt Stufe 1 als erreicht.</p><p class="quelle">28.09.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="block-kopf"><span class="etikett">Block D</span><h2>Stufe 2 – Automatik Modul 02 arbeitet echt</h2><p>Die neun Workflows sind Skelette: Struktur und Logik stehen, Datenquellen und KI-Aufrufe sind als Platzhalter-Knoten markiert. Das ist so dokumentiert, muss aber vor dem Einschalten verdrahtet werden.</p></div>
+    <div class="zeilen">
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Anthropic-Konto der SEIL Group</h3><p>Eigener Workspace mit Budget-Limit, Key nur im n8n-Credential-Store. <b>Seit 25.08. offen</b> – ohne Key keine Entwürfe, keine Klassifizierung.</p><p class="quelle">25.08., 28.08.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Vier Adressen</h3><p>Leitung im BCC jeder Mail (Standardprozess nennt zwei Personen) · Absender des Statusberichts · dessen zwei Empfänger. Stehen als Platzhalter in WF 05 und 07.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">RSG</span></div><div class="inhalt"><h3>WF 02: Liveliste aus OneDrive anbinden</h3><p>Heute ein Platzhalter-Knoten „Objekt + Investoren laden“. Braucht den SharePoint-Zugriff aus Block B.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">RSG</span></div><div class="inhalt"><h3>WF 03: KI-Knoten für Entwürfe einhängen</h3><p>Heute füllt der Workflow Vorlagen; der Claude-Aufruf ist vorgesehen, aber nicht verdrahtet. Dazu die Ablage der Entwürfe.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">RSG</span></div><div class="inhalt"><h3>Credentials im n8n-Store, Vorlagen im Data-Store</h3><p>IMAP/SMTP für <code>deals@</code>, Claude-Key, Header-Secret für die <code>seil/*</code>-Webhooks. Die Mailtexte aus dem Standardprozess in den Data-Store – nicht ins Repository.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip ent">Entscheidung</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Freigabe ohne Cockpit-Datenbank</h3><p>Die Freigabe ist der einzige Halt der Kette und läuft heute über einen Cockpit-Knopf ohne Speicher. Vorschlag: Freigabe per Mail-Link aus n8n (Muster wie in WF 08), bis Stufe 3 steht. Damit kann Stufe 2 vor Stufe 3 live gehen.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip ent">Entscheidung</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Follow-up-Regel</h3><p>Demo-Check: alle 2 Tage, max. 3 Stufen. Standardprozess: offene Kette mit Final-Mail. Voreinstellung 3. Offen seit 20.08. – Workshop.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip ent">Entscheidung</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Standard-Antworten ohne Klick?</h3><p>Schalter in WF 05. Preise bleiben in jedem Fall telefonisch. Workshop.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Superchat für WhatsApp</h3><p>Beschluss 20.08.: nur über die professionelle Lösung, keine privaten Konten. Vertrag auf SEIL. Optional für den Start.</p><p class="quelle">20.08., 28.09.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">gemeinsam</span></div><div class="inhalt"><h3>Testlauf intern, dann Aktivierung Workflow für Workflow</h3><p>Nur mit internen Adressen, erst nach IMAP-Zugang. Nach bestandenem Lauf WF 01 → 09 einzeln einschalten.</p><p class="quelle">28.08.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="block-kopf"><span class="etikett">Block E</span><h2>Stufe 3 – Team arbeitet im Cockpit</h2><p>Das Cockpit hat keine Datenbank und keine Anmeldung; jeder Zustand lebt im Browser und ist beim Neuladen weg. So war es als Prototyp gebaut. In keinem der elf Termine wurde eine Produktivbasis besprochen – das ist eine Entscheidung, die noch nie gefallen ist.</p></div>
+    <div class="zeilen">
+      <div class="zeile"><div class="status"><span class="chip ent">Entscheidung</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Stufe 3 bauen oder Cockpit als Anzeige belassen?</h3><p>Nötig wären: verwaltete Datenbank, Microsoft-Login über die Entra-App, Speichern von Aufgaben, Freigaben, Notizen, Prioritäten, die <code>seil/freigabe</code>-Webhooks. Aufwand 2–4 Wochen nach Entscheidung. Ohne Stufe 3 bleibt das Cockpit Anzeige und der Betrieb läuft über n8n.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Was noch aus dem 28.09. offen ist</h3><p>Team-Auswertung je Zeitraum (V2), Auftraggeberkommunikation im Tool, 33 Schritte des Standardprozesses gegenüber 26 im Prototyp. Alles V2, keines davon blockiert Stufe 1 oder 2.</p><p class="quelle">28.09.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="block-kopf"><span class="etikett">Block F</span><h2>Eigentum und Übergabe</h2><p>Es ist keine Wartung gebucht. Alles, was hier auf RSG-Konten liegt, läuft nach der Übergabe weiter – oder es hört auf zu laufen. Beides muss gewollt sein.</p></div>
+    <div class="zeilen">
+      <div class="zeile"><div class="status"><span class="chip ent">Entscheidung</span><span class="chip wer">gemeinsam</span></div><div class="inhalt"><h3>Cockpit-Hosting liegt auf dem RSG-Vercel-Konto</h3><p><code>seil-cockpit.vercel.app</code> gehört heute RSG. Übertragen auf ein SEIL-Vercel-Konto oder auf den SEIL-Server umziehen. Nie besprochen.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip ent">Entscheidung</span><span class="chip wer">gemeinsam</span></div><div class="inhalt"><h3>Quellcode liegt auf dem RSG-GitHub-Konto, öffentlich</h3><p>Repository <code>Ricdog87/Seil-Dashboard-CRM</code>. Mit echten Namen und Rollen darin. Übertragen auf eine SEIL-Organisation, Sichtbarkeit neu entscheiden. Nie besprochen.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip ent">Entscheidung</span><span class="chip wer">gemeinsam</span></div><div class="inhalt"><h3>Alter RSG-Hostinger-Server mit Modul 01</h3><p>Seit 03.08. in Betrieb. Nach dem Umzug (Block C) abschalten oder übertragen – nicht einfach weiterlaufen lassen.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Hostinger-Konto von Aylins Adresse auf eine Funktionsadresse</h3><p>Am 28.10. bewusst als Zwischenlösung gewählt. Ein Datum setzen. Zwei-Faktor-Codes in den Passwort-Safe.</p><p class="quelle">28.10., 13:14</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip best">zu bestätigen</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Server abgesichert?</h3><p>Sicherungen, Firewall (22/80/443), automatische Sicherheitsupdates. Im Protokoll vom 28.10. als Eigenschaft des Servers zugesagt – nicht als erledigt vermerkt. Root-Passwort nach den IT-Arbeiten zurücksetzen (Beschluss 28.10.).</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">gemeinsam</span></div><div class="inhalt"><h3>Auftragsverarbeitungsvertrag SEIL ↔ RSG</h3><p>Seit 25.08. offen. Nötig, solange RSG irgendetwas betreibt, über das Investorendaten laufen – heute Modul 01 und das Cockpit-Hosting.</p><p class="quelle">25.08.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">gemeinsam</span></div><div class="inhalt"><h3>Verantwortung ohne Wartungsvertrag schriftlich</h3><p>Wer hält Updates, Sicherungen und Wiederherstellung. Ohne Vertrag niemand – das gehört in das Übergabeprotokoll, nicht in ein Gespräch.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">gemeinsam</span></div><div class="inhalt"><h3>Modul 01 formal abschließen</h3><p>Beschluss 14.08.: Modul-2-Rechnungen werden erst mit dem offiziellen Abschluss von Modul 01 aktiviert. Die Übergabe am Freitag kann dieser Abschluss sein – dann sollte sie so heißen.</p><p class="quelle">14.08.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip ent">Entscheidung</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Pipedrive: Altdaten und Kündigung</h3><p>Das Cockpit ersetzt Pipedrive. Was mit bestehenden Deals und Aktivitäten passiert, wurde nie besprochen. Der Wissenstransfer vom 12.08. ist durch die Liveliste überholt.</p><p class="quelle">12.08., 17.08.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip best">zu bestätigen</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Se-Circle-Anbindung</h3><p>Am 17.08. als „zentrale Entscheidung“ festgehalten, im Cockpit als Platzhalter angelegt. Bestätigen, dass es V2 ist.</p><p class="quelle">17.08.</p></div></div>
+      <div class="zeile"><div class="status"><span class="chip offen">offen</span><span class="chip wer">SEIL</span></div><div class="inhalt"><h3>Reporting-Vorlage, weißes Logo als SVG</h3><p>Bis dahin gilt das Cockpit-Layout für den Statusbericht und die Wortmarke im Kopf.</p><p class="quelle">28.08.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="block-kopf"><span class="etikett">Block G</span><h2>Überholt – zur Vollständigkeit</h2><p>Zusagen aus den Protokollen, die durch spätere Entscheidungen gegenstandslos sind. Damit niemand sie wieder aufmacht.</p></div>
+    <div class="zeilen">
+      <div class="zeile erledigt"><div class="status"><span class="chip ok">überholt</span></div><div class="inhalt"><h3>482 GB vom privaten OneDrive auf den Hostinger-Server kopieren (05.08.)</h3><p>Ersetzt durch die Tenant-Migration zum neuen IT-Dienstleister.</p></div></div>
+      <div class="zeile erledigt"><div class="status"><span class="chip ok">überholt</span></div><div class="inhalt"><h3>IT-Freelancer als Backup (12.08., 17.08.)</h3><p>Neuer Dienstleister ist beauftragt und seit 27.10. in der Gruppe.</p></div></div>
+      <div class="zeile erledigt"><div class="status"><span class="chip ok">überholt</span></div><div class="inhalt"><h3>Anforderungsprofile im CRM statt Excel (20.08.)</h3><p>Am 28.09. ersetzt: Matching läuft gegen die täglich gepflegte Liveliste in OneDrive, keine gespeicherten Profile.</p></div></div>
+      <div class="zeile erledigt"><div class="status"><span class="chip ok">überholt</span></div><div class="inhalt"><h3>Kickoff-Workshop „nach der Tenant-Migration“ (28.08.)</h3><p>Findet am 30.10. vor der Anbindung statt – auf Demodaten, mit Testwegen je Rolle.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="rand">
+    <span>Grundlage: elf Gemini-Protokolle 03.08.–28.10., vier SEIL-Dokumente, Repository-Stand 29.10.</span>
+    <span>Rohtranskripte gezielt durchsucht, nicht Wort für Wort gelesen</span>
+  </div>
+</footer>

@@ -1,0 +1,131 @@
+<title>Automatik-Kette</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Eine Seite: die Kette als Zeile, darunter je Glied eine Tabellenzeile. */
+  :root {
+    --bg: #f4f5f6; --surface: #ffffff; --card: #ffffff; --card-alt: #eceef1;
+    --line: #d6dade; --line-soft: #e4e7ea; --fg: #16181c; --body: #3b4149;
+    --muted: #6b727b; --accent: #41566e; --accent-weich: #e6eaef;
+    --ok: #2f6b48; --ok-weich: #e8f1ea; --warn: #8a6420; --warn-weich: #f8f1e3;
+    --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --r: 6px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121214; --surface: #1a1a1e; --card: #232328; --card-alt: #2a2a31;
+      --line: #37373f; --line-soft: #2c2c33; --fg: #f4f5f6; --body: #c2c6cc;
+      --muted: #8a8f97; --accent: #9daab8; --accent-weich: #262b31;
+      --ok: #7fb894; --ok-weich: #1e2722; --warn: #c9a56b; --warn-weich: #2a2419;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121214; --surface: #1a1a1e; --card: #232328; --card-alt: #2a2a31;
+    --line: #37373f; --line-soft: #2c2c33; --fg: #f4f5f6; --body: #c2c6cc;
+    --muted: #8a8f97; --accent: #9daab8; --accent-weich: #262b31;
+    --ok: #7fb894; --ok-weich: #1e2722; --warn: #c9a56b; --warn-weich: #2a2419;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--body); font-family: var(--font); font-size: 14.5px; line-height: 1.55; font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+  .rand { max-width: 960px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1, h2, h3 { color: var(--fg); font-weight: 400; text-wrap: balance; margin: 0; }
+  h1 { font-size: 1.85rem; line-height: 1.2; letter-spacing: -0.015em; }
+  h2 { font-size: 1.1rem; }
+  p { margin: 0; }
+  code { font-family: var(--mono); font-size: 0.86em; color: var(--fg); background: var(--card-alt); border-radius: 3px; padding: 1px 5px; overflow-wrap: anywhere; }
+  .etikett { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+  header { padding-block: 34px 22px; border-bottom: 1px solid var(--line); }
+  header h1 { margin: 8px 0 10px; }
+  header p.unter { max-width: 72ch; }
+
+  /* Kette */
+  .kette { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; margin-top: 22px; }
+  .glied { flex: 1 1 120px; min-width: 0; border: 1px solid var(--line); border-radius: var(--r); background: var(--card); padding: 9px 11px; }
+  .glied .nr { color: var(--accent); font-weight: 500; font-size: 0.8rem; }
+  .glied .name { color: var(--fg); font-size: 0.88rem; }
+  .glied.halt { border-color: var(--warn); background: var(--warn-weich); }
+  .glied.halt .nr { color: var(--warn); }
+  .kette-note { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 0.8rem; color: var(--muted); }
+  .kette-note b { color: var(--warn); font-weight: 500; }
+
+  section { padding-block: 26px; border-bottom: 1px solid var(--line-soft); }
+  .tab-huelle { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--card); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line-soft); }
+  th { color: var(--muted); font-weight: 500; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  td.nr { color: var(--accent); font-weight: 500; white-space: nowrap; }
+  td.wf { min-width: 150px; }
+  td.wf b { display: block; color: var(--fg); font-weight: 500; }
+  td.wf code { font-size: 0.74rem; }
+  td.tut { min-width: 300px; max-width: 46ch; }
+  td.aus { white-space: nowrap; color: var(--muted); }
+  .platz { color: var(--warn); font-size: 0.82rem; display: block; margin-top: 3px; }
+
+  .regeln { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .regel { border: 1px solid var(--line); border-radius: var(--r); background: var(--card); padding: 13px 15px; min-width: 0; }
+  .regel h3 { font-size: 0.95rem; font-weight: 500; margin-bottom: 4px; }
+  .regel p { font-size: 0.88rem; }
+  .regel.halt { border-color: var(--warn); }
+
+  footer { padding-block: 22px 40px; color: var(--muted); font-size: 0.84rem; }
+  footer .rand { display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: space-between; }
+  @media (max-width: 560px) { h1 { font-size: 1.5rem; } }
+</style>
+
+<header>
+  <div class="rand">
+    <span class="etikett">SEIL Cockpit · Modul 02 · Automatisierung · Stand 29.10.2026</span>
+    <h1>Die Automatik-Kette</h1>
+    <p class="unter">Neun n8n-Workflows auf dem SEIL-Server. Der Transaktionsprozess läuft ohne manuelle Zwischenschritte – einzig die Freigabe stoppt. Nur Workflow 05 schreibt Investoren an; auch die Antworten aus 06 und die Besichtigungsmails aus 08 laufen als Versandaufträge durch ihn. 07 flankiert mit dem täglichen Statusbericht, 09 liefert den Datenraum-Stand aus Modul 01 ans Cockpit.</p>
+    <div class="kette">
+      <div class="glied"><div class="nr">01</div><div class="name">Datenraum einlesen</div></div>
+      <div class="glied"><div class="nr">02</div><div class="name">Matching</div></div>
+      <div class="glied"><div class="nr">03</div><div class="name">Entwürfe</div></div>
+      <div class="glied halt"><div class="nr">04</div><div class="name">Freigabe</div></div>
+      <div class="glied"><div class="nr">05</div><div class="name">Versand &amp; Nachfass</div></div>
+      <div class="glied"><div class="nr">06</div><div class="name">Antworterkennung</div></div>
+    </div>
+    <div class="kette-note"><span><b>04</b> – der einzige Pflicht-Stopp: ein Mensch entscheidet</span><span>07 Statusbericht · 08 Besichtigung · 09 Datenraum-Stand ans Cockpit</span></div>
+  </div>
+</header>
+
+<section>
+  <div class="rand">
+    <div class="tab-huelle">
+      <table>
+        <thead><tr><th>Nr.</th><th>Workflow</th><th>Was er tut</th><th>Auslöser</th></tr></thead>
+        <tbody>
+          <tr><td class="nr">01</td><td class="wf"><b>Datenraum-Intake</b><code>01-datenraum-intake.json</code></td><td class="tut">Nimmt den Datenraum-Stand aus Modul 01 entgegen – Stufe Light oder Full nach SOP, 20 Kategorien, Schwärzungs-Vorbehalt für Light. Vollständig → Matching startet; Lücken → Aufgabe fürs Backoffice.</td><td class="aus">Webhook <code>seil/datenraum</code></td></tr>
+          <tr><td class="nr">02</td><td class="wf"><b>Matching</b><code>02-matching.json</code></td><td class="tut">Gleicht das Objekt gegen die täglich gepflegte Liveliste aus OneDrive ab – Standort zuerst, dann Assetklasse, dann Ticket; letzte Ankäufe als Sortiersignal. Kein voller Treffer heißt „manuell prüfen“, nie Ausschluss.<span class="platz">Platzhalter: Liveliste-Knoten wird beim Setup eingehängt (braucht SharePoint-Zugriff).</span></td><td class="aus">Webhook <code>seil/matching</code></td></tr>
+          <tr><td class="nr">03</td><td class="wf"><b>Mail-Vorbereitung</b><code>03-mail-vorbereitung.json</code></td><td class="tut">Füllt Presound- und Teaser-Entwürfe aus den Vorlagen des Standardprozesses und legt sie als „wartet auf Freigabe“ ab. Versendet nichts.<span class="platz">Platzhalter: KI-Knoten (Claude) für die Textgenerierung wird beim Setup eingehängt; bis dahin reine Vorlagenfüllung.</span></td><td class="aus">Webhook <code>seil/mail-vorbereitung</code></td></tr>
+          <tr><td class="nr">04</td><td class="wf"><b>Freigabe-Gate</b><code>04-freigabe-gate.json</code></td><td class="tut">Der einzige manuelle Stopp: nimmt die Sammelfreigabe entgegen (wer, wann, welche Entwürfe), schreibt den Audit-Eintrag – erst dann darf versendet werden. Bis das Cockpit speichert, alternativ per Mail-Link aus n8n.</td><td class="aus">Webhook <code>seil/freigabe</code></td></tr>
+          <tr><td class="nr">05</td><td class="wf"><b>Versand &amp; Follow-ups</b><code>05-followup-scheduler.json</code></td><td class="tut">Erstversand nach Freigabe, Follow-ups alle 2 Tage über <code>deals@seil.com</code> (WhatsApp über Superchat optional) – Stufenlogik nach dem Standardprozess: feste Vorlagen, Stufe 2 fragt nach Zielregionen, Abschluss mit Final-Mail. Einziger Versandpunkt: Freigabe-Prüfung vor jedem Versand und Leitung im BCC sitzen hier.</td><td class="aus">Webhook <code>seil/versand</code> + Cron Mo–Fr 07:00</td></tr>
+          <tr><td class="nr">06</td><td class="wf"><b>Antworterkennung</b><code>06-antworterkennung.json</code></td><td class="tut">Liest <code>deals@seil.com</code> und routet nach dem Standardprozess: Interesse → Broker Call · Absage → Kriterien-Rückfrage, Antwort als Aufgabe zur Pflege der Liveliste · Preisanfrage → Rückruf durch die Preisauskunft des Mandats (Regelfall Head of Sales, nie schriftlich) · Unterlagen → Datenraum-Abgleich über 09 · Besichtigung → 08 · Rest → Posteingang im Cockpit. Versendet selbst nichts.</td><td class="aus">IMAP-Eingang</td></tr>
+          <tr><td class="nr">07</td><td class="wf"><b>Status-Bericht</b><code>07-status-report.json</code></td><td class="tut">Baut werktäglich den HTML-Statusbericht im SEIL-CI (wie „Bericht exportieren“ im Cockpit) und sendet ihn an Geschäftsführung und Leitung Vertrieb.</td><td class="aus">Cron Mo–Fr 08:00</td></tr>
+          <tr><td class="nr">08</td><td class="wf"><b>Besichtigungs-Koordination</b><code>08-besichtigung.json</code></td><td class="tut">Vier Schritte nach Standardprozess: Bestätigung an den Investor, Anfrage an die Verkäuferseite, Warten auf deren Antwort (max. 3 Tage), Terminbestätigung + Kalendereintrag „BES mit …“ im Kalender des Sammelpostfachs.</td><td class="aus">Webhook <code>seil/besichtigung</code></td></tr>
+          <tr><td class="nr">09</td><td class="wf"><b>Datenraum-Status-API</b><code>09-datenraum-status-api.json</code></td><td class="tut">Leseweg für das Cockpit: liefert den von Modul 01 gemeldeten Datenraum-Stand je Objekt – Checkliste, KI-Kennwerte, Freigaben – serverseitig abgerufen, Secret bleibt beim Server.</td><td class="aus">Webhook GET <code>seil/datenraum-status</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="regeln">
+      <div class="regel halt"><h3>Inaktiv übergeben</h3><p>Alle neun Workflows liegen seit 28.10. auf dem SEIL-Server, aber abgeschaltet. Aktiviert wird einzeln, nach internem Testlauf.</p></div>
+      <div class="regel"><h3>Skelette, keine Blackbox</h3><p>Struktur und Logik stehen. Datenquellen und KI-Aufrufe sind als Platzhalter-Knoten markiert und in jeder Datei als Hinweis beschrieben – sie werden beim Setup verdrahtet, nicht erraten.</p></div>
+      <div class="regel"><h3>Keine Geheimnisse in Dateien</h3><p>IMAP, SMTP, Superchat und der Claude-Key leben ausschließlich im n8n-Credential-Store. Mailtexte liegen im Data-Store, nicht im Repository.</p></div>
+      <div class="regel"><h3>Betrieb bei SEIL</h3><p>Server bei Hostinger auf SEIL seit 28.10. Das Claude-Konto der SEIL Group ist noch anzulegen. Datenhoheit und Kosten liegen beim Kunden.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="rand"><span>SEIL Cockpit · Modul 02</span><span>RSG Recruiting Solutions Group</span></div>
+</footer>

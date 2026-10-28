@@ -6,7 +6,8 @@ Cockpit (Vermarktungs-Screen) –, Workflow 07 flankiert sie mit dem täglichen
 Statusbericht (Update-Call 28.08.), Workflow 08 koordiniert Besichtigungen
 (Teilprozess aus dem Standardprozess Investorenkommunikation), Workflow 09
 liefert den Datenraum-Stand aus Modul 01 an das Cockpit. Gedacht für die
-n8n-Instanz auf dem Hostinger-Server („n8n Seil“), auf der Modul 01 bereits läuft.
+n8n-Instanz auf dem SEIL-Server bei Hostinger (seit 28.10.2026, Konto SEIL). Modul 01
+läuft noch auf dem älteren RSG-Server vom 03.08.; der Umzug ist offen (ANNAHMEN 59).
 
 | # | Workflow | Kettenglied | Trigger |
 |---|---|---|---|
