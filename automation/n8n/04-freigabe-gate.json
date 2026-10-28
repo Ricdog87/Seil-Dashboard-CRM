@@ -15,7 +15,7 @@
         20
       ],
       "parameters": {
-        "content": "## Glied 4: Freigabe – der einzige Pflicht-Stopp\n\nNimmt den Freigabe-Klick aus dem Cockpit entgegen, schreibt den Audit-Eintrag (wer, wann, welche Entwürfe) und startet erst danach den Versand über WF 05.\n\n**Sammelfreigabe (Sales-Update 28.09.):** Eine Freigabe kann mehrere Entwürfe über mehrere Mandate tragen. Der Workflow teilt sie in einzelne Versandaufträge auf, damit jeder Entwurf einzeln protokolliert bleibt. Das Vier-Augen-Prinzip bleibt unverändert – ohne diesen Aufruf versendet WF 05 nichts.\n\nSKELETT – vor Aktivierung:\n1. Header-Auth zwischen Cockpit und diesem Webhook setzen (wichtigster der seil/*-Webhooks)\n2. Audit-Ablage anbinden (wer, wann, welche Entwürfe, welches Mandat)\n3. N8N-BASIS-URL ersetzen",
+        "content": "## Glied 4: Freigabe – der einzige Pflicht-Stopp\n\nNimmt den Freigabe-Klick aus dem Cockpit entgegen, schreibt den Audit-Eintrag (wer, wann, welche Entwürfe) und startet erst danach den Versand über WF 05.\n\n**Sammelfreigabe (Sales-Update 28.09.):** Eine Freigabe kann mehrere Entwürfe über mehrere Mandate tragen. Der Workflow teilt sie in einzelne Versandaufträge auf, damit jeder Entwurf einzeln protokolliert bleibt. Das Vier-Augen-Prinzip bleibt unverändert – ohne diesen Aufruf versendet WF 05 nichts.\n\nSKELETT – vor Aktivierung:\n1. Header-Auth zwischen Cockpit und diesem Webhook setzen (wichtigster der seil/*-Webhooks)\n2. Audit-Ablage anbinden (wer, wann, welche Entwürfe, welches Mandat)\n3. N8N-BASIS-URL ersetzen\n\n**Umbau 29.10. – zweiter Eingang, Freigabe per Mail-Link:** Solange das Cockpit keine Freigaben speichert, fordert WF 03 die Freigabe hier an. Die Leitung bekommt den Entwurf per Mail mit zwei Links (freigeben / ablehnen), der Workflow wartet bis zu 7 Tage. „Freigeben“ läuft in dieselbe Sammelfreigabe wie der Cockpit-Klick – ein Prüfpfad, zwei Eingänge. Credential „Microsoft Graph (SEIL)“. Offen: freigabeAn in der Konfiguration (die Leitung – laut Standardprozess zwei Personen).",
         "width": 440,
         "height": 380
       }
@@ -76,6 +76,161 @@
         "jsonBody": "={{ JSON.stringify({ objektId: $json.objektId, anlass: 'erstversand' }) }}",
         "options": {}
       }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "seil/freigabe-anfordern",
+        "options": {}
+      },
+      "id": "251a3a60-305a-4423-b9ac-e25852f4af96",
+      "name": "Freigabe anfordern (aus WF 03)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fk-1",
+              "name": "freigabeAn",
+              "value": "leitung@BEISPIEL-DOMAIN.de",
+              "type": "string"
+            },
+            {
+              "id": "fk-2",
+              "name": "fristTage",
+              "value": 7,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "f877341c-4553-485b-976c-a37403b947ef",
+      "name": "Konfiguration Freigabe (hier anpassen)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        420,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/users/deals@seil.com/sendMail",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const b = $json.body ?? $json; const basis = $execution.resumeUrl; const text = 'Ein Entwurf wartet auf Freigabe.\\n\\nObjekt: ' + (b.objektId ?? '') + '\\nEmpfänger: ' + (b.email ?? '') + '\\nBetreff: ' + (b.betreff ?? '') + '\\nQuelle: ' + (b.quelle ?? '') + '\\n\\n--- Entwurf ---\\n' + (b.entwurf ?? '') + '\\n--- Ende ---\\n\\nFREIGEBEN:\\n' + basis + '?entscheidung=freigeben\\n\\nABLEHNEN:\\n' + basis + '?entscheidung=ablehnen\\n\\nOhne Klick verfällt die Anfrage nach ' + $json.fristTage + ' Tagen. Versendet wird nur nach Freigabe.'; return JSON.stringify({ message: { subject: 'Freigabe: ' + (b.betreff ?? b.objektId ?? 'Entwurf'), body: { contentType: 'Text', content: text }, toRecipients: String($json.freigabeAn).split(/[;,]/).map(s => s.trim()).filter(Boolean).map(a => ({ emailAddress: { address: a } })) }, saveToSentItems: true }); })() }}"
+      },
+      "id": "949aea3a-2ed2-410e-bb64-efd864e40b57",
+      "name": "Freigabe-Mail an die Leitung (Graph)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        640
+      ],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "seil-graph",
+          "name": "Microsoft Graph (SEIL)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "GET",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 7,
+        "resumeUnit": "days",
+        "options": {}
+      },
+      "id": "43e15041-a6d0-42b2-8a43-edce8ed0c773",
+      "name": "Auf Entscheidung warten (max. 7 Tage)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        860,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "fg-1",
+              "leftValue": "={{ $json.query?.entscheidung ?? '' }}",
+              "rightValue": "freigeben",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "7a19c848-67b0-411f-b787-a808dcab4e41",
+      "name": "Freigegeben?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ (() => { const a = $('Freigabe anfordern (aus WF 03)').item.json.body ?? {}; const k = $('Konfiguration Freigabe (hier anpassen)').item.json; return { body: { entwuerfe: [a.entwurfId], objektId: a.objektId, durchId: 'mail-link:' + k.freigabeAn, am: $now.toISO() } }; })() }}",
+        "options": {}
+      },
+      "id": "25204068-b655-45ef-a3de-b9ae9245b8c7",
+      "name": "Freigabe aus Mail-Link aufbereiten",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1300,
+        560
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "8bcc22ca-4337-484f-9cce-c296e1338bba",
+      "name": "Abgelehnt oder Frist abgelaufen – Entwurf bleibt liegen",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        720
+      ]
     }
   ],
   "connections": {
@@ -106,6 +261,79 @@
         [
           {
             "node": "Freigabe-Status ablegen + Audit-Eintrag",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Freigabe anfordern (aus WF 03)": {
+      "main": [
+        [
+          {
+            "node": "Konfiguration Freigabe (hier anpassen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Konfiguration Freigabe (hier anpassen)": {
+      "main": [
+        [
+          {
+            "node": "Freigabe-Mail an die Leitung (Graph)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Freigabe-Mail an die Leitung (Graph)": {
+      "main": [
+        [
+          {
+            "node": "Auf Entscheidung warten (max. 7 Tage)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auf Entscheidung warten (max. 7 Tage)": {
+      "main": [
+        [
+          {
+            "node": "Freigegeben?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Freigegeben?": {
+      "main": [
+        [
+          {
+            "node": "Freigabe aus Mail-Link aufbereiten",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Abgelehnt oder Frist abgelaufen – Entwurf bleibt liegen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Freigabe aus Mail-Link aufbereiten": {
+      "main": [
+        [
+          {
+            "node": "Sammelfreigabe prüfen und aufteilen",
             "type": "main",
             "index": 0
           }

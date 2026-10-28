@@ -43,8 +43,14 @@ voraussetzen.
    Die Absenderadresse ist gesetzt: `deals@seil.com`, das von der IT
    eingerichtete Sammelpostfach. WF 06 liest daraus, WF 05 sendet darüber,
    WF 08 legt die Besichtigungstermine in dessen Kalender.
-2. **Credentials nur im n8n-Credential-Store** anlegen (SMTP, IMAP,
-   Superchat-API) – niemals in die Workflow-JSONs schreiben.
+2. **Credentials nur im n8n-Credential-Store** anlegen – drei Stück:
+   `Microsoft Graph (SEIL)` (OAuth2, Client Credentials, Token-URL
+   `https://login.microsoftonline.com/<TENANT>/oauth2/v2.0/token`, Scope
+   `https://graph.microsoft.com/.default`) für Postfach, Kalender und Liveliste;
+   `Anthropic (SEIL)` (Header Auth, `x-api-key`) für WF 03/06;
+   `Seil Webhook Secret` (Header Auth, `X-Seil-Secret`) für die `seil/*`-Webhooks.
+   Seit 29.10. läuft kein IMAP und kein SMTP mehr – alles über Graph aus
+   `deals@seil.com`, begrenzt per Exchange-RBAC auf genau dieses Postfach.
 3. **Webhook-Absicherung:** Header-Auth/Secret zwischen Cockpit und den
    `seil/*`-Webhooks setzen (insbesondere `seil/freigabe`).
 4. **Daten-Ablage anbinden:** Die `NoOp`-Nodes („Ablage …“, „Aufgabe …“)
@@ -281,3 +287,20 @@ Beispiel-Export festgelegt, nicht am Gesamtbestand.
 
 Die Workflows enthalten ausschließlich Struktur und Platzhalter –
 keine echten Daten, keine Zugangsdaten.
+
+## Umbau 29.10. – was verdrahtet ist, was Platzhalter bleibt
+
+| WF | Verdrahtet | Platzhalter (noOp) bis die Data Tables stehen |
+|---|---|---|
+| 02 | Liveliste aus SharePoint über Graph `workbook/usedRange`, Spaltenzuordnung im Konfigurationsknoten | Verteiler-Vorschlag ablegen |
+| 03 | Claude über `POST /v1/messages` (Vorlage als Leitplanke, Fallback auf Vorlagenfüllung), Freigabe-Anforderung an WF 04 | Entwurf ablegen |
+| 04 | Zweiter Eingang `seil/freigabe-anfordern`: Freigabe-Mail mit zwei Links, Wait bis 7 Tage, Ergebnis in dieselbe Sammelfreigabe | Audit-Ablage |
+| 05 | Versand über Graph `sendMail` aus deals@, BCC Leitung | Kontakte laden, Protokoll, Freigabe-Nachprüfung |
+| 06 | Alle 2 Minuten ungelesene Mails aus deals@ über Graph, als gelesen markieren, vereinzeln | Signale/Aufgaben im Cockpit, Profil-Update |
+| 08 | Kalendereintrag über Graph `events` im Kalender von deals@ | Nachfass-Aufgabe |
+
+Die Platzhalter werden an fünf n8n Data Tables gehängt (`kontakte`, `entwuerfe`,
+`freigaben`, `versand`, `datenraum_status`); Spalten siehe
+`docs/SEIL-Anbindung-Donnerstag.pdf`, Teil 3. Die Tabellen-IDs entstehen erst beim
+Anlegen in der Oberfläche, deshalb sind die Knoten nicht vorab verdrahtet.
+

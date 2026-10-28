@@ -15,22 +15,9 @@
         -260
       ],
       "parameters": {
-        "content": "## Glied 6: Antworterkennung – Entscheidungsbaum aus dem Standardprozess\n\nEingehende Antworten (zentrales Vertriebs-Postfach per IMAP; Superchat-Webhook für WhatsApp analog) werden klassifiziert und nach dem Standardprozess Investorenkommunikation geroutet. WF 06 versendet selbst NICHTS: Jede Route setzt nur Parameter (Vorlagen-Schlüssel, Follow-up neu?, Aufgabe?) – der generische Ausführer unten übergibt den Versand an WF 05 (einziger Versandpunkt, dort BCC-Regel und Freigabe-Prüfung).\n\nRouten (nur Struktur – Vorlagentexte liegen im n8n-Data-Store):\n– Anfrage/Interesse → Vorlage + Follow-up-Kette neu (2 Tage) + Aufgabe „Broker Call“\n– Absage → Bestätigung mit Kriterien-Rückfrage + Follow-up neu (2 Tage); Antwort pflegt das Ankaufsprofil\n– Kriterien erhalten → Vorlage + Aufgabe „Übergabe an Team + Terminvorschlag“\n– Preisanfrage → NIE schriftlich beantworten: Erstantwort-Vorlage + Aufgabe „Rückruf durch GF“ + Folge-Aufgabe „Gespräch stattgefunden?“; bei ERNEUTER schriftlicher Preisanfrage feste Vorlage „Auskunft nur telefonisch“\n– Unterlagen angefragt → Datenraum-Abgleich über WF 09 (Modul-01-Stand): vorhanden → senden · nicht im Datenraum → Rückfrage an Verkäuferseite · unklar → interne Rücksprache (Team, dann Leitung)\n– Telefonwunsch → Vorlage + Aufgabe „Rückruf durch GF“\n– Besichtigung → WF 08 Besichtigungs-Koordination (mehrstufig, eigener Zustand)\n– Rest → Signal „offen“ im Cockpit-Posteingang (Mensch triagiert)\n\nZielregionen-/Profilinformationen in jeder Antwort setzen das Profil-Update-Flag → Ankaufsprofil im CRM.\n\nSKELETT – vor Aktivierung: IMAP-Credential (zentrales Vertriebs-Postfach, nach Office-365-Umzug); LLM-Klassifikation (Claude) vor die Keyword-Heuristik schalten; N8N-BASIS-URL ersetzen; Datenraum-Abgleich und Aufgaben-Ablage anbinden.",
+        "content": "## Glied 6: Antworterkennung – Entscheidungsbaum aus dem Standardprozess\n\nEingehende Antworten (zentrales Vertriebs-Postfach per Microsoft Graph (deals@seil.com); Superchat-Webhook für WhatsApp analog) werden klassifiziert und nach dem Standardprozess Investorenkommunikation geroutet. WF 06 versendet selbst NICHTS: Jede Route setzt nur Parameter (Vorlagen-Schlüssel, Follow-up neu?, Aufgabe?) – der generische Ausführer unten übergibt den Versand an WF 05 (einziger Versandpunkt, dort BCC-Regel und Freigabe-Prüfung).\n\nRouten (nur Struktur – Vorlagentexte liegen im n8n-Data-Store):\n– Anfrage/Interesse → Vorlage + Follow-up-Kette neu (2 Tage) + Aufgabe „Broker Call“\n– Absage → Bestätigung mit Kriterien-Rückfrage + Follow-up neu (2 Tage); Antwort pflegt das Ankaufsprofil\n– Kriterien erhalten → Vorlage + Aufgabe „Übergabe an Team + Terminvorschlag“\n– Preisanfrage → NIE schriftlich beantworten: Erstantwort-Vorlage + Aufgabe „Rückruf durch GF“ + Folge-Aufgabe „Gespräch stattgefunden?“; bei ERNEUTER schriftlicher Preisanfrage feste Vorlage „Auskunft nur telefonisch“\n– Unterlagen angefragt → Datenraum-Abgleich über WF 09 (Modul-01-Stand): vorhanden → senden · nicht im Datenraum → Rückfrage an Verkäuferseite · unklar → interne Rücksprache (Team, dann Leitung)\n– Telefonwunsch → Vorlage + Aufgabe „Rückruf durch GF“\n– Besichtigung → WF 08 Besichtigungs-Koordination (mehrstufig, eigener Zustand)\n– Rest → Signal „offen“ im Cockpit-Posteingang (Mensch triagiert)\n\nZielregionen-/Profilinformationen in jeder Antwort setzen das Profil-Update-Flag → Ankaufsprofil im CRM.\n\nSKELETT – vor Aktivierung: Microsoft Graph (deals@seil.com)-Credential (zentrales Vertriebs-Postfach, nach Office-365-Umzug); LLM-Klassifikation (Claude) vor die Keyword-Heuristik schalten; N8N-BASIS-URL ersetzen; Datenraum-Abgleich und Aufgaben-Ablage anbinden.\n\n**Umbau 29.10.:** Eingang über Microsoft Graph statt IMAP. Alle 2 Minuten werden ungelesene Mails aus deals@seil.com gelesen, als gelesen markiert und einzeln klassifiziert. Credential: „Microsoft Graph (SEIL)“ (OAuth2, Client Credentials, Scope https://graph.microsoft.com/.default) – eine Stelle für Postfach, Kalender und Liveliste.",
         "width": 600,
         "height": 700
-      }
-    },
-    {
-      "id": "imap-06",
-      "name": "Posteingang (IMAP-Credential nötig)",
-      "type": "n8n-nodes-base.emailReadImap",
-      "typeVersion": 2,
-      "position": [
-        160,
-        700
-      ],
-      "parameters": {
-        "options": {}
       }
     },
     {
@@ -854,20 +841,120 @@
         700
       ],
       "parameters": {}
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 2
+            }
+          ]
+        }
+      },
+      "id": "cf4ff248-3c95-46c5-a46b-cd148a4ec1c0",
+      "name": "Alle 2 Minuten: Posteingang prüfen",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -500,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://graph.microsoft.com/v1.0/users/deals@seil.com/mailFolders/inbox/messages?$filter=isRead eq false&$top=25&$select=id,subject,from,bodyPreview,body,receivedDateTime,conversationId,internetMessageId",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "7897486c-af6a-431d-abb2-8c8b7fd16638",
+      "name": "Ungelesene Mails aus deals@ (Graph)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -280,
+        700
+      ],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "seil-graph",
+          "name": "Microsoft Graph (SEIL)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Graph liefert { value: [ ...Nachrichten ] }. Eine Nachricht je Item, Felder so, wie der\n// Klassifizierer sie erwartet (subject, from als Adresse, textPlain, messageId).\nconst antwort = $input.first().json;\nconst liste = Array.isArray(antwort.value) ? antwort.value : [];\nif (antwort.error) throw new Error('Graph-Fehler beim Lesen von deals@: ' + JSON.stringify(antwort.error));\nconst ohneHtml = (h) => String(h ?? '').replace(/<style[\\s\\S]*?<\\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\\s+/g, ' ').trim();\nreturn liste.map((m) => {\n  const istText = (m.body?.contentType ?? '').toLowerCase() === 'text';\n  const textPlain = istText ? (m.body?.content ?? '') : ohneHtml(m.body?.content ?? m.bodyPreview);\n  return { json: {\n    messageId: m.id, internetMessageId: m.internetMessageId ?? null, conversationId: m.conversationId ?? null,\n    subject: m.subject ?? '', from: m.from?.emailAddress?.address ?? '', fromName: m.from?.emailAddress?.name ?? '',\n    textPlain, text: textPlain, receivedDateTime: m.receivedDateTime ?? null,\n  } };\n});"
+      },
+      "id": "ef584762-a1de-4748-8668-41be462f82cf",
+      "name": "Nachrichten vereinzeln + Felder angleichen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -60,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://graph.microsoft.com/v1.0/users/deals@seil.com/messages/{{ $json.messageId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ isRead: true }) }}"
+      },
+      "id": "2cf39572-daf8-4e3d-bd94-4ae8c393fea0",
+      "name": "Als gelesen markieren (Graph)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        160,
+        700
+      ],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "seil-graph",
+          "name": "Microsoft Graph (SEIL)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $('Nachrichten vereinzeln + Felder angleichen').item.json }}",
+        "options": {}
+      },
+      "id": "8b607ee1-07f1-468a-a36e-7b4c84ae7ebd",
+      "name": "Mailfelder zurückholen",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        380,
+        700
+      ]
     }
   ],
   "connections": {
-    "Posteingang (IMAP-Credential nötig)": {
-      "main": [
-        [
-          {
-            "node": "Klassifizieren (Trigger-Wörter)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Klassifizieren (Trigger-Wörter)": {
       "main": [
         [
@@ -1217,6 +1304,61 @@
         [
           {
             "node": "Vorlage zu versenden?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alle 2 Minuten: Posteingang prüfen": {
+      "main": [
+        [
+          {
+            "node": "Ungelesene Mails aus deals@ (Graph)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ungelesene Mails aus deals@ (Graph)": {
+      "main": [
+        [
+          {
+            "node": "Nachrichten vereinzeln + Felder angleichen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nachrichten vereinzeln + Felder angleichen": {
+      "main": [
+        [
+          {
+            "node": "Als gelesen markieren (Graph)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Als gelesen markieren (Graph)": {
+      "main": [
+        [
+          {
+            "node": "Mailfelder zurückholen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mailfelder zurückholen": {
+      "main": [
+        [
+          {
+            "node": "Klassifizieren (Trigger-Wörter)",
             "type": "main",
             "index": 0
           }

@@ -675,3 +675,35 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
     Platzhalter; WF 02 arbeitet gegen die Liveliste, der Lade-Knoten ist ein
     Platzhalter. Der Onepager benennt die Platzhalter jetzt ausdrücklich.
 
+60. **Umbau der Automatik auf Microsoft Graph (29.10.):** Für die Anbindung am
+    30.10. wurden sechs Workflows umgebaut. Postfach, Kalender und Liveliste
+    laufen über **eine** App-Registrierung und **ein** n8n-Credential
+    (`Microsoft Graph (SEIL)`, Client Credentials). Gründe: Exchange Online
+    erlaubt kein Passwort-IMAP mehr; Graph passt zur Exchange-RBAC-Begrenzung auf
+    `deals@seil.com`, die der IT vorgegeben ist; und Versand über Graph verlässt
+    das Haus wie jede Outlook-Mail – SPF/DKIM-Arbeiten entfallen.
+
+    - **WF 06** pollt alle zwei Minuten ungelesene Mails, markiert sie als
+      gelesen und vereinzelt sie; der Klassifizierer blieb unverändert.
+    - **WF 05** sendet über `sendMail`, BCC an die Leitung; Felder werden nach
+      dem Versand aus dem Vorknoten zurückgeholt, weil Graph mit leerem Body
+      antwortet.
+    - **WF 08** legt den Termin per `events` an, 60 Minuten, Teammitglied
+      eingeladen.
+    - **WF 03** ruft Claude (`claude-opus-5`) mit der Vorlage als Leitplanke
+      auf – keine Preise, keine Zusagen – und fällt ohne Key auf die gefüllte
+      Vorlage zurück (`quelle: 'vorlage'`). Danach fordert WF 03 die Freigabe
+      bei WF 04 an.
+    - **WF 04** hat einen zweiten Eingang: Freigabe-Mail mit zwei Links an die
+      Leitung, Wait bis 7 Tage, „freigeben“ läuft in dieselbe Sammelfreigabe wie
+      der Cockpit-Klick. Damit ist Stufe 2 ohne Cockpit-Speicher betreibbar.
+    - **WF 02** liest die Liveliste direkt aus der Excel in SharePoint
+      (`workbook/usedRange`); Site, Datei, Blatt und Spaltenzuordnung stehen im
+      Konfigurationsknoten.
+
+    **Bewusst nicht verdrahtet:** die Ablage. n8n Data Tables brauchen IDs, die
+    erst beim Anlegen entstehen; blind erzeugte Knoten würden den Import still
+    brechen. Spezifiziert sind fünf Tabellen, angelegt wird am 30.10. Bis dahin
+    läuft die Kette einmal durch; Nachfass-Stufen und die Freigabe-Nachprüfung
+    vor dem Versand brauchen die Tabellen.
+

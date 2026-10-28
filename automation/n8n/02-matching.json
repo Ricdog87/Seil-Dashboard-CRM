@@ -15,7 +15,7 @@
         20
       ],
       "parameters": {
-        "content": "## Glied 2: Matching – Standort zuerst, Datenbasis Liveliste\n\nGleicht das Objekt gegen die Investoren ab. Reihenfolge laut Demo-Check (20.08.): Standort, dann Assetklasse, dann Ticket. Kein voller Treffer heißt „manuell prüfen“, nie Ausschluss.\n\n**Datenbasis (Sales-Update 28.09.):** Der Vertrieb pflegt KEINE festen Ankaufsprofile, sondern eine täglich aktualisierte Investoren-Liveliste in OneDrive – mit Kriterien und den letzten Ankäufen je Investor. Diese Liste ist die Vorselektion. „Zuletzt Vergleichbares gekauft“ geht als Zusatzsignal in die Sortierung ein, ersetzt aber nie die drei harten Kriterien.\n\nSKELETT – vor Aktivierung:\n1. Liveliste anbinden (OneDrive-Node auf die gepflegte Datei; nach dem Tenant-Umzug)\n2. Feld-Mapping an EINEM Beispiel festlegen, nicht am Gesamtbestand\n3. Ergebnis an die Freigabe übergeben – versendet wird nichts ohne WF 04",
+        "content": "## Glied 2: Matching – Standort zuerst, Datenbasis Liveliste\n\nGleicht das Objekt gegen die Investoren ab. Reihenfolge laut Demo-Check (20.08.): Standort, dann Assetklasse, dann Ticket. Kein voller Treffer heißt „manuell prüfen“, nie Ausschluss.\n\n**Datenbasis (Sales-Update 28.09.):** Der Vertrieb pflegt KEINE festen Ankaufsprofile, sondern eine täglich aktualisierte Investoren-Liveliste in OneDrive – mit Kriterien und den letzten Ankäufen je Investor. Diese Liste ist die Vorselektion. „Zuletzt Vergleichbares gekauft“ geht als Zusatzsignal in die Sortierung ein, ersetzt aber nie die drei harten Kriterien.\n\nSKELETT – vor Aktivierung:\n1. Liveliste anbinden (OneDrive-Node auf die gepflegte Datei; nach dem Tenant-Umzug)\n2. Feld-Mapping an EINEM Beispiel festlegen, nicht am Gesamtbestand\n3. Ergebnis an die Freigabe übergeben – versendet wird nichts ohne WF 04\n\n**Umbau 29.10.:** Die Liveliste wird über Microsoft Graph direkt aus der Excel in OneDrive/SharePoint gelesen (workbook/usedRange). Beim Setup eintragen: Site-ID, Item-ID der Datei, Blattname und die Spaltenzuordnung in „Konfiguration Liveliste“. Credential „Microsoft Graph (SEIL)“; die App braucht Sites.Selected mit Lesefreigabe auf genau dieser Site.",
         "width": 440,
         "height": 420
       }
@@ -34,17 +34,6 @@
         "path": "seil/matching",
         "options": {}
       }
-    },
-    {
-      "id": "noop-03",
-      "name": "Objekt + Investoren laden",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        440,
-        420
-      ],
-      "parameters": {}
     },
     {
       "id": "code-02",
@@ -87,29 +76,97 @@
         "jsonBody": "={{ JSON.stringify({ objektId: $('Matching-Anstoß').first().json.body?.objektId ?? $('Matching-Anstoß').first().json.objektId }) }}",
         "options": {}
       }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ll-1",
+              "name": "siteId",
+              "value": "SITE-ID-EINTRAGEN",
+              "type": "string"
+            },
+            {
+              "id": "ll-2",
+              "name": "itemId",
+              "value": "ITEM-ID-DER-LIVELISTE-EINTRAGEN",
+              "type": "string"
+            },
+            {
+              "id": "ll-3",
+              "name": "blatt",
+              "value": "Tabelle1",
+              "type": "string"
+            },
+            {
+              "id": "ll-4",
+              "name": "spalten",
+              "value": "{\"id\": \"Investor\", \"regionen\": \"Regionen\", \"assetklassen\": \"Assetklassen\", \"ticketMinMio\": \"Ticket min (Mio)\", \"ticketMaxMio\": \"Ticket max (Mio)\", \"letzteAnkaeufe\": \"Letzte Ankäufe\"}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "93188213-9a5a-4e30-9c98-678524dcf48d",
+      "name": "Konfiguration Liveliste (hier anpassen)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        330,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://graph.microsoft.com/v1.0/sites/{{ $json.siteId }}/drive/items/{{ $json.itemId }}/workbook/worksheets('{{ $json.blatt }}')/usedRange(valuesOnly=true)",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "eee06f61-e71e-4ba1-99ff-f074d31f4614",
+      "name": "Liveliste aus OneDrive lesen (Graph)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        550,
+        420
+      ],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "seil-graph",
+          "name": "Microsoft Graph (SEIL)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Excel-Zeilen der Liveliste in die Struktur bringen, die der Abgleich erwartet.\n// Spaltenzuordnung steht in „Konfiguration Liveliste“ – beim Setup an die echte Liste anpassen.\nconst roh = $input.first().json;\nconst konf = $('Konfiguration Liveliste (hier anpassen)').first().json;\nif (roh.error) throw new Error('Liveliste nicht lesbar – SharePoint-Zugriff (Sites.Selected) oder IDs prüfen: ' + JSON.stringify(roh.error));\nconst werte = roh.values ?? [];\nif (werte.length < 2) throw new Error('Liveliste leer oder ohne Kopfzeile');\nconst kopf = werte[0].map(k => String(k ?? '').trim());\nconst spalten = JSON.parse(konf.spalten ?? '{}');\nconst idx = (name) => kopf.findIndex(k => k.toLowerCase() === String(name ?? '').toLowerCase());\nconst liste = (v) => String(v ?? '').split(/[;,/]/).map(s => s.trim()).filter(Boolean);\nconst zahl = (v) => { const z = parseFloat(String(v ?? '').replace(',', '.')); return Number.isFinite(z) ? z : null; };\nconst investoren = werte.slice(1).filter(z => z.some(c => String(c ?? '').trim() !== '')).map((z, i) => {\n  const feld = (schl) => { const j = idx(spalten[schl]); return j >= 0 ? z[j] : undefined; };\n  const ank = liste(feld('letzteAnkaeufe')).map(t => ({ assetklasse: t, region: '', jahr: null }));\n  return { id: String(feld('id') ?? ('zeile-' + (i + 2))), regionen: liste(feld('regionen')), assetklassen: liste(feld('assetklassen')),\n           ticketMinMio: zahl(feld('ticketMinMio')), ticketMaxMio: zahl(feld('ticketMaxMio')), letzteAnkaeufe: ank,\n           roh: Object.fromEntries(kopf.map((k, j) => [k, z[j]])) };\n});\nconst objekt = konf.objekt ?? konf.body?.objekt ?? {};\nreturn [{ json: { objekt, liveliste: { stand: new Date().toISOString(), quelle: 'OneDrive/Graph', investoren } } }];"
+      },
+      "id": "35ea24d1-9aae-4f9e-87bc-31d9a3e064e4",
+      "name": "Zeilen → Investoren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        770,
+        420
+      ]
     }
   ],
   "connections": {
     "Matching-Anstoß": {
       "main": [
-        [
-          {
-            "node": "Objekt + Investoren laden",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Objekt + Investoren laden": {
-      "main": [
-        [
-          {
-            "node": "Abgleich: Standort → Klasse → Ticket",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Abgleich: Standort → Klasse → Ticket": {
@@ -128,6 +185,39 @@
         [
           {
             "node": "Mail-Vorbereitung anstoßen (WF 03)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Konfiguration Liveliste (hier anpassen)": {
+      "main": [
+        [
+          {
+            "node": "Liveliste aus OneDrive lesen (Graph)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Liveliste aus OneDrive lesen (Graph)": {
+      "main": [
+        [
+          {
+            "node": "Zeilen → Investoren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zeilen → Investoren": {
+      "main": [
+        [
+          {
+            "node": "Abgleich: Standort → Klasse → Ticket",
             "type": "main",
             "index": 0
           }

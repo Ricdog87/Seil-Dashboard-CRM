@@ -15,7 +15,7 @@
         -120
       ],
       "parameters": {
-        "content": "## Glied 8: Besichtigungs-Koordination (Standardprozess, vier Schritte)\n\nAusgelöst von WF 06 bei Besichtigungswunsch. Ablauf laut Standardprozess:\n1. Bestätigung an den Investor (Vorlage 'besichtigung-bestaetigung')\n2. Anfrage an die Verkäuferseite (Vorlage 'besichtigung-anfrage-verkaeufer')\n3. Warten auf die Antwort der Verkäuferseite (Wait-Node, Fortsetzung per Webhook – die Resume-URL steht in der Verkäufer-Mail/Aufgabe; Zeitlimit 3 Tage)\n4. Terminbestätigung an den Investor (Vorlage 'besichtigung-terminbestaetigung') + Kalendereintrag im zentralen Vertriebskalender nach Titelkonvention, besichtigendes Teammitglied einladen\n\nAlle Mails laufen über WF 05 (einziger Versandpunkt: BCC-Regel, Freigabe-Prüfung, Protokoll). Titelkonvention aus dem Standardprozess: „BES mit <Kürzel Teammitglied> und <Investor / Telefon>“.\n\nSKELETT – vor Aktivierung: N8N-BASIS-URL ersetzen; Kalender-Anbindung (Outlook/Microsoft-Graph-Credential nach Office-365-Umzug) am letzten Node; Verkäufer-Kontakt aus dem Mandat laden.",
+        "content": "## Glied 8: Besichtigungs-Koordination (Standardprozess, vier Schritte)\n\nAusgelöst von WF 06 bei Besichtigungswunsch. Ablauf laut Standardprozess:\n1. Bestätigung an den Investor (Vorlage 'besichtigung-bestaetigung')\n2. Anfrage an die Verkäuferseite (Vorlage 'besichtigung-anfrage-verkaeufer')\n3. Warten auf die Antwort der Verkäuferseite (Wait-Node, Fortsetzung per Webhook – die Resume-URL steht in der Verkäufer-Mail/Aufgabe; Zeitlimit 3 Tage)\n4. Terminbestätigung an den Investor (Vorlage 'besichtigung-terminbestaetigung') + Kalendereintrag im zentralen Vertriebskalender nach Titelkonvention, besichtigendes Teammitglied einladen\n\nAlle Mails laufen über WF 05 (einziger Versandpunkt: BCC-Regel, Freigabe-Prüfung, Protokoll). Titelkonvention aus dem Standardprozess: „BES mit <Kürzel Teammitglied> und <Investor / Telefon>“.\n\nSKELETT – vor Aktivierung: N8N-BASIS-URL ersetzen; Kalender-Anbindung (Outlook/Microsoft-Graph-Credential nach Office-365-Umzug) am letzten Node; Verkäufer-Kontakt aus dem Mandat laden.\n\n**Umbau 29.10.:** Der Kalendereintrag wird über Microsoft Graph im Kalender von deals@seil.com angelegt (Titel „BES mit <Kürzel> und <Investor>“, Dauer 60 Minuten, Teammitglied eingeladen). Credential „Microsoft Graph (SEIL)“.",
         "width": 560,
         "height": 520
       }
@@ -155,17 +155,6 @@
       }
     },
     {
-      "id": "noop-08a",
-      "name": "Termin im zentralen Vertriebskalender + Teammitglied einladen (Outlook/Graph-Credential nötig)",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        2240,
-        420
-      ],
-      "parameters": {}
-    },
-    {
       "id": "noop-08b",
       "name": "Aufgabe: Verkäuferseite nachfassen / Alternativtermin",
       "type": "n8n-nodes-base.noOp",
@@ -175,6 +164,39 @@
         640
       ],
       "parameters": {}
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/users/deals@seil.com/events",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ subject: $json.kalender.titel, location: { displayName: $json.kalender.ort ?? '' }, start: { dateTime: $json.kalender.beginn, timeZone: 'Europe/Berlin' }, end: { dateTime: $json.kalender.beginn ? DateTime.fromISO($json.kalender.beginn).plus({ minutes: 60 }).toISO() : null, timeZone: 'Europe/Berlin' }, attendees: ($json.kalender.teilnehmer ?? []).map(a => ({ emailAddress: { address: a }, type: 'required' })), body: { contentType: 'Text', content: 'Besichtigung – angelegt durch die Automatik (WF 08).' } }) }}"
+      },
+      "id": "9b09d103-3eb8-461f-b18f-52693782a81a",
+      "name": "Termin im Kalender von deals@ anlegen (Graph)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        420
+      ],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "seil-graph",
+          "name": "Microsoft Graph (SEIL)"
+        }
+      }
     }
   ],
   "connections": {
@@ -266,7 +288,7 @@
       "main": [
         [
           {
-            "node": "Termin im zentralen Vertriebskalender + Teammitglied einladen (Outlook/Graph-Credential nötig)",
+            "node": "Termin im Kalender von deals@ anlegen (Graph)",
             "type": "main",
             "index": 0
           }

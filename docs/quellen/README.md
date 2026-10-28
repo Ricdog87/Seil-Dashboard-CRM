@@ -10,6 +10,7 @@ verloren gegangen, weil sie nur im temporären Verzeichnis lagen.
 | `SEIL-n8n-Import-Aylin.pdf` | `import-aylin.html` |
 | `SEIL-Uebergabe-Checkliste.pdf` | `uebergabe-checkliste.html` |
 | `SEIL-Automatik-Kette-Onepager.pdf` | `automatik-kette-onepager.html` |
+| `SEIL-Anbindung-Donnerstag.pdf` | `anbindung-donnerstag.html` |
 
 Nur `SEIL-Cockpit-Anleitung.pdf` stammt noch aus einer Zeit ohne abgelegte Quelle.
 

@@ -15,7 +15,7 @@
         -160
       ],
       "parameters": {
-        "content": "## Glied 5: Versand & Follow-ups – der einzige Versandpunkt\n\nAlles, was SEIL per E-Mail/WhatsApp verlässt, läuft durch diesen Workflow – auch die Antwort-Vorlagen aus WF 06 und die Besichtigungs-Mails aus WF 08. Dadurch gibt es genau EINE Stelle für Freigabe-Prüfung, BCC-Regel und Protokoll.\n\nDrei Eingänge:\n– Webhook seil/versand: Erstversand nach Freigabe (WF 04) ODER Versandauftrag mit vorgegebener Vorlage (WF 06/08, Feld `vorlage`)\n– Webhook seil/followup-planen: WF 06 startet die Follow-up-Kette neu (Standardprozess: nach beantworteter Anfrage und nach der Absage-Rückfrage „2 Tage später nachfassen“)\n– Cron 07:00 Mo–Fr: fällige Follow-ups\n\nKonfiguration (Node „Konfiguration (hier anpassen)“):\n– bccLeitung: Leitung Vertrieb im BCC jeder ausgehenden Mail (Regel aus dem Standardprozess)\n– antwortenAutomatisch: true = Standard-Antworten gehen ohne Klick raus; false = als Entwurf zur Bestätigung ablegen (Workshop-Schalter)\n– maxStufen: Voreinstellung 3 (Angebot) – Standardprozess beschreibt eine offene Kette mit Final-Mail → Workshop-Frage\n– whatsappAktiv: Superchat-Kanal zusätzlich zur E-Mail\n\nStufenlogik (Struktur aus dem Standardprozess): Stufe 1 und 2 feste Vorlagen (Stufe 2 fragt Zielregionen ab), weitere Stufen alternierend, letzte Stufe = Final-Mail, danach nur noch manuelle Nachfass-Aufgabe. Vorlagentexte liegen NICHT hier, sondern als Einträge im n8n-Data-Store (Quelle: SEIL-Standardprozess-Dokument).\n\nVor JEDEM Versand wird der Freigabe-Status des Objekts erneut geprüft (doppelter Boden zu WF 04). Antworten gelten als Teil der freigegebenen Kampagne.\n\nSKELETT – vor Aktivierung: SMTP- und Superchat-Credentials im Credential-Store, Kontakt-Quelle anbinden, Vorlagen in den Data-Store, Konfiguration setzen, Testlauf mit internen Adressen.",
+        "content": "## Glied 5: Versand & Follow-ups – der einzige Versandpunkt\n\nAlles, was SEIL per E-Mail/WhatsApp verlässt, läuft durch diesen Workflow – auch die Antwort-Vorlagen aus WF 06 und die Besichtigungs-Mails aus WF 08. Dadurch gibt es genau EINE Stelle für Freigabe-Prüfung, BCC-Regel und Protokoll.\n\nDrei Eingänge:\n– Webhook seil/versand: Erstversand nach Freigabe (WF 04) ODER Versandauftrag mit vorgegebener Vorlage (WF 06/08, Feld `vorlage`)\n– Webhook seil/followup-planen: WF 06 startet die Follow-up-Kette neu (Standardprozess: nach beantworteter Anfrage und nach der Absage-Rückfrage „2 Tage später nachfassen“)\n– Cron 07:00 Mo–Fr: fällige Follow-ups\n\nKonfiguration (Node „Konfiguration (hier anpassen)“):\n– bccLeitung: Leitung Vertrieb im BCC jeder ausgehenden Mail (Regel aus dem Standardprozess)\n– antwortenAutomatisch: true = Standard-Antworten gehen ohne Klick raus; false = als Entwurf zur Bestätigung ablegen (Workshop-Schalter)\n– maxStufen: Voreinstellung 3 (Angebot) – Standardprozess beschreibt eine offene Kette mit Final-Mail → Workshop-Frage\n– whatsappAktiv: Superchat-Kanal zusätzlich zur E-Mail\n\nStufenlogik (Struktur aus dem Standardprozess): Stufe 1 und 2 feste Vorlagen (Stufe 2 fragt Zielregionen ab), weitere Stufen alternierend, letzte Stufe = Final-Mail, danach nur noch manuelle Nachfass-Aufgabe. Vorlagentexte liegen NICHT hier, sondern als Einträge im n8n-Data-Store (Quelle: SEIL-Standardprozess-Dokument).\n\nVor JEDEM Versand wird der Freigabe-Status des Objekts erneut geprüft (doppelter Boden zu WF 04). Antworten gelten als Teil der freigegebenen Kampagne.\n\nSKELETT – vor Aktivierung: Credential „Microsoft Graph (SEIL)“ und optional Superchat im Credential-Store, Kontakt-Quelle anbinden, Vorlagen in den Data-Store, Konfiguration setzen, Testlauf mit internen Adressen.\n\n**Umbau 29.10.:** Versand über Microsoft Graph aus deals@seil.com (sendMail, landet in „Gesendet“). Damit entfallen SMTP-Zugang und eigene SPF/DKIM-Einträge – die Mail verlässt das Haus wie jede Outlook-Mail. Offen: bccLeitung in der Konfiguration (zwei Personen laut Standardprozess).",
         "width": 560,
         "height": 640
       }
@@ -244,26 +244,6 @@
       "parameters": {}
     },
     {
-      "id": "mail-05",
-      "name": "E-Mail senden (SMTP-Credential nötig)",
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2,
-      "position": [
-        1920,
-        500
-      ],
-      "parameters": {
-        "fromEmail": "deals@seil.com",
-        "toEmail": "={{ $json.email }}",
-        "subject": "={{ $json.betreff }}",
-        "emailFormat": "text",
-        "text": "={{ $json.text }}",
-        "options": {
-          "bccEmail": "={{ $json.bccLeitung ?? '' }}"
-        }
-      }
-    },
-    {
       "id": "if-05d",
       "name": "WhatsApp-Kanal?",
       "type": "n8n-nodes-base.if",
@@ -311,6 +291,54 @@
         600
       ],
       "parameters": {}
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/users/deals@seil.com/sendMail",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: { subject: $json.betreff, body: { contentType: 'Text', content: $json.text }, toRecipients: [{ emailAddress: { address: $json.email } }], bccRecipients: String($json.bccLeitung ?? '').split(/[;,]/).map(s => s.trim()).filter(Boolean).map(a => ({ emailAddress: { address: a } })) }, saveToSentItems: true }) }}"
+      },
+      "id": "f72a27a0-5cf9-407c-9e2f-2105846fc551",
+      "name": "E-Mail senden über deals@ (Graph)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1920,
+        500
+      ],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "seil-graph",
+          "name": "Microsoft Graph (SEIL)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { ...$('Vorlage aus Data-Store laden + Freigabe erneut prüfen').item.json, versandStatus: 'gesendet', gesendetAm: $now.toISO() } }}",
+        "options": {}
+      },
+      "id": "0d91bcbc-1c5a-4b05-84c9-2c6d1595117e",
+      "name": "Versandfelder zurückholen",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2140,
+        500
+      ]
     }
   ],
   "connections": {
@@ -449,23 +477,7 @@
       "main": [
         [
           {
-            "node": "E-Mail senden (SMTP-Credential nötig)",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "WhatsApp-Kanal?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "E-Mail senden (SMTP-Credential nötig)": {
-      "main": [
-        [
-          {
-            "node": "Versand protokollieren + nächstes Follow-up (+2 Tage) ablegen",
             "type": "main",
             "index": 0
           }
@@ -485,6 +497,28 @@
       ]
     },
     "WhatsApp über Superchat-API": {
+      "main": [
+        [
+          {
+            "node": "Versand protokollieren + nächstes Follow-up (+2 Tage) ablegen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "E-Mail senden über deals@ (Graph)": {
+      "main": [
+        [
+          {
+            "node": "Versandfelder zurückholen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Versandfelder zurückholen": {
       "main": [
         [
           {

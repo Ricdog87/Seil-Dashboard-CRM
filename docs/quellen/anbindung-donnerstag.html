@@ -1,0 +1,233 @@
+<title>Anbindung Donnerstag 09:30</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Laufzettel für einen Termin: wer macht was, in welcher Reihenfolge, mit Kopiervorlagen. */
+  :root {
+    --bg: #f4f5f6; --surface: #ffffff; --card: #ffffff; --card-alt: #eceef1;
+    --line: #d6dade; --line-soft: #e4e7ea; --fg: #16181c; --body: #3b4149;
+    --muted: #6b727b; --accent: #41566e; --accent-weich: #e6eaef;
+    --ok: #2f6b48; --ok-weich: #e8f1ea; --warn: #8a6420; --warn-weich: #f8f1e3;
+    --crit: #9c4a42; --crit-weich: #f8eceb;
+    --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --r: 6px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121214; --surface: #1a1a1e; --card: #232328; --card-alt: #2a2a31;
+      --line: #37373f; --line-soft: #2c2c33; --fg: #f4f5f6; --body: #c2c6cc;
+      --muted: #8a8f97; --accent: #9daab8; --accent-weich: #262b31;
+      --ok: #7fb894; --ok-weich: #1e2722; --warn: #c9a56b; --warn-weich: #2a2419;
+      --crit: #d5948e; --crit-weich: #2b1e1d; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121214; --surface: #1a1a1e; --card: #232328; --card-alt: #2a2a31;
+    --line: #37373f; --line-soft: #2c2c33; --fg: #f4f5f6; --body: #c2c6cc;
+    --muted: #8a8f97; --accent: #9daab8; --accent-weich: #262b31;
+    --ok: #7fb894; --ok-weich: #1e2722; --warn: #c9a56b; --warn-weich: #2a2419;
+    --crit: #d5948e; --crit-weich: #2b1e1d; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--body); font-family: var(--font); font-size: 14.5px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  .rand { max-width: 920px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1, h2, h3 { color: var(--fg); font-weight: 400; text-wrap: balance; margin: 0; }
+  h1 { font-size: 1.85rem; line-height: 1.2; letter-spacing: -0.015em; }
+  h2 { font-size: 1.15rem; }
+  h3 { font-size: 0.98rem; font-weight: 500; }
+  p { margin: 0; }
+  code { font-family: var(--mono); font-size: 0.86em; color: var(--fg); background: var(--card-alt); border-radius: 3px; padding: 1px 5px; overflow-wrap: anywhere; }
+  pre { font-family: var(--mono); font-size: 0.8rem; line-height: 1.5; color: var(--fg); background: var(--card-alt); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; overflow-x: auto; margin: 10px 0 0; white-space: pre; }
+  pre .k { color: var(--muted); }
+  .etikett { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .wer { display: inline-block; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--line); border-radius: var(--r); padding: 1px 7px; margin-left: 8px; vertical-align: middle; }
+
+  header { padding-block: 34px 22px; border-bottom: 1px solid var(--line); }
+  header h1 { margin: 8px 0 10px; }
+  header p.unter { max-width: 72ch; }
+  .ziel { margin-top: 16px; border: 1px solid var(--accent); border-radius: var(--r); background: var(--accent-weich); padding: 13px 16px; max-width: 72ch; }
+  .ziel b { color: var(--fg); font-weight: 500; }
+
+  section { padding-block: 26px; border-bottom: 1px solid var(--line-soft); }
+  .kopf { margin-bottom: 14px; }
+  .kopf .etikett { display: block; margin-bottom: 4px; color: var(--accent); }
+  .kopf p { color: var(--muted); max-width: 70ch; margin-top: 6px; }
+
+  ol.schritte { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 0; border: 1px solid var(--line); border-radius: var(--r); background: var(--card); }
+  ol.schritte li { display: grid; grid-template-columns: 34px 1fr; gap: 0 12px; padding: 12px 14px; border-top: 1px solid var(--line-soft); min-width: 0; }
+  ol.schritte li:first-child { border-top: none; }
+  ol.schritte li::before { counter-increment: s; content: counter(s); color: var(--accent); font-weight: 500; }
+  ol.schritte li > div { min-width: 0; display: grid; gap: 6px; }
+  ol.schritte p { max-width: 76ch; font-size: 0.92rem; }
+
+  .achtung, .merke { border-radius: var(--r); padding: 10px 13px; font-size: 0.9rem; border: 1px solid; max-width: 76ch; }
+  .achtung { background: var(--crit-weich); border-color: var(--crit); } .achtung b { color: var(--crit); font-weight: 500; }
+  .merke { background: var(--ok-weich); border-color: var(--ok); } .merke b { color: var(--ok); font-weight: 500; }
+
+  .tab-huelle { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--card); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+  th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--line-soft); }
+  th { color: var(--muted); font-weight: 500; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  td code { white-space: nowrap; }
+
+  .zwei { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .karte { border: 1px solid var(--line); border-radius: var(--r); background: var(--card); padding: 14px 16px; min-width: 0; }
+  .karte h3 { margin-bottom: 6px; display: flex; align-items: baseline; gap: 8px; }
+  .karte ul { margin: 6px 0 0; padding-left: 1.2em; display: grid; gap: 4px; font-size: 0.9rem; }
+  .karte.ok { border-color: var(--ok); } .karte.nein { border-color: var(--crit); }
+  .punkt { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+  .punkt.g { background: var(--ok); } .punkt.r { background: var(--crit); }
+
+  footer { padding-block: 22px 40px; color: var(--muted); font-size: 0.84rem; }
+  @media (max-width: 560px) { h1 { font-size: 1.5rem; } ol.schritte li { grid-template-columns: 24px 1fr; } }
+</style>
+
+<header>
+  <div class="rand">
+    <span class="etikett">SEIL Cockpit · Modul 01 + 02 · Laufzettel · Stand 29.10.2026</span>
+    <h1>Anbindung Donnerstag 09:30</h1>
+    <p class="unter">Was die IT im Call anlegt, was wir direkt danach eintragen, und was Ricardo für Modul 01 parallel umzieht. Die Automatik spricht ausschließlich über Microsoft Graph mit <code>deals@seil.com</code>, dem Kalender dieses Postfachs und der Liveliste in SharePoint – <b>eine</b> App-Registrierung, <b>ein</b> Zugangsdatensatz in n8n.</p>
+    <div class="ziel"><b>Erfolgsmaßstab für den Call:</b> Nach 45 Minuten liegen drei Werte vor – Directory (tenant) ID, Application (client) ID, Client-Secret – und drei Freigaben sind gesetzt: Postfach, Kalender, SharePoint-Site. Alles andere kann warten.</div>
+  </div>
+</header>
+
+<section>
+  <div class="rand">
+    <div class="kopf"><span class="etikett">Teil 0 · vor dem Call</span><h2>Was SEIL ohne die IT erledigt<span class="wer">SEIL</span></h2><p>Drei Dinge, die den Call nicht brauchen und ohne die der Nachmittag stockt.</p></div>
+    <ol class="schritte">
+      <li><div><h3>Anthropic-Konto anlegen und Key erzeugen – 10 Minuten</h3><p><code>console.anthropic.com</code> → Konto auf eine SEIL-Adresse → Organisation „SEIL Real Estate“ → Workspace „SEIL Cockpit“ → <b>Budget-Limit setzen</b> (z. B. 50 €/Monat) → API-Key erzeugen → Key sofort in n8n unter <em>Credentials</em> anlegen: Typ <em>Header Auth</em>, Name <code>Anthropic (SEIL)</code>, Header-Name <code>x-api-key</code>, Wert = Key. Den Key nirgendwo sonst ablegen.</p><p class="achtung"><b>Seit 25.08. offen.</b> Ohne Key formuliert WF 03 nur aus der Vorlage und WF 06 klassifiziert nur über Stichwörter.</p></div></li>
+      <li><div><h3>Vier Adressen nennen</h3><p>Leitung im BCC jeder ausgehenden Mail (laut Standardprozess zwei Personen) · Empfänger der Freigabe-Mails (WF 04) · Absender des täglichen Statusberichts · dessen zwei Empfänger (Geschäftsführung, Leitung Vertrieb).</p></div></li>
+      <li><div><h3>Liveliste lokalisieren</h3><p>SharePoint-Site, Ordnerpfad, Dateiname, Blattname – und die Spaltenüberschriften der Zeile 1 (Investor, Regionen, Assetklassen, Ticket min/max, letzte Ankäufe). Daraus wird die Spaltenzuordnung in WF 02.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf"><span class="etikett">Teil 1 · im Call, in dieser Reihenfolge</span><h2>Was die IT anlegt<span class="wer">IT</span></h2><p>Alles im Microsoft-Admin, nichts muss gebaut werden. Zusammen etwa 30 Minuten, wenn ein Global Admin im Call ist.</p></div>
+    <ol class="schritte">
+      <li><div><h3>App-Registrierung in Entra ID</h3><p>Name <code>SEIL Automatik (n8n)</code> · Single tenant · <b>kein</b> Redirect-URI (Client-Credentials-Fluss) · unter <em>Certificates &amp; secrets</em> ein Client-Secret, Laufzeit 24 Monate. <b>Notieren:</b> Directory (tenant) ID, Application (client) ID, Secret-Wert (nur einmal sichtbar). Zusätzlich aus <em>Enterprise applications</em> die <b>Object ID</b> der App – sie wird in Schritt 3 gebraucht.</p></div></li>
+      <li><div><h3>API-Berechtigungen: nur <code>Sites.Selected</code></h3><p>Unter <em>API permissions</em> → Microsoft Graph → <em>Application permissions</em> → <code>Sites.Selected</code> → <em>Grant admin consent</em>. <b>Keine</b> Mail.*- oder Calendars.*-Berechtigungen in Entra eintragen.</p><p class="achtung"><b>Die Falle:</b> Postfach- und Kalenderrechte kommen in Schritt 3 über Exchange, begrenzt auf genau ein Postfach. Wird parallel <code>Mail.ReadWrite</code> in Entra freigegeben, gilt das hausweit – Rechte addieren sich, die Begrenzung ist wirkungslos.</p></div></li>
+      <li><div><h3>Exchange: Zugriff auf genau ein Postfach (RBAC for Applications)</h3><p>PowerShell mit dem Exchange-Online-Modul. Platzhalter in spitzen Klammern ersetzen.</p>
+<pre><span class="k"># Verbindung</span>
+Connect-ExchangeOnline
+
+<span class="k"># Die App in Exchange bekannt machen (Object ID = Enterprise Application, nicht App Registration)</span>
+New-ServicePrincipal -AppId &lt;CLIENT-ID&gt; -ObjectId &lt;ENTERPRISE-APP-OBJECT-ID&gt; -DisplayName "SEIL Automatik (n8n)"
+
+<span class="k"># Geltungsbereich: ausschließlich deals@seil.com</span>
+New-ManagementScope -Name "SEIL Automatik deals" -RecipientRestrictionFilter "PrimarySmtpAddress -eq 'deals@seil.com'"
+
+<span class="k"># Drei Rollen, alle nur in diesem Geltungsbereich</span>
+New-ManagementRoleAssignment -App &lt;CLIENT-ID&gt; -Role "Application Mail.ReadWrite"      -CustomResourceScope "SEIL Automatik deals"
+New-ManagementRoleAssignment -App &lt;CLIENT-ID&gt; -Role "Application Mail.Send"           -CustomResourceScope "SEIL Automatik deals"
+New-ManagementRoleAssignment -App &lt;CLIENT-ID&gt; -Role "Application Calendars.ReadWrite" -CustomResourceScope "SEIL Automatik deals"
+
+<span class="k"># Prüfen: muss für deals@ "true" liefern, für jedes andere Postfach "false"</span>
+Test-ServicePrincipalAuthorization -Identity &lt;CLIENT-ID&gt; -Resource deals@seil.com</pre>
+<p class="merke"><b>Damit entfallen SPF/DKIM-Arbeiten.</b> Die Automatik sendet über Exchange (Graph <code>sendMail</code>), die Mail verlässt das Haus wie jede Outlook-Mail und landet in „Gesendet“ von deals@. Kein fremder SMTP-Server im Spiel.</p></div></li>
+      <li><div><h3>SharePoint: Freigabe je Site</h3><p>Zwei Sites bestimmen: die mit der <b>Liveliste</b> (Lesen genügt) und die mit den <b>Mandatsordnern</b> (Schreiben – Modul 01 legt dort <code>00_Datenraum light</code> und <code>99_Datenraum</code> an). Freigabe per PnP:</p>
+<pre>Grant-PnPAzureADAppSitePermission -AppId &lt;CLIENT-ID&gt; -DisplayName "SEIL Automatik (n8n)" `
+  -Site https://&lt;tenant&gt;.sharepoint.com/sites/&lt;liveliste-site&gt; -Permissions Read
+Grant-PnPAzureADAppSitePermission -AppId &lt;CLIENT-ID&gt; -DisplayName "SEIL Automatik (n8n)" `
+  -Site https://&lt;tenant&gt;.sharepoint.com/sites/&lt;mandate-site&gt;   -Permissions Write</pre>
+<p>Dann die IDs, die n8n braucht (Graph Explorer, als Admin):</p>
+<pre><span class="k"># Site-ID</span>
+GET https://graph.microsoft.com/v1.0/sites/&lt;tenant&gt;.sharepoint.com:/sites/&lt;liveliste-site&gt;
+<span class="k"># Item-ID der Liveliste</span>
+GET https://graph.microsoft.com/v1.0/sites/&lt;SITE-ID&gt;/drive/root:/&lt;Ordner&gt;/&lt;Liveliste&gt;.xlsx</pre></div></li>
+      <li><div><h3>Live-Test im Call</h3><p>Wir legen in n8n das Credential an (Teil 2, Schritt 1) und führen WF 06 einmal von Hand aus: Es muss die ungelesenen Mails aus deals@ zurückgeben. Scheitert das, ist es fast immer Schritt 3 – und wir sind alle noch im Call.</p></div></li>
+      <li><div><h3>Optional, nur Termin vereinbaren</h3><p>DNS-Eintrag <code>n8n.&lt;domain&gt;</code> → <code>srv2104755.hstgr.cloud</code> für eine saubere Adresse (heute funktioniert der Hostinger-Name). Zweite App-Registrierung für den Microsoft-Login am Cockpit (Stufe 3) – braucht einen Redirect-URI, kommt mit der Entscheidung zur Produktivbasis.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf"><span class="etikett">Teil 2 · direkt danach</span><h2>Was wir eintragen<span class="wer">RSG + Nino</span></h2><p>Etwa 45 Minuten, Bildschirm geteilt, Nino klickt in n8n. Reihenfolge ist wichtig: erst Zugangsdaten, dann Workflows, dann Tabellen, dann Test.</p></div>
+    <ol class="schritte">
+      <li><div><h3>Credential <code>Microsoft Graph (SEIL)</code></h3><p>n8n → Credentials → <em>OAuth2 API</em> (generisch). Grant Type <b>Client Credentials</b> · Access Token URL <code>https://login.microsoftonline.com/&lt;TENANT-ID&gt;/oauth2/v2.0/token</code> · Client ID · Client Secret · Scope <code>https://graph.microsoft.com/.default</code> · Authentication <em>Body</em>. Dieses eine Credential nutzen WF 02, 04, 05, 06 und 08.</p></div></li>
+      <li><div><h3>Credential <code>Seil Webhook Secret</code></h3><p><em>Header Auth</em>, Header-Name <code>X-Seil-Secret</code>, Wert: 32 zufällige Zeichen. Derselbe Wert kommt später als <code>MODUL01_SECRET</code> in die Cockpit-Umgebung.</p></div></li>
+      <li><div><h3>Sechs Workflows ersetzen</h3><p>Die Dateien <code>02, 03, 04, 05, 06, 08</code> aus dem Paket vom 29.10. sind umgebaut (Graph statt IMAP/SMTP, KI-Knoten, Freigabe per Mail-Link). In n8n die alten sechs löschen, die neuen importieren – wie am Dienstag, Drei-Punkte-Menü → <em>Import from File</em>. 01, 07, 09 bleiben.</p></div></li>
+      <li><div><h3>Konfigurationsknoten füllen</h3>
+        <div class="tab-huelle"><table>
+          <thead><tr><th>Workflow</th><th>Knoten</th><th>Eintragen</th></tr></thead>
+          <tbody>
+            <tr><td>02</td><td><code>Konfiguration Liveliste</code></td><td>siteId, itemId, Blattname, Spaltenzuordnung (JSON) aus Teil 0 und Teil 1</td></tr>
+            <tr><td>04</td><td><code>Konfiguration Freigabe</code></td><td>freigabeAn = Empfänger der Freigabe-Mails</td></tr>
+            <tr><td>05</td><td><code>Konfiguration</code></td><td>bccLeitung = die zwei Personen, kommagetrennt</td></tr>
+            <tr><td>07</td><td>Send-Node</td><td>Absender + zwei Empfänger des Statusberichts</td></tr>
+          </tbody>
+        </table></div></div></li>
+      <li><div><h3>Fünf Data Tables anlegen</h3><p>n8n → <em>Data Tables</em> → je Tabelle Name und Spalten wie in Teil 3. Nach dem Anlegen zeigt n8n die Tabellen-ID; damit werden die Platzhalter-Knoten „Ablage …“, „Kontakte laden …“, „Versand protokollieren …“ verdrahtet. <b>Vorher n8n-Version prüfen:</b> In 1.113.3 war <em>upsert</em> fehlerhaft – bei älterem Stand erst aktualisieren.</p></div></li>
+      <li><div><h3>Drei Tests, nichts aktivieren</h3><p>WF 06 von Hand ausführen (vorher eine Mail an deals@ schicken) → Mail erscheint klassifiziert. WF 05 mit einem Versandauftrag an eine <b>interne</b> Adresse → Mail kommt an, liegt in „Gesendet“. WF 08 mit Testdaten → Termin erscheint im Kalender von deals@. Erst nach allen dreien wird Workflow für Workflow aktiviert.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf"><span class="etikett">Teil 3</span><h2>Die fünf Tabellen (n8n Data Tables)</h2><p>Sie ersetzen die Platzhalter-Knoten. Namen und Spalten genau so anlegen, dann passen die Verdrahtungen ohne Umbenennen.</p></div>
+    <div class="tab-huelle"><table>
+      <thead><tr><th>Tabelle</th><th>Spalten</th><th>Genutzt von</th></tr></thead>
+      <tbody>
+        <tr><td><code>kontakte</code></td><td>kontaktId · objektId · investorId · email · status · followUpStufe (Zahl) · naechstesFollowUp (Datum) · letzterKontakt (Datum) · freigegeben (Ja/Nein)</td><td>05 (fällige Follow-ups), 06 (Zähler Preisanfragen)</td></tr>
+        <tr><td><code>entwuerfe</code></td><td>entwurfId · objektId · investorId · email · betreff · entwurf · quelle · status · erstellt</td><td>03 (ablegen), 04 (freigeben)</td></tr>
+        <tr><td><code>freigaben</code></td><td>freigabeId · entwurfId · objektId · durchId · am · entscheidung</td><td>04 (Audit), 05 (Nachprüfung vor jedem Versand)</td></tr>
+        <tr><td><code>versand</code></td><td>versandId · kontaktId · objektId · vorlage · stufe (Zahl) · gesendetAm · messageId</td><td>05 (Protokoll), 07 (Bericht)</td></tr>
+        <tr><td><code>datenraum_status</code></td><td>objektId · stufe · schwaerzung · dokumente (JSON als Text) · stand</td><td>01 (schreiben), 09 (lesen), 06 (Unterlagen-Abgleich)</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf"><span class="etikett">Teil 4 · parallel</span><h2>Modul 01 auf den SEIL-Server<span class="wer">Ricardo</span></h2><p>Die Datenraum-Engine läuft seit 03.08. auf dem RSG-Server. Sie zieht auf <code>srv2104755.hstgr.cloud</code> um und spricht ab dann über dieselbe App-Registrierung mit SharePoint.</p></div>
+    <ol class="schritte">
+      <li><div><h3>Workflows exportieren und importieren</h3><p>Alter n8n: Engine-Workflow(s) und Signal-Mail als JSON exportieren → auf n8n Seil importieren, inaktiv lassen. Credentials dort neu anlegen – die Graph-App aus Teil 1 ersetzt den alten App-Zugriff aus dem früheren Tenant.</p></div></li>
+      <li><div><h3>QM-Center umziehen</h3><p>Ist es ein n8n-Formular, geht es mit den Workflows mit. Ist es eine eigene Web-App, läuft sie als Container auf dem VPS neben n8n – oder bleibt vorerst beim alten Server, dann aber mit Datum für den Umzug. <b>Zu klären, bevor der Umzug beginnt.</b></p></div></li>
+      <li><div><h3>Signal-Mail auf <code>deals@seil.com</code></h3><p>Die Fertigmeldung geht heute an RSG. Umstellen auf Graph <code>sendMail</code> aus deals@ – derselbe Knoten wie in WF 05.</p></div></li>
+      <li><div><h3>Vier Zusagen vom 03./05.08. bestätigen oder nachziehen</h3><p>Schwärzung für Light · Zielordner auf Objektebene (<code>00_light</code> und <code>99</code> neben den Objektunterlagen) · Hyperlink und lesbare Dateinamen im QM-Center · Dropdown statt „Belassen“. Was davon fehlt, kommt in die Checkliste mit Datum.</p></div></li>
+      <li><div><h3>Erster echter Lauf, dann alten Server abschalten</h3><p>Ein Mandat aus der Pilotgruppe (Beschluss 28.09.) durch die Engine, Ergebnis im QM-Center prüfen, Stand über WF 09 ins Cockpit. Danach <code>MODUL01_STATUS_URL</code>, <code>MODUL01_SECRET</code>, <code>MODUL01_OBJEKT_MAP</code> im Cockpit-Hosting setzen. Alten Server erst dann kündigen.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf"><span class="etikett">Teil 5</span><h2>Cockpit-Eigentum<span class="wer">gemeinsam</span></h2></div>
+    <div class="zwei">
+      <div class="karte ok"><h3><span class="punkt g"></span>Empfehlung: Vercel-Projekt an SEIL übertragen</h3><p>SEIL legt ein Vercel-Team an (kommerzielle Nutzung braucht den Pro-Tarif, ca. 20 $/Monat je Sitz), RSG überträgt das Projekt (<em>Project Settings → Transfer</em>). Kein Server, keine Updates, Deployments laufen weiter aus dem Repository. Danach GitHub-Repository an eine SEIL-Organisation übertragen.</p></div>
+      <div class="karte"><h3>Alternative: auf den SEIL-VPS</h3><p>Next.js im Container neben n8n, Reverse Proxy, Zertifikat. Geht, aber damit kommt ein zweites Stück Software, das niemand wartet. Nur, wenn SEIL kein Vercel-Konto will.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf"><span class="etikett">Freitag</span><h2>Was dann geht – und was nicht</h2></div>
+    <div class="zwei">
+      <div class="karte ok"><h3><span class="punkt g"></span>Geht, wenn Donnerstag vollständig landet</h3><ul>
+        <li>WF 06 liest deals@ live, klassifiziert nach Standardprozess</li>
+        <li>WF 03 formuliert Entwürfe mit Claude innerhalb der Vorlage</li>
+        <li>Freigabe per Mail-Link an die Leitung, Versand aus deals@ nach Klick</li>
+        <li>Besichtigungstermin im Kalender von deals@</li>
+        <li>Matching gegen die echte Liveliste</li>
+        <li>Cockpit zeigt echte Datenraum-Stände, sobald Modul 01 auf dem SEIL-Server einmal gelaufen ist</li>
+      </ul></div>
+      <div class="karte nein"><h3><span class="punkt r"></span>Geht Freitag nicht</h3><ul>
+        <li>Team arbeitet im Cockpit mit bleibenden Freigaben und Notizen – keine Datenbank, keine Anmeldung (Stufe 3, 2–4 Wochen)</li>
+        <li>Nachfass-Stufen über Tage hinweg – brauchen die Tabellen aus Teil 3 und mindestens zwei Tage Laufzeit</li>
+        <li>Schwärzung, falls sie in Modul 01 noch fehlt</li>
+        <li>WhatsApp (Superchat-Vertrag offen)</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="rand">Exchange-RBAC und Sites.Selected nach Microsoft Learn; Graph-Endpunkte v1.0; n8n Data Tables nach n8n-Dokumentation. Platzhalter in spitzen Klammern sind von der IT zu ersetzen.</div>
+</footer>

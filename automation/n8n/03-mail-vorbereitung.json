@@ -1,16 +1,21 @@
 {
   "name": "SEIL 03 · Mail-Vorbereitung (Entwürfe, kein Versand)",
   "active": false,
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "nodes": [
     {
       "id": "sticky-03",
       "name": "Hinweis",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [180, 20],
+      "position": [
+        180,
+        20
+      ],
       "parameters": {
-        "content": "## Glied 3: E-Mails vorbereiten – hier wird NICHTS versendet\n\nDer Workflow erzeugt nur Entwürfe (Presound-Mail je Verteiler, Teaser-Text) und legt sie mit Status 'wartet_auf_freigabe' ab. Versand ausschließlich über WF 05, und der startet nur nach dem Freigabe-Gate (WF 04).\n\nSKELETT – vor Aktivierung:\n1. LLM-/Agent-Node für die Textgenerierung einhängen (Vorlagen: Ninos Kommunikations-Excel als Basis, Platzhalter {{anrede}}, {{objekt}}, {{teaser_link}})\n2. Personalisierung je Investor vs. BCC-Sammelmail ist offener Klärungspunkt (ANNAHMEN.md Punkt 28 im Cockpit-Repo)\n3. Ablage-Ziel setzen",
+        "content": "## Glied 3: E-Mails vorbereiten – hier wird NICHTS versendet\n\nErzeugt je Investor einen Entwurf und reicht ihn zur Freigabe weiter. Versand ausschließlich über WF 05, und der startet nur nach dem Freigabe-Gate (WF 04).\n\n**Umbau 29.10.:** Der KI-Knoten ist verdrahtet – Claude formuliert innerhalb der Vorlage als Leitplanke (keine Preise, keine Zusagen). Fehlt der Key oder antwortet die API nicht, fällt der Workflow auf die gefüllte Vorlage zurück und markiert den Entwurf mit quelle='vorlage'. Credential „Anthropic (SEIL)“ (Header x-api-key). Am Ende fordert WF 03 die Freigabe über WF 04 an – per Mail-Link an die Leitung, solange das Cockpit nicht speichert.\n\nOffen: Ablage der Entwürfe (Data Table) und die Vorlagentexte aus dem Standardprozess im Data-Store.",
         "width": 440,
         "height": 300
       }
@@ -20,25 +25,27 @@
       "name": "Vorbereitung anstoßen",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [200, 400],
-      "parameters": { "httpMethod": "POST", "path": "seil/mail-vorbereitung", "options": {} }
-    },
-    {
-      "id": "noop-05",
-      "name": "Objektdaten + Vorlagen laden",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [440, 400],
-      "parameters": {}
+      "position": [
+        200,
+        400
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "seil/mail-vorbereitung",
+        "options": {}
+      }
     },
     {
       "id": "code-03",
-      "name": "Entwurf aus Vorlage füllen",
+      "name": "Entwurf übernehmen (KI, sonst Vorlage)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [680, 400],
+      "position": [
+        680,
+        400
+      ],
       "parameters": {
-        "jsCode": "// Platzhalter-Füllung als Fallback; produktiv übernimmt der LLM-Node davor\n// die Feinformulierung, die Vorlage bleibt die Leitplanke.\nconst d = $input.first().json;\nconst vorlage = d.vorlage ?? 'Sehr geehrte Damen und Herren,\\n\\nfür ein Objekt ({{assetklasse}}, {{region}}) suchen wir ausgewählte Investoren. Details nach NDA.\\n\\nMit freundlichen Grüßen\\nSEIL Real Estate';\nconst text = vorlage\n  .replaceAll('{{assetklasse}}', d.objekt?.assetklasse ?? '')\n  .replaceAll('{{region}}', d.objekt?.region ?? '');\nreturn [{ json: { objektId: d.objektId, entwurf: text, status: 'wartet_auf_freigabe', erstellt: new Date().toISOString() } }];"
+        "jsCode": "// Nimmt den KI-Text, wenn Claude geantwortet hat; sonst die gefüllte Vorlage als Fallback.\n// So bleibt die Kette lauffähig, auch wenn der Key fehlt – der Entwurf ist dann sichtbar als 'vorlage' markiert.\nconst d = $('Vorlage + Leitplanken').item.json;\nconst antwort = $input.first().json;\nconst kiText = Array.isArray(antwort.content) ? (antwort.content.find(c => c.type === 'text')?.text ?? '') : '';\nconst fallback = String(d.vorlage ?? '')\n  .replaceAll('{{assetklasse}}', d.objekt?.assetklasse ?? '')\n  .replaceAll('{{region}}', d.objekt?.region ?? '');\nconst entwurf = kiText.trim() || fallback;\nreturn [{ json: {\n  entwurfId: d.entwurfId ?? ('e-' + Date.now()),\n  objektId: d.objektId, investorId: d.investorId ?? null, email: d.email ?? null,\n  betreff: d.betreff ?? `${d.objekt?.name ?? 'Objekt'} – vertrauliche Vorabinformation`,\n  entwurf, quelle: kiText.trim() ? 'ki' : 'vorlage', kiFehler: antwort.error ? JSON.stringify(antwort.error) : null,\n  status: 'wartet_auf_freigabe', erstellt: new Date().toISOString(),\n} }];"
       }
     },
     {
@@ -46,22 +53,155 @@
       "name": "Entwurf ablegen (wartet auf Freigabe)",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [920, 400],
+      "position": [
+        920,
+        400
+      ],
       "parameters": {}
     },
     {
-      "id": "noop-07",
-      "name": "Cockpit benachrichtigen: Freigabe fällig",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [1160, 400],
-      "parameters": {}
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ (() => { const b = $json.body ?? $json; return { ...b, vorlage: b.vorlage ?? 'Sehr geehrte Damen und Herren,\\n\\nfür ein Objekt ({{assetklasse}}, {{region}}) suchen wir ausgewählte Investoren. Details nach NDA.\\n\\nMit freundlichen Grüßen\\n[Signatur]' }; })() }}",
+        "options": {}
+      },
+      "id": "c94ecb86-4616-4623-b6c6-987cfe8bafe6",
+      "name": "Vorlage + Leitplanken",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-opus-5', max_tokens: 900, system: \"Du formulierst E-Mail-Entwürfe für SEIL Real Estate, eine Immobilienboutique in Frankfurt. Die mitgegebene Vorlage ist der verbindliche Rahmen: Struktur, Anrede (Sie), Tonfall und Signaturplatzhalter übernehmen, nur die objektbezogenen Sätze ausformulieren. Keine Preise, keine Renditen, keine Zusagen, keine Fristen erfinden. Keine Floskeln, keine Superlative. Deutsch. Gib nur den fertigen E-Mail-Text zurück, ohne Betreff, ohne Erklärung.\", messages: [{ role: 'user', content: 'VORLAGE:\\n' + $json.vorlage + '\\n\\nOBJEKTDATEN (JSON):\\n' + JSON.stringify($json.objekt ?? {}) + '\\n\\nANLASS: ' + ($json.anlass ?? 'presound') }] }) }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "id": "112b2545-4885-495d-a029-310051b3df4f",
+      "name": "Entwurf formulieren (Claude)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        400
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "seil-anthropic",
+          "name": "Anthropic (SEIL)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://N8N-BASIS-URL/webhook/seil/freigabe-anfordern",
+        "authentication": "none",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ entwurfId: $json.entwurfId, objektId: $json.objektId, investorId: $json.investorId, email: $json.email, betreff: $json.betreff, entwurf: $json.entwurf, quelle: $json.quelle }) }}"
+      },
+      "id": "cc31fe40-5667-4135-9f61-f837fcd2c670",
+      "name": "Freigabe anfordern (WF 04, Mail-Link)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1160,
+        400
+      ]
     }
   ],
   "connections": {
-    "Vorbereitung anstoßen": { "main": [[{ "node": "Objektdaten + Vorlagen laden", "type": "main", "index": 0 }]] },
-    "Objektdaten + Vorlagen laden": { "main": [[{ "node": "Entwurf aus Vorlage füllen", "type": "main", "index": 0 }]] },
-    "Entwurf aus Vorlage füllen": { "main": [[{ "node": "Entwurf ablegen (wartet auf Freigabe)", "type": "main", "index": 0 }]] },
-    "Entwurf ablegen (wartet auf Freigabe)": { "main": [[{ "node": "Cockpit benachrichtigen: Freigabe fällig", "type": "main", "index": 0 }]] }
+    "Vorbereitung anstoßen": {
+      "main": [
+        [
+          {
+            "node": "Vorlage + Leitplanken",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vorlage + Leitplanken": {
+      "main": [
+        [
+          {
+            "node": "Entwurf formulieren (Claude)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entwurf formulieren (Claude)": {
+      "main": [
+        [
+          {
+            "node": "Entwurf übernehmen (KI, sonst Vorlage)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entwurf übernehmen (KI, sonst Vorlage)": {
+      "main": [
+        [
+          {
+            "node": "Entwurf ablegen (wartet auf Freigabe)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entwurf ablegen (wartet auf Freigabe)": {
+      "main": [
+        [
+          {
+            "node": "Freigabe anfordern (WF 04, Mail-Link)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   }
 }
