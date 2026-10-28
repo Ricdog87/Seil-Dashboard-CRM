@@ -1,0 +1,187 @@
+<title>Workflows in n8n importieren</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Eine Seite, ein Ablauf: sechs Schritte, die neunmal wiederholt werden.
+     Alles andere ist Kontrolle und Warnung. */
+  :root {
+    --bg: #f4f5f6; --surface: #ffffff; --card: #ffffff; --card-alt: #eceef1;
+    --line: #d6dade; --line-soft: #e4e7ea; --fg: #16181c; --body: #3b4149;
+    --muted: #6b727b; --accent: #41566e; --accent-weich: #e6eaef;
+    --ok: #2f6b48; --ok-weich: #e8f1ea; --crit: #9c4a42; --crit-weich: #f8eceb;
+    --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --r: 6px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121214; --surface: #1a1a1e; --card: #232328; --card-alt: #2a2a31;
+      --line: #37373f; --line-soft: #2c2c33; --fg: #f4f5f6; --body: #c2c6cc;
+      --muted: #8a8f97; --accent: #9daab8; --accent-weich: #262b31;
+      --ok: #7fb894; --ok-weich: #1e2722; --crit: #d5948e; --crit-weich: #2b1e1d;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121214; --surface: #1a1a1e; --card: #232328; --card-alt: #2a2a31;
+    --line: #37373f; --line-soft: #2c2c33; --fg: #f4f5f6; --body: #c2c6cc;
+    --muted: #8a8f97; --accent: #9daab8; --accent-weich: #262b31;
+    --ok: #7fb894; --ok-weich: #1e2722; --crit: #d5948e; --crit-weich: #2b1e1d;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--body); font-family: var(--font);
+    font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .rand {
+    max-width: 720px; margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  h1, h2 { color: var(--fg); font-weight: 400; text-wrap: balance; margin: 0; }
+  h1 { font-size: 1.75rem; line-height: 1.2; letter-spacing: -0.015em; }
+  h2 { font-size: 1.1rem; }
+  p { margin: 0; }
+  em { font-style: normal; font-weight: 500; color: var(--fg); }
+  code {
+    font-family: var(--mono); font-size: 0.88em; color: var(--fg);
+    background: var(--card-alt); border-radius: 3px; padding: 1px 5px;
+    overflow-wrap: anywhere;
+  }
+  .etikett {
+    font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  header { padding-block: 34px 22px; border-bottom: 1px solid var(--line); }
+  header h1 { margin: 8px 0 10px; }
+  header p { max-width: 60ch; }
+
+  section { padding-block: 26px; border-bottom: 1px solid var(--line-soft); }
+  section:last-of-type { border-bottom: none; }
+  .kopf { margin-bottom: 16px; }
+  .kopf .etikett { display: block; margin-bottom: 5px; }
+
+  ol.schritte { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; counter-reset: s; }
+  ol.schritte li {
+    display: grid; grid-template-columns: 34px 1fr; gap: 0 14px;
+    padding-block: 13px; border-top: 1px solid var(--line-soft); min-width: 0;
+  }
+  ol.schritte li:first-child { border-top: none; }
+  ol.schritte li::before {
+    counter-increment: s; content: counter(s);
+    color: var(--accent); font-weight: 500; font-variant-numeric: tabular-nums;
+  }
+  ol.schritte li > div { min-width: 0; display: grid; gap: 6px; }
+  ol.schritte strong { color: var(--fg); font-weight: 500; }
+  .klein { color: var(--muted); font-size: 0.9rem; }
+
+  .wiederholen {
+    margin-top: 16px; border: 1px solid var(--accent); border-radius: var(--r);
+    background: var(--accent-weich); padding: 14px 16px;
+  }
+  .wiederholen b { color: var(--fg); font-weight: 500; }
+
+  .kontrolle {
+    border: 1px solid var(--ok); border-radius: var(--r);
+    background: var(--ok-weich); padding: 15px 17px;
+  }
+  .kontrolle h2 { margin-bottom: 8px; }
+  .kontrolle ul { margin: 8px 0 0; padding-left: 1.2em; display: grid; gap: 5px; }
+
+  .warnungen { display: grid; gap: 11px; }
+  .warnung {
+    border: 1px solid var(--line); border-left: 3px solid var(--crit);
+    border-radius: var(--r); background: var(--surface); padding: 12px 15px;
+  }
+  .warnung b { color: var(--crit); font-weight: 500; }
+
+  .dateien {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+  }
+  .dateien code { font-size: 0.82rem; }
+
+  footer { padding-block: 22px 40px; color: var(--muted); font-size: 0.85rem; }
+
+  @media (max-width: 460px) {
+    h1 { font-size: 1.45rem; }
+    ol.schritte li { grid-template-columns: 26px 1fr; gap: 0 10px; }
+  }
+</style>
+
+<header>
+  <div class="rand">
+    <span class="etikett">F&uuml;r Aylin &middot; etwa 10 Minuten</span>
+    <h1>Workflows in n8n importieren</h1>
+    <p>Neun Dateien, immer derselbe Ablauf. Es wird nichts eingeschaltet und es geht nichts nach drau&szlig;en &ndash; die Workflows werden nur abgelegt.</p>
+  </div>
+</header>
+
+<section>
+  <div class="rand">
+    <div class="kopf">
+      <span class="etikett">Vorbereitung</span>
+      <h2>ZIP entpacken</h2>
+    </div>
+    <p>Darin liegen neun Dateien und eine README. Die Dateien bitte <em>nicht</em> umbenennen und <em>nicht</em> in einem Editor &ouml;ffnen.</p>
+    <div class="dateien">
+      <code>01-datenraum-intake</code><code>02-matching</code><code>03-mail-vorbereitung</code><code>04-freigabe-gate</code><code>05-followup-scheduler</code><code>06-antworterkennung</code><code>07-status-report</code><code>08-besichtigung</code><code>09-datenraum-status-api</code>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf">
+      <span class="etikett">Der Ablauf</span>
+      <h2>Sechs Klicks je Datei</h2>
+    </div>
+    <ol class="schritte">
+      <li><div><strong>n8n im Browser &ouml;ffnen</strong><span class="klein">Die Adresse eures Servers. Anmelden mit dem Zugang, den ihr beim Einrichten angelegt habt.</span></div></li>
+      <li><div><strong>Oben rechts auf <em>Create Workflow</em></strong><span class="klein">Es &ouml;ffnet sich eine leere Arbeitsfl&auml;che.</span></div></li>
+      <li><div><strong>Oben rechts das Drei-Punkte-Men&uuml; &ouml;ffnen</strong><span class="klein">Die drei Punkte stehen neben dem <em>Save</em>-Knopf.</span></div></li>
+      <li><div><strong><em>Import from File&hellip;</em> ausw&auml;hlen</strong><span class="klein">Je nach Version hei&szlig;t es auch &bdquo;Importieren aus Datei&ldquo;. Es ist immer der Eintrag mit <em>File</em>.</span></div></li>
+      <li><div><strong>Die Datei w&auml;hlen, mit <code>01</code> anfangen</strong><span class="klein">Auf der Arbeitsfl&auml;che erscheinen jetzt mehrere verbundene K&auml;stchen. Das ist richtig so.</span></div></li>
+      <li><div><strong>Oben rechts auf <em>Save</em></strong><span class="klein">Der Name des Workflows steht danach oben links.</span></div></li>
+    </ol>
+
+    <div class="wiederholen">
+      <b>Und jetzt achtmal dasselbe.</b> Zur&uuml;ck zur &Uuml;bersicht (oben links auf das n8n-Zeichen), wieder <em>Create Workflow</em>, Drei-Punkte-Men&uuml;, <em>Import from File</em> &ndash; mit <code>02</code>, dann <code>03</code> und so weiter bis <code>09</code>. Ab dem dritten Mal geht es schnell.
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kontrolle">
+      <h2>Zum Schluss pr&uuml;fen</h2>
+      <p>Geh auf die &Uuml;bersicht. Dort m&uuml;ssen stehen:</p>
+      <ul>
+        <li><strong>Neun Workflows</strong>, von 01 bis 09</li>
+        <li>Bei <strong>jedem</strong> der Schalter auf <em>Inactive</em></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf">
+      <span class="etikett">Bitte beachten</span>
+      <h2>Drei Dinge</h2>
+    </div>
+    <div class="warnungen">
+      <div class="warnung"><b>Nichts aktivieren.</b> Der Schalter bleibt bei allen neun auf <em>Inactive</em>. Es gibt noch kein Postfach und keine echten Daten &ndash; eingeschaltet w&uuml;rden die Workflows nur Fehlermeldungen erzeugen.</div>
+      <div class="warnung"><b>Nichts in den K&auml;stchen &auml;ndern.</b> Auch wenn etwas unvollst&auml;ndig aussieht: Das ist Absicht, die fehlenden Teile kommen von der IT.</div>
+      <div class="warnung"><b>Bei einer Fehlermeldung nicht selbst reparieren.</b> Kurz Bescheid sagen, mit Screenshot. Die Datei ist dann vermutlich besch&auml;digt, und eine neue ist in zwei Minuten da.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="rand">
+    Sieht ein Men&uuml; anders aus als hier beschrieben? n8n-Versionen unterscheiden sich leicht. Der Eintrag hei&szlig;t immer <em>Import from File</em> &ndash; danach suchen, nicht raten.
+  </div>
+</footer>

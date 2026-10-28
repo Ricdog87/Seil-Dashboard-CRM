@@ -1,13 +1,16 @@
+// Erzeugt ein PDF aus einer Artefakt-Quelle: legt dasselbe Gerüst darum, das die
+// Veröffentlichung setzt, schaltet auf die helle Variante und verhindert Umbrüche
+// mitten in einem Block.
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 const { chromium } = createRequire("/home/user/Seil-Dashboard-CRM/package.json")("playwright-core");
+
+const [quelle, ausgabe, skala = "0.92"] = process.argv.slice(2);
+const inhalt = readFileSync(quelle, "utf8");
+
 const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
 const ctx = await browser.newContext({ colorScheme: "light" });
 const page = await ctx.newPage();
-
-// Dasselbe Gerüst, das die Veröffentlichung um die Datei legt.
-const quelle = new URL("./workshop-30-10.html", import.meta.url);
-const inhalt = readFileSync(quelle, "utf8");
 await page.setContent(
   `<!doctype html><html><head><meta charset=utf8>` +
   `<meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">` +
@@ -16,19 +19,20 @@ await page.setContent(
   inhalt + `</body></html>`,
   { waitUntil: "networkidle" },
 );
-// Nur für den Druck: keine Umbrüche mitten in einer Karte, Rahmen bleiben sichtbar.
 await page.addStyleTag({ content: `
   @page { size: A4; margin: 14mm 12mm; }
   body { background: #fff; }
-  .weg, .ent, .spalte, .notiz, .regel, .block { break-inside: avoid; page-break-inside: avoid; }
-  section { break-inside: auto; border-bottom: none; padding-block: 20px; }
-  h2 { break-after: avoid; }
+  .warnung, .kontrolle, .wiederholen, li, .weg, .ent, .spalte, .notiz, .regel, .block, .schritt {
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  section { border-bottom: none; padding-block: 18px; }
+  h1, h2 { break-after: avoid; }
   .rand { max-width: none; padding-left: 0; padding-right: 0; }
-  header { padding-block: 0 18px; }
-  footer { padding-block: 16px 0; }
-  .wege { grid-template-columns: repeat(2, 1fr); }
+  header { padding-block: 0 16px; }
+  footer { padding-block: 14px 0; }
 ` });
 await page.emulateMedia({ media: "print" });
-await page.pdf({ path: new URL("../SEIL-Workshop-30-10.pdf", import.meta.url).pathname, format: "A4", printBackground: true, scale: 0.74,
+await page.pdf({ path: ausgabe, format: "A4", printBackground: true, scale: Number(skala),
                  margin: { top: "14mm", bottom: "14mm", left: "12mm", right: "12mm" } });
 await browser.close();
+console.log("geschrieben:", ausgabe);

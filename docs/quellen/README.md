@@ -7,14 +7,21 @@ verloren gegangen, weil sie nur im temporären Verzeichnis lagen.
 | PDF | Quelle |
 | --- | --- |
 | `SEIL-Workshop-30-10.pdf` | `workshop-30-10.html` |
+| `SEIL-n8n-Import-Aylin.pdf` | `import-aylin.html` |
 
 Die anderen drei PDFs im Ordner stammen aus einer Zeit ohne abgelegte Quelle.
 
 ## Erzeugen
 
 ```bash
-node docs/quellen/pdf-erzeugen.mjs
+node docs/quellen/pdf-erzeugen.mjs <quelle.html> <ziel.pdf> [skala]
+# z. B.
+node docs/quellen/pdf-erzeugen.mjs docs/quellen/import-aylin.html docs/SEIL-n8n-Import-Aylin.pdf 0.92
 ```
+
+Voraussetzungen: `npm install --no-save playwright-core` und ein Chromium unter
+`/opt/pw-browsers/chromium`. Zum Nachzählen der Seiten dient `pypdfium2` – in
+dieser Umgebung liegt es unter `python3.13`, während `python3` auf 3.11 zeigt.
 
 Das Skript umhüllt die HTML-Datei mit demselben Gerüst, das die
 Veröffentlichung setzt, schaltet auf die helle Variante, verhindert Umbrüche
