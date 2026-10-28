@@ -1,0 +1,598 @@
+<title>Workshop Tools 1 und 2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Zeitschiene als Rückgrat: linke Spalte Uhrzeit, rechte Spalte Inhalt.
+     Flächen werden über Rahmen getrennt, nicht über Schatten (SEIL-CI). */
+  :root {
+    --bg: #f4f5f6;
+    --surface: #ffffff;
+    --card: #ffffff;
+    --card-alt: #eceef1;
+    --line: #d6dade;
+    --line-soft: #e4e7ea;
+    --fg: #16181c;
+    --body: #3b4149;
+    --muted: #6b727b;
+    --accent: #41566e;
+    --accent-weich: #e6eaef;
+    --ok: #2f6b48;
+    --warn: #8a6420;
+    --crit: #9c4a42;
+    --info: #2f5d8f;
+
+    --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --r: 6px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121214;
+      --surface: #1a1a1e;
+      --card: #232328;
+      --card-alt: #2a2a31;
+      --line: #37373f;
+      --line-soft: #2c2c33;
+      --fg: #f4f5f6;
+      --body: #c2c6cc;
+      --muted: #8a8f97;
+      --accent: #9daab8;
+      --accent-weich: #262b31;
+      --ok: #7fb894;
+      --warn: #c9a56b;
+      --crit: #d5948e;
+      --info: #86a6d0;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121214;
+    --surface: #1a1a1e;
+    --card: #232328;
+    --card-alt: #2a2a31;
+    --line: #37373f;
+    --line-soft: #2c2c33;
+    --fg: #f4f5f6;
+    --body: #c2c6cc;
+    --muted: #8a8f97;
+    --accent: #9daab8;
+    --accent-weich: #262b31;
+    --ok: #7fb894;
+    --warn: #c9a56b;
+    --crit: #d5948e;
+    --info: #86a6d0;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--body);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.6;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .rand {
+    max-width: 980px;
+    margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  h1, h2, h3 { color: var(--fg); font-weight: 400; text-wrap: balance; margin: 0; }
+  h1 { font-size: 2rem; line-height: 1.2; letter-spacing: -0.015em; }
+  h2 { font-size: 1.3rem; line-height: 1.3; }
+  h3 { font-size: 1rem; font-weight: 500; }
+  p { margin: 0; }
+
+  .etikett {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ---------- Kopf ---------- */
+  header { padding-block: 40px 28px; border-bottom: 1px solid var(--line); }
+  .kopf-zeile {
+    display: flex; flex-wrap: wrap; gap: 10px 16px;
+    align-items: baseline; margin-bottom: 18px;
+  }
+  .pflicht {
+    color: var(--crit);
+    border: 1px solid currentColor;
+    border-radius: var(--r);
+    padding: 2px 8px;
+    font-size: 0.7rem; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  header h1 { margin-bottom: 10px; }
+  .termin { color: var(--fg); font-size: 1.05rem; }
+  .termin span { color: var(--muted); }
+
+  /* ---------- Link-Kasten ---------- */
+  .link-kasten {
+    margin-top: 24px;
+    border: 1px solid var(--accent);
+    border-radius: var(--r);
+    background: var(--accent-weich);
+    padding: 16px 18px;
+    display: flex; flex-wrap: wrap; gap: 6px 24px;
+    align-items: baseline; justify-content: space-between;
+  }
+  .link-kasten a {
+    color: var(--fg); font-size: 1.15rem; font-weight: 500;
+    text-decoration: none; border-bottom: 1px solid var(--accent);
+    word-break: break-all;
+  }
+  .link-kasten a:hover { border-bottom-width: 2px; }
+  .link-kasten .hinweis { color: var(--body); font-size: 0.9rem; }
+
+  /* ---------- Abschnitte ---------- */
+  section { padding-block: 34px; border-bottom: 1px solid var(--line-soft); }
+  .abschnitt-kopf { margin-bottom: 20px; }
+  .abschnitt-kopf .etikett { display: block; margin-bottom: 6px; }
+  .abschnitt-kopf p { color: var(--muted); max-width: 66ch; margin-top: 8px; }
+
+  /* ---------- Ehrlichkeits-Kasten ---------- */
+  .notiz {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--warn);
+    border-radius: var(--r);
+    background: var(--surface);
+    padding: 16px 18px;
+    max-width: 72ch;
+  }
+  .notiz h3 { margin-bottom: 8px; color: var(--fg); }
+  .notiz p + p { margin-top: 10px; }
+
+  /* ---------- Vorbereitung ---------- */
+  .vorab { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .vorab li {
+    display: grid; grid-template-columns: 26px 1fr; gap: 12px;
+    align-items: start; min-width: 0;
+  }
+  .haken {
+    width: 20px; height: 20px; margin-top: 2px;
+    border: 1px solid var(--line); border-radius: 3px;
+    background: var(--card);
+  }
+  .vorab strong { color: var(--fg); font-weight: 500; }
+
+  /* ---------- Regel ---------- */
+  .regel {
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: var(--card-alt);
+    padding: 20px 22px;
+    max-width: 72ch;
+  }
+  .regel p:first-child { color: var(--fg); font-size: 1.15rem; margin-bottom: 8px; }
+
+  /* ---------- Zeitschiene ---------- */
+  .ablauf { display: grid; gap: 0; }
+  .block {
+    display: grid; grid-template-columns: 104px 1fr; gap: 0 22px;
+    padding-block: 18px; border-top: 1px solid var(--line-soft);
+    min-width: 0;
+  }
+  .block:first-child { border-top: none; }
+  .zeit { min-width: 0; }
+  .zeit .uhr { color: var(--fg); font-size: 1.05rem; font-weight: 500; display: block; }
+  .zeit .dauer { color: var(--muted); font-size: 0.8rem; }
+  .block .inhalt { min-width: 0; }
+  .block h3 { margin-bottom: 6px; }
+  .block p { max-width: 64ch; }
+  .block.kern { background: var(--surface); border-radius: var(--r); padding-inline: 14px; }
+  .block.kern .marke { color: var(--accent); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-top: 8px; }
+
+  /* ---------- Testwege ---------- */
+  .wege { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; }
+  .weg {
+    border: 1px solid var(--line); border-radius: var(--r);
+    background: var(--card); padding: 18px; min-width: 0;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .weg-kopf { display: flex; flex-direction: column; gap: 4px; }
+  .weg-kopf h3 { color: var(--fg); }
+  .rolle {
+    font-size: 0.82rem; color: var(--muted);
+  }
+  .rolle b { color: var(--accent); font-weight: 500; }
+  .weg ol { margin: 0; padding-left: 1.3em; display: grid; gap: 9px; }
+  .weg ol li { padding-left: 2px; }
+  .weg ol li::marker { color: var(--muted); font-size: 0.85em; }
+  .weg code {
+    font-family: var(--font); font-weight: 500; color: var(--fg);
+    background: var(--card-alt); border-radius: 3px; padding: 0 4px;
+  }
+  .urteil {
+    margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line-soft);
+    font-size: 0.9rem;
+  }
+  .urteil .etikett { display: block; margin-bottom: 4px; color: var(--accent); }
+  .urteil p { color: var(--fg); }
+
+  /* ---------- Analystenstelle: sechste Karte im Raster ---------- */
+  .weg.analyst { border-color: var(--crit); background: var(--surface); }
+  .weg.analyst .rolle b { color: var(--crit); }
+  .weg.analyst p + p { margin-top: 10px; }
+
+  /* ---------- Entscheidungen ---------- */
+  .entscheidungen { display: grid; gap: 16px; counter-reset: ent; }
+  .ent {
+    display: grid; grid-template-columns: 34px 1fr; gap: 0 16px;
+    border: 1px solid var(--line); border-radius: var(--r);
+    background: var(--card); padding: 18px; min-width: 0;
+  }
+  .ent::before {
+    counter-increment: ent; content: counter(ent);
+    color: var(--accent); font-size: 1.1rem; font-weight: 500;
+    line-height: 1.4;
+  }
+  .ent > div { min-width: 0; }
+  .ent h3 { margin-bottom: 8px; }
+  .ent p { max-width: 66ch; }
+  .ent .fehlt {
+    margin-top: 12px; padding-top: 10px;
+    border-top: 1px solid var(--line-soft);
+    color: var(--crit); font-size: 0.9rem;
+  }
+  .ent .fehlt b { font-weight: 500; }
+
+  /* ---------- Zwei Spalten: läuft / kommt ---------- */
+  .stand { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .spalte {
+    border: 1px solid var(--line); border-radius: var(--r);
+    background: var(--card); padding: 18px; min-width: 0;
+  }
+  .spalte h3 { margin-bottom: 12px; display: flex; align-items: baseline; gap: 8px; }
+  .punkt { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+  .punkt.gruen { background: var(--ok); }
+  .punkt.gelb { background: var(--warn); }
+  .spalte ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .spalte li { display: grid; grid-template-columns: 14px 1fr; gap: 8px; min-width: 0; }
+  .spalte li .zeichen { color: var(--muted); }
+
+  /* ---------- Parkplatz ---------- */
+  .parkplatz { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .parkplatz span {
+    border: 1px dashed var(--line); border-radius: var(--r);
+    padding: 5px 10px; font-size: 0.88rem; color: var(--muted);
+  }
+
+  footer { padding-block: 28px 44px; color: var(--muted); font-size: 0.85rem; }
+  footer .rand { display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: space-between; }
+
+  @media (max-width: 560px) {
+    h1 { font-size: 1.65rem; }
+    .block { grid-template-columns: 1fr; gap: 6px; }
+    .zeit { display: flex; align-items: baseline; gap: 10px; }
+    .ent { grid-template-columns: 1fr; gap: 8px; }
+  }
+</style>
+
+<header>
+  <div class="rand">
+    <div class="kopf-zeile">
+      <span class="pflicht">Pflichttermin</span>
+      <span class="etikett">SEIL Real Estate &middot; Frankfurt</span>
+    </div>
+    <h1>Workshop Tools 1 und 2</h1>
+    <p class="termin">Freitag, 30. Oktober &middot; 11:00&ndash;13:00 Uhr <span>&middot; Sales und Investment, Projektmanagement, Marketing, Gesch&auml;ftsf&uuml;hrung</span></p>
+
+    <div class="link-kasten">
+      <a href="https://seil-cockpit.vercel.app">seil-cockpit.vercel.app</a>
+      <span class="hinweis">&Ouml;ffne den Link einmal vor Freitag. Kein Login, l&auml;uft im Browser.</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="rand">
+    <div class="notiz">
+      <h3>Was du Freitag siehst &ndash; und was nicht</h3>
+      <p>Den vollst&auml;ndigen Vertriebsprozess, klickbar, auf Demo-Mandaten. Die Mandate hei&szlig;en &bdquo;B&uuml;roensemble Westend-Karree&ldquo; und &bdquo;Logistikpark Gateway S&uuml;d&ldquo;, nicht wie deine echten. Der Stichtag im Cockpit ist Montag, 26.10.</p>
+      <p>Deine echten Daten kommen, sobald die Verbindung zur SEIL-IT steht. Der Termin daf&uuml;r ist Donnerstag 09:30. Beurteile Freitag den <strong>Ablauf</strong>, nicht die Namen in den Feldern.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="abschnitt-kopf">
+      <span class="etikett">Vorbereitung</span>
+      <h2>Drei Dinge, zehn Minuten</h2>
+    </div>
+    <ul class="vorab">
+      <li><span class="haken"></span><div><strong>Laptop mitbringen.</strong> Am Handy kannst du nicht nebeneinander vergleichen, und genau das brauchen wir.</div></li>
+      <li><span class="haken"></span><div><strong>Den Link einmal &ouml;ffnen.</strong> Wenn er bei dir nicht aufgeht, sag es vorher. Nicht Freitag um elf.</div></li>
+      <li><span class="haken"></span><div><strong>Ein laufendes Mandat im Kopf haben.</strong> Eines, bei dem du letzte Woche Handarbeit hattest. Daran pr&uuml;fst du gegen.</div></li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="regel">
+      <p>Niemand schaut nur zu.</p>
+      <p>Jeder klickt in seiner eigenen Rolle mit. Diese zwei Stunden sind das Zeitfenster vor dem Go-Live. Was Freitag nicht gesagt wird, ist sp&auml;ter eine &Auml;nderung am laufenden System und kostet Wochen.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="abschnitt-kopf">
+      <span class="etikett">Ablauf</span>
+      <h2>Zwei Stunden, sechs Bl&ouml;cke</h2>
+    </div>
+    <div class="ablauf">
+      <div class="block">
+        <div class="zeit"><span class="uhr">11:00</span><span class="dauer">10 Min</span></div>
+        <div class="inhalt">
+          <h3>Stand in drei S&auml;tzen</h3>
+          <p>Kein Foliensatz. Das Cockpit auf dem Schirm, ein Mandat, und was am Donnerstag mit der IT geklärt wurde. Alle &ouml;ffnen den Link auf dem eigenen Laptop.</p>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="zeit"><span class="uhr">11:10</span><span class="dauer">20 Min</span></div>
+        <div class="inhalt">
+          <h3>Ein Montagmorgen, einmal durch</h3>
+          <p>Ich gehe einen Arbeitstag in der Rolle Transaction Management durch: Posteingang mit den Kategorien aus unserem eigenen Standardprozess, zwei offene Antworten, sieben wartende Mail-Entw&uuml;rfe, Freigabe, Versand, Nachfass-Stufen. Ihr klickt dieselben Stellen mit.</p>
+        </div>
+      </div>
+
+      <div class="block kern">
+        <div class="zeit"><span class="uhr">11:30</span><span class="dauer">35 Min</span></div>
+        <div class="inhalt">
+          <h3>Hands-on: jeder in seiner Rolle</h3>
+          <p>Der eigentliche Termin. Jeder nimmt seinen Testweg von unten und arbeitet ihn durch. Was nicht passt, wird sofort notiert, nicht gemerkt.</p>
+          <span class="marke">L&auml;ngster Block mit Absicht</span>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="zeit"><span class="uhr">12:05</span><span class="dauer">20 Min</span></div>
+        <div class="inhalt">
+          <h3>Vier Entscheidungen</h3>
+          <p>Vier Stellen, die die Automatik nicht erraten kann. Sie fallen in diesem Raum, nicht per Mail danach.</p>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="zeit"><span class="uhr">12:25</span><span class="dauer">20 Min</span></div>
+        <div class="inhalt">
+          <h3>Was den Go-Live blockiert</h3>
+          <p>Die Liste vom Donnerstag, Punkt f&uuml;r Punkt. Zu jedem ein Name und ein Datum. Kein &bdquo;ob&ldquo;, nur &bdquo;wer bis wann&ldquo;.</p>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="zeit"><span class="uhr">12:45</span><span class="dauer">15 Min</span></div>
+        <div class="inhalt">
+          <h3>Eine Runde Feedback</h3>
+          <p>Jeder einen Satz: Was w&uuml;rde mich am Montag davon abhalten, damit zu arbeiten? Ich schreibe mit, und die Liste geht noch Freitag an alle raus.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="abschnitt-kopf">
+      <span class="etikett">Hands-on</span>
+      <h2>Dein Testweg</h2>
+      <p>Oben links im Cockpit steht der Umschalter &bdquo;Arbeiten als&ldquo;. W&auml;hle dort die Rolle, die deiner entspricht. Die Namen sind Demo-Namen, die Rollen sind die echten.</p>
+    </div>
+
+    <div class="wege">
+      <div class="weg">
+        <div class="weg-kopf">
+          <h3>Transaction Management</h3>
+          <span class="rolle">Arbeiten als <b>Katharina Vogt</b> (Investment) oder <b>Daniel Mertens</b> (Sales)</span>
+        </div>
+        <ol>
+          <li><code>Posteingang &middot; Antworterkennung</code> &ndash; zwei Antworten warten. &Ouml;ffne beide. Hat das System die richtige Kategorie gesetzt?</li>
+          <li><code>Meine Aufgaben</code> &ndash; ist das deine Reihenfolge, oder fehlt oben das Dringendste?</li>
+          <li><code>Freigabe &middot; Mail-Entw&uuml;rfe</code> &ndash; lies zwei der sieben Texte. W&uuml;rdest du die so rausschicken? Wenn nein: welcher Satz st&ouml;rt?</li>
+          <li><code>Laufende Transaktionen</code> &rarr; B&uuml;roensemble Westend-Karree. Vergleiche mit deinem echten Mandat: welches Feld fehlt?</li>
+          <li><code>Investoren ohne R&uuml;ckmeldung</code> &ndash; die Nachfass-Stufen 1 bis 3. Sind die Abst&auml;nde richtig, zu kurz oder zu lang?</li>
+        </ol>
+        <div class="urteil">
+          <span class="etikett">Beurteile</span>
+          <p>K&ouml;nntest du damit einen Montagmorgen arbeiten, ohne danach in Excel zu gehen?</p>
+        </div>
+      </div>
+
+      <div class="weg">
+        <div class="weg-kopf">
+          <h3>Head of Sales und Supervision</h3>
+          <span class="rolle">Arbeiten als <b>Henrik Baumann</b> oder <b>Clara Weiss</b></span>
+        </div>
+        <ol>
+          <li><code>Portfolio</code> &ndash; alle Mandate des Teams auf einem Schirm. Fehlt eine Zahl, auf die du morgens zuerst schaust?</li>
+          <li><code>Priorit&auml;ten heute</code> &ndash; f&uuml;nf Punkte. Sind das die, die du selbst setzen w&uuml;rdest?</li>
+          <li><code>Team</code> &ndash; Auslastung. Erkennst du daran, wer &uuml;berladen ist?</li>
+          <li><code>Freigabe &middot; Mail-Entw&uuml;rfe</code> &ndash; alle sieben ausw&auml;hlen, einmal freigeben. Reicht dir ein Klick f&uuml;r alle, oder willst du jeden einzeln lesen?</li>
+          <li><code>Datenr&auml;ume mit L&uuml;cken</code> &ndash; gen&uuml;gt dir die L&uuml;ckenliste, um beim Auftraggeber nachzufassen?</li>
+        </ol>
+        <div class="urteil">
+          <span class="etikett">Beurteile</span>
+          <p>Ersetzt der Portfolio-Blick deine Nachfragen im Team, oder kommt er nur dazu?</p>
+        </div>
+      </div>
+
+      <div class="weg">
+        <div class="weg-kopf">
+          <h3>Gesch&auml;ftsf&uuml;hrung</h3>
+          <span class="rolle">Arbeiten als <b>Max Seil</b> oder <b>Nino Grubisic</b></span>
+        </div>
+        <ol>
+          <li><code>Pipeline nach Phase</code> und <code>Vermarktungs-Funnel</code> &ndash; ist das die Zahl, die du morgens wissen willst?</li>
+          <li><code>Alle Mandate</code> &ndash; eine Zeile pro Mandat. Was fehlt in der Zeile?</li>
+          <li><code>Braucht Aufmerksamkeit</code> &ndash; stimmt die Auswahl, oder w&uuml;rdest du anders filtern?</li>
+          <li><code>Auslastung im Team</code> &ndash; und der Berichts-Export: welche Empf&auml;nger, welcher Rhythmus?</li>
+        </ol>
+        <div class="urteil">
+          <span class="etikett">Beurteile</span>
+          <p>K&ouml;nntest du damit auf die Nachfrage im Team verzichten?</p>
+        </div>
+      </div>
+
+      <div class="weg">
+        <div class="weg-kopf">
+          <h3>Projektmanagement</h3>
+          <span class="rolle">Arbeiten als <b>Jonas Brandt</b> (Support Transaction)</span>
+        </div>
+        <ol>
+          <li><code>Datenr&auml;ume mit L&uuml;cken</code> &rarr; Wohnportfolio Sachsenhausen. Die fehlenden Unterlagen stehen einzeln da. Ist die Liste vollst&auml;ndig?</li>
+          <li>Objektseite, Karte <code>Ansprechpartner</code> &ndash; Besichtigung, Hausverwaltung, extern gekennzeichnet. Fehlt eine Rolle, die du regelm&auml;&szlig;ig brauchst?</li>
+          <li>Datenraum-Stufe <code>Light</code> und <code>Full</code> &ndash; Light vor dem NDA, Full danach. Sitzt die Grenze an der richtigen Stelle?</li>
+          <li><code>Laufende Transaktionen</code> &rarr; ein Mandat mit Besichtigung. Pr&uuml;fe die Terminkette: Anfrage, Verk&auml;ufer, Best&auml;tigung.</li>
+        </ol>
+        <div class="urteil">
+          <span class="etikett">Beurteile</span>
+          <p>Ist das die Unterlagen-Logik, mit der du heute tats&auml;chlich arbeitest?</p>
+        </div>
+      </div>
+
+      <div class="weg">
+        <div class="weg-kopf">
+          <h3>Marketing</h3>
+          <span class="rolle">Arbeiten als eine Team-Rolle, z.&nbsp;B. <b>Sofia Ricci</b></span>
+        </div>
+        <ol>
+          <li><code>Freigabe &middot; Mail-Entw&uuml;rfe</code> &ndash; lies einen Teaser und eine Pre-Sounding-Mail. Sitzt der Ton?</li>
+          <li>Unter welchem Namen gehen die Mails raus, und wer steht in der Signatur?</li>
+          <li>Fachmarktzentrum Hanauer Landstra&szlig;e: vier Entw&uuml;rfe an vier Investoren, gleicher Text. Soll der gleich sein?</li>
+          <li>Investorenseite &rarr; <code>Ankaufsprofil</code>: es kommt aus der Liveliste, nicht aus einer gepflegten Maske. Reicht das f&uuml;r eine Ansprache?</li>
+        </ol>
+        <div class="urteil">
+          <span class="etikett">Beurteile</span>
+          <p>W&uuml;rdest du einen dieser Texte ohne &Auml;nderung freigeben?</p>
+        </div>
+      </div>
+      <div class="weg analyst">
+        <div class="weg-kopf">
+          <h3>Die unbesetzte Stelle</h3>
+          <span class="rolle">Arbeiten als <b>Sofia Ricci</b> (Analyst | Investment)</span>
+        </div>
+        <p>Diese Rolle ist im Cockpit angelegt und bei SEIL nicht mehr besetzt. W&auml;hle sie im Umschalter und schau genau in diese Ansicht.</p>
+        <p>Was dort an Aufgaben steht, ist die Arbeit, die seit dem Weggang des Analysten liegen bleibt. Genau diese Liste muss die Automatik &uuml;bernehmen.</p>
+        <div class="urteil">
+          <span class="etikett">Beurteile</span>
+          <p>Fehlt in dieser Liste etwas, das heute niemand mehr macht?</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="abschnitt-kopf">
+      <span class="etikett">12:05 bis 12:25</span>
+      <h2>Vier Entscheidungen, die im Raum fallen m&uuml;ssen</h2>
+      <p>An diesen vier Stellen kann das System nicht weiterrechnen, solange es keine Antwort hat. Jede Antwort ist ein Satz. Jede offene Stelle kostet eine Woche.</p>
+    </div>
+
+    <div class="entscheidungen">
+      <div class="ent">
+        <div>
+          <h3>Das NDA fehlt im eigenen Standardprozess</h3>
+          <p>In der Prozesstabelle folgt auf &bdquo;Interesse&ldquo; direkt die Unterlage. In der Praxis ist das NDA der h&auml;ufigste n&auml;chste Schritt. In der Tabelle steht es nirgends.</p>
+          <p style="margin-top:10px"><strong>Zu kl&auml;ren:</strong> Wer verschickt es, aus welcher Vorlage, wer h&auml;lt den R&uuml;cklauf nach &ndash; und schaltet der R&uuml;cklauf den Datenraum von Light auf Full?</p>
+          <p class="fehlt"><b>Ohne Antwort:</b> Das System kann nach &bdquo;Interesse&ldquo; keinen n&auml;chsten Schritt setzen und bleibt stehen.</p>
+        </div>
+      </div>
+
+      <div class="ent">
+        <div>
+          <h3>Was nach der Besichtigung passiert</h3>
+          <p>Der Standardprozess endet bei der Besichtigung. Danach kommen LOI, Verhandlung, Notartermin.</p>
+          <p style="margin-top:10px"><strong>Zu kl&auml;ren:</strong> Geh&ouml;rt das in diese Ausbaustufe oder in die n&auml;chste? Wenn in diese: welche Schritte genau?</p>
+          <p class="fehlt"><b>Ohne Antwort:</b> Ein Mandat l&auml;uft nach der Besichtigung aus dem System heraus und wird wieder per Mail verfolgt.</p>
+        </div>
+      </div>
+
+      <div class="ent">
+        <div>
+          <h3>Die Maklermeldung</h3>
+          <p>Wann wird ein Makler informiert, von wem, mit welchem Text? Im Prozess ist das nicht definiert, und im Team macht es jeder anders.</p>
+          <p style="margin-top:10px"><strong>Zu kl&auml;ren:</strong> Ausl&ouml;ser, Absender, Vorlage.</p>
+          <p class="fehlt"><b>Ohne Antwort:</b> Bleibt Handarbeit. Automatisieren l&auml;sst sich nur, was eine Regel hat.</p>
+        </div>
+      </div>
+
+      <div class="ent">
+        <div>
+          <h3>Wer darf freigeben?</h3>
+          <p>Heute sieht jede Rolle im Team alle sieben wartenden Entw&uuml;rfe &ndash; auch die zu Mandaten, f&uuml;r die sie nicht zust&auml;ndig ist &ndash; und kann alle freigeben.</p>
+          <p style="margin-top:10px"><strong>Zu kl&auml;ren:</strong> Bleibt das so, oder gibt nur die Leitung frei? Und darf jemand die eigenen Entw&uuml;rfe freigeben?</p>
+          <p class="fehlt"><b>Ohne Antwort:</b> Die Zugriffsrechte lassen sich nicht einrichten. Die Freigabe ist der einzige Punkt, an dem die Automatik anh&auml;lt &ndash; wer dort darf, entscheidet, was rausgeht.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="abschnitt-kopf">
+      <span class="etikett">Stand</span>
+      <h2>Was l&auml;uft, was noch fehlt</h2>
+    </div>
+    <div class="stand">
+      <div class="spalte">
+        <h3><span class="punkt gruen"></span>Fertig und pr&uuml;fbar</h3>
+        <ul>
+          <li><span class="zeichen">&rarr;</span><div>Der Vertriebsprozess vollst&auml;ndig klickbar, in allen Rollen und Phasen</div></li>
+          <li><span class="zeichen">&rarr;</span><div>Neun Automatik-Strecken fertig: Datenraum-Eingang, Matching, Mail-Vorbereitung, Freigabe, Versand mit Nachfass, Antworterkennung, Statusbericht, Besichtigung, Datenraum-Status</div></li>
+          <li><span class="zeichen">&rarr;</span><div>Modul 1 angedockt: ein Schreibweg hinein, ein Leseweg heraus, eine Ablage</div></li>
+          <li><span class="zeichen">&rarr;</span><div>Die Rollen- und Berichtsstruktur aus der Team&uuml;bersicht abgebildet</div></li>
+        </ul>
+      </div>
+      <div class="spalte">
+        <h3><span class="punkt gelb"></span>Kommt mit der IT</h3>
+        <ul>
+          <li><span class="zeichen">&rarr;</span><div>Office 365 und das Postfach, aus dem gesendet wird</div></li>
+          <li><span class="zeichen">&rarr;</span><div>Die OneDrive-Liveliste als Matching-Grundlage</div></li>
+          <li><span class="zeichen">&rarr;</span><div>Der Server, auf dem die Automatik l&auml;uft, samt &Uuml;bergabe</div></li>
+          <li><span class="zeichen">&rarr;</span><div>Zug&auml;nge: wer kommt an welches Modul, und ob &uuml;ber den SEIL-Login</div></li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:18px; max-width:72ch; color:var(--muted)">Solange diese vier Punkte offen sind, l&auml;uft die Kette auf Demodaten. Der Prototyp zeigt den Ablauf, er verschickt noch keine echte Mail. Das ist so gebaut: die Versand-Strecke wird bewusst inaktiv &uuml;bergeben und erst nach der Freigabe eingeschaltet.</p>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="abschnitt-kopf">
+      <span class="etikett">Parkplatz</span>
+      <h2>Nicht in diesem Termin</h2>
+      <p>Wird aufgeschrieben und sp&auml;ter behandelt. Freitag reden wir &uuml;ber den Prozess.</p>
+    </div>
+    <div class="parkplatz">
+      <span>Farben, Schriftgr&ouml;&szlig;en, Logo</span>
+      <span>Zusatzfunktionen ohne Prozessschritt</span>
+      <span>Preise und Vertragsfragen</span>
+      <span>Was andere Anbieter k&ouml;nnen</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="rand">
+    <span>Workshop am 30.10. &middot; vorbereitet f&uuml;r das SEIL-Team</span>
+    <span>Fragen vorab direkt an Ricardo</span>
+  </div>
+</footer>
