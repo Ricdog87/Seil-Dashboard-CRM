@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "pruefen": "node pruefungen/sales-update.mjs && node pruefungen/stichtag.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.475.0",

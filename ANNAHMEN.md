@@ -102,9 +102,13 @@ für den Prototyp eine Annahme getroffen wurde – jeweils mit der gewählten Um
 20. **Begriffe:** Der Denglisch-Mix aus dem Auftrag (Valuation, Broker Call, Listing,
     Teaser) wurde im UI beibehalten; Datums- und Zahlenformate sind deutsch
     („17,4 Mio. €“, „20.08.2026“).
-21. **Referenzdatum:** Der Prototyp „lebt“ am 31.08.2026 – Überfälligkeiten und
-    „heute fällig“ beziehen sich auf dieses fixe Datum (`HEUTE` in
-    `lib/mock-data.ts`). Die Weltuhren-Leiste und die tageszeitabhängige
+21. **Referenzdatum:** Der Prototyp „lebt“ am 26.10.2026 (Montag) – Überfälligkeiten
+    und „heute fällig“ beziehen sich auf dieses fixe Datum (`HEUTE` in
+    `lib/mock-data.ts`). Vor dem Team-Workshop am 30.10. wurde der Stichtag vom
+    31.08. um genau acht Wochen nachgezogen; die Verschiebung erfolgt immer in
+    Vielfachen von sieben Tagen, damit die Wochentags-Dramaturgie erhalten bleibt
+    (Pre-Sounding-Mails Montag 07:12, Follow-ups zum Wochenstart fällig, n8n-Cron
+    `0 7 * * 1-5`). Die Weltuhren-Leiste und die tageszeitabhängige
     Begrüßung laufen dagegen bewusst live (Frankfurt · London · New York ·
     Dubai · Singapur) – Zonenauswahl bitte bestätigen.
 22. **Demodaten-Dramaturgie:** Damit auf fünf Screens alle Zustände gleichzeitig

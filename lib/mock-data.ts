@@ -16,7 +16,7 @@ import type {
 } from "./types";
 
 /** Fester Referenztag des Prototyps – alle Daten sind darauf abgestimmt. */
-export const HEUTE = "2026-08-31";
+export const HEUTE = "2026-10-26";
 
 // ---------------------------------------------------------------------------
 // Prozessschritte (die zwei Seiten, in denen der Kunde denkt)
@@ -188,15 +188,15 @@ export const mitarbeiter: Mitarbeiter[] = [
  */
 export const entwuerfe: MailEntwurf[] = [
   // Fachmarktzentrum Hanauer Landstraße: Erstansprache, Freigabe steht aus
-  { id: "e1", objektId: "o4", investorId: "i4", art: "presound", betreff: "Fachmarktzentrum Rhein-Main – vertrauliche Vorabinformation", erstelltAm: "2026-08-31T07:12" },
-  { id: "e2", objektId: "o4", investorId: "i9", art: "presound", betreff: "Fachmarktzentrum Rhein-Main – vertrauliche Vorabinformation", erstelltAm: "2026-08-31T07:12" },
-  { id: "e3", objektId: "o4", investorId: "i5", art: "presound", betreff: "Fachmarktzentrum Rhein-Main – vertrauliche Vorabinformation", erstelltAm: "2026-08-31T07:12" },
-  { id: "e4", objektId: "o4", investorId: "i2", art: "teaser", betreff: "Fachmarktzentrum Rhein-Main – Teaser und Eckdaten", erstelltAm: "2026-08-31T07:14" },
+  { id: "e1", objektId: "o4", investorId: "i4", art: "presound", betreff: "Fachmarktzentrum Rhein-Main – vertrauliche Vorabinformation", erstelltAm: "2026-10-26T07:12" },
+  { id: "e2", objektId: "o4", investorId: "i9", art: "presound", betreff: "Fachmarktzentrum Rhein-Main – vertrauliche Vorabinformation", erstelltAm: "2026-10-26T07:12" },
+  { id: "e3", objektId: "o4", investorId: "i5", art: "presound", betreff: "Fachmarktzentrum Rhein-Main – vertrauliche Vorabinformation", erstelltAm: "2026-10-26T07:12" },
+  { id: "e4", objektId: "o4", investorId: "i2", art: "teaser", betreff: "Fachmarktzentrum Rhein-Main – Teaser und Eckdaten", erstelltAm: "2026-10-26T07:14" },
   // Westend-Karree: Nachfass-Stufen aus der laufenden Kette
-  { id: "e5", objektId: "o1", investorId: "i4", art: "followup", betreff: "Erinnerung: Büroensemble Westend-Karree", erstelltAm: "2026-08-31T07:02", stufe: 3 },
-  { id: "e6", objektId: "o1", investorId: "i12", art: "antwort", betreff: "Re: Rückfragen zum Datenraum", erstelltAm: "2026-08-30T16:48" },
+  { id: "e5", objektId: "o1", investorId: "i4", art: "followup", betreff: "Erinnerung: Büroensemble Westend-Karree", erstelltAm: "2026-10-26T07:02", stufe: 3 },
+  { id: "e6", objektId: "o1", investorId: "i12", art: "antwort", betreff: "Re: Rückfragen zum Datenraum", erstelltAm: "2026-10-25T16:48" },
   // Gateway Süd: Antwort auf eine Unterlagen-Anfrage
-  { id: "e7", objektId: "o2", investorId: "i1", art: "followup", betreff: "Erinnerung: Logistikpark Gateway Süd", erstelltAm: "2026-08-31T07:02", stufe: 3 },
+  { id: "e7", objektId: "o2", investorId: "i1", art: "followup", betreff: "Erinnerung: Logistikpark Gateway Süd", erstelltAm: "2026-10-26T07:02", stufe: 3 },
 ];
 
 /** Tagesprioritäten für die Morgenabstimmung – Wunsch der Leitung Sales (28.09.). */
@@ -328,14 +328,14 @@ export const objekte: Objekt[] = [
       { feld: "Leerstand", wert: "4,1 %", quelleDokument: "Mieter- & Flächenliste", status: "uebernommen" },
       { feld: "Lasten Abt. II", wert: "Wegerecht (lfd. Nr. 3)", quelleDokument: "Grundbuchauszug", status: "uebernommen" },
     ],
-    teaser: { stand: "versendet", entwurfVom: "2026-08-04", geprueftDurchId: "m1", versendetAm: "2026-08-06" },
-    datenraum: datenraumMit({}, "2026-08-30"),
+    teaser: { stand: "versendet", entwurfVom: "2026-09-29", geprueftDurchId: "m1", versendetAm: "2026-10-01" },
+    datenraum: datenraumMit({}, "2026-10-25"),
     ansprechpartner: [
       { name: "Dr. Thomas Keller", rolle: "Eigentümervertretung", organisation: "Hessische Grundwert GmbH" },
       { name: "Marcel Dorn", rolle: "Unterlagen & Datenraum", organisation: "Hessische Grundwert GmbH" },
       { name: "Ingo Wessel", rolle: "Besichtigung vor Ort", organisation: "Hausverwaltung Westend", extern: true },
     ],
-    freigabe: { status: "erteilt", durchId: "m1", am: "2026-08-05" },
+    freigabe: { status: "erteilt", durchId: "m1", am: "2026-09-30" },
   },
   {
     id: "o2",
@@ -351,13 +351,13 @@ export const objekte: Objekt[] = [
     standNotiz: "Altlastenauskunft beim Amt nachgefordert – Reporting an Auftraggeber läuft.",
     kennzahlen: { renditeProzent: 5.4, baujahr: 2011, einheiten: 4, leerstandProzent: 0 },
     schritte: schritteMit(15, { 16: "in_progress", 17: "in_progress" }),
-    teaser: { stand: "versendet", entwurfVom: "2026-08-17", geprueftDurchId: "m2", versendetAm: "2026-08-19" },
-    datenraum: datenraumMit({ 10: "ausstehend" }, "2026-08-29"),
+    teaser: { stand: "versendet", entwurfVom: "2026-10-12", geprueftDurchId: "m2", versendetAm: "2026-10-14" },
+    datenraum: datenraumMit({ 10: "ausstehend" }, "2026-10-24"),
     ansprechpartner: [
       { name: "Beate Lindqvist", rolle: "Eigentümervertretung", organisation: "Nordlicht Industrial Holding" },
       { name: "Sven Ahrens", rolle: "Besichtigung vor Ort", organisation: "Objektbetreuung Gateway", extern: true },
     ],
-    freigabe: { status: "erteilt", durchId: "m2", am: "2026-08-18" },
+    freigabe: { status: "erteilt", durchId: "m2", am: "2026-10-13" },
   },
   {
     id: "o3",
@@ -378,8 +378,8 @@ export const objekte: Objekt[] = [
       { feld: "Wohneinheiten", wert: "62", quelleDokument: "Mieter- & Flächenliste", status: "uebernommen" },
       { feld: "Ø-Kaltmiete", wert: "14,90 €/m²", quelleDokument: "Mieter- & Flächenliste", status: "pruefen", hinweis: "Staffelmieten in 8 Verträgen – Durchschnitt bitte bestätigen" },
     ],
-    teaser: { stand: "freigegeben", entwurfVom: "2026-08-22", geprueftDurchId: "m1" },
-    datenraum: datenraumMit({}, "2026-08-27"),
+    teaser: { stand: "freigegeben", entwurfVom: "2026-10-17", geprueftDurchId: "m1" },
+    datenraum: datenraumMit({}, "2026-10-22"),
     ansprechpartner: [
       { name: "Peter Hollmann", rolle: "Eigentümervertretung", organisation: "Sachsenhausen Wohnbau" },
       { name: "Nadine Brehm", rolle: "Besichtigung vor Ort", organisation: "Hausmeisterservice Süd", extern: true },
@@ -406,7 +406,7 @@ export const objekte: Objekt[] = [
     schritte: schritteMit(7, { 4: "in_progress", 8: "in_progress", 9: "in_progress", 13: "na" }),
     datenraum: datenraumMit(
       { 3: "in_pruefung", 7: "ausstehend", 8: "ausstehend", 9: "ausstehend", 10: "ausstehend" },
-      "2026-08-29",
+      "2026-10-24",
     ),
     ansprechpartner: [
       { name: "Carla Rietberg", rolle: "Unterlagen & Datenraum", organisation: "Rietberg Handelsimmobilien" },
@@ -424,7 +424,7 @@ export const objekte: Objekt[] = [
     zustaendigId: "m3",
     quelle: "Se Circle",
     seCircleSync: {
-      letzterSync: "2026-08-20T06:00",
+      letzterSync: "2026-10-15T06:00",
       richtung: "Se Circle → Cockpit",
       feldgruppen: ["Stammdaten", "Flächen & Einheiten", "Exposé-Daten", "Ansprechpartner"],
     },
@@ -432,7 +432,7 @@ export const objekte: Objekt[] = [
     standNotiz: "Pachtvertrag mit Betreiber wird nachgereicht – Valuation läuft.",
     kennzahlen: { renditeProzent: 5.9, baujahr: 2016, einheiten: 88, leerstandProzent: 0 },
     schritte: schritteMit(2, { 3: "in_progress", 4: "in_progress", 8: "in_progress", 9: "done", 10: "done" }),
-    datenraum: datenraumMit({ 9: "ausstehend", 11: "ausstehend" }, "2026-08-21"),
+    datenraum: datenraumMit({ 9: "ausstehend", 11: "ausstehend" }, "2026-10-16"),
   },
   {
     id: "o6",
@@ -461,7 +461,7 @@ export const investoren: Investor[] = [
     id: "i1",
     firma: "Falkenstein Capital Partners",
     quelle: "Liveliste",
-    listeStand: "2026-08-31",
+    listeStand: "2026-10-26",
     typ: "Vermögensverwalter",
     ansprechpartner: "Dr. Robert Steinbach",
     email: "steinbach@falkenstein-cp.example",
@@ -481,7 +481,7 @@ export const investoren: Investor[] = [
     id: "i2",
     firma: "Novaris Invest AG",
     quelle: "Liveliste",
-    listeStand: "2026-08-31",
+    listeStand: "2026-10-26",
     typ: "Fondsmanager",
     ansprechpartner: "Claudia Bergmann",
     email: "bergmann@novaris-invest.example",
@@ -501,7 +501,7 @@ export const investoren: Investor[] = [
     id: "i3",
     firma: "Hartmann & Cie. Family Office",
     quelle: "Liveliste",
-    listeStand: "2026-08-31",
+    listeStand: "2026-10-26",
     typ: "Family Office",
     ansprechpartner: "Maximilian Hartmann",
     email: "hartmann@hartmann-cie.example",
@@ -521,7 +521,7 @@ export const investoren: Investor[] = [
     id: "i4",
     firma: "Rheingold Asset Management",
     quelle: "Liveliste",
-    listeStand: "2026-08-31",
+    listeStand: "2026-10-26",
     typ: "Fondsmanager",
     ansprechpartner: "Peter Lindqvist",
     email: "lindqvist@rheingold-am.example",
@@ -554,7 +554,7 @@ export const investoren: Investor[] = [
     id: "i6",
     firma: "Vesta Wohnwerte AG",
     quelle: "Liveliste",
-    listeStand: "2026-08-31",
+    listeStand: "2026-10-26",
     typ: "Bestandshalter",
     ansprechpartner: "Georg Winkler",
     email: "winkler@vesta-wohnwerte.example",
@@ -568,7 +568,7 @@ export const investoren: Investor[] = [
     id: "i7",
     firma: "Portus Logistics Capital",
     quelle: "Liveliste",
-    listeStand: "2026-08-31",
+    listeStand: "2026-10-26",
     typ: "Spezialfonds",
     ansprechpartner: "Jan Hoffmeister",
     email: "hoffmeister@portus-logistics.example",
@@ -588,7 +588,7 @@ export const investoren: Investor[] = [
     id: "i8",
     firma: "Corvus Family Office",
     quelle: "Liveliste",
-    listeStand: "2026-08-31",
+    listeStand: "2026-10-26",
     typ: "Family Office",
     ansprechpartner: "Friederike Lang",
     email: "lang@corvus-fo.example",
@@ -602,7 +602,7 @@ export const investoren: Investor[] = [
     id: "i9",
     firma: "Belvedere Grund Invest",
     quelle: "Liveliste",
-    listeStand: "2026-08-31",
+    listeStand: "2026-10-26",
     typ: "Vermögensverwalter",
     ansprechpartner: "Andreas Roth",
     email: "roth@belvedere-grund.example",
@@ -648,7 +648,7 @@ export const investoren: Investor[] = [
     id: "i12",
     firma: "Quercus Real Assets",
     quelle: "Liveliste",
-    listeStand: "2026-08-31",
+    listeStand: "2026-10-26",
     typ: "Fondsmanager",
     ansprechpartner: "Miriam Osei",
     email: "osei@quercus-ra.example",
@@ -666,19 +666,19 @@ export const investoren: Investor[] = [
 
 export const objektInvestorLinks: ObjektInvestorLink[] = [
   // Büroensemble Westend-Karree – Vermarktung weit fortgeschritten
-  { objektId: "o1", investorId: "i1", status: "interesse", followUpStufe: 1, letzterKontakt: "2026-08-27", hinweis: "Broker Call vereinbart" },
-  { objektId: "o1", investorId: "i2", status: "preisanfrage", followUpStufe: 1, letzterKontakt: "2026-08-25", hinweis: "Preisauskunft nur telefonisch – Rückruf GF koordiniert" },
-  { objektId: "o1", investorId: "i3", status: "nda_unterzeichnet", followUpStufe: 1, letzterKontakt: "2026-08-30" },
-  { objektId: "o1", investorId: "i4", status: "angeschrieben", followUpStufe: 2, letzterKontakt: "2026-08-30", naechstesFollowUp: "2026-09-01" },
-  { objektId: "o1", investorId: "i8", status: "angeschrieben", followUpStufe: 3, letzterKontakt: "2026-08-29", hinweis: "Stufe 3 ohne Antwort – manuell nachfassen" },
-  { objektId: "o1", investorId: "i9", status: "abgesagt", followUpStufe: 1, letzterKontakt: "2026-08-28", hinweis: "Kein Büro-Ankauf in 2026" },
-  { objektId: "o1", investorId: "i12", status: "datenraum_freigegeben", followUpStufe: 1, letzterKontakt: "2026-08-19" },
+  { objektId: "o1", investorId: "i1", status: "interesse", followUpStufe: 1, letzterKontakt: "2026-10-22", hinweis: "Broker Call vereinbart" },
+  { objektId: "o1", investorId: "i2", status: "preisanfrage", followUpStufe: 1, letzterKontakt: "2026-10-20", hinweis: "Preisauskunft nur telefonisch – Rückruf GF koordiniert" },
+  { objektId: "o1", investorId: "i3", status: "nda_unterzeichnet", followUpStufe: 1, letzterKontakt: "2026-10-25" },
+  { objektId: "o1", investorId: "i4", status: "angeschrieben", followUpStufe: 2, letzterKontakt: "2026-10-25", naechstesFollowUp: "2026-10-27" },
+  { objektId: "o1", investorId: "i8", status: "angeschrieben", followUpStufe: 3, letzterKontakt: "2026-10-24", hinweis: "Stufe 3 ohne Antwort – manuell nachfassen" },
+  { objektId: "o1", investorId: "i9", status: "abgesagt", followUpStufe: 1, letzterKontakt: "2026-10-23", hinweis: "Kein Büro-Ankauf in 2026" },
+  { objektId: "o1", investorId: "i12", status: "datenraum_freigegeben", followUpStufe: 1, letzterKontakt: "2026-10-14" },
 
   // Logistikpark Gateway Süd – Follow-up-Automatik läuft
-  { objektId: "o2", investorId: "i1", status: "angeschrieben", followUpStufe: 2, letzterKontakt: "2026-08-30", naechstesFollowUp: "2026-09-01" },
-  { objektId: "o2", investorId: "i2", status: "angeschrieben", followUpStufe: 3, letzterKontakt: "2026-08-29", hinweis: "Stufe 3 ohne Antwort – manuell nachfassen" },
-  { objektId: "o2", investorId: "i4", status: "angeschrieben", followUpStufe: 2, letzterKontakt: "2026-08-29", naechstesFollowUp: "2026-08-31" },
-  { objektId: "o2", investorId: "i7", status: "interesse", followUpStufe: 1, letzterKontakt: "2026-08-28", hinweis: "Broker Call vereinbart" },
+  { objektId: "o2", investorId: "i1", status: "angeschrieben", followUpStufe: 2, letzterKontakt: "2026-10-25", naechstesFollowUp: "2026-10-27" },
+  { objektId: "o2", investorId: "i2", status: "angeschrieben", followUpStufe: 3, letzterKontakt: "2026-10-24", hinweis: "Stufe 3 ohne Antwort – manuell nachfassen" },
+  { objektId: "o2", investorId: "i4", status: "angeschrieben", followUpStufe: 2, letzterKontakt: "2026-10-24", naechstesFollowUp: "2026-10-26" },
+  { objektId: "o2", investorId: "i7", status: "interesse", followUpStufe: 1, letzterKontakt: "2026-10-23", hinweis: "Broker Call vereinbart" },
 
   // Wohnportfolio Sachsenhausen – Liste abgeglichen, wartet auf Freigabe
   { objektId: "o3", investorId: "i1", status: "vorgemerkt", followUpStufe: 0 },
@@ -701,23 +701,23 @@ export const objektInvestorLinks: ObjektInvestorLink[] = [
 // ---------------------------------------------------------------------------
 
 export const aufgaben: Aufgabe[] = [
-  { id: "t1", titel: "Broker Call – Falkenstein Capital Partners", typ: "broker_call", faellig: "2026-09-01", mitarbeiterId: "m1", objektId: "o1", investorId: "i1", erledigt: false },
-  { id: "t21", titel: "Rückruf GF koordinieren – Quercus Real Assets (Telefonwunsch)", typ: "sonstiges", faellig: "2026-08-28", mitarbeiterId: "m1", objektId: "o1", investorId: "i12", erledigt: true },
-  { id: "t2", titel: "Broker Call – Portus Logistics Capital", typ: "broker_call", faellig: "2026-08-31", mitarbeiterId: "m2", objektId: "o2", investorId: "i7", erledigt: false },
-  { id: "t3", titel: "Rückruf GF vorbereiten – Novaris Invest (Preisauskunft nur telefonisch)", typ: "preisanfrage", faellig: "2026-09-01", mitarbeiterId: "m1", objektId: "o1", investorId: "i2", erledigt: false },
-  { id: "t4", titel: "Investorenliste freigeben – Wohnportfolio Sachsenhausen", typ: "freigabe", faellig: "2026-08-31", mitarbeiterId: "m1", objektId: "o3", erledigt: false },
-  { id: "t5", titel: "Fehlende Datenraum-Dokumente nachfassen (4 offen)", typ: "datenraum", faellig: "2026-09-02", mitarbeiterId: "m2", objektId: "o4", erledigt: false },
-  { id: "t6", titel: "Valuation Boardinghouse Europaviertel abschließen", typ: "sonstiges", faellig: "2026-09-03", mitarbeiterId: "m3", objektId: "o5", erledigt: false },
-  { id: "t7", titel: "NDA-Rücklauf Auftraggeber nachhalten", typ: "nda", faellig: "2026-08-31", mitarbeiterId: "m5", objektId: "o6", erledigt: false },
-  { id: "t8", titel: "Manuell nachfassen – Corvus Family Office (Stufe 3 ohne Antwort)", typ: "sonstiges", faellig: "2026-09-02", mitarbeiterId: "m1", objektId: "o1", investorId: "i8", erledigt: false },
-  { id: "t15", titel: "Manuell nachfassen – Novaris Invest (Stufe 3 ohne Antwort)", typ: "sonstiges", faellig: "2026-09-02", mitarbeiterId: "m2", objektId: "o2", investorId: "i2", erledigt: false },
-  { id: "t9", titel: "Versand vorbereiten – Verteiler Sachsenhausen (nach Freigabe)", typ: "sonstiges", faellig: "2026-09-01", mitarbeiterId: "m1", objektId: "o3", erledigt: false },
-  { id: "t10", titel: "Exposé um Altlastenauskunft ergänzen", typ: "unterlagen", faellig: "2026-09-06", mitarbeiterId: "m3", objektId: "o2", erledigt: false },
-  { id: "t11", titel: "Nebenkostenabrechnungen beim Auftraggeber anfordern", typ: "datenraum", faellig: "2026-08-28", mitarbeiterId: "m2", objektId: "o4", erledigt: false },
-  { id: "t16", titel: "Sales-Weekly: Pipeline-Durchsprache vorbereiten", typ: "sonstiges", faellig: "2026-09-01", mitarbeiterId: "m5", erledigt: false },
-  { id: "t12", titel: "NDA Vermarktung an Hartmann & Cie. versenden", typ: "nda", faellig: "2026-08-24", mitarbeiterId: "m1", objektId: "o1", investorId: "i3", erledigt: true },
-  { id: "t13", titel: "Datenraum-Zugang für Quercus Real Assets einrichten", typ: "datenraum", faellig: "2026-08-19", mitarbeiterId: "m1", objektId: "o1", investorId: "i12", erledigt: true },
-  { id: "t14", titel: "Legitimation & Vollmacht Albrecht prüfen", typ: "sonstiges", faellig: "2026-08-25", mitarbeiterId: "m1", objektId: "o3", erledigt: true },
+  { id: "t1", titel: "Broker Call – Falkenstein Capital Partners", typ: "broker_call", faellig: "2026-10-27", mitarbeiterId: "m1", objektId: "o1", investorId: "i1", erledigt: false },
+  { id: "t21", titel: "Rückruf GF koordinieren – Quercus Real Assets (Telefonwunsch)", typ: "sonstiges", faellig: "2026-10-23", mitarbeiterId: "m1", objektId: "o1", investorId: "i12", erledigt: true },
+  { id: "t2", titel: "Broker Call – Portus Logistics Capital", typ: "broker_call", faellig: "2026-10-26", mitarbeiterId: "m2", objektId: "o2", investorId: "i7", erledigt: false },
+  { id: "t3", titel: "Rückruf GF vorbereiten – Novaris Invest (Preisauskunft nur telefonisch)", typ: "preisanfrage", faellig: "2026-10-27", mitarbeiterId: "m1", objektId: "o1", investorId: "i2", erledigt: false },
+  { id: "t4", titel: "Investorenliste freigeben – Wohnportfolio Sachsenhausen", typ: "freigabe", faellig: "2026-10-26", mitarbeiterId: "m1", objektId: "o3", erledigt: false },
+  { id: "t5", titel: "Fehlende Datenraum-Dokumente nachfassen (4 offen)", typ: "datenraum", faellig: "2026-10-28", mitarbeiterId: "m2", objektId: "o4", erledigt: false },
+  { id: "t6", titel: "Valuation Boardinghouse Europaviertel abschließen", typ: "sonstiges", faellig: "2026-10-29", mitarbeiterId: "m3", objektId: "o5", erledigt: false },
+  { id: "t7", titel: "NDA-Rücklauf Auftraggeber nachhalten", typ: "nda", faellig: "2026-10-26", mitarbeiterId: "m5", objektId: "o6", erledigt: false },
+  { id: "t8", titel: "Manuell nachfassen – Corvus Family Office (Stufe 3 ohne Antwort)", typ: "sonstiges", faellig: "2026-10-28", mitarbeiterId: "m1", objektId: "o1", investorId: "i8", erledigt: false },
+  { id: "t15", titel: "Manuell nachfassen – Novaris Invest (Stufe 3 ohne Antwort)", typ: "sonstiges", faellig: "2026-10-28", mitarbeiterId: "m2", objektId: "o2", investorId: "i2", erledigt: false },
+  { id: "t9", titel: "Versand vorbereiten – Verteiler Sachsenhausen (nach Freigabe)", typ: "sonstiges", faellig: "2026-10-27", mitarbeiterId: "m1", objektId: "o3", erledigt: false },
+  { id: "t10", titel: "Exposé um Altlastenauskunft ergänzen", typ: "unterlagen", faellig: "2026-11-01", mitarbeiterId: "m3", objektId: "o2", erledigt: false },
+  { id: "t11", titel: "Nebenkostenabrechnungen beim Auftraggeber anfordern", typ: "datenraum", faellig: "2026-10-23", mitarbeiterId: "m2", objektId: "o4", erledigt: false },
+  { id: "t16", titel: "Sales-Weekly: Pipeline-Durchsprache vorbereiten", typ: "sonstiges", faellig: "2026-10-27", mitarbeiterId: "m5", erledigt: false },
+  { id: "t12", titel: "NDA Vermarktung an Hartmann & Cie. versenden", typ: "nda", faellig: "2026-10-19", mitarbeiterId: "m1", objektId: "o1", investorId: "i3", erledigt: true },
+  { id: "t13", titel: "Datenraum-Zugang für Quercus Real Assets einrichten", typ: "datenraum", faellig: "2026-10-14", mitarbeiterId: "m1", objektId: "o1", investorId: "i12", erledigt: true },
+  { id: "t14", titel: "Legitimation & Vollmacht Albrecht prüfen", typ: "sonstiges", faellig: "2026-10-20", mitarbeiterId: "m1", objektId: "o3", erledigt: true },
 ];
 
 // ---------------------------------------------------------------------------
@@ -726,79 +726,79 @@ export const aufgaben: Aufgabe[] = [
 
 export const aktivitaeten: Aktivitaet[] = [
   // Büroensemble Westend-Karree (o1)
-  { id: "ak01", datum: "2026-07-23T09:12", typ: "system", quelle: "Modul 01", text: "Datenraum vollständig – 12/12 Standarddokumente abgelegt.", objektId: "o1" },
-  { id: "ak42", datum: "2026-07-23T09:30", typ: "system", quelle: "KI", text: "KI-Extraktion: Mieter- & Flächenliste ausgelesen – 27 Mietverträge, WALT 4,3 Jahre, Leerstand 4,1 % ins CRM übernommen.", objektId: "o1" },
-  { id: "ak02", datum: "2026-07-25T14:05", typ: "notiz", text: "Investorenliste freigegeben (7 Kontakte) – Versand ausgelöst.", objektId: "o1", mitarbeiterId: "m1" },
-  { id: "ak03", datum: "2026-07-26T08:30", typ: "mail_ausgang", text: "Teaser Westend-Karree an Verteiler versendet (7 Investoren).", objektId: "o1", mitarbeiterId: "m1" },
-  { id: "ak04", datum: "2026-07-28T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 1 automatisch versendet an 7 Kontakte ohne Rückmeldung.", objektId: "o1" },
-  { id: "ak05", datum: "2026-07-30T11:42", typ: "mail_eingang", text: "Hartmann & Cie. bittet um NDA und weitere Unterlagen.", objektId: "o1", investorId: "i3" },
-  { id: "ak06", datum: "2026-08-01T16:20", typ: "system", quelle: "Automatik", text: "NDA Vermarktung unterzeichnet zurückerhalten – Status aktualisiert.", objektId: "o1", investorId: "i3" },
-  { id: "ak07", datum: "2026-08-07T10:15", typ: "mail_eingang", text: "Quercus Real Assets: NDA unterzeichnet, bittet um Datenraumzugang.", objektId: "o1", investorId: "i12" },
-  { id: "ak08", datum: "2026-08-08T09:00", typ: "system", quelle: "Modul 01", text: "Datenraum-Zugang für Quercus Real Assets eingerichtet.", objektId: "o1", investorId: "i12" },
-  { id: "ak09", datum: "2026-08-14T13:48", typ: "mail_eingang", text: "Novaris Invest fragt Preisvorstellung und Faktor an.", objektId: "o1", investorId: "i2" },
-  { id: "ak10", datum: "2026-08-14T13:49", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Preisanfrage – Erstantwort versendet, Aufgabe „Rückruf durch die Geschäftsführung“ für Katharina Vogt erstellt (Leitung im BCC).", objektId: "o1", investorId: "i2" },
-  { id: "ak11", datum: "2026-08-16T09:31", typ: "mail_eingang", text: "Falkenstein Capital meldet konkretes Interesse, bittet um Gespräch.", objektId: "o1", investorId: "i1" },
-  { id: "ak12", datum: "2026-08-16T09:32", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Interesse – Aufgabe „Broker Call“ für Katharina Vogt erstellt.", objektId: "o1", investorId: "i1" },
-  { id: "ak13", datum: "2026-08-17T15:10", typ: "mail_eingang", text: "Belvedere Grund Invest sagt ab – kein Büro-Ankauf in 2026.", objektId: "o1", investorId: "i9" },
-  { id: "ak14", datum: "2026-08-18T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 3 an Corvus Family Office versendet – maximale Stufe erreicht.", objektId: "o1", investorId: "i8" },
-  { id: "ak15", datum: "2026-08-19T11:05", typ: "anruf", text: "Rückfragen von Hartmann & Cie. zur Mieter- & Flächenliste beantwortet.", objektId: "o1", investorId: "i3", mitarbeiterId: "m1" },
-  { id: "ak53", datum: "2026-08-18T08:10", typ: "system", quelle: "Superchat", text: "Follow-up Stufe 2 zusätzlich als WhatsApp über Superchat zugestellt – inkl. Rückfrage nach aktuellen Zielregionen.", objektId: "o2", investorId: "i4" },
-  { id: "ak56", datum: "2026-08-17T16:40", typ: "system", quelle: "Automatik", text: "Absage bestätigt – automatische Rückfrage nach aktuellen Zielregionen versendet.", objektId: "o1", investorId: "i9" },
-  { id: "ak54", datum: "2026-08-20T09:12", typ: "system", quelle: "Automatik", text: "Zielregion „Nordrhein-Westfalen“ aus der Antwort auf die Zielregionen-Rückfrage ins Ankaufsprofil übernommen – kein Excel-Umweg.", investorId: "i9" },
-  { id: "ak49", datum: "2026-08-20T08:41", typ: "mail_eingang", text: "Hartmann & Cie. bittet um Besichtigung in KW 36 – Antworterkennung: Signal im Posteingang.", objektId: "o1", investorId: "i3" },
+  { id: "ak01", datum: "2026-09-17T09:12", typ: "system", quelle: "Modul 01", text: "Datenraum vollständig – 12/12 Standarddokumente abgelegt.", objektId: "o1" },
+  { id: "ak42", datum: "2026-09-17T09:30", typ: "system", quelle: "KI", text: "KI-Extraktion: Mieter- & Flächenliste ausgelesen – 27 Mietverträge, WALT 4,3 Jahre, Leerstand 4,1 % ins CRM übernommen.", objektId: "o1" },
+  { id: "ak02", datum: "2026-09-19T14:05", typ: "notiz", text: "Investorenliste freigegeben (7 Kontakte) – Versand ausgelöst.", objektId: "o1", mitarbeiterId: "m1" },
+  { id: "ak03", datum: "2026-09-20T08:30", typ: "mail_ausgang", text: "Teaser Westend-Karree an Verteiler versendet (7 Investoren).", objektId: "o1", mitarbeiterId: "m1" },
+  { id: "ak04", datum: "2026-09-22T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 1 automatisch versendet an 7 Kontakte ohne Rückmeldung.", objektId: "o1" },
+  { id: "ak05", datum: "2026-09-24T11:42", typ: "mail_eingang", text: "Hartmann & Cie. bittet um NDA und weitere Unterlagen.", objektId: "o1", investorId: "i3" },
+  { id: "ak06", datum: "2026-09-26T16:20", typ: "system", quelle: "Automatik", text: "NDA Vermarktung unterzeichnet zurückerhalten – Status aktualisiert.", objektId: "o1", investorId: "i3" },
+  { id: "ak07", datum: "2026-10-02T10:15", typ: "mail_eingang", text: "Quercus Real Assets: NDA unterzeichnet, bittet um Datenraumzugang.", objektId: "o1", investorId: "i12" },
+  { id: "ak08", datum: "2026-10-03T09:00", typ: "system", quelle: "Modul 01", text: "Datenraum-Zugang für Quercus Real Assets eingerichtet.", objektId: "o1", investorId: "i12" },
+  { id: "ak09", datum: "2026-10-09T13:48", typ: "mail_eingang", text: "Novaris Invest fragt Preisvorstellung und Faktor an.", objektId: "o1", investorId: "i2" },
+  { id: "ak10", datum: "2026-10-09T13:49", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Preisanfrage – Erstantwort versendet, Aufgabe „Rückruf durch die Geschäftsführung“ für Katharina Vogt erstellt (Leitung im BCC).", objektId: "o1", investorId: "i2" },
+  { id: "ak11", datum: "2026-10-11T09:31", typ: "mail_eingang", text: "Falkenstein Capital meldet konkretes Interesse, bittet um Gespräch.", objektId: "o1", investorId: "i1" },
+  { id: "ak12", datum: "2026-10-11T09:32", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Interesse – Aufgabe „Broker Call“ für Katharina Vogt erstellt.", objektId: "o1", investorId: "i1" },
+  { id: "ak13", datum: "2026-10-12T15:10", typ: "mail_eingang", text: "Belvedere Grund Invest sagt ab – kein Büro-Ankauf in 2026.", objektId: "o1", investorId: "i9" },
+  { id: "ak14", datum: "2026-10-13T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 3 an Corvus Family Office versendet – maximale Stufe erreicht.", objektId: "o1", investorId: "i8" },
+  { id: "ak15", datum: "2026-10-14T11:05", typ: "anruf", text: "Rückfragen von Hartmann & Cie. zur Mieter- & Flächenliste beantwortet.", objektId: "o1", investorId: "i3", mitarbeiterId: "m1" },
+  { id: "ak53", datum: "2026-10-13T08:10", typ: "system", quelle: "Superchat", text: "Follow-up Stufe 2 zusätzlich als WhatsApp über Superchat zugestellt – inkl. Rückfrage nach aktuellen Zielregionen.", objektId: "o2", investorId: "i4" },
+  { id: "ak56", datum: "2026-10-12T16:40", typ: "system", quelle: "Automatik", text: "Absage bestätigt – automatische Rückfrage nach aktuellen Zielregionen versendet.", objektId: "o1", investorId: "i9" },
+  { id: "ak54", datum: "2026-10-15T09:12", typ: "system", quelle: "Automatik", text: "Zielregion „Nordrhein-Westfalen“ aus der Antwort auf die Zielregionen-Rückfrage ins Ankaufsprofil übernommen – kein Excel-Umweg.", investorId: "i9" },
+  { id: "ak49", datum: "2026-10-15T08:41", typ: "mail_eingang", text: "Hartmann & Cie. bittet um Besichtigung in KW 36 – Antworterkennung: Signal im Posteingang.", objektId: "o1", investorId: "i3" },
 
-  { id: "ak46", datum: "2026-08-19T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 2 automatisch versendet an Rheingold Asset Management.", objektId: "o1", investorId: "i4" },
+  { id: "ak46", datum: "2026-10-14T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 2 automatisch versendet an Rheingold Asset Management.", objektId: "o1", investorId: "i4" },
 
   // Logistikpark Gateway Süd (o2)
-  { id: "ak16", datum: "2026-08-06T10:20", typ: "system", quelle: "Modul 01", text: "Checkliste aktualisiert: 11/12 Dokumente – Altlasten- & Baulastenauskunft ausstehend.", objektId: "o2" },
-  { id: "ak17", datum: "2026-08-07T09:40", typ: "notiz", text: "Investorenliste freigegeben (4 Kontakte) – Versand ausgelöst.", objektId: "o2", mitarbeiterId: "m2" },
-  { id: "ak18", datum: "2026-08-08T08:30", typ: "mail_ausgang", text: "Teaser Logistikpark an Verteiler versendet (4 Investoren).", objektId: "o2", mitarbeiterId: "m2" },
-  { id: "ak19", datum: "2026-08-10T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 1 automatisch versendet an 4 Kontakte ohne Rückmeldung.", objektId: "o2" },
-  { id: "ak20", datum: "2026-08-18T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 3 automatisch versendet an Novaris Invest – maximale Stufe erreicht.", objektId: "o2", investorId: "i2" },
-  { id: "ak47", datum: "2026-08-18T08:05", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 2 automatisch versendet an Rheingold Asset Management.", objektId: "o2", investorId: "i4" },
-  { id: "ak48", datum: "2026-08-19T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 2 automatisch versendet an Falkenstein Capital Partners.", objektId: "o2", investorId: "i1" },
-  { id: "ak21", datum: "2026-08-17T14:22", typ: "mail_eingang", text: "Portus Logistics Capital meldet Interesse – Objektbesichtigung gewünscht.", objektId: "o2", investorId: "i7" },
-  { id: "ak22", datum: "2026-08-17T14:23", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Interesse – Aufgabe „Broker Call“ für Daniel Mertens erstellt.", objektId: "o2", investorId: "i7" },
-  { id: "ak50", datum: "2026-08-20T07:58", typ: "mail_eingang", text: "Portus Logistics stellt Fragen zu Mietvertrag Halle 2 und Erweiterungsreserve – Antworterkennung: Signal im Posteingang.", objektId: "o2", investorId: "i7" },
-  { id: "ak23", datum: "2026-08-19T16:40", typ: "anruf", text: "Statusupdate an Gateway Industrial: 4 Kontakte angeschrieben, 1 Interessent.", objektId: "o2", auftraggeberId: "a3", mitarbeiterId: "m2" },
+  { id: "ak16", datum: "2026-10-01T10:20", typ: "system", quelle: "Modul 01", text: "Checkliste aktualisiert: 11/12 Dokumente – Altlasten- & Baulastenauskunft ausstehend.", objektId: "o2" },
+  { id: "ak17", datum: "2026-10-02T09:40", typ: "notiz", text: "Investorenliste freigegeben (4 Kontakte) – Versand ausgelöst.", objektId: "o2", mitarbeiterId: "m2" },
+  { id: "ak18", datum: "2026-10-03T08:30", typ: "mail_ausgang", text: "Teaser Logistikpark an Verteiler versendet (4 Investoren).", objektId: "o2", mitarbeiterId: "m2" },
+  { id: "ak19", datum: "2026-10-05T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 1 automatisch versendet an 4 Kontakte ohne Rückmeldung.", objektId: "o2" },
+  { id: "ak20", datum: "2026-10-13T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 3 automatisch versendet an Novaris Invest – maximale Stufe erreicht.", objektId: "o2", investorId: "i2" },
+  { id: "ak47", datum: "2026-10-13T08:05", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 2 automatisch versendet an Rheingold Asset Management.", objektId: "o2", investorId: "i4" },
+  { id: "ak48", datum: "2026-10-14T08:00", typ: "system", quelle: "Automatik", text: "Follow-up Stufe 2 automatisch versendet an Falkenstein Capital Partners.", objektId: "o2", investorId: "i1" },
+  { id: "ak21", datum: "2026-10-12T14:22", typ: "mail_eingang", text: "Portus Logistics Capital meldet Interesse – Objektbesichtigung gewünscht.", objektId: "o2", investorId: "i7" },
+  { id: "ak22", datum: "2026-10-12T14:23", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Interesse – Aufgabe „Broker Call“ für Daniel Mertens erstellt.", objektId: "o2", investorId: "i7" },
+  { id: "ak50", datum: "2026-10-15T07:58", typ: "mail_eingang", text: "Portus Logistics stellt Fragen zu Mietvertrag Halle 2 und Erweiterungsreserve – Antworterkennung: Signal im Posteingang.", objektId: "o2", investorId: "i7" },
+  { id: "ak23", datum: "2026-10-14T16:40", typ: "anruf", text: "Statusupdate an Gateway Industrial: 4 Kontakte angeschrieben, 1 Interessent.", objektId: "o2", auftraggeberId: "a3", mitarbeiterId: "m2" },
 
   // Wohnportfolio Sachsenhausen (o3)
-  { id: "ak24", datum: "2026-08-01T09:00", typ: "system", quelle: "Modul 01", text: "Datenraum vollständig – 12/12 Standarddokumente abgelegt.", objektId: "o3" },
-  { id: "ak43", datum: "2026-08-02T08:20", typ: "system", quelle: "KI", text: "KI-Extraktion: Grundbuchdaten der 3 Liegenschaften ausgelesen und ins CRM übernommen.", objektId: "o3" },
-  { id: "ak55", datum: "2026-08-02T08:25", typ: "system", quelle: "KI", text: "Ø-Kaltmiete 14,90 €/m² ermittelt – wegen Staffelmieten in 8 Verträgen zur Prüfung markiert.", objektId: "o3" },
-  { id: "ak25", datum: "2026-08-07T11:30", typ: "notiz", text: "Fotograf beauftragt, Termin 10.08. vor Ort.", objektId: "o3", mitarbeiterId: "m1" },
-  { id: "ak44", datum: "2026-08-11T10:00", typ: "system", quelle: "KI", text: "Teaser und Listing automatisch generiert – Entwurf zur Prüfung an Katharina Vogt.", objektId: "o3" },
-  { id: "ak26", datum: "2026-08-13T17:15", typ: "notiz", text: "Teaser und Listing final abgestimmt mit Auftraggeberin.", objektId: "o3", auftraggeberId: "a2", mitarbeiterId: "m1" },
-  { id: "ak27", datum: "2026-08-16T08:45", typ: "system", quelle: "Automatik", text: "Investorenliste abgeglichen: 6 passende Profile (Assetklasse Wohnen, Ticket passend, Region Rhein-Main/Top-7).", objektId: "o3" },
-  { id: "ak28", datum: "2026-08-16T08:46", typ: "system", quelle: "Automatik", text: "Aufgabe „Investorenliste freigeben“ für Katharina Vogt erstellt – Versand wartet auf Freigabe.", objektId: "o3" },
+  { id: "ak24", datum: "2026-09-26T09:00", typ: "system", quelle: "Modul 01", text: "Datenraum vollständig – 12/12 Standarddokumente abgelegt.", objektId: "o3" },
+  { id: "ak43", datum: "2026-09-27T08:20", typ: "system", quelle: "KI", text: "KI-Extraktion: Grundbuchdaten der 3 Liegenschaften ausgelesen und ins CRM übernommen.", objektId: "o3" },
+  { id: "ak55", datum: "2026-09-27T08:25", typ: "system", quelle: "KI", text: "Ø-Kaltmiete 14,90 €/m² ermittelt – wegen Staffelmieten in 8 Verträgen zur Prüfung markiert.", objektId: "o3" },
+  { id: "ak25", datum: "2026-10-02T11:30", typ: "notiz", text: "Fotograf beauftragt, Termin 10.08. vor Ort.", objektId: "o3", mitarbeiterId: "m1" },
+  { id: "ak44", datum: "2026-10-06T10:00", typ: "system", quelle: "KI", text: "Teaser und Listing automatisch generiert – Entwurf zur Prüfung an Katharina Vogt.", objektId: "o3" },
+  { id: "ak26", datum: "2026-10-08T17:15", typ: "notiz", text: "Teaser und Listing final abgestimmt mit Auftraggeberin.", objektId: "o3", auftraggeberId: "a2", mitarbeiterId: "m1" },
+  { id: "ak27", datum: "2026-10-11T08:45", typ: "system", quelle: "Automatik", text: "Investorenliste abgeglichen: 6 passende Profile (Assetklasse Wohnen, Ticket passend, Region Rhein-Main/Top-7).", objektId: "o3" },
+  { id: "ak28", datum: "2026-10-11T08:46", typ: "system", quelle: "Automatik", text: "Aufgabe „Investorenliste freigeben“ für Katharina Vogt erstellt – Versand wartet auf Freigabe.", objektId: "o3" },
 
   // Fachmarktzentrum Hanauer Landstraße (o4)
-  { id: "ak29", datum: "2026-07-30T10:00", typ: "mail_ausgang", text: "Datenraum-Anforderung mit Standard-Checkliste an HL Retail Estate versendet.", objektId: "o4", auftraggeberId: "a4", mitarbeiterId: "m2" },
-  { id: "ak30", datum: "2026-08-07T13:20", typ: "system", quelle: "Modul 01", text: "5/12 Standarddokumente abgelegt.", objektId: "o4" },
-  { id: "ak31", datum: "2026-08-14T09:10", typ: "system", quelle: "Modul 01", text: "Mieter- & Flächenliste abgelegt – automatische Prüfung läuft (7/12).", objektId: "o4" },
-  { id: "ak52", datum: "2026-08-14T09:15", typ: "system", quelle: "KI", text: "KI-Extraktion: Mietfläche lt. Liste 8.310 m² – Abweichung zum Exposé (8.400 m²) zur Prüfung markiert.", objektId: "o4" },
-  { id: "ak32", datum: "2026-08-17T08:55", typ: "mail_ausgang", text: "Erinnerung an fehlende Unterlagen (4 offen) an Frau Sommerfeld.", objektId: "o4", auftraggeberId: "a4", mitarbeiterId: "m2" },
-  { id: "ak33", datum: "2026-08-18T15:30", typ: "mail_eingang", text: "Belvedere Grund Invest fragt proaktiv nach Fachmarktzentren – für Vermarktungsstart vorgemerkt.", objektId: "o4", investorId: "i9" },
+  { id: "ak29", datum: "2026-09-24T10:00", typ: "mail_ausgang", text: "Datenraum-Anforderung mit Standard-Checkliste an HL Retail Estate versendet.", objektId: "o4", auftraggeberId: "a4", mitarbeiterId: "m2" },
+  { id: "ak30", datum: "2026-10-02T13:20", typ: "system", quelle: "Modul 01", text: "5/12 Standarddokumente abgelegt.", objektId: "o4" },
+  { id: "ak31", datum: "2026-10-09T09:10", typ: "system", quelle: "Modul 01", text: "Mieter- & Flächenliste abgelegt – automatische Prüfung läuft (7/12).", objektId: "o4" },
+  { id: "ak52", datum: "2026-10-09T09:15", typ: "system", quelle: "KI", text: "KI-Extraktion: Mietfläche lt. Liste 8.310 m² – Abweichung zum Exposé (8.400 m²) zur Prüfung markiert.", objektId: "o4" },
+  { id: "ak32", datum: "2026-10-12T08:55", typ: "mail_ausgang", text: "Erinnerung an fehlende Unterlagen (4 offen) an Frau Sommerfeld.", objektId: "o4", auftraggeberId: "a4", mitarbeiterId: "m2" },
+  { id: "ak33", datum: "2026-10-13T15:30", typ: "mail_eingang", text: "Belvedere Grund Invest fragt proaktiv nach Fachmarktzentren – für Vermarktungsstart vorgemerkt.", objektId: "o4", investorId: "i9" },
 
   // Boardinghouse Europaviertel (o5)
-  { id: "ak45", datum: "2026-07-24T11:10", typ: "system", quelle: "Se Circle", text: "Objekt aus Se Circle übernommen – Stammdaten, Flächen und Exposé-Daten automatisch synchronisiert.", objektId: "o5" },
-  { id: "ak51", datum: "2026-08-20T06:00", typ: "system", quelle: "Se Circle", text: "Turnus-Sync mit Se Circle: keine Änderungen an Stammdaten und Flächen.", objektId: "o5" },
-  { id: "ak34", datum: "2026-08-01T10:40", typ: "system", quelle: "Modul 01", text: "8/12 Standarddokumente abgelegt.", objektId: "o5" },
-  { id: "ak35", datum: "2026-08-10T09:25", typ: "system", quelle: "Modul 01", text: "Energieausweis und Grundrisse abgelegt (10/12).", objektId: "o5" },
-  { id: "ak36", datum: "2026-08-13T14:00", typ: "notiz", text: "Valuation begonnen – Cashflow-Modell mit Betreiberpacht aufgesetzt.", objektId: "o5", mitarbeiterId: "m3" },
-  { id: "ak37", datum: "2026-08-16T10:30", typ: "anruf", text: "Rückfrage zum Pachtvertrag mit Betreiber – Unterlagen werden nachgereicht.", objektId: "o5", auftraggeberId: "a5", mitarbeiterId: "m3" },
+  { id: "ak45", datum: "2026-09-18T11:10", typ: "system", quelle: "Se Circle", text: "Objekt aus Se Circle übernommen – Stammdaten, Flächen und Exposé-Daten automatisch synchronisiert.", objektId: "o5" },
+  { id: "ak51", datum: "2026-10-15T06:00", typ: "system", quelle: "Se Circle", text: "Turnus-Sync mit Se Circle: keine Änderungen an Stammdaten und Flächen.", objektId: "o5" },
+  { id: "ak34", datum: "2026-09-26T10:40", typ: "system", quelle: "Modul 01", text: "8/12 Standarddokumente abgelegt.", objektId: "o5" },
+  { id: "ak35", datum: "2026-10-05T09:25", typ: "system", quelle: "Modul 01", text: "Energieausweis und Grundrisse abgelegt (10/12).", objektId: "o5" },
+  { id: "ak36", datum: "2026-10-08T14:00", typ: "notiz", text: "Valuation begonnen – Cashflow-Modell mit Betreiberpacht aufgesetzt.", objektId: "o5", mitarbeiterId: "m3" },
+  { id: "ak37", datum: "2026-10-11T10:30", typ: "anruf", text: "Rückfrage zum Pachtvertrag mit Betreiber – Unterlagen werden nachgereicht.", objektId: "o5", auftraggeberId: "a5", mitarbeiterId: "m3" },
 
   // Ärztehaus Bad Homburg (o6)
-  { id: "ak38", datum: "2026-08-09T09:00", typ: "mail_ausgang", text: "Erstinformation / Client Portfolio an Dr. Weiss versendet.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m5" },
-  { id: "ak39", datum: "2026-08-14T11:00", typ: "anruf", text: "Erstgespräch geführt – Mandatsumfang und Zeitplan besprochen.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m5" },
-  { id: "ak40", datum: "2026-08-15T15:45", typ: "mail_ausgang", text: "NDA-Entwurf an Auftraggeberin versendet.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m5" },
-  { id: "ak41", datum: "2026-08-20T08:30", typ: "notiz", text: "NDA-Rücklauf steht aus – Wiedervorlage heute.", objektId: "o6", mitarbeiterId: "m5" },
+  { id: "ak38", datum: "2026-10-04T09:00", typ: "mail_ausgang", text: "Erstinformation / Client Portfolio an Dr. Weiss versendet.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m5" },
+  { id: "ak39", datum: "2026-10-09T11:00", typ: "anruf", text: "Erstgespräch geführt – Mandatsumfang und Zeitplan besprochen.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m5" },
+  { id: "ak40", datum: "2026-10-10T15:45", typ: "mail_ausgang", text: "NDA-Entwurf an Auftraggeberin versendet.", objektId: "o6", auftraggeberId: "a6", mitarbeiterId: "m5" },
+  { id: "ak41", datum: "2026-10-15T08:30", typ: "notiz", text: "NDA-Rücklauf steht aus – Wiedervorlage heute.", objektId: "o6", mitarbeiterId: "m5" },
   // Standardprozess-Kategorien (31.08.): Unterlagen-Anfrage und Telefonwunsch in der Historie.
-  { id: "ak57", datum: "2026-08-28T10:15", typ: "mail_eingang", text: "Portus Logistics bittet um Mieterliste und Flächenaufstellung Halle 1–3.", objektId: "o2", investorId: "i7" },
-  { id: "ak58", datum: "2026-08-28T10:16", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Unterlagen-Anfrage – Datenraum-Abgleich: vorhanden, Unterlagen mit Vorlage versendet (Leitung im BCC).", objektId: "o2", investorId: "i7" },
-  { id: "ak59", datum: "2026-08-27T15:20", typ: "mail_eingang", text: "Quercus Real Assets bittet um ein kurzes Telefonat zu den offenen Punkten im Datenraum.", objektId: "o1", investorId: "i12" },
-  { id: "ak60", datum: "2026-08-27T15:21", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Telefonwunsch – Aufgabe „Rückruf durch die Geschäftsführung“ für Katharina Vogt erstellt (Leitung im BCC).", objektId: "o1", investorId: "i12" },
-  { id: "ak61", datum: "2026-08-28T11:30", typ: "anruf", text: "Rückruf durch die Geschäftsführung erfolgt – offene Datenraum-Punkte mit Quercus Real Assets geklärt.", objektId: "o1", investorId: "i12", mitarbeiterId: "m1" },
+  { id: "ak57", datum: "2026-10-23T10:15", typ: "mail_eingang", text: "Portus Logistics bittet um Mieterliste und Flächenaufstellung Halle 1–3.", objektId: "o2", investorId: "i7" },
+  { id: "ak58", datum: "2026-10-23T10:16", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Unterlagen-Anfrage – Datenraum-Abgleich: vorhanden, Unterlagen mit Vorlage versendet (Leitung im BCC).", objektId: "o2", investorId: "i7" },
+  { id: "ak59", datum: "2026-10-22T15:20", typ: "mail_eingang", text: "Quercus Real Assets bittet um ein kurzes Telefonat zu den offenen Punkten im Datenraum.", objektId: "o1", investorId: "i12" },
+  { id: "ak60", datum: "2026-10-22T15:21", typ: "system", quelle: "Automatik", text: "Antwort erkannt: Telefonwunsch – Aufgabe „Rückruf durch die Geschäftsführung“ für Katharina Vogt erstellt (Leitung im BCC).", objektId: "o1", investorId: "i12" },
+  { id: "ak61", datum: "2026-10-23T11:30", typ: "anruf", text: "Rückruf durch die Geschäftsführung erfolgt – offene Datenraum-Punkte mit Quercus Real Assets geklärt.", objektId: "o1", investorId: "i12", mitarbeiterId: "m1" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -808,7 +808,7 @@ export const aktivitaeten: Aktivitaet[] = [
 export const signale: Signal[] = [
   {
     id: "s1",
-    eingegangen: "2026-08-20T08:41",
+    eingegangen: "2026-10-15T08:41",
     objektId: "o1",
     investorId: "i3",
     art: "besichtigung",
@@ -818,7 +818,7 @@ export const signale: Signal[] = [
   },
   {
     id: "s2",
-    eingegangen: "2026-08-20T07:58",
+    eingegangen: "2026-10-15T07:58",
     objektId: "o2",
     investorId: "i7",
     art: "frage",
@@ -828,7 +828,7 @@ export const signale: Signal[] = [
   },
   {
     id: "s5",
-    eingegangen: "2026-08-20T09:12",
+    eingegangen: "2026-10-15T09:12",
     objektId: "o1",
     investorId: "i9",
     art: "profil",
@@ -839,7 +839,7 @@ export const signale: Signal[] = [
   },
   {
     id: "s3",
-    eingegangen: "2026-08-16T09:31",
+    eingegangen: "2026-10-11T09:31",
     objektId: "o1",
     investorId: "i1",
     art: "interesse",
@@ -850,7 +850,7 @@ export const signale: Signal[] = [
   },
   {
     id: "s4",
-    eingegangen: "2026-08-14T13:48",
+    eingegangen: "2026-10-09T13:48",
     objektId: "o1",
     investorId: "i2",
     art: "preisanfrage",
@@ -862,7 +862,7 @@ export const signale: Signal[] = [
   // Kategorien aus dem Standardprozess Investorenkommunikation (31.08.): Unterlagen-Anfrage, Telefonwunsch.
   {
     id: "s6",
-    eingegangen: "2026-08-28T10:15",
+    eingegangen: "2026-10-23T10:15",
     objektId: "o2",
     investorId: "i7",
     art: "unterlagen",
@@ -873,7 +873,7 @@ export const signale: Signal[] = [
   },
   {
     id: "s7",
-    eingegangen: "2026-08-27T15:20",
+    eingegangen: "2026-10-22T15:20",
     objektId: "o1",
     investorId: "i12",
     art: "telefonat",
