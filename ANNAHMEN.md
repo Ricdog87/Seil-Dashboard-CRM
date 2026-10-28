@@ -538,12 +538,20 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
       ins Repository. Für den IT-Termin ist damit geklärt, **welches** Postfach
       freigegeben werden muss.
 
-56. **Repository auf privat, Demo-Seite offen:** Mit den echten Personendaten
-    wurde das GitHub-Repository von öffentlich auf privat gestellt. Ausschlag
-    gab die Git-Historie: ein öffentliches Repository ist durchsuchbar und
-    behält die Daten auch nach einer späteren Korrektur. Das Vercel-Deployment
-    bleibt bewusst ohne Anmeldung erreichbar, damit Geschäftsführung und Team
-    den Link ohne Hürde öffnen können – das war die Vorgabe. Dort stehen Name,
-    Kürzel, Rolle und Funktion, keine Kontaktdaten (Punkt 55). Soll auch die
-    Seite geschützt werden, geht das über Vercel Deployment Protection; das
-    kostet jeden Zugreifenden ein Passwort.
+56. **Repository und Demo-Seite bleiben öffentlich – bewusste Entscheidung:**
+    Mit den echten Personendaten wurde geprüft, ob das GitHub-Repository auf
+    privat gestellt werden soll. Entschieden wurde dagegen: Repository und
+    Vercel-Deployment bleiben öffentlich erreichbar, damit Geschäftsführung und
+    Team ohne Hürde zugreifen können.
+
+    **Was das bedeutet:** Name, Kürzel, Rolle und Funktion der Personen aus der
+    Übersicht vom 19.10. sind öffentlich einsehbar – im Repository zusätzlich in
+    der Git-Historie, die eine spätere Korrektur nicht mehr entfernt. Keine
+    Kontaktdaten, keine Abschlüsse, keine Firmenstammdaten (Punkt 55); zwei
+    Prüfläufe sichern das ab.
+
+    **Umkehrbar bleibt:** die Sichtbarkeit des Repositorys (GitHub → Settings →
+    Change repository visibility) und der Zugriff auf die Seite (Vercel
+    Deployment Protection). Die Historie bleibt davon unberührt – wer die Daten
+    nachträglich entfernen will, braucht ein Umschreiben der Historie oder ein
+    neues Repository.
