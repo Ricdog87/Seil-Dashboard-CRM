@@ -104,7 +104,15 @@ try {
   ok((await page.locator("text=Besichtigung vor Ort").count()) >= 1, "Besichtigungskontakt hinterlegt");
   ok((await page.locator("text=extern").count()) >= 1, "Externe Kontakte gekennzeichnet (Hausverwaltung)");
   const dr = page.locator("h2:text-is('Datenraum')").locator("xpath=../..");
-  ok((await dr.locator("text=Full").count()) === 1, "Datenraum-Stufe aus der SOP sichtbar");
+  // o1 steht auf Schritt 18 „Datenraum Light“: Light-Stufe und der Schwärzungs-
+  // Vorbehalt aus SOP 1.1 müssen sichtbar sein, und nur die elf Light-Kategorien.
+  ok((await dr.locator("text=Light").count()) === 1, "Datenraum-Stufe Light sichtbar");
+  ok((await dr.locator("text=Schwärzung offen").count()) === 1, "Schwärzungs-Vorbehalt ausgewiesen");
+  const zeilen = await dr.locator("tbody tr").count();
+  ok(zeilen === 11, `Light zeigt nur die elf Kategorien der SOP (${zeilen})`);
+  const drText = await dr.innerText();
+  ok(/Mieterliste/.test(drText) && /Kataster/.test(drText), "SOP-Kategorienamen statt erfundener");
+  ok(!/Betriebskosten|Gutachten|Grundsteuer/.test(drText), "Full-only-Kategorien bleiben im Light aus");
 
   // --- 8) Mobil: keine Querscroll-Leiste auf der Leitungs-Ansicht
   await page.setViewportSize({ width: 390, height: 844 });

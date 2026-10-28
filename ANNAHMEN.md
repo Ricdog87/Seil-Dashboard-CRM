@@ -555,3 +555,70 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
     Deployment Protection). Die Historie bleibt davon unberührt – wer die Daten
     nachträglich entfernen will, braucht ein Umschreiben der Historie oder ein
     neues Repository.
+
+57. **Abgleich mit den vier SEIL-Originaldokumenten (28.10.):** Gegengelesen
+    wurden das Transaction-Process-Flowchart, der Standardprozess
+    Investorenkommunikation (korrigierte Fassung), die SOP „Anlage und
+    Standardisierung eines SEIL REAL ESTATE Datenraums“ und die
+    Terminologie-Tabelle „Datenraum System“, beide vom 18.02.2026.
+
+    **Korrigiert, weil es dem Original widersprach:**
+
+    - *Zeitpunkt der Datenraum-Stufen.* Der Prototyp beschriftete Light als
+      Stufe „für die erste Ansprache“ und Full als „nach NDA“. Die SOP sagt
+      etwas anderes: **Light geht raus, nachdem das NDA unterzeichnet ist**,
+      Full typischerweise **nach Abgabe eines indikativen Angebots**. Die
+      Reihenfolge in der Prozessleiste (18 Light → 19 indikatives Angebot →
+      21 Full) war bereits richtig, nur Typ, Karte und Workshop-Unterlage
+      sagten das Gegenteil. Nachgezogen.
+    - *Dokumentliste.* `STANDARD_DOKUMENTE` enthielt zwölf frei erfundene
+      Bezeichnungen. Ersetzt durch die **20 Kategorien der SOP** mit deren
+      Ordnernamen. Zuvor fehlten Denkmalschutz, Bilder, Mietrückstände,
+      Grundsteuer, Brandschutz, Wartungs- und Serviceverträge und Gutachten;
+      zusammengelegt war, was die SOP trennt (Altlasten/Baulasten,
+      Grundrisse/Ansichten/Schnitte); erfunden waren „Instandhaltungs- und
+      Capex-Historie“ und „Jahresabrechnung / BWA“.
+    - *Light ist ein Auszug, keine eigene Struktur.* Die Terminologie-Tabelle
+      benennt die **elf** Kategorien des Light-Datenraums. `LIGHT_KATEGORIEN`
+      bildet sie ab; die Datenraum-Karte zeigt im Light-Zustand nur diese elf.
+    - *Schwärzung.* SOP 1.1 verlangt, eigentümerbezogene Informationen vor
+      Bereitstellung des Light-Datenraums zu schwärzen oder zu entfernen. Das
+      kam im Prototyp nicht vor. Jetzt als Zustand `schwaerzung` am Datenraum
+      und als sichtbarer Vorbehalt an der Karte – ein Freigabe-Tor, kein
+      Hinweis: ohne diesen Schritt geht der Light-Datenraum mit
+      Eigentümerdaten raus.
+
+    **Bestätigt, stimmt überein:** 15 der 17 Flowchart-Kästen sind als
+    Schritte 1–17 abgebildet, mit den englischen Originalbezeichnungen. Die
+    Follow-up-Logik des Standardprozesses (Stufe 1 und 2 feste Vorlagen,
+    weitere alternierend, Final-Mail) steckt unverändert in WF 05. Preisanfragen
+    werden nie schriftlich beantwortet, bei erneuter schriftlicher Anfrage
+    greift die Vorlage „Auskunft nur telefonisch“. Die BCC-Regel und die
+    Besichtigungskette samt Kalendertitel „BES mit …“ entsprechen der Vorlage.
+
+    **Offen, bewusst nicht gebaut:**
+
+    - *Call-Center.* Zwei Flowchart-Kästen fehlen: „Kickoff with Call center“
+      (Teams-Briefing) und „Phone Call (Standard Process / Questions)“. Das
+      Flowchart sieht dafür eine eigene Spalte und eine Rückkopplung in
+      Pipedrive-Activities vor. Als Erweiterungspunkt benannt, nicht umgesetzt.
+    - *Zweiter Weg bei Preisanfragen.* Die korrigierte Excel enthält neben der
+      Variante „Rückruf durch die Geschäftsführung“ eine zweite, die auf den
+      Partner (Head of Sales) verweist. Modelliert ist nur der erste Weg. Welche
+      Variante wann gilt, ist eine Workshop-Frage.
+    - *Dritter Dokumentzustand.* Die SOP kennt den Fall „Information nicht
+      sicher auffindbar“: Datei wird mit `UNBEKANNT` im Namen abgelegt und in
+      einer QC-Liste vermerkt. Das Cockpit kennt nur vorhanden, in Prüfung und
+      ausstehend – ein vorhandenes, aber unklar benanntes Dokument hat keinen
+      Platz.
+    - *Ordner-Nummerierung.* Die SOP verweist für das fortlaufende Nummerieren
+      auf ein internes Werkzeug („SOP – Datenraum Ordner automatisch
+      sortieren/nummerieren“), das hier nicht vorliegt. Vermutlich Teil von
+      Modul 01; zu bestätigen.
+
+    **Widerspruch in den Unterlagen selbst:** Der Standardprozess trägt den
+    Stand 12.09.2024 und nennt als Bearbeiter „SEIL India“, das Flowchart ein
+    „Investment Team (India)“. Die Teamübersicht vom 19.10.2026 kennt keine
+    indische Einheit. Außerdem arbeitet das Flowchart durchgehend mit Pipedrive,
+    das abgelöst werden soll. Welcher Stand gilt, ist zu klären.
+

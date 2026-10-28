@@ -17,8 +17,9 @@ const dokumentStatusMeta: Record<DokumentStatus, { label: string; tone: Tone; ic
 
 /**
  * Datenraum-Karte am Objekt: Checkliste und KI-Kennwerte. Modul 01 teilt den
- * unsortierten Kunden-Datenraum nach SOP in zwei Stufen – „Light“ für die erste
- * Ansprache, „Full“ nach NDA (Sales-Update 28.09.). Ist Modul 01 verbunden und das
+ * unsortierten Kunden-Datenraum nach der SOP vom 18.02.2026 in zwei Stufen –
+ * „Light“ nach Unterzeichnung des NDA (elf Kategorien, geschwärzt), „Full“ nach
+ * Abgabe des indikativen Angebots. Ist Modul 01 verbunden und das
  * Objekt zugeordnet, steht hier der echte Stand – sonst die Demodaten, sichtbar gekennzeichnet.
  */
 export function DatenraumKarte({ objektId }: { objektId: string }) {
@@ -41,6 +42,9 @@ function DatenraumKarteLive({ objekt: basis }: { objekt: NonNullable<ReturnType<
               <Badge tone={objekt.datenraum.stufe === "full" ? "success" : "neutral"}>
                 {objekt.datenraum.stufe === "full" ? "Full" : "Light"}
               </Badge>
+            ) : null}
+            {objekt.datenraum.stufe === "light" && objekt.datenraum.schwaerzung === "offen" ? (
+              <Badge tone="warning">Schwärzung offen</Badge>
             ) : null}
             {objekt.datenraum.stand ? <>Stand {fmtDatum(objekt.datenraum.stand)}</> : null}
           </span>

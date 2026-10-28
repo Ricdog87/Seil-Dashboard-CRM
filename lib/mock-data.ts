@@ -268,20 +268,49 @@ export const auftraggeber: Auftraggeber[] = [
 // Standard-Dokumentencheckliste des Datenraums (Anzeige aus Modul 01)
 // ---------------------------------------------------------------------------
 
+/** Die 20 Kategorien der SOP „Anlage und Standardisierung eines SEIL REAL ESTATE
+ *  Datenraums“ (18.02.2026), in der Reihenfolge der Terminologie-Tabelle. Die
+ *  Namen sind die Ordnernamen der SOP – bewusst wortgetreu, damit die Lückenliste
+ *  dieselben Begriffe zeigt wie der Datenraum selbst (ANNAHMEN.md, Punkt 57). */
 export const STANDARD_DOKUMENTE = [
-  "Grundbuchauszug",
-  "Flurkarte & Lageplan",
+  "Mieterliste",
+  "Altlasten",
+  "Baulasten",
+  "Denkmalschutz",
+  "Grundbuch",
+  "Grundrisse",
+  "Ansichten",
+  "Schnitte",
+  "Kataster",
+  "Bilder",
+  "Betriebskosten",
   "Mietverträge",
-  "Mieter- & Flächenliste",
-  "Grundrisse & Baupläne",
-  "Baugenehmigung",
-  "Energieausweis",
-  "Nebenkostenabrechnungen (3 Jahre)",
-  "Instandhaltungs- & Capex-Historie",
-  "Versicherungspolicen",
-  "Altlasten- & Baulastenauskunft",
-  "Jahresabrechnung / BWA",
+  "Energienachweis",
+  "Versicherungen",
+  "Bauakte",
+  "Mietrückstände",
+  "Grundsteuer",
+  "Brandschutz",
+  "Wartungs- und Serviceverträge",
+  "Gutachten",
 ] as const;
+
+/** Der 00_Datenraum light ist keine eigene Struktur, sondern ein reduzierter und
+ *  geschwärzter Ausschnitt des 99_Datenraums (SOP, Abschnitt 1). Diese elf
+ *  Kategorien gehören laut Terminologie-Tabelle hinein. */
+export const LIGHT_KATEGORIEN: readonly string[] = [
+  "Mieterliste",
+  "Altlasten",
+  "Baulasten",
+  "Denkmalschutz",
+  "Grundbuch",
+  "Grundrisse",
+  "Ansichten",
+  "Schnitte",
+  "Kataster",
+  "Bilder",
+  "Energienachweis",
+];
 
 
 type SchrittMap = Partial<Record<number, "done" | "in_progress" | "pending" | "na">>;
@@ -296,15 +325,21 @@ function schritteMit(doneBis: number, ausnahmen: SchrittMap = {}) {
 
 type DokStatusMap = Partial<Record<number, "in_pruefung" | "ausstehend">>;
 
-function datenraumMit(abweichungen: DokStatusMap, stand: string, stufe: "light" | "full" = "full") {
+function datenraumMit(
+  abweichungen: DokStatusMap,
+  stand: string,
+  stufe: "light" | "full" = "full",
+  schwaerzung?: "offen" | "erledigt",
+) {
   return {
     angefordert: true,
     stand,
     stufe,
+    schwaerzung,
     dokumente: STANDARD_DOKUMENTE.map((name, i) => ({
       name,
       status: abweichungen[i] ?? ("vorhanden" as const),
-    })),
+    })).filter((d) => stufe === "full" || LIGHT_KATEGORIEN.includes(d.name)),
   };
 }
 
@@ -334,7 +369,7 @@ export const objekte: Objekt[] = [
       { feld: "Lasten Abt. II", wert: "Wegerecht (lfd. Nr. 3)", quelleDokument: "Grundbuchauszug", status: "uebernommen" },
     ],
     teaser: { stand: "versendet", entwurfVom: "2026-09-29", geprueftDurchId: "m1", versendetAm: "2026-10-01" },
-    datenraum: datenraumMit({}, "2026-10-25"),
+    datenraum: datenraumMit({}, "2026-10-25", "light", "offen"),
     ansprechpartner: [
       { name: "Dr. Thomas Keller", rolle: "Eigentümervertretung", organisation: "Hessische Grundwert GmbH" },
       { name: "Marcel Dorn", rolle: "Unterlagen & Datenraum", organisation: "Hessische Grundwert GmbH" },
@@ -357,7 +392,7 @@ export const objekte: Objekt[] = [
     kennzahlen: { renditeProzent: 5.4, baujahr: 2011, einheiten: 4, leerstandProzent: 0 },
     schritte: schritteMit(15, { 16: "in_progress", 17: "in_progress" }),
     teaser: { stand: "versendet", entwurfVom: "2026-10-12", geprueftDurchId: "m2", versendetAm: "2026-10-14" },
-    datenraum: datenraumMit({ 10: "ausstehend" }, "2026-10-24"),
+    datenraum: datenraumMit({ 1: "ausstehend" }, "2026-10-24"),
     ansprechpartner: [
       { name: "Beate Lindqvist", rolle: "Eigentümervertretung", organisation: "Nordlicht Industrial Holding" },
       { name: "Sven Ahrens", rolle: "Besichtigung vor Ort", organisation: "Objektbetreuung Gateway", extern: true },
@@ -410,7 +445,7 @@ export const objekte: Objekt[] = [
     kennzahlen: { renditeProzent: 7.1, baujahr: 1994, einheiten: 12, leerstandProzent: 18.5 },
     schritte: schritteMit(7, { 4: "in_progress", 8: "in_progress", 9: "in_progress", 13: "na" }),
     datenraum: datenraumMit(
-      { 3: "in_pruefung", 7: "ausstehend", 8: "ausstehend", 9: "ausstehend", 10: "ausstehend" },
+      { 0: "in_pruefung", 1: "ausstehend", 10: "ausstehend", 13: "ausstehend", 17: "ausstehend" },
       "2026-10-24",
     ),
     ansprechpartner: [
@@ -437,7 +472,7 @@ export const objekte: Objekt[] = [
     standNotiz: "Pachtvertrag mit Betreiber wird nachgereicht – Valuation läuft.",
     kennzahlen: { renditeProzent: 5.9, baujahr: 2016, einheiten: 88, leerstandProzent: 0 },
     schritte: schritteMit(2, { 3: "in_progress", 4: "in_progress", 8: "in_progress", 9: "done", 10: "done" }),
-    datenraum: datenraumMit({ 9: "ausstehend", 11: "ausstehend" }, "2026-10-16"),
+    datenraum: datenraumMit({ 10: "ausstehend", 13: "ausstehend" }, "2026-10-16"),
   },
   {
     id: "o6",

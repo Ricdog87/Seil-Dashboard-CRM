@@ -13,8 +13,12 @@ export interface DatenraumDokument {
 }
 
 /** Datenraum-Status – kommt produktiv aus Modul 01, hier nur als Anzeige.
- *  Modul 01 teilt den unsortierten Kunden-Datenraum nach SOP in zwei Stufen:
- *  „Light“ für die erste Ansprache, „Full“ nach NDA (Sales-Update 28.09.). */
+ *  Zwei Stufen nach der SOP vom 18.02.2026, Abschnitt 1:
+ *  – `light` (00_Datenraum light): geht raus, **nachdem das NDA unterzeichnet ist**;
+ *    reduzierter Ausschnitt mit elf Kategorien, eigentümerbezogene Angaben geschwärzt.
+ *  – `full` (99_Datenraum): vollständig, ohne Schwärzung, typischerweise **nach
+ *    Abgabe eines indikativen Angebots**.
+ *  Light ist keine eigene Struktur, sondern ein Auszug aus Full. */
 export type DatenraumStufe = "light" | "full";
 
 export interface Datenraum {
@@ -22,6 +26,10 @@ export interface Datenraum {
   stand?: string; // letzter Sync mit Modul 01 (ISO-Datum)
   /** Welche Stufe Modul 01 bereits aufgebaut hat. */
   stufe?: DatenraumStufe;
+  /** Pflichtschritt vor der Bereitstellung des Light-Datenraums (SOP 1.1):
+   *  eigentümerbezogene Informationen schwärzen oder entfernen. Solange das
+   *  offen ist, darf der Light-Datenraum nicht raus. */
+  schwaerzung?: "offen" | "erledigt";
   dokumente: DatenraumDokument[];
 }
 
