@@ -185,6 +185,7 @@ Grant-PnPAzureADAppSitePermission -AppId &lt;CLIENT-ID&gt; -DisplayName "SEIL Au
 <span class="k"># Danach im Graph Explorer, als Admin: Site-ID und Item-ID der Liveliste</span>
 GET https://graph.microsoft.com/v1.0/sites/&lt;tenant&gt;.sharepoint.com:/sites/&lt;liveliste-site&gt;
 GET https://graph.microsoft.com/v1.0/sites/&lt;SITE-ID&gt;/drive/root:/&lt;Ordner&gt;/&lt;Liveliste&gt;.xlsx</pre>
+        <p class="warum"><b>Alternative ohne PnP:</b> beide Freigaben lassen sich auch direkt &uuml;ber Graph setzen, <code>POST /sites/&lt;SITE-ID&gt;/permissions</code> mit <code>roles: ["read"]</code> bzw. <code>["write"]</code> und der Client-ID als <code>grantedToIdentities</code>. Oft der schnellere Weg, weil PnP PowerShell seit 2024 eine eigene App-Registrierung voraussetzt.</p>
         <p class="warum">Schreibrecht nur bei den Mandaten, weil dort die fertigen Datenr&auml;ume angelegt werden: <code>00_Datenraum light</code> und <code>99_Datenraum</code> neben den Objektunterlagen. L&ouml;schrechte braucht die App nicht und bekommt sie nicht.</p>
       </div></li>
 
