@@ -1,0 +1,239 @@
+<title>Zug&auml;nge f&uuml;r die Automatik</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Eine Seite zum Weiterleiten: vier Punkte zum Abhaken, die Werte, die
+     zur&uuml;ckkommen m&uuml;ssen, und was ausdr&uuml;cklich entf&auml;llt.
+     Gleiche Marken-Token wie die &uuml;brigen SEIL-Unterlagen. */
+  :root {
+    --bg: #f4f5f6; --surface: #ffffff; --card-alt: #eceef1;
+    --line: #d6dade; --line-soft: #e4e7ea; --fg: #16181c; --body: #3b4149;
+    --muted: #6b727b; --accent: #41566e; --accent-weich: #e6eaef;
+    --ok: #2f6b48; --ok-weich: #e8f1ea; --crit: #9c4a42; --crit-weich: #f8eceb;
+    --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --r: 6px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121214; --surface: #1a1a1e; --card-alt: #2a2a31;
+      --line: #37373f; --line-soft: #2c2c33; --fg: #f4f5f6; --body: #c2c6cc;
+      --muted: #8a8f97; --accent: #9daab8; --accent-weich: #262b31;
+      --ok: #7fb894; --ok-weich: #1e2722; --crit: #d5948e; --crit-weich: #2b1e1d;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121214; --surface: #1a1a1e; --card-alt: #2a2a31;
+    --line: #37373f; --line-soft: #2c2c33; --fg: #f4f5f6; --body: #c2c6cc;
+    --muted: #8a8f97; --accent: #9daab8; --accent-weich: #262b31;
+    --ok: #7fb894; --ok-weich: #1e2722; --crit: #d5948e; --crit-weich: #2b1e1d;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--body); font-family: var(--font);
+    font-size: 14.5px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  .rand {
+    max-width: 760px; margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  h1, h2, h3 { color: var(--fg); font-weight: 400; text-wrap: balance; margin: 0; }
+  h1 { font-size: 1.6rem; line-height: 1.2; letter-spacing: -0.015em; }
+  h2 { font-size: 1.05rem; }
+  h3 { font-size: 0.97rem; font-weight: 500; }
+  p { margin: 0; }
+  b, em { font-style: normal; font-weight: 500; color: var(--fg); }
+  code {
+    font-family: var(--mono); font-size: 0.86em; color: var(--fg);
+    background: var(--card-alt); border-radius: 3px; padding: 1px 5px;
+    overflow-wrap: anywhere;
+  }
+  .etikett {
+    font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  header { padding-block: 30px 18px; border-bottom: 1px solid var(--line); }
+  header h1 { margin: 7px 0 9px; }
+  header p { max-width: 68ch; }
+
+  section { padding-block: 22px; border-bottom: 1px solid var(--line-soft); }
+  section:last-of-type { border-bottom: none; }
+  .kopf { margin-bottom: 14px; }
+  .kopf .etikett { display: block; margin-bottom: 4px; }
+
+  /* Vier Punkte, jeder mit K&auml;stchen zum Abhaken */
+  ol.punkte { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; counter-reset: p; }
+  ol.punkte > li {
+    display: grid; grid-template-columns: 17px 1fr; gap: 0 13px;
+    padding-block: 14px; border-top: 1px solid var(--line-soft); min-width: 0;
+  }
+  ol.punkte > li:first-child { border-top: none; padding-top: 4px; }
+  ol.punkte > li::before {
+    content: ""; width: 15px; height: 15px; margin-top: 4px;
+    border: 1px solid var(--accent); border-radius: 2px; background: var(--surface);
+  }
+  ol.punkte > li > div { min-width: 0; display: grid; gap: 7px; }
+  .warum { color: var(--muted); font-size: 0.9rem; }
+
+  pre {
+    margin: 0; background: var(--card-alt); border: 1px solid var(--line-soft);
+    border-radius: var(--r); padding: 11px 13px; overflow-x: auto;
+    font-family: var(--mono); font-size: 0.79rem; line-height: 1.5; color: var(--fg);
+  }
+  pre .k { color: var(--muted); }
+
+  .kasten { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 13px 15px; }
+  .kasten h3 { margin-bottom: 7px; }
+  .acht { border-left: 3px solid var(--crit); background: var(--crit-weich); }
+  .acht b { color: var(--crit); }
+  .gut { border-left: 3px solid var(--ok); background: var(--ok-weich); }
+
+  /* Werte, die zur&uuml;ckkommen m&uuml;ssen */
+  .werte { display: grid; gap: 0; }
+  .wert {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(90px, 1.1fr);
+    gap: 12px; align-items: end; padding-block: 9px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .wert:first-child { border-top: none; }
+  .wert .name { color: var(--fg); min-width: 0; }
+  .wert .name span { display: block; color: var(--muted); font-size: 0.84rem; }
+  .wert .linie { border-bottom: 1px dotted var(--line); height: 1.2em; }
+
+  ul.schlicht { margin: 0; padding-left: 1.15em; display: grid; gap: 5px; }
+  .zwei { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 11px; }
+  .zwei > * { min-width: 0; }
+
+  footer { padding-block: 18px 34px; color: var(--muted); font-size: 0.84rem; }
+
+  @media (max-width: 460px) {
+    h1 { font-size: 1.38rem; }
+    .wert { grid-template-columns: 1fr; gap: 3px; align-items: stretch; }
+    .wert .linie { height: 1.5em; }
+  }
+</style>
+
+<header>
+  <div class="rand">
+    <span class="etikett">SEIL Real Estate &middot; Automatik Modul 1 und 2 &middot; Stand 29.10.2026</span>
+    <h1>Zug&auml;nge f&uuml;r die Automatik</h1>
+    <p>Vier Punkte im Microsoft-Admin, zusammen etwa 30 Minuten, wenn ein Global Admin dabei ist. Es muss nichts installiert und nichts gebaut werden. Platzhalter in spitzen Klammern bitte ersetzen.</p>
+  </div>
+</header>
+
+<section>
+  <div class="rand">
+    <div class="kasten gut">
+      <h3>Worum es geht</h3>
+      <p>Eine technische Identit&auml;t im SEIL-Mandanten, die genau <b>ein</b> Postfach und <b>zwei</b> SharePoint-Bereiche benutzen darf. Kein Benutzerkonto, kein Passwort, keine Lizenz, jederzeit abschaltbar.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf"><span class="etikett">Zum Abhaken</span><h2>Die vier Punkte</h2></div>
+    <ol class="punkte">
+
+      <li><div>
+        <h3>App-Registrierung in Entra ID</h3>
+        <p>Name <code>SEIL Automatik (n8n)</code> &middot; <em>Single tenant</em> &middot; <b>kein</b> Redirect-URI &middot; unter <em>Certificates &amp; secrets</em> ein Client-Secret mit 24 Monaten Laufzeit.</p>
+        <p class="warum">Ersetzt ein Mitarbeiterkonto: kein Passwortwechsel, keine Zwei-Faktor-Ausnahme, keine Lizenz, und beim Weggang eines Kollegen &auml;ndert sich nichts.</p>
+      </div></li>
+
+      <li><div>
+        <h3>API-Berechtigung: nur <code>Sites.Selected</code></h3>
+        <p><em>API permissions</em> &rsaquo; Microsoft Graph &rsaquo; <em>Application permissions</em> &rsaquo; <code>Sites.Selected</code> &rsaquo; <em>Grant admin consent</em>. Sonst nichts.</p>
+        <div class="kasten acht">
+          <p><b>Bitte keine Mail- oder Kalender-Berechtigung in Entra.</b> Die kommt in Punkt 3 &uuml;ber Exchange, begrenzt auf ein Postfach. Wird parallel <code>Mail.ReadWrite</code> in Entra freigegeben, <b>addieren sich</b> beide Rechte und die Begrenzung ist wirkungslos, ohne dass es irgendwo angezeigt wird.</p>
+        </div>
+      </div></li>
+
+      <li><div>
+        <h3>Exchange Online: Zugriff auf <code>deals@seil.com</code>, und nur darauf</h3>
+        <p>PowerShell mit dem Exchange-Online-Modul. Die Object ID stammt aus <em>Enterprise applications</em>, nicht aus der App-Registrierung.</p>
+<pre>Connect-ExchangeOnline
+
+New-ServicePrincipal -AppId &lt;CLIENT-ID&gt; -ObjectId &lt;ENTERPRISE-APP-OBJECT-ID&gt; `
+  -DisplayName "SEIL Automatik (n8n)"
+
+New-ManagementScope -Name "SEIL Automatik deals" `
+  -RecipientRestrictionFilter "PrimarySmtpAddress -eq 'deals@seil.com'"
+
+New-ManagementRoleAssignment -App &lt;CLIENT-ID&gt; -Role "Application Mail.ReadWrite"      -CustomResourceScope "SEIL Automatik deals"
+New-ManagementRoleAssignment -App &lt;CLIENT-ID&gt; -Role "Application Mail.Send"           -CustomResourceScope "SEIL Automatik deals"
+New-ManagementRoleAssignment -App &lt;CLIENT-ID&gt; -Role "Application Calendars.ReadWrite" -CustomResourceScope "SEIL Automatik deals"
+
+<span class="k"># Nachweis: f&uuml;r deals@ "true", f&uuml;r jedes andere Postfach "false"</span>
+Test-ServicePrincipalAuthorization -Identity &lt;CLIENT-ID&gt; -Resource deals@seil.com</pre>
+        <p class="warum">Gelesen werden die Investorenantworten, versendet werden die intern freigegebenen Mails, eingetragen werden Besichtigungstermine. Alles Ausgehende liegt danach in &bdquo;Gesendet&ldquo; von deals@. <b>Damit entfallen SPF- und DKIM-Arbeiten</b>, weil kein fremder Mailserver beteiligt ist.</p>
+      </div></li>
+
+      <li><div>
+        <h3>SharePoint: zwei Bereiche freigeben</h3>
+        <p>Die Site mit der <b>Investoren-Liveliste</b> nur lesen, die Site mit den <b>Mandatsordnern</b> schreiben.</p>
+<pre>Grant-PnPAzureADAppSitePermission -AppId &lt;CLIENT-ID&gt; -DisplayName "SEIL Automatik (n8n)" `
+  -Site https://&lt;tenant&gt;.sharepoint.com/sites/&lt;liveliste-site&gt; -Permissions Read
+Grant-PnPAzureADAppSitePermission -AppId &lt;CLIENT-ID&gt; -DisplayName "SEIL Automatik (n8n)" `
+  -Site https://&lt;tenant&gt;.sharepoint.com/sites/&lt;mandate-site&gt;   -Permissions Write
+
+<span class="k"># Danach im Graph Explorer, als Admin: Site-ID und Item-ID der Liveliste</span>
+GET https://graph.microsoft.com/v1.0/sites/&lt;tenant&gt;.sharepoint.com:/sites/&lt;liveliste-site&gt;
+GET https://graph.microsoft.com/v1.0/sites/&lt;SITE-ID&gt;/drive/root:/&lt;Ordner&gt;/&lt;Liveliste&gt;.xlsx</pre>
+        <p class="warum">Schreibrecht nur bei den Mandaten, weil dort die fertigen Datenr&auml;ume angelegt werden: <code>00_Datenraum light</code> und <code>99_Datenraum</code> neben den Objektunterlagen. L&ouml;schrechte braucht die App nicht und bekommt sie nicht.</p>
+      </div></li>
+
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf"><span class="etikett">Bitte zur&uuml;ck an RSG</span><h2>Diese sechs Werte brauchen wir</h2><p>Ohne sie l&auml;sst sich die Anbindung nicht abschlie&szlig;en.</p></div>
+    <div class="werte">
+      <div class="wert"><span class="name">Directory (tenant) ID</span><span class="linie"></span></div>
+      <div class="wert"><span class="name">Application (client) ID</span><span class="linie"></span></div>
+      <div class="wert"><span class="name">Client-Secret <span>nur einmal sichtbar &middot; bitte &uuml;ber den Passwort-Safe, nicht per Chat</span></span><span class="linie"></span></div>
+      <div class="wert"><span class="name">Object ID aus <em>Enterprise applications</em></span><span class="linie"></span></div>
+      <div class="wert"><span class="name">Site-ID Liveliste <span>plus Ordner und Dateiname</span></span><span class="linie"></span></div>
+      <div class="wert"><span class="name">Site-ID Mandate <span>plus Basispfad der Mandatsordner</span></span><span class="linie"></span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="zwei">
+      <div class="kasten gut">
+        <h3>Entf&auml;llt</h3>
+        <ul class="schlicht">
+          <li>Kein SMTP, kein IMAP, kein Postfach-Passwort</li>
+          <li>Keine SPF- oder DKIM-&Auml;nderung</li>
+          <li>Kein DNS-Eintrag</li>
+          <li>Keine Firewall-Freigabe</li>
+          <li>Keine Benutzerlizenz</li>
+          <li>Kein Zugriff auf andere Postf&auml;cher</li>
+        </ul>
+      </div>
+      <div class="kasten">
+        <h3>Gut zu wissen</h3>
+        <ul class="schlicht">
+          <li>Der erste Zugriff nach einer Rechte&auml;nderung kann bei Microsoft 30 Minuten bis 2 Stunden am Berechtigungs-Cache scheitern.</li>
+          <li>Abschalten geht in Sekunden: Rollenzuweisung entfernen oder App in Entra deaktivieren.</li>
+          <li>Das Secret l&auml;uft nach 24 Monaten ab. Bitte eine Erinnerung setzen.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="rand">
+    Alle Dienste laufen auf dem SEIL-eigenen Server in Deutschland. Zugangsdaten liegen ausschlie&szlig;lich im Zugangsdaten-Speicher von n8n, nicht in den Workflow-Dateien. R&uuml;ckfragen: RSG Recruiting Solutions Group, Ricardo Serrano.
+  </div>
+</footer>
