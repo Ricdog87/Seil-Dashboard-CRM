@@ -1,0 +1,15 @@
+{
+  "_hinweis": "Kopie dieser Datei auf dem Server ablegen, z. B. /opt/seil/n8n-konfig.json, echte Werte eintragen und NICHT ins Repository legen. Aufruf: node automation/n8n/importieren.mjs --basis https://… --konfig /opt/seil/n8n-konfig.json",
+  "02-matching.json": {
+    "graphBasis": "/drives/<DRIVE-ID>",
+    "itemId": "<ITEM-ID-DER-LIVELISTE>",
+    "blatt": "<NAME-DES-TABELLENBLATTS>",
+    "spalten": {
+      "id": "<Spalte mit dem Investor>",
+      "regionen": "<Spalte mit der Region>",
+      "assetklassen": "<Spalte mit der Assetklasse>",
+      "sweetspot": "<Spalte mit der Ticketspanne, Form 1000000-10000000>",
+      "letzteAnkaeufe": "<Spalte mit den letzten Ankaeufen>"
+    }
+  }
+}

@@ -2,7 +2,12 @@
 // Spielt die neun Workflows über die n8n-REST-API ein.
 //
 //   export N8N_API_KEY=<Schlüssel aus n8n: Settings → n8n API>
-//   node automation/n8n/importieren.mjs --basis https://<host>
+//   node automation/n8n/importieren.mjs --basis https://<host> --konfig /opt/seil/n8n-konfig.json
+//
+// --konfig traegt kundenspezifische Werte in die Konfigurationsknoten ein, bevor
+// ein Workflow angelegt wird. So bleiben Laufwerks- und Dateikennungen aus dem
+// Repository und ueberleben trotzdem jeden Neuimport. Aufbau siehe
+// konfig.beispiel.json.
 //
 // Standardmäßig wird nichts gelöscht. Mit --alte-loeschen werden alle
 // vorhandenen Workflows entfernt, vorher aber vollständig gesichert.
@@ -15,9 +20,10 @@ import { fileURLToPath } from "node:url";
 const HIER = dirname(fileURLToPath(import.meta.url));
 
 function argumente(argv) {
-  const a = { basis: "", loeschen: false, trocken: false };
+  const a = { basis: "", loeschen: false, trocken: false, konfig: "" };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--basis") a.basis = (argv[++i] ?? "").replace(/\/+$/, "");
+    else if (argv[i] === "--konfig") a.konfig = argv[++i] ?? "";
     else if (argv[i] === "--alte-loeschen") a.loeschen = true;
     else if (argv[i] === "--trockenlauf") a.trocken = true;
   }
@@ -31,6 +37,26 @@ function koerper(roh) {
   for (const feld of ERLAUBT) if (roh[feld] !== undefined) k[feld] = roh[feld];
   k.settings ??= {};
   return k;
+}
+
+// Traegt die Werte aus der Konfigurationsdatei in die Set-Knoten ein. Gibt zurueck,
+// welche Felder gesetzt wurden, damit der Lauf nachvollziehbar bleibt.
+function konfigurieren(werk, eintraege) {
+  const gesetzt = [];
+  if (!eintraege) return gesetzt;
+  for (const knoten of werk.nodes ?? []) {
+    for (const zu of knoten.parameters?.assignments?.assignments ?? []) {
+      if (!(zu.name in eintraege)) continue;
+      const wert = eintraege[zu.name];
+      zu.value = typeof wert === "string" ? wert : JSON.stringify(wert);
+      gesetzt.push(zu.name);
+    }
+  }
+  const fehlend = Object.keys(eintraege).filter((f) => !gesetzt.includes(f));
+  if (fehlend.length > 0) {
+    throw new Error(`Konfiguration nennt Felder, die es im Workflow nicht gibt: ${fehlend.join(", ")}`);
+  }
+  return gesetzt;
 }
 
 async function api(arg, pfad, methode = "GET", koerperObjekt) {
@@ -59,6 +85,12 @@ if (!process.env.N8N_API_KEY && !arg.trocken) {
   process.exit(2);
 }
 
+let konfig = {};
+if (arg.konfig) {
+  konfig = JSON.parse(readFileSync(arg.konfig, "utf8"));
+  console.log(`Konfiguration: ${arg.konfig} (${Object.keys(konfig).length} Eintrag/Eintraege)`);
+}
+
 const dateien = readdirSync(HIER).filter((d) => /^\d\d-.*\.json$/.test(d)).sort();
 if (dateien.length !== 9) {
   console.error(`Erwartet neun Workflow-Dateien, gefunden ${dateien.length}: ${dateien.join(", ")}`);
@@ -70,7 +102,9 @@ if (arg.trocken) {
   for (const d of dateien) {
     const roh = JSON.parse(readFileSync(join(HIER, d), "utf8"));
     const k = koerper(roh);
-    console.log(`  ${d.padEnd(30)} ${String(k.nodes?.length ?? 0).padStart(2)} Knoten  "${k.name}"`);
+    const gesetzt = konfigurieren(k, konfig[d]);
+    const zusatz = gesetzt.length > 0 ? `  [konfiguriert: ${gesetzt.join(", ")}]` : "";
+    console.log(`  ${d.padEnd(30)} ${String(k.nodes?.length ?? 0).padStart(2)} Knoten  "${k.name}"${zusatz}`);
   }
   console.log("\nTrockenlauf: es wurde nichts gesendet.");
   process.exit(0);
@@ -101,8 +135,11 @@ if (arg.loeschen) {
 console.log();
 for (const d of dateien) {
   const roh = JSON.parse(readFileSync(join(HIER, d), "utf8"));
-  const neu = await api(arg, "/workflows", "POST", koerper(roh));
-  console.log(`  angelegt: ${d.slice(0, 2)}  ${neu.name}  (id ${neu.id})`);
+  const k = koerper(roh);
+  const gesetzt = konfigurieren(k, konfig[d]);
+  const neu = await api(arg, "/workflows", "POST", k);
+  const zusatz = gesetzt.length > 0 ? `  [konfiguriert: ${gesetzt.join(", ")}]` : "";
+  console.log(`  angelegt: ${d.slice(0, 2)}  ${neu.name}  (id ${neu.id})${zusatz}`);
 }
 
 // 4. Gegenprobe

@@ -817,3 +817,40 @@ Oberflaeche erscheint `$env` haeufig leer; beim Lauf wird es aufgeloest.
 
 Folge: ein Neuimport ist jederzeit gefahrlos, die Konfiguration haengt am
 Server und nicht an der importierten Datei.
+
+## 66. Die echte Liveliste ist anders aufgebaut als angenommen
+
+Am 29.10. wurde die Investorenliste erstmals technisch gelesen. Sie hat 1571
+Zeilen und 23 Spalten und ist eine Kontaktliste des Vertriebs, kein
+Ankaufsprofil. Daraus drei Konsequenzen.
+
+**Ticketspanne steht in einer Spalte, in Euro.** Die Spalte enthaelt Werte der
+Form `1000000-10000000`. WF02 erwartete zwei Spalten in Millionen. Die
+Zeilenumsetzung liest jetzt wahlweise zwei Spalten oder eine Spanne und rechnet
+Werte ab 100000 als Euro in Millionen um.
+
+**Assetklasse ist kaum gepflegt.** In einer Stichprobe von 20 Zeilen war die
+Spalte einmal gefuellt, die Ticketspanne in der Haelfte der Zeilen. Region ist
+vollstaendig vorhanden. Ein hartes Und ueber alle drei Kriterien haette
+praktisch keinen Investor als Treffer ergeben.
+
+Deshalb gilt jetzt: **eine fehlende Angabe ist unbekannt, nicht ausgeschlossen.**
+Ein Kriterium ohne Daten liefert `null` statt `false`, der Investor erscheint
+mit dem Hinweis, welche Angabe in der Liveliste fehlt. Ein voller Treffer
+verlangt weiterhin, dass alle drei Kriterien bekannt und erfuellt sind.
+
+Das ist eine Annahme, die der Kunde bestaetigen sollte. Die Alternative waere,
+die Liveliste zu pflegen, bevor das Matching belastbar wird.
+
+**Spaltennamen und Kennungen stehen nicht im Repository.** Sie sind Kundendaten.
+WF02 traegt Platzhalter; die echten Werte kommen beim Import aus einer
+Konfigurationsdatei auf dem Server (`importieren.mjs --konfig`). Damit bleibt
+das Repository frei von Kundendaten, und ein Neuimport setzt die Konfiguration
+jedes Mal neu, statt sie zu verlieren.
+
+Korrektur zu Punkt 65: der dort beschriebene Weg ueber `$env` ist verworfen.
+Die eingesetzte n8n-Version sperrt den Zugriff auf Umgebungsvariablen in
+Ausdruecken standardmaessig. Ihn zu oeffnen haette jedem, der Workflows
+bearbeiten darf, auch das Datenbankpasswort und den Verschluesselungsschluessel
+zugaenglich gemacht. Die Konfigurationsdatei loest dasselbe Problem, ohne diese
+Rechte aufzuweichen.
