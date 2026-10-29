@@ -70,7 +70,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://N8N-BASIS-URL/webhook/seil/mail-vorbereitung",
+        "url": "http://localhost:5678/webhook/seil/mail-vorbereitung",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ objektId: $('Matching-Anstoß').first().json.body?.objektId ?? $('Matching-Anstoß').first().json.objektId }) }}",

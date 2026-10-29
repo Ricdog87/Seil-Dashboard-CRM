@@ -15,7 +15,7 @@
         -120
       ],
       "parameters": {
-        "content": "## Glied 8: Besichtigungs-Koordination (Standardprozess, vier Schritte)\n\nAusgelöst von WF 06 bei Besichtigungswunsch. Ablauf laut Standardprozess:\n1. Bestätigung an den Investor (Vorlage 'besichtigung-bestaetigung')\n2. Anfrage an die Verkäuferseite (Vorlage 'besichtigung-anfrage-verkaeufer')\n3. Warten auf die Antwort der Verkäuferseite (Wait-Node, Fortsetzung per Webhook – die Resume-URL steht in der Verkäufer-Mail/Aufgabe; Zeitlimit 3 Tage)\n4. Terminbestätigung an den Investor (Vorlage 'besichtigung-terminbestaetigung') + Kalendereintrag im zentralen Vertriebskalender nach Titelkonvention, besichtigendes Teammitglied einladen\n\nAlle Mails laufen über WF 05 (einziger Versandpunkt: BCC-Regel, Freigabe-Prüfung, Protokoll). Titelkonvention aus dem Standardprozess: „BES mit <Kürzel Teammitglied> und <Investor / Telefon>“.\n\nSKELETT – vor Aktivierung: N8N-BASIS-URL ersetzen; Kalender-Anbindung (Outlook/Microsoft-Graph-Credential nach Office-365-Umzug) am letzten Node; Verkäufer-Kontakt aus dem Mandat laden.\n\n**Umbau 29.10.:** Der Kalendereintrag wird über Microsoft Graph im Kalender von deals@seil.com angelegt (Titel „BES mit <Kürzel> und <Investor>“, Dauer 60 Minuten, Teammitglied eingeladen). Credential „Microsoft Graph (SEIL)“.",
+        "content": "## Glied 8: Besichtigungs-Koordination (Standardprozess, vier Schritte)\n\nAusgelöst von WF 06 bei Besichtigungswunsch. Ablauf laut Standardprozess:\n1. Bestätigung an den Investor (Vorlage 'besichtigung-bestaetigung')\n2. Anfrage an die Verkäuferseite (Vorlage 'besichtigung-anfrage-verkaeufer')\n3. Warten auf die Antwort der Verkäuferseite (Wait-Node, Fortsetzung per Webhook – die Resume-URL steht in der Verkäufer-Mail/Aufgabe; Zeitlimit 3 Tage)\n4. Terminbestätigung an den Investor (Vorlage 'besichtigung-terminbestaetigung') + Kalendereintrag im zentralen Vertriebskalender nach Titelkonvention, besichtigendes Teammitglied einladen\n\nAlle Mails laufen über WF 05 (einziger Versandpunkt: BCC-Regel, Freigabe-Prüfung, Protokoll). Titelkonvention aus dem Standardprozess: „BES mit <Kürzel Teammitglied> und <Investor / Telefon>“.\n\nSKELETT – vor Aktivierung: interne Aufrufe über localhost:5678 – keine Anpassung nötig; Kalender-Anbindung (Outlook/Microsoft-Graph-Credential nach Office-365-Umzug) am letzten Node; Verkäufer-Kontakt aus dem Mandat laden.\n\n**Umbau 29.10.:** Der Kalendereintrag wird über Microsoft Graph im Kalender von deals@seil.com angelegt (Titel „BES mit <Kürzel> und <Investor>“, Dauer 60 Minuten, Teammitglied eingeladen). Credential „Microsoft Graph (SEIL)“.",
         "width": 560,
         "height": 520
       }
@@ -59,7 +59,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://N8N-BASIS-URL/webhook/seil/versand",
+        "url": "http://localhost:5678/webhook/seil/versand",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ kontaktId: $json.kontaktId, objektId: $json.objektId, email: $json.investorEmail, vorlage: 'besichtigung-bestaetigung', quelle: 'besichtigung' }) }}",
@@ -77,7 +77,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://N8N-BASIS-URL/webhook/seil/versand",
+        "url": "http://localhost:5678/webhook/seil/versand",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ kontaktId: $json.kontaktId, objektId: $json.objektId, email: $json.verkaeuferEmail, vorlage: 'besichtigung-anfrage-verkaeufer', quelle: 'besichtigung' }) }}",
@@ -134,7 +134,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://N8N-BASIS-URL/webhook/seil/versand",
+        "url": "http://localhost:5678/webhook/seil/versand",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ kontaktId: $json.kontaktId, objektId: $json.objektId, email: $json.investorEmail, vorlage: 'besichtigung-terminbestaetigung', quelle: 'besichtigung' }) }}",

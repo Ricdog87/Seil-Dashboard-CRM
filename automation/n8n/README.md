@@ -38,8 +38,10 @@ voraussetzen.
 
 ## Vor der Aktivierung – Pflicht
 
-1. **Platzhalter ersetzen:** `https://N8N-BASIS-URL/...` in den
-   HTTP-Request-Nodes durch die echte Webhook-Basis der Instanz;
+1. **Keine Basis-URL mehr einzutragen:** Die Workflows rufen sich seit 29.10.
+   intern über `http://localhost:5678/webhook/…` auf – unabhängig von Domain
+   und Zertifikat. Von außen (Cockpit) kommen Aufrufe über Caddy mit echtem
+   Zertifikat; siehe `deploy/UEBERGABE-VPS.md` im Repo `seil-doc-engine`.
    Die Absenderadresse ist gesetzt: `deals@seil.com`, das von der IT
    eingerichtete Sammelpostfach. WF 06 liest daraus, WF 05 sendet darüber,
    WF 08 legt die Besichtigungstermine in dessen Kalender.

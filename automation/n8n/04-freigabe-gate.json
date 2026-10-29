@@ -15,7 +15,7 @@
         20
       ],
       "parameters": {
-        "content": "## Glied 4: Freigabe – der einzige Pflicht-Stopp\n\nNimmt den Freigabe-Klick aus dem Cockpit entgegen, schreibt den Audit-Eintrag (wer, wann, welche Entwürfe) und startet erst danach den Versand über WF 05.\n\n**Sammelfreigabe (Sales-Update 28.09.):** Eine Freigabe kann mehrere Entwürfe über mehrere Mandate tragen. Der Workflow teilt sie in einzelne Versandaufträge auf, damit jeder Entwurf einzeln protokolliert bleibt. Das Vier-Augen-Prinzip bleibt unverändert – ohne diesen Aufruf versendet WF 05 nichts.\n\nSKELETT – vor Aktivierung:\n1. Header-Auth zwischen Cockpit und diesem Webhook setzen (wichtigster der seil/*-Webhooks)\n2. Audit-Ablage anbinden (wer, wann, welche Entwürfe, welches Mandat)\n3. N8N-BASIS-URL ersetzen\n\n**Umbau 29.10. – zweiter Eingang, Freigabe per Mail-Link:** Solange das Cockpit keine Freigaben speichert, fordert WF 03 die Freigabe hier an. Die Leitung bekommt den Entwurf per Mail mit zwei Links (freigeben / ablehnen), der Workflow wartet bis zu 7 Tage. „Freigeben“ läuft in dieselbe Sammelfreigabe wie der Cockpit-Klick – ein Prüfpfad, zwei Eingänge. Credential „Microsoft Graph (SEIL)“. Offen: freigabeAn in der Konfiguration (die Leitung – laut Standardprozess zwei Personen).",
+        "content": "## Glied 4: Freigabe – der einzige Pflicht-Stopp\n\nNimmt den Freigabe-Klick aus dem Cockpit entgegen, schreibt den Audit-Eintrag (wer, wann, welche Entwürfe) und startet erst danach den Versand über WF 05.\n\n**Sammelfreigabe (Sales-Update 28.09.):** Eine Freigabe kann mehrere Entwürfe über mehrere Mandate tragen. Der Workflow teilt sie in einzelne Versandaufträge auf, damit jeder Entwurf einzeln protokolliert bleibt. Das Vier-Augen-Prinzip bleibt unverändert – ohne diesen Aufruf versendet WF 05 nichts.\n\nSKELETT – vor Aktivierung:\n1. Header-Auth zwischen Cockpit und diesem Webhook setzen (wichtigster der seil/*-Webhooks)\n2. Audit-Ablage anbinden (wer, wann, welche Entwürfe, welches Mandat)\n3. interne Aufrufe über localhost:5678 – keine Anpassung nötig\n\n**Umbau 29.10. – zweiter Eingang, Freigabe per Mail-Link:** Solange das Cockpit keine Freigaben speichert, fordert WF 03 die Freigabe hier an. Die Leitung bekommt den Entwurf per Mail mit zwei Links (freigeben / ablehnen), der Workflow wartet bis zu 7 Tage. „Freigeben“ läuft in dieselbe Sammelfreigabe wie der Cockpit-Klick – ein Prüfpfad, zwei Eingänge. Credential „Microsoft Graph (SEIL)“. Offen: freigabeAn in der Konfiguration (die Leitung – laut Standardprozess zwei Personen).",
         "width": 440,
         "height": 380
       }
@@ -70,7 +70,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://N8N-BASIS-URL/webhook/seil/versand",
+        "url": "http://localhost:5678/webhook/seil/versand",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ objektId: $json.objektId, anlass: 'erstversand' }) }}",

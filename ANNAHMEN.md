@@ -707,3 +707,45 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
     läuft die Kette einmal durch; Nachfass-Stufen und die Freigabe-Nachprüfung
     vor dem Versand brauchen die Tabellen.
 
+61. **Modul 01 gefunden und eingeordnet (29.10.):** Modul 01 ist das private
+    Repository `Ricdog87/seil-doc-engine` – eine TypeScript-Anwendung, kein
+    n8n-Workflow. Sie enthält die SOP maschinenlesbar (`config/doc_types.yaml`,
+    `config/naming.yaml`), die Pipeline, das Datenraum-Center unter `/qc` und
+    **die Schwärzung** (`src/redaction/`, `config/schwaerzung.yaml`). Die seit
+    dem 03.08. offene Frage ist damit beantwortet: **Die Schwärzung ist gebaut**
+    – inklusive Verifikations-Gate, das jede Ausgabedatei erneut text-extrahiert
+    und bei auffindbarer Fundstelle einen Prüffall erzeugt, statt still
+    auszuliefern.
+
+    Ebenfalls geklärt: Das QM-Center ist Teil dieser Anwendung (Basic-Auth über
+    `QC_USER`/`QC_PASS`), und die vier Zusagen vom 03./05.08. (Hyperlink,
+    lesbare Dateinamen, Dropdown statt „Belassen“, Ordnerkontext) sind laut
+    README umgesetzt. Das Repository bringt mit
+    `docker-compose.seil-prod.yml` einen vollständigen Stack mit: Postgres,
+    n8n, Engine und Caddy mit Let's-Encrypt-TLS – gebaut für genau diesen Fall.
+
+62. **Der VPS liefert ein ungültiges Zertifikat und antwortet mit 404 (29.10.):**
+    Nachgemessen: `srv2104755.hstgr.cloud` präsentiert
+    `CN = TRAEFIK DEFAULT CERT` (selbstsigniert, SAN auf einen
+    Traefik-Platzhalternamen) und beantwortet jeden Pfad mit `404`.
+    Kontrollprobe durch denselben Proxy: example.com, api.github.com und
+    hostinger.com antworten mit 200/301 – der Fehler liegt also am Server, nicht
+    an der Messung. **Die Aussage vom 28.10., der Zertifikatsfehler komme vom
+    Egress-Proxy dieser Session, war falsch.**
+
+    Ursache: Die Hostinger-Vorlage stellt n8n hinter Traefik, ohne eine Route
+    für den VPS-Hostnamen und ohne Zertifikatsausstellung.
+
+    **Folgen und Behebung:**
+
+    - Cockpit-Webhooks erreichen die Automatik nicht – gelöst durch den
+      Compose-Stack aus `seil-doc-engine` (Caddy holt ein echtes Zertifikat);
+      für den Fall ohne eigene DNS-Einträge liegt dort jetzt
+      `deploy/Caddyfile.einhost`, das n8n und das Datenraum-Center unter dem
+      VPS-Hostnamen zusammenführt.
+    - Aufrufe zwischen Workflows hätten am Zertifikat scheitern müssen, still.
+      **Behoben:** Alle elf WF→WF-Aufrufe laufen jetzt über
+      `http://localhost:5678/webhook/…`. Das ist unabhängig von Domain und
+      Zertifikat und bleibt auch nach einem Hostnamenwechsel gültig. Der
+      Platzhalter `N8N-BASIS-URL` entfällt damit vollständig.
+

@@ -15,7 +15,7 @@
         -260
       ],
       "parameters": {
-        "content": "## Glied 6: Antworterkennung – Entscheidungsbaum aus dem Standardprozess\n\nEingehende Antworten (zentrales Vertriebs-Postfach per Microsoft Graph (deals@seil.com); Superchat-Webhook für WhatsApp analog) werden klassifiziert und nach dem Standardprozess Investorenkommunikation geroutet. WF 06 versendet selbst NICHTS: Jede Route setzt nur Parameter (Vorlagen-Schlüssel, Follow-up neu?, Aufgabe?) – der generische Ausführer unten übergibt den Versand an WF 05 (einziger Versandpunkt, dort BCC-Regel und Freigabe-Prüfung).\n\nRouten (nur Struktur – Vorlagentexte liegen im n8n-Data-Store):\n– Anfrage/Interesse → Vorlage + Follow-up-Kette neu (2 Tage) + Aufgabe „Broker Call“\n– Absage → Bestätigung mit Kriterien-Rückfrage + Follow-up neu (2 Tage); Antwort pflegt das Ankaufsprofil\n– Kriterien erhalten → Vorlage + Aufgabe „Übergabe an Team + Terminvorschlag“\n– Preisanfrage → NIE schriftlich beantworten: Erstantwort-Vorlage + Aufgabe „Rückruf durch GF“ + Folge-Aufgabe „Gespräch stattgefunden?“; bei ERNEUTER schriftlicher Preisanfrage feste Vorlage „Auskunft nur telefonisch“\n– Unterlagen angefragt → Datenraum-Abgleich über WF 09 (Modul-01-Stand): vorhanden → senden · nicht im Datenraum → Rückfrage an Verkäuferseite · unklar → interne Rücksprache (Team, dann Leitung)\n– Telefonwunsch → Vorlage + Aufgabe „Rückruf durch GF“\n– Besichtigung → WF 08 Besichtigungs-Koordination (mehrstufig, eigener Zustand)\n– Rest → Signal „offen“ im Cockpit-Posteingang (Mensch triagiert)\n\nZielregionen-/Profilinformationen in jeder Antwort setzen das Profil-Update-Flag → Ankaufsprofil im CRM.\n\nSKELETT – vor Aktivierung: Microsoft Graph (deals@seil.com)-Credential (zentrales Vertriebs-Postfach, nach Office-365-Umzug); LLM-Klassifikation (Claude) vor die Keyword-Heuristik schalten; N8N-BASIS-URL ersetzen; Datenraum-Abgleich und Aufgaben-Ablage anbinden.\n\n**Umbau 29.10.:** Eingang über Microsoft Graph statt IMAP. Alle 2 Minuten werden ungelesene Mails aus deals@seil.com gelesen, als gelesen markiert und einzeln klassifiziert. Credential: „Microsoft Graph (SEIL)“ (OAuth2, Client Credentials, Scope https://graph.microsoft.com/.default) – eine Stelle für Postfach, Kalender und Liveliste.",
+        "content": "## Glied 6: Antworterkennung – Entscheidungsbaum aus dem Standardprozess\n\nEingehende Antworten (zentrales Vertriebs-Postfach per Microsoft Graph (deals@seil.com); Superchat-Webhook für WhatsApp analog) werden klassifiziert und nach dem Standardprozess Investorenkommunikation geroutet. WF 06 versendet selbst NICHTS: Jede Route setzt nur Parameter (Vorlagen-Schlüssel, Follow-up neu?, Aufgabe?) – der generische Ausführer unten übergibt den Versand an WF 05 (einziger Versandpunkt, dort BCC-Regel und Freigabe-Prüfung).\n\nRouten (nur Struktur – Vorlagentexte liegen im n8n-Data-Store):\n– Anfrage/Interesse → Vorlage + Follow-up-Kette neu (2 Tage) + Aufgabe „Broker Call“\n– Absage → Bestätigung mit Kriterien-Rückfrage + Follow-up neu (2 Tage); Antwort pflegt das Ankaufsprofil\n– Kriterien erhalten → Vorlage + Aufgabe „Übergabe an Team + Terminvorschlag“\n– Preisanfrage → NIE schriftlich beantworten: Erstantwort-Vorlage + Aufgabe „Rückruf durch GF“ + Folge-Aufgabe „Gespräch stattgefunden?“; bei ERNEUTER schriftlicher Preisanfrage feste Vorlage „Auskunft nur telefonisch“\n– Unterlagen angefragt → Datenraum-Abgleich über WF 09 (Modul-01-Stand): vorhanden → senden · nicht im Datenraum → Rückfrage an Verkäuferseite · unklar → interne Rücksprache (Team, dann Leitung)\n– Telefonwunsch → Vorlage + Aufgabe „Rückruf durch GF“\n– Besichtigung → WF 08 Besichtigungs-Koordination (mehrstufig, eigener Zustand)\n– Rest → Signal „offen“ im Cockpit-Posteingang (Mensch triagiert)\n\nZielregionen-/Profilinformationen in jeder Antwort setzen das Profil-Update-Flag → Ankaufsprofil im CRM.\n\nSKELETT – vor Aktivierung: Microsoft Graph (deals@seil.com)-Credential (zentrales Vertriebs-Postfach, nach Office-365-Umzug); LLM-Klassifikation (Claude) vor die Keyword-Heuristik schalten; interne Aufrufe über localhost:5678 – keine Anpassung nötig; Datenraum-Abgleich und Aufgaben-Ablage anbinden.\n\n**Umbau 29.10.:** Eingang über Microsoft Graph statt IMAP. Alle 2 Minuten werden ungelesene Mails aus deals@seil.com gelesen, als gelesen markiert und einzeln klassifiziert. Credential: „Microsoft Graph (SEIL)“ (OAuth2, Client Credentials, Scope https://graph.microsoft.com/.default) – eine Stelle für Postfach, Kalender und Liveliste.",
         "width": 600,
         "height": 700
       }
@@ -437,7 +437,7 @@
       ],
       "parameters": {
         "method": "GET",
-        "url": "=https://N8N-BASIS-URL/webhook/seil/datenraum-status?objektId={{ $json.objektId ?? '' }}",
+        "url": "=http://localhost:5678/webhook/seil/datenraum-status?objektId={{ $json.objektId ?? '' }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "options": {
@@ -686,7 +686,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://N8N-BASIS-URL/webhook/seil/besichtigung",
+        "url": "http://localhost:5678/webhook/seil/besichtigung",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ kontaktId: $json.kontaktId, objektId: $json.objektId, investorEmail: $json.email, wunsch: $json.textPlain ?? $json.text ?? '' }) }}",
@@ -735,7 +735,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://N8N-BASIS-URL/webhook/seil/versand",
+        "url": "http://localhost:5678/webhook/seil/versand",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ kontaktId: $json.kontaktId, objektId: $json.objektId, email: $json.email, vorlage: $json.vorlage, quelle: 'antwort', antwortAuf: $json.messageId ?? null }) }}",
@@ -773,7 +773,7 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://N8N-BASIS-URL/webhook/seil/followup-planen",
+        "url": "http://localhost:5678/webhook/seil/followup-planen",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ kontaktId: $json.kontaktId, objektId: $json.objektId, grund: $json.vorlage }) }}",
