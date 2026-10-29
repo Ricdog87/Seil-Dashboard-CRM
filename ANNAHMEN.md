@@ -749,3 +749,28 @@ Profilanreicherung/Auto-Matching; siehe Punkte 23 und 46).
       Zertifikat und bleibt auch nach einem Hostnamenwechsel gültig. Der
       Platzhalter `N8N-BASIS-URL` entfällt damit vollständig.
 
+
+## 63. Liveliste und Mandatsordner liegen in einem persoenlichen OneDrive
+
+Die am 29.10. uebermittelten Links zeigen auf den Mandanten-Host `*-my.sharepoint.com`
+unter `/personal/<benutzer>/`. Beides liegt damit im persoenlichen OneDrive eines
+Mitarbeiters, nicht in einer SharePoint-Teamwebsite.
+
+Folgen: ein persoenliches OneDrive wird nach dem Austritt des Mitarbeiters samt
+Inhalt geloescht, es hat keinen Team-Eigentuemer und laesst sich nicht wie eine
+Teamwebsite verwalten. `Sites.Selected` greift dort nicht sinnvoll; eine Freigabe
+waere nur auf Ordner- und Dateiebene moeglich
+(`Files.SelectedOperations.Selected`, `ListItems.SelectedOperations.Selected`).
+
+Empfehlung an den Kunden: beides vor dem Produktivbetrieb in eine Teamwebsite
+verschieben. Die Entscheidung liegt beim Kunden und ist zum Zeitpunkt dieser
+Notiz offen.
+
+Technische Konsequenz im Repo: WF02 baut die Graph-URL nicht mehr fest als
+`/sites/<id>/drive`, sondern aus dem Konfigurationsfeld `graphBasis`. Damit
+laufen beide Varianten ohne Codeaenderung: `/sites/<SITE-ID>/drive` fuer eine
+Teamwebsite, `/drives/<DRIVE-ID>` fuer OneDrive oder eine einzelne Bibliothek.
+Modul 01 unterstuetzt `driveId` bereits von sich aus.
+
+Konkrete Pfade, Dateinamen und Personennamen des Kunden stehen bewusst nicht in
+diesem Repo.

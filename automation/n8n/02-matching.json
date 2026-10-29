@@ -83,8 +83,8 @@
           "assignments": [
             {
               "id": "ll-1",
-              "name": "siteId",
-              "value": "SITE-ID-EINTRAGEN",
+              "name": "graphBasis",
+              "value": "/drives/DRIVE-ID-EINTRAGEN",
               "type": "string"
             },
             {
@@ -117,12 +117,14 @@
       "position": [
         330,
         420
-      ]
+      ],
+      "notes": "graphBasis: bei einer SharePoint-Teamwebsite /sites/<SITE-ID>/drive, bei OneDrive oder einer bestimmten Bibliothek /drives/<DRIVE-ID>. driveId und itemId liefert GET /v1.0/shares/u!<token>/driveItem.",
+      "notesInFlow": true
     },
     {
       "parameters": {
         "method": "GET",
-        "url": "=https://graph.microsoft.com/v1.0/sites/{{ $json.siteId }}/drive/items/{{ $json.itemId }}/workbook/worksheets('{{ $json.blatt }}')/usedRange(valuesOnly=true)",
+        "url": "=https://graph.microsoft.com/v1.0{{ $json.graphBasis }}/items/{{ $json.itemId }}/workbook/worksheets('{{ $json.blatt }}')/usedRange(valuesOnly=true)",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
         "options": {
