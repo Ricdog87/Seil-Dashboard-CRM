@@ -84,19 +84,19 @@
             {
               "id": "ll-1",
               "name": "graphBasis",
-              "value": "/drives/DRIVE-ID-EINTRAGEN",
+              "value": "=/drives/{{ $env.SEIL_DRIVE_ID }}",
               "type": "string"
             },
             {
               "id": "ll-2",
               "name": "itemId",
-              "value": "ITEM-ID-DER-LIVELISTE-EINTRAGEN",
+              "value": "={{ $env.SEIL_ITEM_LIVELISTE }}",
               "type": "string"
             },
             {
               "id": "ll-3",
               "name": "blatt",
-              "value": "Tabelle1",
+              "value": "={{ $env.SEIL_BLATT_LIVELISTE || 'Tabelle1' }}",
               "type": "string"
             },
             {
@@ -111,14 +111,14 @@
         "options": {}
       },
       "id": "93188213-9a5a-4e30-9c98-678524dcf48d",
-      "name": "Konfiguration Liveliste (hier anpassen)",
+      "name": "Konfiguration Liveliste (aus Umgebungsvariablen)",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
         330,
         420
       ],
-      "notes": "graphBasis: bei einer SharePoint-Teamwebsite /sites/<SITE-ID>/drive, bei OneDrive oder einer bestimmten Bibliothek /drives/<DRIVE-ID>. driveId und itemId liefert GET /v1.0/shares/u!<token>/driveItem.",
+      "notes": "Die Werte kommen aus der .env des Servers, nicht aus dieser Datei: SEIL_DRIVE_ID, SEIL_ITEM_LIVELISTE, SEIL_BLATT_LIVELISTE. So stehen keine Kundenkennungen im Repository und ein Neuimport ueberschreibt sie nicht. Hinweis: in der Ausdrucksvorschau von n8n erscheint $env oft leer, beim Lauf wird es trotzdem aufgeloest.",
       "notesInFlow": true
     },
     {
@@ -153,7 +153,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Excel-Zeilen der Liveliste in die Struktur bringen, die der Abgleich erwartet.\n// Spaltenzuordnung steht in „Konfiguration Liveliste“ – beim Setup an die echte Liste anpassen.\nconst roh = $input.first().json;\nconst konf = $('Konfiguration Liveliste (hier anpassen)').first().json;\nif (roh.error) throw new Error('Liveliste nicht lesbar – SharePoint-Zugriff (Sites.Selected) oder IDs prüfen: ' + JSON.stringify(roh.error));\nconst werte = roh.values ?? [];\nif (werte.length < 2) throw new Error('Liveliste leer oder ohne Kopfzeile');\nconst kopf = werte[0].map(k => String(k ?? '').trim());\nconst spalten = JSON.parse(konf.spalten ?? '{}');\nconst idx = (name) => kopf.findIndex(k => k.toLowerCase() === String(name ?? '').toLowerCase());\nconst liste = (v) => String(v ?? '').split(/[;,/]/).map(s => s.trim()).filter(Boolean);\nconst zahl = (v) => { const z = parseFloat(String(v ?? '').replace(',', '.')); return Number.isFinite(z) ? z : null; };\nconst investoren = werte.slice(1).filter(z => z.some(c => String(c ?? '').trim() !== '')).map((z, i) => {\n  const feld = (schl) => { const j = idx(spalten[schl]); return j >= 0 ? z[j] : undefined; };\n  const ank = liste(feld('letzteAnkaeufe')).map(t => ({ assetklasse: t, region: '', jahr: null }));\n  return { id: String(feld('id') ?? ('zeile-' + (i + 2))), regionen: liste(feld('regionen')), assetklassen: liste(feld('assetklassen')),\n           ticketMinMio: zahl(feld('ticketMinMio')), ticketMaxMio: zahl(feld('ticketMaxMio')), letzteAnkaeufe: ank,\n           roh: Object.fromEntries(kopf.map((k, j) => [k, z[j]])) };\n});\nconst objekt = konf.objekt ?? konf.body?.objekt ?? {};\nreturn [{ json: { objekt, liveliste: { stand: new Date().toISOString(), quelle: 'OneDrive/Graph', investoren } } }];"
+        "jsCode": "// Excel-Zeilen der Liveliste in die Struktur bringen, die der Abgleich erwartet.\n// Spaltenzuordnung steht in „Konfiguration Liveliste“ – beim Setup an die echte Liste anpassen.\nconst roh = $input.first().json;\nconst konf = $('Konfiguration Liveliste (aus Umgebungsvariablen)').first().json;\nif (roh.error) throw new Error('Liveliste nicht lesbar – SharePoint-Zugriff (Sites.Selected) oder IDs prüfen: ' + JSON.stringify(roh.error));\nconst werte = roh.values ?? [];\nif (werte.length < 2) throw new Error('Liveliste leer oder ohne Kopfzeile');\nconst kopf = werte[0].map(k => String(k ?? '').trim());\nconst spalten = JSON.parse(konf.spalten ?? '{}');\nconst idx = (name) => kopf.findIndex(k => k.toLowerCase() === String(name ?? '').toLowerCase());\nconst liste = (v) => String(v ?? '').split(/[;,/]/).map(s => s.trim()).filter(Boolean);\nconst zahl = (v) => { const z = parseFloat(String(v ?? '').replace(',', '.')); return Number.isFinite(z) ? z : null; };\nconst investoren = werte.slice(1).filter(z => z.some(c => String(c ?? '').trim() !== '')).map((z, i) => {\n  const feld = (schl) => { const j = idx(spalten[schl]); return j >= 0 ? z[j] : undefined; };\n  const ank = liste(feld('letzteAnkaeufe')).map(t => ({ assetklasse: t, region: '', jahr: null }));\n  return { id: String(feld('id') ?? ('zeile-' + (i + 2))), regionen: liste(feld('regionen')), assetklassen: liste(feld('assetklassen')),\n           ticketMinMio: zahl(feld('ticketMinMio')), ticketMaxMio: zahl(feld('ticketMaxMio')), letzteAnkaeufe: ank,\n           roh: Object.fromEntries(kopf.map((k, j) => [k, z[j]])) };\n});\nconst objekt = konf.objekt ?? konf.body?.objekt ?? {};\nreturn [{ json: { objekt, liveliste: { stand: new Date().toISOString(), quelle: 'OneDrive/Graph', investoren } } }];"
       },
       "id": "35ea24d1-9aae-4f9e-87bc-31d9a3e064e4",
       "name": "Zeilen → Investoren",
@@ -193,7 +193,7 @@
         ]
       ]
     },
-    "Konfiguration Liveliste (hier anpassen)": {
+    "Konfiguration Liveliste (aus Umgebungsvariablen)": {
       "main": [
         [
           {

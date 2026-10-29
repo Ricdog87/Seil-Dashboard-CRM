@@ -796,3 +796,24 @@ Drive- und Element-IDs werden aus den Freigabelinks aufgeloest
 Modul 01 unterstuetzt diesen Fall bereits ueber `MS_DRIVE_ID`; das
 SharePoint-Feature-Flag `SHAREPOINT_ENABLED` bleibt leer. WF02 nutzt
 `graphBasis` = `/drives/<DRIVE-ID>` (siehe Punkt 63).
+
+## 65. Kundenkennungen stehen in Umgebungsvariablen, nicht im Repository
+
+Die IT hat am 29.10. Laufwerks- und Elementkennungen geliefert. Das sind
+Kundendaten und gehoeren nicht ins Repository; gleichzeitig wuerde ein
+Neuimport der Workflows Werte ueberschreiben, die jemand von Hand in der
+n8n-Oberflaeche eingetragen hat.
+
+Deshalb liest WF02 seine Konfiguration jetzt aus Umgebungsvariablen:
+
+- `SEIL_DRIVE_ID` — das Laufwerk
+- `SEIL_ITEM_LIVELISTE` — die Investorenliste
+- `SEIL_BLATT_LIVELISTE` — Name des Arbeitsblatts, Vorgabe `Tabelle1`
+
+Die Werte stehen in `/opt/seil/.env` und werden im Compose an den n8n-Dienst
+durchgereicht. n8n erlaubt `$env` in Ausdruecken standardmaessig
+(`N8N_BLOCK_ENV_ACCESS_IN_NODE` ist `false`). In der Ausdrucksvorschau der
+Oberflaeche erscheint `$env` haeufig leer; beim Lauf wird es aufgeloest.
+
+Folge: ein Neuimport ist jederzeit gefahrlos, die Konfiguration haengt am
+Server und nicht an der importierten Datei.
