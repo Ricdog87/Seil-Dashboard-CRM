@@ -7,7 +7,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "pruefen": "node pruefungen/sales-update.mjs && node pruefungen/stichtag.mjs"
+    "pruefen": "node pruefungen/sales-update.mjs && node pruefungen/stichtag.mjs",
+    "n8n:import": "node automation/n8n/importieren.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.475.0",
