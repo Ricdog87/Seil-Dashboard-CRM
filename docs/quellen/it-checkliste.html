@@ -186,6 +186,7 @@ Grant-PnPAzureADAppSitePermission -AppId &lt;CLIENT-ID&gt; -DisplayName "SEIL Au
 GET https://graph.microsoft.com/v1.0/sites/&lt;tenant&gt;.sharepoint.com:/sites/&lt;liveliste-site&gt;
 GET https://graph.microsoft.com/v1.0/sites/&lt;SITE-ID&gt;/drive/root:/&lt;Ordner&gt;/&lt;Liveliste&gt;.xlsx</pre>
         <p class="warum"><b>Alternative ohne PnP:</b> beide Freigaben lassen sich auch direkt &uuml;ber Graph setzen, <code>POST /sites/&lt;SITE-ID&gt;/permissions</code> mit <code>roles: ["read"]</code> bzw. <code>["write"]</code> und der Client-ID als <code>grantedToIdentities</code>. Oft der schnellere Weg, weil PnP PowerShell seit 2024 eine eigene App-Registrierung voraussetzt.</p>
+        <p class="warum"><b>Falls beide auf derselben Website liegen:</b> <code>Sites.Selected</code> wirkt nur auf Ebene der Websitesammlung, eine Schreibfreigabe g&auml;lte dort f&uuml;r alles. Dann zus&auml;tzlich <code>Lists.SelectedOperations.Selected</code> freigeben und auf Bibliotheksebene vergeben, <code>POST /sites/&lt;SITE-ID&gt;/lists/&lt;LIST-ID&gt;/permissions</code> mit <code>read</code> f&uuml;r die Liveliste und <code>write</code> f&uuml;r die Mandate.</p>
         <p class="warum">Schreibrecht nur bei den Mandaten, weil dort die fertigen Datenr&auml;ume angelegt werden: <code>00_Datenraum light</code> und <code>99_Datenraum</code> neben den Objektunterlagen. L&ouml;schrechte braucht die App nicht und bekommt sie nicht.</p>
       </div></li>
 
