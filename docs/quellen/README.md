@@ -11,7 +11,7 @@ verloren gegangen, weil sie nur im temporären Verzeichnis lagen.
 | `SEIL-Uebergabe-Checkliste.pdf` | `uebergabe-checkliste.html` |
 | `SEIL-Automatik-Kette-Onepager.pdf` | `automatik-kette-onepager.html` |
 | `SEIL-Anbindung-Donnerstag.pdf` | `anbindung-donnerstag.html` |
-| `SEIL-IT-Checkliste.pdf` | `it-checkliste.html` (Skala 0.71, zwei Seiten) |
+| `SEIL-IT-Checkliste.pdf` | `it-checkliste.html` (Skala 0.71, drei Seiten) |
 
 Nur `SEIL-Cockpit-Anleitung.pdf` stammt noch aus einer Zeit ohne abgelegte Quelle.
 

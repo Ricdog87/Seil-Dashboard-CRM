@@ -774,3 +774,25 @@ Modul 01 unterstuetzt `driveId` bereits von sich aus.
 
 Konkrete Pfade, Dateinamen und Personennamen des Kunden stehen bewusst nicht in
 diesem Repo.
+
+## 64. Entscheidung: Anbindung bleibt auf OneDrive
+
+Der Kunde hat am 29.10. entschieden, Investorenliste und Mandatsordner im
+persoenlichen OneDrive zu belassen. Die Bedenken aus Punkt 63 bleiben als
+Hinweis bestehen und sind damit erledigt; der Umzug auf eine Teamwebsite ist
+eine Entscheidung des Kunden fuer spaeter.
+
+Daraus folgt fuer die Berechtigungen: nicht `Sites.Selected`, sondern
+`Files.SelectedOperations.Selected` und `ListItems.SelectedOperations.Selected`,
+vergeben auf genau zwei Elemente eines Laufwerks:
+
+- Investorenliste, Rolle `read`
+- Mandatsordner, Rolle `write`
+
+Die Vergabe laeuft ueber `POST /v1.0/drives/<DRIVE-ID>/items/<ITEM-ID>/permissions`.
+Drive- und Element-IDs werden aus den Freigabelinks aufgeloest
+(`GET /v1.0/shares/u!<token>/driveItem`).
+
+Modul 01 unterstuetzt diesen Fall bereits ueber `MS_DRIVE_ID`; das
+SharePoint-Feature-Flag `SHAREPOINT_ENABLED` bleibt leer. WF02 nutzt
+`graphBasis` = `/drives/<DRIVE-ID>` (siehe Punkt 63).

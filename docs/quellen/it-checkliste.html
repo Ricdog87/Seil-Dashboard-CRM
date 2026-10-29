@@ -130,7 +130,7 @@
   <div class="rand">
     <div class="kasten gut">
       <h3>Worum es geht</h3>
-      <p>Eine technische Identit&auml;t im SEIL-Mandanten, die genau <b>ein</b> Postfach und <b>zwei</b> SharePoint-Bereiche benutzen darf. Kein Benutzerkonto, kein Passwort, keine Lizenz, jederzeit abschaltbar.</p>
+      <p>Eine technische Identit&auml;t im SEIL-Mandanten, die genau <b>ein</b> Postfach und <b>zwei</b> einzelne OneDrive-Elemente benutzen darf. Kein Benutzerkonto, kein Passwort, keine Lizenz, jederzeit abschaltbar.</p>
     </div>
   </div>
 </section>
@@ -147,8 +147,9 @@
       </div></li>
 
       <li><div>
-        <h3>API-Berechtigung: nur <code>Sites.Selected</code></h3>
-        <p><em>API permissions</em> &rsaquo; Microsoft Graph &rsaquo; <em>Application permissions</em> &rsaquo; <code>Sites.Selected</code> &rsaquo; <em>Grant admin consent</em>. Sonst nichts.</p>
+        <h3>API-Berechtigungen: zwei Selected-Scopes</h3>
+        <p><em>API permissions</em> &rsaquo; Microsoft Graph &rsaquo; <em>Application permissions</em> &rsaquo; <code>Files.SelectedOperations.Selected</code> und <code>ListItems.SelectedOperations.Selected</code> &rsaquo; <em>Grant admin consent</em>. Sonst nichts.</p>
+        <p class="warum">Beide Ablagen liegen in einem pers&ouml;nlichen OneDrive, nicht in einer Teamwebsite. Deshalb <b>nicht</b> <code>Sites.Selected</code>: das wirkt auf Websitesammlungen. Die beiden Selected-Scopes wirken auf einzelne Dateien und Ordner und sind hier die passende Stufe. Nach dem Consent hat die App zun&auml;chst auf nichts Zugriff, erst Punkt 4 gibt die zwei Elemente frei.</p>
         <div class="kasten acht">
           <p><b>Bitte keine Mail- oder Kalender-Berechtigung in Entra.</b> Die kommt in Punkt 3 &uuml;ber Exchange, begrenzt auf ein Postfach. Wird parallel <code>Mail.ReadWrite</code> in Entra freigegeben, <b>addieren sich</b> beide Rechte und die Begrenzung ist wirkungslos, ohne dass es irgendwo angezeigt wird.</p>
         </div>
@@ -175,19 +176,27 @@ Test-ServicePrincipalAuthorization -Identity &lt;CLIENT-ID&gt; -Resource deals@s
       </div></li>
 
       <li><div>
-        <h3>SharePoint: zwei Bereiche freigeben</h3>
-        <p>Die Site mit der <b>Investoren-Liveliste</b> nur lesen, die Site mit den <b>Mandatsordnern</b> schreiben.</p>
-<pre>Grant-PnPAzureADAppSitePermission -AppId &lt;CLIENT-ID&gt; -DisplayName "SEIL Automatik (n8n)" `
-  -Site https://&lt;tenant&gt;.sharepoint.com/sites/&lt;liveliste-site&gt; -Permissions Read
-Grant-PnPAzureADAppSitePermission -AppId &lt;CLIENT-ID&gt; -DisplayName "SEIL Automatik (n8n)" `
-  -Site https://&lt;tenant&gt;.sharepoint.com/sites/&lt;mandate-site&gt;   -Permissions Write
+        <h3>OneDrive: genau zwei Elemente freigeben</h3>
+        <p>Die <b>Investorenliste</b> nur lesen, den <b>Mandatsordner</b> schreiben. Beide liegen im selben pers&ouml;nlichen Laufwerk, es gibt also <b>eine</b> Drive-ID und <b>zwei</b> Element-IDs.</p>
+        <p>Zuerst die IDs aus den beiden Freigabelinks aufl&ouml;sen. Den Link jeweils unver&auml;ndert einsetzen:</p>
+<pre><span class="k"># PowerShell: Freigabelink in ein Graph-Token umrechnen</span>
+$url   = "&lt;Freigabelink&gt;"
+$b64   = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($url))
+$token = "u!" + $b64.TrimEnd('=').Replace('/','_').Replace('+','-')
 
-<span class="k"># Danach im Graph Explorer, als Admin: Site-ID und Item-ID der Liveliste</span>
-GET https://graph.microsoft.com/v1.0/sites/&lt;tenant&gt;.sharepoint.com:/sites/&lt;liveliste-site&gt;
-GET https://graph.microsoft.com/v1.0/sites/&lt;SITE-ID&gt;/drive/root:/&lt;Ordner&gt;/&lt;Liveliste&gt;.xlsx</pre>
-        <p class="warum"><b>Alternative ohne PnP:</b> beide Freigaben lassen sich auch direkt &uuml;ber Graph setzen, <code>POST /sites/&lt;SITE-ID&gt;/permissions</code> mit <code>roles: ["read"]</code> bzw. <code>["write"]</code> und der Client-ID als <code>grantedToIdentities</code>. Oft der schnellere Weg, weil PnP PowerShell seit 2024 eine eigene App-Registrierung voraussetzt.</p>
-        <p class="warum"><b>Falls beide auf derselben Website liegen:</b> <code>Sites.Selected</code> wirkt nur auf Ebene der Websitesammlung, eine Schreibfreigabe g&auml;lte dort f&uuml;r alles. Dann zus&auml;tzlich <code>Lists.SelectedOperations.Selected</code> freigeben und auf Bibliotheksebene vergeben, <code>POST /sites/&lt;SITE-ID&gt;/lists/&lt;LIST-ID&gt;/permissions</code> mit <code>read</code> f&uuml;r die Liveliste und <code>write</code> f&uuml;r die Mandate.</p>
-        <p class="warum">Schreibrecht nur bei den Mandaten, weil dort die fertigen Datenr&auml;ume angelegt werden: <code>00_Datenraum light</code> und <code>99_Datenraum</code> neben den Objektunterlagen. L&ouml;schrechte braucht die App nicht und bekommt sie nicht.</p>
+<span class="k"># Graph Explorer, als Admin: liefert driveId und itemId</span>
+GET https://graph.microsoft.com/v1.0/shares/$token/driveItem?$select=id,name,parentReference,webUrl</pre>
+        <p>Dann die beiden Freigaben setzen, jeweils auf das Element:</p>
+<pre>POST https://graph.microsoft.com/v1.0/drives/&lt;DRIVE-ID&gt;/items/&lt;ITEM-ID&gt;/permissions
+{
+  "roles": ["read"],
+  "grantedToIdentities": [
+    { "application": { "id": "&lt;CLIENT-ID&gt;", "displayName": "SEIL Automatik (n8n)" } }
+  ]
+}</pre>
+        <p class="warum">Einmal mit <code>"roles": ["read"]</code> auf der Investorenliste, einmal mit <code>"roles": ["write"]</code> auf dem Mandatsordner. Eine Freigabe auf einem Ordner gilt f&uuml;r alles darin.</p>
+        <p class="warum"><b>Wer die Freigabe setzen darf:</b> der ausf&uuml;hrende Administrator braucht daf&uuml;r delegiert <code>Sites.FullControl.All</code>. Das betrifft nur die Vergabe, nicht die App selbst.</p>
+        <p class="warum">Schreibrecht nur beim Mandatsordner, weil dort die fertigen Datenr&auml;ume angelegt werden: <code>00_Datenraum light</code> und <code>99_Datenraum</code> neben den Objektunterlagen. L&ouml;schrechte braucht die App nicht und bekommt sie nicht. Freigaben unterhalb der Websiteebene brechen die Vererbung auf dem jeweiligen Element, bei zwei Elementen unkritisch.</p>
       </div></li>
 
     </ol>
@@ -196,14 +205,15 @@ GET https://graph.microsoft.com/v1.0/sites/&lt;SITE-ID&gt;/drive/root:/&lt;Ordne
 
 <section>
   <div class="rand">
-    <div class="kopf"><span class="etikett">Bitte zur&uuml;ck an RSG</span><h2>Diese sechs Werte brauchen wir</h2><p>Ohne sie l&auml;sst sich die Anbindung nicht abschlie&szlig;en.</p></div>
+    <div class="kopf"><span class="etikett">Bitte zur&uuml;ck an RSG</span><h2>Diese sieben Werte brauchen wir</h2><p>Ohne sie l&auml;sst sich die Anbindung nicht abschlie&szlig;en.</p></div>
     <div class="werte">
       <div class="wert"><span class="name">Directory (tenant) ID</span><span class="linie"></span></div>
       <div class="wert"><span class="name">Application (client) ID</span><span class="linie"></span></div>
       <div class="wert"><span class="name">Client-Secret <span>nur einmal sichtbar &middot; bitte &uuml;ber den Passwort-Safe, nicht per Chat</span></span><span class="linie"></span></div>
       <div class="wert"><span class="name">Object ID aus <em>Enterprise applications</em></span><span class="linie"></span></div>
-      <div class="wert"><span class="name">Site-ID Liveliste <span>plus Ordner und Dateiname</span></span><span class="linie"></span></div>
-      <div class="wert"><span class="name">Site-ID Mandate <span>plus Basispfad der Mandatsordner</span></span><span class="linie"></span></div>
+      <div class="wert"><span class="name">Drive-ID <span>das pers&ouml;nliche Laufwerk, f&uuml;r beide Elemente dasselbe</span></span><span class="linie"></span></div>
+      <div class="wert"><span class="name">Item-ID Investorenliste <span>Rolle read</span></span><span class="linie"></span></div>
+      <div class="wert"><span class="name">Item-ID Mandatsordner <span>Rolle write</span></span><span class="linie"></span></div>
     </div>
   </div>
 </section>
@@ -220,6 +230,7 @@ GET https://graph.microsoft.com/v1.0/sites/&lt;SITE-ID&gt;/drive/root:/&lt;Ordne
           <li>Keine Firewall-Freigabe</li>
           <li>Keine Benutzerlizenz</li>
           <li>Kein Zugriff auf andere Postf&auml;cher</li>
+          <li>Kein Zugriff auf andere Dateien oder Ordner</li>
         </ul>
       </div>
       <div class="kasten">
