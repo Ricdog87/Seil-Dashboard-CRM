@@ -107,6 +107,18 @@
               "name": "fristTage",
               "value": 7,
               "type": "number"
+            },
+            {
+              "id": "fk-3",
+              "name": "supabaseBasis",
+              "value": "https://PROJEKT-KENNUNG.supabase.co",
+              "type": "string"
+            },
+            {
+              "id": "fk-4",
+              "name": "tabelle",
+              "value": "freigabe_eingang",
+              "type": "string"
             }
           ]
         },
@@ -234,6 +246,48 @@
       ],
       "id": "wf04-ifablehn",
       "name": "Abgelehnt?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.supabaseBasis }}/rest/v1/{{ $json.tabelle }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=minimal"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify((() => {\nconst b = $json.body ?? $json;\nconst o = b.objekt ?? {};\nconst i = b.investor ?? {};\nconst t = b.treffer ?? {};\nconst marke = (n, w) => n + ': ' + (w === true ? 'passt' : w === false ? 'passt nicht' : 'unbekannt');\nreturn {\n  entwurf_id: String(b.entwurfId ?? ''),\n  objekt: o.name || b.objektId || null,\n  investor_firma: i.firma ?? null,\n  investor_name: i.ansprechpartner ?? null,\n  investor_email: i.email ?? null,\n  betreff: b.betreff ?? null,\n  entwurf: b.entwurf ?? b.text ?? null,\n  treffer: [marke('Standort', t.standort), marke('Assetklasse', t.assetklasse), marke('Ticket', t.ticket)],\n  status: 'offen'\n};\n})()) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "fg-eingang-anlegen",
+      "name": "Freigabe-Eingang im Cockpit anlegen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        700,
+        420
+      ],
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -285,7 +339,7 @@
       "main": [
         [
           {
-            "node": "Freigabe-Mail an die Leitung (Graph)",
+            "node": "Freigabe-Eingang im Cockpit anlegen",
             "type": "main",
             "index": 0
           }
@@ -331,6 +385,17 @@
         [
           {
             "node": "Sammelfreigabe prüfen und aufteilen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Freigabe-Eingang im Cockpit anlegen": {
+      "main": [
+        [
+          {
+            "node": "Freigabe-Mail an die Leitung (Graph)",
             "type": "main",
             "index": 0
           }

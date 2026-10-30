@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LiveBand } from "@/components/live-band";
 import { LiveDatenraeume } from "@/components/live-datenraeume";
 import { Transaktionsprozess } from "@/components/transaktionsprozess";
+import { FreigabenEingang } from "@/components/freigaben-eingang";
 
 /**
  * Übersicht mit ausschließlich echten Daten.
@@ -45,6 +46,7 @@ export default function UebersichtSeite() {
       </div>
 
       <LiveBand />
+      <FreigabenEingang kompakt />
       <Transaktionsprozess />
       <LiveDatenraeume />
 

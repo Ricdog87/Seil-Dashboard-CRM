@@ -36,5 +36,49 @@
   },
   "05-followup-scheduler.json": {
     "demoEmpfaenger": "<Adresse fuer Vorfuehrungen, leer lassen fuer echten Versand>"
+  },
+  "04-freigabe-gate.json": {
+    "freigabeAn": "FREIGEBENDE-PERSON@BEISPIEL.DE",
+    "supabaseBasis": "https://PROJEKT-KENNUNG.supabase.co",
+    "tabelle": "freigabe_eingang",
+    "_credentials": {
+      "Freigabe-Eingang im Cockpit anlegen": {
+        "httpHeaderAuth": {
+          "id": "ID-DER-DATENBANK-ANMELDEDATEN",
+          "name": "Supabase (SEIL) apikey"
+        }
+      }
+    }
+  },
+  "11-freigabe-eingang.json": {
+    "supabaseBasis": "https://PROJEKT-KENNUNG.supabase.co",
+    "tabelle": "freigabe_eingang",
+    "freigabeWebhook": "http://localhost:5678/webhook/seil/freigabe",
+    "_credentials": {
+      "Offene Freigaben abrufen": {
+        "httpHeaderAuth": {
+          "id": "ID-DER-WEBHOOK-ANMELDEDATEN",
+          "name": "SEIL Webhook-Header"
+        }
+      },
+      "Entscheidung aus dem Cockpit": {
+        "httpHeaderAuth": {
+          "id": "ID-DER-WEBHOOK-ANMELDEDATEN",
+          "name": "SEIL Webhook-Header"
+        }
+      },
+      "Freigabe-Eingang lesen": {
+        "httpHeaderAuth": {
+          "id": "ID-DER-DATENBANK-ANMELDEDATEN",
+          "name": "Supabase (SEIL) apikey"
+        }
+      },
+      "Eintrag abschliessen": {
+        "httpHeaderAuth": {
+          "id": "ID-DER-DATENBANK-ANMELDEDATEN",
+          "name": "Supabase (SEIL) apikey"
+        }
+      }
+    }
   }
 }

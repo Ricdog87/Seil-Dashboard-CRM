@@ -10,6 +10,7 @@ const punkte = [
   // Nur Seiten mit echten Daten. Vermarktung und Aufgaben sind Beispieldaten
   // und bleiben ausgeblendet, bis sie aus der Datenbank kommen.
   { href: "/", label: "Übersicht", auchAktivBei: [] },
+  { href: "/freigaben", label: "Freigaben", auchAktivBei: [] },
   { href: "/investoren", label: "Investoren", auchAktivBei: [] },
 ];
 
@@ -19,8 +20,8 @@ export function TopNav({ benutzer }: { benutzer?: string }) {
   // Das Abzeichen muss sagen, was AUF DIESER SEITE steht, nicht ob irgendeine
   // Verbindung lebt. Sonst behauptet es "live" ueber erfundene Investoren.
   const abzeichen =
-    pathname.startsWith("/investoren") || pathname === "/"
-      ? modus === "live" || pathname.startsWith("/investoren")
+    pathname.startsWith("/investoren") || pathname.startsWith("/freigaben") || pathname === "/"
+      ? modus === "live" || pathname.startsWith("/investoren") || pathname.startsWith("/freigaben")
         ? { text: "Live · OneDrive", echt: true }
         : { text: "Modul 01 nicht erreichbar", echt: false }
       : { text: "Demodaten", echt: false };

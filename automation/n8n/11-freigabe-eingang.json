@@ -1,0 +1,374 @@
+{
+  "name": "SEIL 11 · Freigabe-Eingang (Cockpit)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Freigaben fuers Cockpit\nLiest die offenen Entwuerfe aus dem Freigabe-Eingang und nimmt die Entscheidung entgegen.\n\nFreigegeben heisst: weiter an WF 04, der den Versand anstoesst. Abgelehnt heisst: der Entwurf bleibt liegen.\n\nDie Zugangsdaten zur Datenbank stehen im Anmeldedaten-Speicher von n8n, nicht in dieser Datei.",
+        "height": 260,
+        "width": 380
+      },
+      "id": "fg-sticky",
+      "name": "Hinweis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -180,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "seil/freigaben",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "fg-webhook-lesen",
+      "name": "Offene Freigaben abrufen",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        260,
+        0
+      ],
+      "webhookId": "seil-freigaben-lesen"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fg-c1",
+              "name": "supabaseBasis",
+              "value": "https://PROJEKT-KENNUNG.supabase.co",
+              "type": "string"
+            },
+            {
+              "id": "fg-c2",
+              "name": "tabelle",
+              "value": "freigabe_eingang",
+              "type": "string"
+            },
+            {
+              "id": "fg-c3",
+              "name": "freigabeWebhook",
+              "value": "http://localhost:5678/webhook/seil/freigabe",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "fg-konfig",
+      "name": "Konfiguration Freigaben (Platzhalter)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.supabaseBasis }}/rest/v1/{{ $json.tabelle }}?status=eq.offen&order=erstellt.desc&limit=50",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "fg-lesen",
+      "name": "Freigabe-Eingang lesen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Zeilen aus dem Freigabe-Eingang in die Form bringen, die das Cockpit anzeigt.\n// Tolerant gegenueber beiden Antwortformen von n8n: ein Item je Zeile oder ein\n// Item mit einem Array darin.\nconst roh = $input.all().map((i) => i.json);\nconst zeilen = roh.length === 1 && Array.isArray(roh[0]?.data)\n  ? roh[0].data\n  : Array.isArray(roh[0]) ? roh[0] : roh;\nconst offen = (zeilen ?? [])\n  .filter((z) => z && z.entwurf_id)\n  .map((z) => ({\n    entwurfId: z.entwurf_id,\n    objekt: z.objekt ?? null,\n    investorFirma: z.investor_firma ?? null,\n    investorName: z.investor_name ?? null,\n    investorEmail: z.investor_email ?? null,\n    betreff: z.betreff ?? null,\n    entwurf: z.entwurf ?? null,\n    treffer: Array.isArray(z.treffer) ? z.treffer : [],\n    erstellt: z.erstellt ?? null,\n  }));\nreturn [{ json: { stand: new Date().toISOString(), anzahl: offen.length, offen } }];\n"
+      },
+      "id": "fg-mappen",
+      "name": "Antwort fuers Cockpit bauen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "fg-antwort",
+      "name": "JSON antworten",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "seil/freigabe-entscheidung",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "fg-webhook-ent",
+      "name": "Entscheidung aus dem Cockpit",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        260,
+        240
+      ],
+      "webhookId": "seil-freigabe-entscheidung"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Die Entscheidung aus dem Cockpit. Wer entschieden hat, kommt aus der Sitzung\n// des Cockpits und nicht aus dem Browser - hier wird es nur uebernommen.\nconst b = $input.first().json.body ?? $input.first().json;\nif (!b.entwurfId) throw new Error('Entscheidung ohne Entwurf - es wird nichts versendet');\nconst entscheidung = b.entscheidung === 'freigegeben' ? 'freigegeben' : 'abgelehnt';\nreturn [{ json: {\n  entwurfId: String(b.entwurfId),\n  entscheidung,\n  durch: String(b.durch || 'cockpit'),\n  am: new Date().toISOString(),\n} }];\n"
+      },
+      "id": "fg-ent-lesen",
+      "name": "Entscheidung lesen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $('Konfiguration Freigaben (Platzhalter)').first().json.supabaseBasis }}/rest/v1/{{ $('Konfiguration Freigaben (Platzhalter)').first().json.tabelle }}?entwurf_id=eq.{{ encodeURIComponent($json.entwurfId) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ status: $json.entscheidung, entschieden_durch: $json.durch, entschieden_am: $json.am }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "fg-ent-schreiben",
+      "name": "Eintrag abschliessen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fg-if-1",
+              "leftValue": "={{ $('Entscheidung lesen').first().json.entscheidung }}",
+              "rightValue": "freigegeben",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fg-if",
+      "name": "Freigegeben?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        900,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Konfiguration Freigaben (Platzhalter)').first().json.freigabeWebhook }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ entwuerfe: [$('Entscheidung lesen').first().json.entwurfId], durchId: $('Entscheidung lesen').first().json.durch, am: $('Entscheidung lesen').first().json.am }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "fg-versand",
+      "name": "Versand ueber WF 04 anstossen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, entwurfId: $('Entscheidung lesen').first().json.entwurfId, entscheidung: $('Entscheidung lesen').first().json.entscheidung }) }}",
+        "options": {}
+      },
+      "id": "fg-ent-antwort",
+      "name": "Entscheidung bestaetigen",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        240
+      ]
+    }
+  ],
+  "connections": {
+    "Offene Freigaben abrufen": {
+      "main": [
+        [
+          {
+            "node": "Konfiguration Freigaben (Platzhalter)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Konfiguration Freigaben (Platzhalter)": {
+      "main": [
+        [
+          {
+            "node": "Freigabe-Eingang lesen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Freigabe-Eingang lesen": {
+      "main": [
+        [
+          {
+            "node": "Antwort fuers Cockpit bauen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Antwort fuers Cockpit bauen": {
+      "main": [
+        [
+          {
+            "node": "JSON antworten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entscheidung aus dem Cockpit": {
+      "main": [
+        [
+          {
+            "node": "Entscheidung lesen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entscheidung lesen": {
+      "main": [
+        [
+          {
+            "node": "Eintrag abschliessen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eintrag abschliessen": {
+      "main": [
+        [
+          {
+            "node": "Freigegeben?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Freigegeben?": {
+      "main": [
+        [
+          {
+            "node": "Versand ueber WF 04 anstossen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Entscheidung bestaetigen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Versand ueber WF 04 anstossen": {
+      "main": [
+        [
+          {
+            "node": "Entscheidung bestaetigen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
