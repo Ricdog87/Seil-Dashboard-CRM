@@ -1,18 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useLive, uhrzeit } from "@/components/live-abruf";
 import type { Modul01Stand, Modul01Objekt } from "@/lib/modul01";
 
 /** Die Datenräume aus Modul 01, mit den Zahlen des jeweiligen Laufs. Keine Beispiele. */
 export function LiveDatenraeume() {
-  const [stand, setStand] = useState<Modul01Stand | null>(null);
-
-  useEffect(() => {
-    fetch("/api/modul01/status", { cache: "no-store" })
-      .then((r) => r.json())
-      .then(setStand)
-      .catch(() => setStand(null));
-  }, []);
+  const { daten: stand, abgerufen } = useLive<Modul01Stand>("/api/modul01/status", 15000);
 
   const raeume: Modul01Objekt[] = stand
     ? [...Object.values(stand.objekte ?? {}), ...(stand.unbekannt ?? [])]
@@ -52,7 +45,9 @@ export function LiveDatenraeume() {
         </table>
       </div>
       <p className="mt-2 text-kicker text-seil-muted">
-        Die Prüffälle bearbeitet ihr im Datenraum-Center, nicht hier.
+        Die Prüffälle bearbeitet ihr im Datenraum-Center, nicht hier. Diese Tabelle führt sich
+        alle 15 Sekunden nach, zuletzt um {uhrzeit(abgerufen)}: ein laufender Datenraum erscheint
+        hier, während er entsteht.
       </p>
     </section>
   );

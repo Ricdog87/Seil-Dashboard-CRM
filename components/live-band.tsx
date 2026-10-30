@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useLive, uhrzeit } from "@/components/live-abruf";
 import type { LiveInvestoren } from "@/app/api/investoren/route";
 import type { Modul01Stand } from "@/lib/modul01";
 
@@ -11,19 +11,8 @@ import type { Modul01Stand } from "@/lib/modul01";
  * Nichts davon ist Demo, nichts davon wird zwischengespeichert.
  */
 export function LiveBand() {
-  const [dr, setDr] = useState<Modul01Stand | null>(null);
-  const [inv, setInv] = useState<LiveInvestoren | null>(null);
-
-  useEffect(() => {
-    fetch("/api/modul01/status", { cache: "no-store" })
-      .then((r) => r.json())
-      .then(setDr)
-      .catch(() => setDr(null));
-    fetch("/api/investoren", { cache: "no-store" })
-      .then((r) => r.json())
-      .then(setInv)
-      .catch(() => setInv(null));
-  }, []);
+  const { daten: dr, abgerufen, laeuft, holen } = useLive<Modul01Stand>("/api/modul01/status", 15000);
+  const { daten: inv } = useLive<LiveInvestoren>("/api/investoren", 60000);
 
   const raeume = dr ? [...Object.values(dr.objekte ?? {}), ...(dr.unbekannt ?? [])] : [];
   const dokumente = raeume.reduce((n, o) => n + (o.dokumente?.length ?? 0), 0);
@@ -43,10 +32,15 @@ export function LiveBand() {
         <h2 className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-accent">
           Live aus OneDrive
         </h2>
-        <span className="text-kicker text-seil-muted">
-          {live
-            ? `Stand ${dr?.stand ? new Date(dr.stand).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : "jetzt"} · Modul 01 und Investoren-Liveliste`
-            : (dr?.grund ?? "Verbindung wird aufgebaut")}
+        <span className="inline-flex items-center gap-2 text-kicker text-seil-muted">
+          {live ? `aktualisiert ${uhrzeit(abgerufen)} · alle 15 s` : (dr?.grund ?? "Verbindung wird aufgebaut")}
+          <button
+            type="button"
+            onClick={() => void holen()}
+            className="rounded-seil border border-seil-line px-2 py-0.5 text-kicker text-seil-body hover:border-seil-accent hover:text-seil-accent"
+          >
+            {laeuft ? "lädt" : "jetzt"}
+          </button>
         </span>
       </div>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
