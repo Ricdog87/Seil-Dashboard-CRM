@@ -1,0 +1,219 @@
+{
+  "name": "SEIL 10 · Investoren-Liveliste (Leseweg Cockpit)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Leseweg Investoren\nLiefert die Liveliste aus OneDrive an das Cockpit. Nur lesend, Header-Auth, keine Speicherung.",
+        "height": 140,
+        "width": 360
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        220,
+        120
+      ],
+      "id": "inv-hinweis",
+      "name": "Hinweis"
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "seil/investoren",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        40,
+        300
+      ],
+      "id": "inv-hook",
+      "name": "Investoren abrufen",
+      "webhookId": "seil-investoren"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ll-1",
+              "name": "graphBasis",
+              "value": "/drives/DRIVE-ID-EINTRAGEN",
+              "type": "string"
+            },
+            {
+              "id": "ll-2",
+              "name": "itemId",
+              "value": "ITEM-ID-DER-LIVELISTE-EINTRAGEN",
+              "type": "string"
+            },
+            {
+              "id": "ll-3",
+              "name": "blatt",
+              "value": "TABELLENBLATT-EINTRAGEN",
+              "type": "string"
+            },
+            {
+              "id": "ll-4",
+              "name": "spalten",
+              "value": "{\"id\": \"SPALTE-INVESTOR\", \"regionen\": \"SPALTE-REGION\", \"assetklassen\": \"SPALTE-ASSETKLASSE\", \"sweetspot\": \"SPALTE-TICKETSPANNE\", \"letzteAnkaeufe\": \"SPALTE-LETZTE-ANKAEUFE\"}",
+              "type": "string"
+            },
+            {
+              "id": "ll-5",
+              "name": "maxVorschlaege",
+              "value": "5",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "inv-konf",
+      "name": "Konfiguration Liveliste (Platzhalter)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        300
+      ],
+      "notes": "Die echten Werte stehen NICHT hier. Sie kommen beim Import aus einer Konfigurationsdatei auf dem Server (importieren.mjs --konfig). So bleiben Kundenkennungen aus dem Repository und ueberleben jeden Neuimport.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://graph.microsoft.com/v1.0{{ $json.graphBasis }}/items/{{ $json.itemId }}/workbook/worksheets('{{ $json.blatt }}')/usedRange(valuesOnly=true)",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "inv-lesen",
+      "name": "Liveliste aus OneDrive lesen (Graph)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "seil-graph",
+          "name": "Microsoft Graph (SEIL)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Excel-Zeilen der Liveliste in die Struktur bringen, die der Abgleich erwartet.\n// Spaltenzuordnung steht in „Konfiguration Liveliste“ – beim Setup an die echte Liste anpassen.\nconst roh = $input.first().json;\nconst konf = $('Konfiguration Liveliste (Platzhalter)').first().json;\nif (roh.error) throw new Error('Liveliste nicht lesbar – SharePoint-Zugriff (Sites.Selected) oder IDs prüfen: ' + JSON.stringify(roh.error));\nconst werte = roh.values ?? [];\nif (werte.length < 2) throw new Error('Liveliste leer oder ohne Kopfzeile');\nconst kopf = werte[0].map(k => String(k ?? '').trim());\nconst spalten = JSON.parse(konf.spalten ?? '{}');\nconst idx = (name) => kopf.findIndex(k => k.toLowerCase() === String(name ?? '').toLowerCase());\nconst liste = (v) => String(v ?? '').split(/[;,/]/).map(s => s.trim()).filter(Boolean);\nconst zahl = (v) => { const z = parseFloat(String(v ?? '').replace(',', '.')); return Number.isFinite(z) ? z : null; };\nconst investoren = werte.slice(1).filter(z => z.some(c => String(c ?? '').trim() !== '')).map((z, i) => {\n  const feld = (schl) => { const j = idx(spalten[schl]); return j >= 0 ? z[j] : undefined; };\n  const ank = liste(feld('letzteAnkaeufe')).map(t => ({ assetklasse: t, region: '', jahr: null }));\n  // Ticketspanne: entweder zwei Spalten, oder eine Spalte der Form \"1000000-10000000\".\n  // Werte ab 100000 werden als Euro gelesen und in Millionen umgerechnet.\n  let tMin = zahl(feld('ticketMinMio')), tMax = zahl(feld('ticketMaxMio'));\n  const spanne = String(feld('sweetspot') ?? '').trim();\n  if ((tMin === null || tMax === null) && spanne) {\n    const teile = spanne.split(/\\s*(?:-|bis|–)\\s*/).map(zahl).filter(z => z !== null);\n    if (teile.length >= 1) {\n      const skal = (z) => (z >= 100000 ? z / 1000000 : z);\n      tMin = skal(teile[0]);\n      tMax = teile.length > 1 ? skal(teile[1]) : null;\n    }\n  }\n  return { id: String(feld('id') ?? ('zeile-' + (i + 2))),\n           email: String(feld('email') ?? '').trim(),\n           firma: String(feld('firma') ?? '').trim(),\n           ansprechpartner: [feld('vorname'), feld('id')].filter(Boolean).join(' ').trim(),\n           regionen: liste(feld('regionen')), assetklassen: liste(feld('assetklassen')),\n           ticketMinMio: tMin, ticketMaxMio: tMax, letzteAnkaeufe: ank,\n           roh: Object.fromEntries(kopf.map((k, j) => [k, z[j]])) };\n});\nreturn [{ json: { liveliste: { stand: new Date().toISOString(), quelle: 'OneDrive/Graph', investoren } } }];"
+      },
+      "id": "inv-zeilen",
+      "name": "Zeilen → Investoren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Auf das reduzieren, was das Cockpit anzeigt. Keine Zwischenspeicherung,\n// die Liveliste in OneDrive bleibt die einzige Quelle.\nconst l = $input.first().json.liveliste ?? {};\nconst alle = (l.investoren ?? []).filter((i) => (i.firma || i.id || '').trim() !== '');\nconst q = $('Investoren abrufen').first().json.query ?? {};\nconst suche = String(q.suche ?? '').trim().toLowerCase();\nconst passt = (i) => !suche || [i.firma, i.id, i.ansprechpartner, ...(i.regionen ?? []),\n  ...(i.assetklassen ?? [])].join(' ').toLowerCase().includes(suche);\nconst gefiltert = alle.filter(passt);\nconst grenze = Math.min(Number(q.limit ?? 500) || 500, 2000);\nreturn [{ json: { stand: new Date().toISOString(), quelle: 'OneDrive/Graph',\n  gesamt: alle.length, gefunden: gefiltert.length,\n  investoren: gefiltert.slice(0, grenze).map((i) => ({\n    id: i.id, firma: i.firma || i.id, ansprechpartner: i.ansprechpartner || null,\n    email: i.email || null, regionen: i.regionen ?? [], assetklassen: i.assetklassen ?? [],\n    ticketMinMio: i.ticketMinMio, ticketMaxMio: i.ticketMaxMio,\n    letzteAnkaeufe: (i.letzteAnkaeufe ?? []).map((a) => a.assetklasse).filter(Boolean),\n  })) } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        840,
+        300
+      ],
+      "id": "inv-antwort",
+      "name": "Antwort fürs Cockpit bauen"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        300
+      ],
+      "id": "inv-respond",
+      "name": "JSON antworten"
+    }
+  ],
+  "connections": {
+    "Investoren abrufen": {
+      "main": [
+        [
+          {
+            "node": "Konfiguration Liveliste (Platzhalter)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Konfiguration Liveliste (Platzhalter)": {
+      "main": [
+        [
+          {
+            "node": "Liveliste aus OneDrive lesen (Graph)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Liveliste aus OneDrive lesen (Graph)": {
+      "main": [
+        [
+          {
+            "node": "Zeilen → Investoren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zeilen → Investoren": {
+      "main": [
+        [
+          {
+            "node": "Antwort fürs Cockpit bauen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Antwort fürs Cockpit bauen": {
+      "main": [
+        [
+          {
+            "node": "JSON antworten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false
+}

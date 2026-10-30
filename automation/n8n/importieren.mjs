@@ -108,11 +108,11 @@ if (arg.konfig) {
 }
 
 const dateien = readdirSync(HIER).filter((d) => /^\d\d-.*\.json$/.test(d)).sort();
-if (dateien.length !== 9) {
-  console.error(`Erwartet neun Workflow-Dateien, gefunden ${dateien.length}: ${dateien.join(", ")}`);
+if (dateien.length === 0) {
+  console.error("Keine Workflow-Dateien gefunden.");
   process.exit(2);
 }
-console.log(`Neun Dateien gefunden: ${dateien.map((d) => d.slice(0, 2)).join(" ")}`);
+console.log(`${dateien.length} Dateien gefunden: ${dateien.map((d) => d.slice(0, 2)).join(" ")}`);
 
 if (arg.trocken) {
   for (const d of dateien) {
@@ -163,4 +163,4 @@ const danach = (await api(arg, "/workflows?limit=250")).data ?? [];
 const aktiv = danach.filter((w) => w.active);
 console.log(`\nErgebnis: ${danach.length} Workflow(s), davon aktiv: ${aktiv.length}`);
 if (aktiv.length > 0) console.log("  ACHTUNG, aktiv: " + aktiv.map((w) => w.name).join(", "));
-process.exit(danach.length === 9 && aktiv.length === 0 ? 0 : 1);
+process.exit(danach.length === dateien.length && aktiv.length === 0 ? 0 : 1);

@@ -9,8 +9,9 @@ import { SeilLogo } from "./seil-logo";
 import { useSitzung } from "./sitzung";
 
 const punkte = [
-  { href: "/", label: "Übersicht", auchAktivBei: ["/objekte", "/investoren"] },
+  { href: "/", label: "Übersicht", auchAktivBei: ["/objekte"] },
   { href: "/vermarktung", label: "Vermarktung", auchAktivBei: [] },
+  { href: "/investoren", label: "Investoren", auchAktivBei: [] },
   { href: "/aufgaben", label: "Aufgaben", auchAktivBei: [] },
 ];
 
