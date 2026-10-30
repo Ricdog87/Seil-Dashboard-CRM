@@ -68,7 +68,10 @@ export function FreigabenEingang({ kompakt = false }: { kompakt?: boolean }) {
   }
 
   const offen = stand?.offen ?? [];
-  const nichtEingerichtet = stand?.modus === "aus";
+  // Eine leere Liste und eine kaputte Leitung sehen gleich aus, wenn man es
+  // nicht auseinanderhaelt. "Nichts zu tun" darf hier nicht stehen, wenn in
+  // Wahrheit niemand gefragt wurde.
+  const stoerung = stand?.modus === "aus" || stand?.modus === "fehler";
 
   return (
     <section className={kompakt ? "mt-5" : ""}>
@@ -94,13 +97,13 @@ export function FreigabenEingang({ kompakt = false }: { kompakt?: boolean }) {
       {offen.length === 0 ? (
         <div className="rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4">
           <p className="text-body text-seil-text">
-            {nichtEingerichtet
+            {stoerung
               ? "Der Freigabe-Eingang ist noch nicht angebunden."
               : "Gerade wartet kein Anschreiben auf eine Freigabe."}
           </p>
           <p className="mt-1 text-kicker leading-relaxed text-seil-muted">
-            {nichtEingerichtet
-              ? "Sobald die Automatik ihre Entwürfe hierher meldet, erscheinen sie an dieser Stelle."
+            {stoerung
+              ? `Deshalb steht hier nicht „nichts zu tun“: es konnte niemand gefragt werden (${stand?.grund ?? "unbekannt"}). Sobald der Ablauf auf dem Server liegt, erscheinen die Entwürfe hier.`
               : "Sobald die Automatik ein Anschreiben entworfen hat, erscheint es hier – mit Investor, Begründung und vollem Text. Erst ein Klick auf „Freigeben“ löst den Versand aus."}
           </p>
         </div>
