@@ -80,8 +80,13 @@ export function ordneZu(
   const unbekannt: Modul01Objekt[] = [];
   for (const live of antwort.objekte ?? []) {
     const kennungen = [live.objektId, live.objektName].filter((x): x is string => !!x);
+    // Laufnamen tragen einen Zeitstempel ("Portfolio-Otto_20261030-070222"), eine
+    // feste Zuordnung waere nach dem naechsten Lauf wieder kaputt. Deshalb zaehlt
+    // auch ein Praefix-Treffer.
+    const passt = (kennung: string) =>
+      kennungen.some((k) => k === kennung || k.startsWith(kennung));
     const treffer =
-      Object.entries(mapping).find(([, kennung]) => kennungen.includes(kennung))?.[0] ??
+      Object.entries(mapping).find(([, kennung]) => passt(kennung))?.[0] ??
       bekannteIds.find((id) => kennungen.includes(id));
     if (treffer) objekte[treffer] = live;
     else unbekannt.push(live);
