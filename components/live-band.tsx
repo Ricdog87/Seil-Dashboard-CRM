@@ -67,11 +67,11 @@ export function LiveBand() {
         </ul>
       ) : null}
       <p className="mt-3 text-kicker text-seil-muted">
-        Darunter stehen noch Beispieldaten für Mandate und Aufgaben.{" "}
+        Darunter steht der Transaktionsprozess des jeweiligen Mandats.{" "}
         <Link href="/investoren" className="text-seil-accent hover:underline">
           Die Investorenliste
         </Link>{" "}
-        ist bereits vollständig live.
+        ist vollständig live.
       </p>
     </section>
   );

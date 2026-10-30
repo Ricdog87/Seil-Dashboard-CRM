@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LiveBand } from "@/components/live-band";
 import { LiveDatenraeume } from "@/components/live-datenraeume";
+import { Transaktionsprozess } from "@/components/transaktionsprozess";
 
 /**
  * Übersicht mit ausschließlich echten Daten.
@@ -44,6 +45,7 @@ export default function UebersichtSeite() {
       </div>
 
       <LiveBand />
+      <Transaktionsprozess />
       <LiveDatenraeume />
 
       <section className="mt-5 grid gap-3 sm:grid-cols-3">

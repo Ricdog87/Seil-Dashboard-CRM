@@ -32,10 +32,14 @@ export async function GET(request: Request): Promise<NextResponse<LiveInvestoren
   if (!url) {
     return NextResponse.json({ modus: "aus", grund: "INVESTOREN_URL nicht gesetzt", investoren: [] });
   }
-  const suche = new URL(request.url).searchParams.get("suche") ?? "";
+  const frage = new URL(request.url).searchParams;
+  const suche = frage.get("suche") ?? "";
+  // Der Transaktionsprozess gleicht gegen die GANZE Liste ab, nicht gegen die
+  // ersten 500: eine Trefferzahl aus einem Ausschnitt waere schlicht falsch.
+  const grenze = Math.min(Math.max(Number(frage.get("limit") ?? 500) || 500, 1), 2000);
   const ziel = new URL(url);
   if (suche) ziel.searchParams.set("suche", suche);
-  ziel.searchParams.set("limit", "500");
+  ziel.searchParams.set("limit", String(grenze));
 
   try {
     const res = await fetch(ziel, {
