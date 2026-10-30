@@ -893,3 +893,30 @@ Grund: Die Empfaengeradresse stammt aus der echten Liveliste mit 1571
 Investoren. Eine versehentlich versendete Mail laesst sich nicht
 zurueckholen. Die Umleitung macht aus einem unumkehrbaren Risiko eine
 Einstellung, die beim Import gesetzt wird.
+
+## 69. Scharfschaltung am 30.10., Befunde
+
+Beim Einschalten traten vier Fehler zutage, die vorher nicht sichtbar waren,
+weil nie ein Workflow aktiv war.
+
+1. **WF07 hing an SMTP.** Der Versandknoten war beim Graph-Umbau uebersehen
+   worden und liess sich nicht aktivieren. Jetzt Versand ueber Graph aus
+   deals@, Empfaenger als konfigurierbares Feld.
+2. **WF02 ohne Obergrenze.** Der Abgleich gab alle 1571 Zeilen der Liveliste
+   weiter, wodurch fuer jeden Investor ein eigener Aufruf der
+   Mail-Vorbereitung lief. n8n stuerzte ab. Es werden jetzt hoechstens
+   `maxVorschlaege` Treffer weitergereicht, Vorgabe fuenf.
+3. **Doppelte geschweifte Klammern in Vorlagentexten.** `{{assetklasse}}`
+   innerhalb eines n8n-Ausdrucks brach den Parser. Platzhalter heissen jetzt
+   `[assetklasse]`.
+4. **WF04 baut den Freigabe-Link, bevor es ihn gibt.** Die Mail an die
+   Leitung verwendet `$execution.resumeUrl`, die Wartestelle steht aber erst
+   danach im Ablauf. Das ist ein Konstruktionsfehler und noch offen; WF04 und
+   WF05 sind deshalb ausgeschaltet.
+
+Stand danach: sieben von neun aktiv, die Kette Intake, Matching und
+Mail-Vorbereitung laeuft nachweislich durch.
+
+**Umleitung vor dem Versand** steht in der Konfiguration auf eine
+RSG-Adresse. Bevor WF05 wieder eingeschaltet wird, muss diese Entscheidung
+bewusst getroffen werden.

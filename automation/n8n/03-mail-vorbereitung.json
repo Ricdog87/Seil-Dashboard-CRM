@@ -45,7 +45,7 @@
         400
       ],
       "parameters": {
-        "jsCode": "// Nimmt den KI-Text, wenn Claude geantwortet hat; sonst die gefüllte Vorlage als Fallback.\n// So bleibt die Kette lauffähig, auch wenn der Key fehlt – der Entwurf ist dann sichtbar als 'vorlage' markiert.\nconst d = $('Vorlage + Leitplanken').item.json;\nconst antwort = $input.first().json;\nconst kiText = Array.isArray(antwort.content) ? (antwort.content.find(c => c.type === 'text')?.text ?? '') : '';\nconst fallback = String(d.vorlage ?? '')\n  .replaceAll('{{assetklasse}}', d.objekt?.assetklasse ?? '')\n  .replaceAll('{{region}}', d.objekt?.region ?? '');\nconst entwurf = kiText.trim() || fallback;\nreturn [{ json: {\n  entwurfId: d.entwurfId ?? ('e-' + Date.now()),\n  objektId: d.objektId, investorId: d.investorId ?? null, email: d.email ?? null,\n  betreff: d.betreff ?? `${d.objekt?.name ?? 'Objekt'} – vertrauliche Vorabinformation`,\n  entwurf, quelle: kiText.trim() ? 'ki' : 'vorlage', kiFehler: antwort.error ? JSON.stringify(antwort.error) : null,\n  status: 'wartet_auf_freigabe', erstellt: new Date().toISOString(),\n} }];"
+        "jsCode": "// Nimmt den KI-Text, wenn Claude geantwortet hat; sonst die gefüllte Vorlage als Fallback.\n// So bleibt die Kette lauffähig, auch wenn der Key fehlt – der Entwurf ist dann sichtbar als 'vorlage' markiert.\nconst d = $('Vorlage + Leitplanken').item.json;\nconst antwort = $input.first().json;\nconst kiText = Array.isArray(antwort.content) ? (antwort.content.find(c => c.type === 'text')?.text ?? '') : '';\nconst fallback = String(d.vorlage ?? '')\n  .replaceAll('[assetklasse]', d.objekt?.assetklasse ?? '')\n  .replaceAll('[region]', d.objekt?.region ?? '');\nconst entwurf = kiText.trim() || fallback;\nreturn [{ json: {\n  entwurfId: d.entwurfId ?? ('e-' + Date.now()),\n  objektId: d.objektId, investorId: d.investorId ?? null, email: d.email ?? null,\n  betreff: d.betreff ?? `${d.objekt?.name ?? 'Objekt'} – vertrauliche Vorabinformation`,\n  entwurf, quelle: kiText.trim() ? 'ki' : 'vorlage', kiFehler: antwort.error ? JSON.stringify(antwort.error) : null,\n  status: 'wartet_auf_freigabe', erstellt: new Date().toISOString(),\n} }];"
       }
     },
     {
@@ -62,7 +62,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "={{ (() => { const b = $json.body ?? $json; return { ...b, vorlage: b.vorlage ?? 'Sehr geehrte Damen und Herren,\\n\\nfür ein Objekt ({{assetklasse}}, {{region}}) suchen wir ausgewählte Investoren. Details nach NDA.\\n\\nMit freundlichen Grüßen\\n[Signatur]' }; })() }}",
+        "jsonOutput": "={{ (() => { const b = $json.body ?? $json; return { ...b, vorlage: b.vorlage ?? 'Sehr geehrte Damen und Herren,\\n\\nfür ein Objekt ([assetklasse], [region]) suchen wir ausgewählte Investoren. Details nach NDA.\\n\\nMit freundlichen Grüßen\\n[Signatur]' }; })() }}",
         "options": {}
       },
       "id": "c94ecb86-4616-4623-b6c6-987cfe8bafe6",

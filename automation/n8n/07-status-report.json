@@ -65,24 +65,6 @@
       }
     },
     {
-      "id": "mail-07",
-      "name": "Bericht senden: GF + Leitung (SMTP nötig)",
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2,
-      "position": [
-        940,
-        520
-      ],
-      "parameters": {
-        "fromEmail": "cockpit@BEISPIEL-DOMAIN.de",
-        "toEmail": "geschaeftsfuehrung@BEISPIEL-DOMAIN.de, vertriebsleitung@BEISPIEL-DOMAIN.de",
-        "subject": "={{ $json.betreff }}",
-        "emailFormat": "html",
-        "html": "={{ $json.html }}",
-        "options": {}
-      }
-    },
-    {
       "id": "noop-26",
       "name": "Bericht archivieren (Ablage)",
       "type": "n8n-nodes-base.noOp",
@@ -92,6 +74,60 @@
         520
       ],
       "parameters": {}
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e-1",
+              "name": "empfaenger",
+              "value": "EMPFAENGER-EINTRAGEN",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        750,
+        520
+      ],
+      "id": "wf07-empf",
+      "name": "Empfänger des Berichts",
+      "notes": "Mehrere Adressen mit Komma trennen. Wird beim Import gesetzt.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.microsoft.com/v1.0/users/deals@seil.com/sendMail",
+        "authentication": "genericCredentialType",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: { subject: $json.betreff, body: { contentType: 'HTML', content: $json.html }, toRecipients: String($json.empfaenger ?? '').split(/[;,]/).map(s => s.trim()).filter(Boolean).map(a => ({ emailAddress: { address: a } })) }, saveToSentItems: true }) }}",
+        "options": {},
+        "genericAuthType": "oAuth2Api"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        940,
+        520
+      ],
+      "id": "mail-07",
+      "name": "Bericht senden: GF + Leitung (Graph)",
+      "notes": "Versand über Microsoft Graph aus deals@seil.com, wie in WF04 und WF05. Kein SMTP. Die Empfänger stehen im Feld empfaenger und werden beim Import aus der Konfigurationsdatei gesetzt.",
+      "notesInFlow": true,
+      "credentials": {
+        "oAuth2Api": {
+          "id": "seil-graph",
+          "name": "Microsoft Graph (SEIL)"
+        }
+      }
     }
   ],
   "connections": {
@@ -121,14 +157,25 @@
       "main": [
         [
           {
-            "node": "Bericht senden: GF + Leitung (SMTP nötig)",
+            "node": "Empfänger des Berichts",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Bericht senden: GF + Leitung (SMTP nötig)": {
+    "Empfänger des Berichts": {
+      "main": [
+        [
+          {
+            "node": "Bericht senden: GF + Leitung (Graph)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bericht senden: GF + Leitung (Graph)": {
       "main": [
         [
           {
