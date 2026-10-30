@@ -216,19 +216,27 @@ export async function POST(request: Request): Promise<NextResponse> {
       // erneuten Speichern desselben Stands.
       const vorher = new Map(
         (
-          await dbLesen<{ investor_id: string; status: Stufe; followups: number | null }>(
+          await dbLesen<{
+            investor_id: string; status: Stufe; followups: number | null;
+            firma: string | null; ansprechpartner: string | null; email: string | null;
+          }>(
             "kontakt",
-            `mandat=eq.${encodeURIComponent(mandat)}&select=investor_id,status,followups&limit=2000`,
+            `mandat=eq.${encodeURIComponent(mandat)}&select=investor_id,status,followups,firma,ansprechpartner,email&limit=2000`,
           )
         ).map((z) => [z.investor_id, z]),
       );
+      // Was nicht mitgeschickt wird, bleibt stehen: ein Stufenwechsel darf
+      // Firma, Ansprechpartner oder Adresse nicht löschen. Wer ein Feld leeren
+      // will, schickt ausdrücklich null.
+      const bleibt = <F extends "firma" | "ansprechpartner" | "email">(k: Partial<Kontakt>, feld: F): string | null =>
+        k[feld] !== undefined ? (k[feld] as string | null) : (vorher.get(String(k.investorId))?.[feld] ?? null);
       const zeilen = kontakte.map((k) => ({
         mandat,
         investor_id: String(k.investorId),
-        firma: k.firma ?? null,
-        ansprechpartner: k.ansprechpartner ?? null,
-        email: k.email ?? null,
-        status: k.status ?? "vorgemerkt",
+        firma: bleibt(k, "firma"),
+        ansprechpartner: bleibt(k, "ansprechpartner"),
+        email: bleibt(k, "email"),
+        status: k.status ?? vorher.get(String(k.investorId))?.status ?? "vorgemerkt",
         ...(k.notiz !== undefined ? { notiz: k.notiz } : {}),
         ...(k.letzterKontakt !== undefined ? { letzter_kontakt: k.letzterKontakt } : {}),
         ...(k.naechstesFollowUp !== undefined ? { naechstes_followup: k.naechstesFollowUp } : {}),
