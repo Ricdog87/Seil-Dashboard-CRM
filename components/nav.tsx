@@ -3,10 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useModul01 } from "@/components/modul01";
-import { aufgaben, signale } from "@/lib/mock-data";
 import { BefehlsPalette } from "./befehlspalette";
 import { SeilLogo } from "./seil-logo";
-import { useSitzung } from "./sitzung";
 
 const punkte = [
   // Nur Seiten mit echten Daten. Vermarktung und Aufgaben sind Beispieldaten
@@ -20,21 +18,15 @@ export function TopNav({ benutzer }: { benutzer?: string }) {
   const { modus } = useModul01();
   // Das Abzeichen muss sagen, was AUF DIESER SEITE steht, nicht ob irgendeine
   // Verbindung lebt. Sonst behauptet es "live" ueber erfundene Investoren.
-  const abzeichen = pathname.startsWith("/investoren")
-    ? { text: "Live · OneDrive", echt: true }
-    : pathname === "/"
-      ? { text: modus === "live" ? "Teils live · teils Demo" : "Demodaten", echt: modus === "live" }
+  const abzeichen =
+    pathname.startsWith("/investoren") || pathname === "/"
+      ? modus === "live" || pathname.startsWith("/investoren")
+        ? { text: "Live · OneDrive", echt: true }
+        : { text: "Modul 01 nicht erreichbar", echt: false }
       : { text: "Demodaten", echt: false };
-  const { aufgabenPatches, signalErledigt } = useSitzung();
-
-  // Live-Zähler: hängen am Sitzungszustand und sinken beim Abhaken/Triagieren mit.
-  const offeneAufgaben = aufgaben
-    .map((t) => ({ ...t, ...aufgabenPatches[t.id] }))
-    .filter((t) => !t.erledigt).length;
-  const offeneSignale = signale.filter(
-    (sg) => sg.status === "offen" && !signalErledigt[sg.id],
-  ).length;
-  const zaehler: Record<string, number> = { "/": offeneSignale, "/aufgaben": offeneAufgaben };
+  // Keine Zaehler mehr in der Navigation: die alten kamen aus Beispieldaten und
+  // haetten neben echten Zahlen behauptet, es liege etwas zur Bearbeitung an.
+  const zaehler: Record<string, number> = {};
 
   return (
     <header className="sticky top-0 z-20 border-b border-seil-line bg-seil-surface">
