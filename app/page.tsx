@@ -25,6 +25,7 @@ import { TransaktionenAnsicht } from "@/components/transaktionen-ansicht";
 import { LeitungPortfolio } from "@/components/leitung-portfolio";
 import { Sammelfreigabe } from "@/components/sammelfreigabe";
 import { UebersichtWeiche } from "@/components/uebersicht-weiche";
+import { LiveBand } from "@/components/live-band";
 
 export default function UebersichtSeite() {
   const k = kpis();
@@ -56,6 +57,8 @@ export default function UebersichtSeite() {
           <BerichtExport />
         </div>
       </div>
+
+      <LiveBand />
 
       <div className="mb-4">
         <AktivitaetenTicker />

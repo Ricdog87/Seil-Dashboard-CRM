@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useModul01 } from "@/components/modul01";
 import { aufgaben, signale } from "@/lib/mock-data";
 import { ArbeitenAls } from "./arbeiten-als";
 import { BefehlsPalette } from "./befehlspalette";
@@ -17,6 +18,8 @@ const punkte = [
 
 export function TopNav() {
   const pathname = usePathname();
+  const { modus } = useModul01();
+  const live = modus === "live";
   const { aufgabenPatches, signalErledigt } = useSitzung();
 
   // Live-Zähler: hängen am Sitzungszustand und sinken beim Abhaken/Triagieren mit.
@@ -80,7 +83,7 @@ export function TopNav() {
           <BefehlsPalette />
           <ArbeitenAls />
           <span className="hidden rounded-seil border border-seil-line bg-seil-card-alt px-2 py-0.5 text-kicker text-seil-muted lg:inline">
-            Prototyp · Demodaten
+            {live ? "Live · OneDrive" : "Teilweise Demodaten"}
           </span>
         </span>
       </div>
