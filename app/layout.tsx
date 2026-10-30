@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { TopNav } from "@/components/nav";
 import { Modul01Provider } from "@/components/modul01";
 import { SitzungsProvider } from "@/components/sitzung";
@@ -10,13 +11,30 @@ export const metadata: Metadata = {
     "SEIL Cockpit (Modul 02) – visueller Frontend-Prototyp für Transaktionsberatung: Objekte, Investoren und Auftraggeber relational verknüpft. Klickdummy mit Demodaten, ohne Backend.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+/** Kuerzel aus der Anmeldung in den Namen uebersetzen, den das Team kennt. */
+const NAMEN: Record<string, string> = {
+  ms: "Maximilian Seil",
+  ng: "Nino Grubišić",
+  tp: "Tobias Pföhler",
+  ns: "Norman Schulz",
+  ab: "Amrit Brar",
+  ln: "Luca Niemann",
+  lk: "Lütfihan Karakas",
+  ml: "Max Lorenz",
+  ag: "Aylin Güven",
+  seil: "SEIL Team",
+};
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const kuerzel = (await headers()).get("x-seil-benutzer") ?? "";
+  const angemeldet = NAMEN[kuerzel] ?? (kuerzel || undefined);
+
   return (
     <html lang="de">
       <body>
         <SitzungsProvider>
           <Modul01Provider>
-            <TopNav />
+            <TopNav benutzer={angemeldet} />
             <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6 sm:py-8">{children}</main>
           </Modul01Provider>
         </SitzungsProvider>

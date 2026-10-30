@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useModul01 } from "@/components/modul01";
 import { aufgaben, signale } from "@/lib/mock-data";
-import { ArbeitenAls } from "./arbeiten-als";
 import { BefehlsPalette } from "./befehlspalette";
 import { SeilLogo } from "./seil-logo";
 import { useSitzung } from "./sitzung";
@@ -16,7 +15,7 @@ const punkte = [
   { href: "/investoren", label: "Investoren", auchAktivBei: [] },
 ];
 
-export function TopNav() {
+export function TopNav({ benutzer }: { benutzer?: string }) {
   const pathname = usePathname();
   const { modus } = useModul01();
   // Das Abzeichen muss sagen, was AUF DIESER SEITE steht, nicht ob irgendeine
@@ -87,7 +86,11 @@ export function TopNav() {
 
         <span className="ml-auto inline-flex items-center gap-3">
           <BefehlsPalette />
-          <ArbeitenAls />
+          {benutzer ? (
+            <span className="hidden rounded-seil border border-seil-line bg-seil-card-alt px-2 py-0.5 text-kicker text-seil-body sm:inline">
+              Angemeldet: {benutzer}
+            </span>
+          ) : null}
           <span className={`hidden rounded-seil border px-2 py-0.5 text-kicker lg:inline ${abzeichen.echt ? "border-seil-accent text-seil-accent" : "border-seil-line bg-seil-card-alt text-seil-muted"}`}>
             {abzeichen.text}
           </span>

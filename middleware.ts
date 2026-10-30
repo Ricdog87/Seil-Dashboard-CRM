@@ -45,7 +45,13 @@ export function middleware(request: NextRequest) {
       const b = entschluesselt.slice(0, trenner).toLowerCase();
       const p = entschluesselt.slice(trenner + 1);
       const soll = liste[b];
-      if (soll !== undefined && gleich(p, soll)) return NextResponse.next();
+      if (soll !== undefined && gleich(p, soll)) {
+        // Wer angemeldet ist, reicht die Middleware an die Seite weiter, damit
+        // die Kopfzeile den echten Namen zeigt statt einer gewaehlten Rolle.
+        const kopfzeilen = new Headers(request.headers);
+        kopfzeilen.set("x-seil-benutzer", b);
+        return NextResponse.next({ request: { headers: kopfzeilen } });
+      }
     }
   }
 
