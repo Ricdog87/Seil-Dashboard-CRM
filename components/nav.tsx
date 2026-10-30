@@ -10,10 +10,10 @@ import { SeilLogo } from "./seil-logo";
 import { useSitzung } from "./sitzung";
 
 const punkte = [
-  { href: "/", label: "Übersicht", auchAktivBei: ["/objekte"] },
-  { href: "/vermarktung", label: "Vermarktung", auchAktivBei: [] },
+  // Nur Seiten mit echten Daten. Vermarktung und Aufgaben sind Beispieldaten
+  // und bleiben ausgeblendet, bis sie aus der Datenbank kommen.
+  { href: "/", label: "Übersicht", auchAktivBei: [] },
   { href: "/investoren", label: "Investoren", auchAktivBei: [] },
-  { href: "/aufgaben", label: "Aufgaben", auchAktivBei: [] },
 ];
 
 export function TopNav() {

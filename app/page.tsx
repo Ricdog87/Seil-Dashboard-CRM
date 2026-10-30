@@ -1,168 +1,75 @@
 import Link from "next/link";
-import { RefreshCw, Send, TriangleAlert } from "lucide-react";
-import {
-  fmtDatum,
-  investorVon,
-  istUeberfaellig,
-  kpis,
-  objektVon,
-  ohneRueckmeldung,
-} from "@/lib/derive";
-import { KPI_TRENDS } from "@/lib/mock-data";
-import { Badge, Card, CardHeader, ICON_SM, ICON_STROKE, Table, TBody, TD, TH, THead, TR } from "@/components/ui";
-import { EntityLink, FollowUpStufe } from "@/components/cockpit";
-import { BerichtExport } from "@/components/bericht-export";
-import { DatenraumLuecken, KpiDatenraumLuecken } from "@/components/datenraum-luecken";
-import { Modul01Status } from "@/components/modul01";
-import { GfDashboard } from "@/components/gf-dashboard";
-import { HeuteKopf } from "@/components/heute-kopf";
-import { KpiAufgabenLive, KpiKachelLive } from "@/components/kpi-live";
-import { WeltUhren } from "@/components/weltuhren";
-import { MeineAufgaben } from "@/components/meine-aufgaben";
-import { Posteingang } from "@/components/posteingang";
-import { AktivitaetenTicker } from "@/components/ticker";
-import { TransaktionenAnsicht } from "@/components/transaktionen-ansicht";
-import { LeitungPortfolio } from "@/components/leitung-portfolio";
-import { Sammelfreigabe } from "@/components/sammelfreigabe";
-import { UebersichtWeiche } from "@/components/uebersicht-weiche";
 import { LiveBand } from "@/components/live-band";
+import { LiveDatenraeume } from "@/components/live-datenraeume";
 
+/**
+ * Übersicht mit ausschließlich echten Daten.
+ *
+ * Die frühere Demo-Übersicht (Mandate, Aufgaben, Vermarktung aus Beispieldaten)
+ * ist bewusst nicht mehr verlinkt: seit das Team eigene Zugänge hat, würde
+ * erfundenes Material neben echtem für Verwirrung sorgen. Sie liegt als
+ * page.demo.tsx.bak im Repository und kommt zurück, sobald die Mandate aus
+ * der Datenbank kommen.
+ */
 export default function UebersichtSeite() {
-  const k = kpis();
-  const stumm = ohneRueckmeldung();
+  const werkzeuge = [
+    {
+      titel: "Investorenliste",
+      text: "Alle Investoren live aus OneDrive, mit Suche über Firma, Region und Assetklasse.",
+      href: "/investoren",
+      extern: false,
+    },
+    {
+      titel: "Datenraum-Center",
+      text: "Datenräume erstellen, Prüffälle abarbeiten, Schwärzung freigeben. Modul 01 auf dem SEIL-Server.",
+      href: "https://srv2104755.hstgr.cloud/qc",
+      extern: true,
+    },
+    {
+      titel: "Automatik",
+      text: "Die zehn Abläufe von der Datenraum-Übernahme bis zur Antworterkennung, mit Protokoll jedes Laufs.",
+      href: "https://srv2104755.hstgr.cloud/",
+      extern: true,
+    },
+  ];
 
-  // Drei Sichtebenen (Sales-Update 28.09.): Geschäftsführung → Zahlen-Blick,
-  // Sales Leadership → Portfolio über dem eigenen Tag, Staff → eigener Tag.
-  const operativ = (
+  return (
     <>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <HeuteKopf />
-        <div className="flex flex-col items-start gap-3 sm:items-end">
-          <WeltUhren />
-          {/* Systemstatus: die drei Anbindungen aus Angebot und Kundentermin, still im Hintergrund. */}
-          <div className="flex flex-col items-start gap-1 text-kicker text-seil-muted sm:items-end">
-          <p className="inline-flex items-center gap-2">
-            <Send size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
-            Status-Report heute 08:00 an das Team versendet
-          </p>
-          <p className="inline-flex items-center gap-2">
-            <RefreshCw size={ICON_SM} strokeWidth={ICON_STROKE} aria-hidden />
-            Se Circle-Sync heute 06:00 – keine Änderungen
-          </p>
-            {/* Modul 01: live aus der Datenraum-Status-API, sonst ehrlich als Demo gekennzeichnet. */}
-            <Modul01Status />
-          </div>
-          {/* Reporting als Exportprodukt direkt aus dem Dashboard (Update-Call 28.08.):
-              derselbe HTML-Bericht, den die Automatik werktäglich 08:00 versendet. */}
-          <BerichtExport />
-        </div>
+      <div className="mb-5">
+        <h1 className="text-title text-seil-text">Übersicht</h1>
+        <p className="mt-1 text-body text-seil-body">
+          Alles auf dieser Seite kommt direkt aus OneDrive und von eurem Server. Es gibt hier keine
+          Beispieldaten mehr.
+        </p>
       </div>
 
       <LiveBand />
+      <LiveDatenraeume />
 
-      <div className="mb-4">
-        <AktivitaetenTicker />
-      </div>
+      <section className="mt-5 grid gap-3 sm:grid-cols-3">
+        {werkzeuge.map((w) => (
+          <Link
+            key={w.titel}
+            href={w.href}
+            target={w.extern ? "_blank" : undefined}
+            rel={w.extern ? "noreferrer" : undefined}
+            className="min-w-0 rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4 transition-colors hover:border-seil-accent"
+          >
+            <div className="text-body text-seil-text">{w.titel}</div>
+            <p className="mt-1 text-kicker leading-relaxed text-seil-muted">{w.text}</p>
+          </Link>
+        ))}
+      </section>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiKachelLive
-          label="Laufende Transaktionen"
-          wert={k.transaktionen}
-          sub="davon 3 in Vermarktung"
-          trend={KPI_TRENDS.transaktionen}
-          delta={{ text: "+2 in 7 Tagen" }}
-        />
-        <KpiAufgabenLive trend={KPI_TRENDS.offeneAufgaben} />
-        <KpiKachelLive
-          label="Investoren ohne Rückmeldung"
-          wert={k.ohneRueckmeldung}
-          sub={`${k.handlungsbedarf} mit Handlungsbedarf`}
-          href="/vermarktung"
-          trend={KPI_TRENDS.ohneRueckmeldung}
-          delta={{ text: "−4 in 7 Tagen", gut: true }}
-        />
-        <KpiDatenraumLuecken trend={KPI_TRENDS.datenraumLuecken} delta={{ text: "−2 in 7 Tagen", gut: true }} />
-      </div>
-
-      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[7fr_5fr]">
-        <Posteingang />
-        <MeineAufgaben />
-      </div>
-
-      {/* Sammelfreigabe statt Einzelfreigabe – Beschluss Sales-Update 28.09. */}
-      <div className="mt-6">
-        <Sammelfreigabe />
-      </div>
-
-      <TransaktionenAnsicht />
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader
-            title="Investoren ohne Rückmeldung"
-            meta={
-              <Link href="/vermarktung" className="text-seil-accent hover:underline">
-                zur Vermarktung
-              </Link>
-            }
-          />
-          <Table>
-            <THead>
-              <TR>
-                <TH>Investor</TH>
-                <TH>Objekt</TH>
-                <TH>Follow-up</TH>
-                <TH>Nächster Schritt</TH>
-              </TR>
-            </THead>
-            <TBody>
-              {stumm.map((l) => {
-                const inv = investorVon(l.investorId)!;
-                const obj = objektVon(l.objektId)!;
-                const ueberfaellig = istUeberfaellig(l.naechstesFollowUp);
-                return (
-                  <TR key={`${l.objektId}-${l.investorId}`}>
-                    <TD>
-                      <EntityLink href={`/investoren/${inv.id}`}>{inv.firma}</EntityLink>
-                    </TD>
-                    <TD>
-                      <EntityLink href={`/objekte/${obj.id}`}>{obj.name}</EntityLink>
-                    </TD>
-                    <TD>
-                      <FollowUpStufe stufe={l.followUpStufe} />
-                    </TD>
-                    <TD>
-                      {l.followUpStufe === 3 ? (
-                        <Badge tone="danger" icon={TriangleAlert}>
-                          manuell nachfassen
-                        </Badge>
-                      ) : ueberfaellig ? (
-                        <Badge tone="danger" icon={TriangleAlert}>
-                          Follow-up überfällig ({fmtDatum(l.naechstesFollowUp)})
-                        </Badge>
-                      ) : (
-                        <span className="text-seil-muted">
-                          Follow-up am {fmtDatum(l.naechstesFollowUp)}
-                        </span>
-                      )}
-                    </TD>
-                  </TR>
-                );
-              })}
-            </TBody>
-          </Table>
-        </Card>
-
-        <DatenraumLuecken />
-      </div>
+      <section className="mt-5 rounded-[var(--seil-radius)] border border-seil-line bg-seil-surface p-4">
+        <h2 className="text-body text-seil-text">Was als Nächstes kommt</h2>
+        <p className="mt-1 text-kicker leading-relaxed text-seil-muted">
+          Mandate, Aufgaben und der Vermarktungsstand erscheinen hier, sobald sie aus der Datenbank
+          kommen statt aus Beispieldaten. Die Tabellen dafür stehen bereits. Bis dahin sind der
+          Datenraum und die Investorenliste die beiden Stellen, an denen mit echten Daten gearbeitet
+          wird.
+        </p>
+      </section>
     </>
-  );
-
-  return (
-    <UebersichtWeiche
-      gf={<GfDashboard />}
-      portfolio={<LeitungPortfolio />}
-      operativ={operativ}
-    />
   );
 }
