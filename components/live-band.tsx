@@ -48,8 +48,8 @@ export function LiveBand() {
         <Kachel wert={live ? String(dokumente) : "—"} label="offene Prüffälle" sub="warten auf das Team" />
         <Kachel
           wert={inv?.modus === "live" ? String(inv.gesamt ?? inv.investoren.length) : "—"}
-          label="Investoren"
-          sub="in der Liveliste"
+          label="Kunden"
+          sub="aus der Liveliste"
         />
         <Kachel wert={live ? "aktiv" : "—"} label="Automatik" sub="zehn Abläufe scharf" />
       </div>
@@ -71,9 +71,9 @@ export function LiveBand() {
         <Link href="/mandate" className="text-seil-accent hover:underline">
           die Mandatsseite
         </Link>
-        , alle Investoren stehen unter{" "}
-        <Link href="/investoren" className="text-seil-accent hover:underline">
-          Investoren
+, die Kunden stehen unter{" "}
+        <Link href="/kunden" className="text-seil-accent hover:underline">
+          Kunden
         </Link>
         .
       </p>

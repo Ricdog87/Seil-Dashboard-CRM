@@ -20,7 +20,7 @@ interface Treffer {
 const BEREICHE: Treffer[] = [
   { id: "b1", gruppe: "Bereiche", icon: LayoutDashboard, titel: "Übersicht", href: "/" },
   { id: "b2", gruppe: "Bereiche", icon: Stamp, titel: "Freigaben", href: "/freigaben" },
-  { id: "b3", gruppe: "Bereiche", icon: Users, titel: "Investoren", href: "/investoren" },
+  { id: "b3", gruppe: "Bereiche", icon: Users, titel: "Kunden", href: "/kunden" },
 ];
 
 /**
@@ -100,11 +100,11 @@ export function BefehlsPalette() {
 
     const kunden: Treffer[] = (investoren?.investoren ?? []).slice(0, 12).map((i) => ({
       id: i.id,
-      gruppe: "Investoren",
+      gruppe: "Kunden",
       icon: Building2,
       titel: i.firma,
       detail: [i.ansprechpartner, (i.regionen ?? []).join(", ")].filter(Boolean).join(" · "),
-      href: `/investoren/${encodeURIComponent(i.id)}`,
+      href: `/kunden/${encodeURIComponent(i.id)}`,
     }));
 
     return [...kunden, ...datenraeume.filter(passt), ...BEREICHE.filter(passt)].slice(0, 12);

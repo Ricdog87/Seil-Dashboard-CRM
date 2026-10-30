@@ -23,16 +23,13 @@ export default async function UebersichtSeite() {
   const name = NAMEN[kuerzel] ?? kuerzel;
   const darf = darfFreigeben(kuerzel);
 
+  // Nur Werkzeuge, die das Team wirklich benutzt. Die n8n-Oberflaeche gehoert
+  // nicht dazu: sie ist Werkzeug der Entwicklung und verwirrt im Vertrieb.
   const werkzeuge = [
     {
       titel: "Datenraum-Center",
       text: "Datenräume erstellen, Prüffälle abarbeiten, Schwärzung freigeben. Modul 01 auf dem SEIL-Server.",
       href: "https://srv2104755.hstgr.cloud/qc",
-    },
-    {
-      titel: "Automatik",
-      text: "Die Abläufe von der Datenraum-Übernahme bis zur Antworterkennung, mit Protokoll jedes Laufs.",
-      href: "https://srv2104755.hstgr.cloud/",
     },
   ];
 
@@ -64,7 +61,7 @@ export default async function UebersichtSeite() {
 
       <AktivitaetenListe grenze={15} />
 
-      <section className="mt-5 grid gap-3 sm:grid-cols-2">
+      <section className="mt-5 grid gap-3">
         {werkzeuge.map((w) => (
           <Link
             key={w.titel}

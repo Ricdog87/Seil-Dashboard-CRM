@@ -13,7 +13,7 @@ const punkte = [
   { href: "/mandate", label: "Mandate", auchAktivBei: ["/mandate/"] },
   { href: "/freigaben", label: "Freigaben", auchAktivBei: [] },
   { href: "/aufgaben", label: "Aufgaben", auchAktivBei: [] },
-  { href: "/investoren", label: "Investoren", auchAktivBei: ["/investoren/"] },
+  { href: "/kunden", label: "Kunden", auchAktivBei: ["/kunden/"] },
 ];
 
 export function TopNav({ benutzer }: { benutzer?: string }) {
@@ -25,7 +25,7 @@ export function TopNav({ benutzer }: { benutzer?: string }) {
   // Es gibt keine Demoseiten mehr: alles im Cockpit kommt aus OneDrive, dem
   // SEIL-Server oder der Datenbank.
   const abzeichen =
-    modus === "live" || pathname.startsWith("/investoren")
+    modus === "live" || pathname.startsWith("/kunden")
       ? { text: "Live", echt: true }
       : { text: "Modul 01 nicht erreichbar", echt: false };
 

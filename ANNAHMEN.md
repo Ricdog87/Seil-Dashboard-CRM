@@ -1035,3 +1035,15 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     nur in der Umgebung). Der Mailversand bleibt in n8n. Ohne `SUPABASE_SERVICE_KEY` fällt das
     Cockpit auf die n8n-Abläufe zurück, soweit es sie gibt, und sagt sonst, dass es nicht
     angebunden ist.
+
+87. **Kunden statt Investoren.** Das CRM verwaltet Investoren, Auftraggeber, Interessenten und
+    Partner – vier Arten, sechs Stufen von „Neu“ bis „Bestandskunde“, dazu ein Betreuer. Die
+    Stammdaten bleiben in der Liveliste in OneDrive: das Cockpit schreibt nicht in fremde Dateien.
+    Was die Liste nicht kann (Art, Stufe, Betreuer, Notiz), steht in `kunde` und wird darübergelegt.
+    Die Zusammenführung passiert auf dem Server, damit der Browser nicht zweimal dasselbe holt.
+88. **Eigene Kontakte.** Wer im Cockpit angelegt wird, steht nur dort (`quelle = 'cockpit'`) und ist
+    in der Liste als „im Cockpit angelegt“ erkennbar. So bleibt jederzeit sichtbar, woher ein
+    Eintrag kommt – auch wenn später jemand fragt, warum er in der Excel fehlt.
+89. **Kein Link in die Automatik.** Die n8n-Oberfläche ist von der Übersicht entfernt. Sie ist
+    Werkzeug der Entwicklung und verwirrt im Vertrieb; wer sie braucht, kennt die Adresse.
+    `/investoren` leitet auf `/kunden` um, damit alte Verweise ankommen.
