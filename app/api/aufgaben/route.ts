@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { datenbankAktiv, dbAendern, dbLesen, dbSchreiben } from "@/lib/supabase";
 import { protokoll } from "@/lib/protokoll";
 import type { Aufgabe } from "@/lib/mandat";
-import { istGeschaeftsfuehrung } from "@/lib/rollen";
+import { darfVerteilen, istGeschaeftsfuehrung } from "@/lib/rollen";
 
 /**
  * Aufgaben – was jemand tun muss, mit Namen und Datum daran.
@@ -54,7 +54,7 @@ export async function GET(request: Request): Promise<NextResponse<Aufgabenliste>
   // Wer nicht zur Geschaeftsfuehrung gehoert, sieht nur eigene Aufgaben - egal,
   // was er abfragt. Das ist die Regel, nicht die Oberflaeche.
   const ich = (request.headers.get("x-seil-benutzer") ?? "").toLowerCase();
-  const zustaendig = istGeschaeftsfuehrung(ich) ? q.get("zustaendig") : ich || "niemand";
+  const zustaendig = darfVerteilen(ich) ? q.get("zustaendig") : ich || "niemand";
   if (mandat) teile.push(`objekt=eq.${encodeURIComponent(mandat)}`);
   const investor = q.get("investor");
   if (investor) teile.push(`investor_id=eq.${encodeURIComponent(investor)}`);
@@ -84,7 +84,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
   const durch = request.headers.get("x-seil-benutzer") ?? "";
   // Verteilen darf die Geschaeftsfuehrung; alle anderen legen Aufgaben nur fuer sich an.
-  const zustaendig = istGeschaeftsfuehrung(durch) ? (b?.zustaendig ?? durch ?? null) : durch || null;
+  const zustaendig = darfVerteilen(durch) ? (b?.zustaendig ?? durch ?? null) : durch || null;
 
   try {
     const geschrieben = await dbSchreiben<DbAufgabe>(
@@ -126,7 +126,7 @@ export async function PATCH(request: Request): Promise<NextResponse> {
     return NextResponse.json({ ok: false, grund: "Welche Aufgabe?" }, { status: 400 });
   }
   const durch = request.headers.get("x-seil-benutzer") ?? "";
-  const gf = istGeschaeftsfuehrung(durch);
+  const gf = darfVerteilen(durch);
 
   const aenderung: Record<string, unknown> = { geaendert: new Date().toISOString() };
   if (b.erledigt !== undefined) aenderung.erledigt = b.erledigt;

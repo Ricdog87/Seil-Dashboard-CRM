@@ -19,3 +19,15 @@ export function geschaeftsfuehrung(): string[] {
 export function istGeschaeftsfuehrung(kuerzel: string | null | undefined): boolean {
   return !!kuerzel && geschaeftsfuehrung().includes(kuerzel.toLowerCase());
 }
+
+/** Die Automatik (n8n) meldet sich mit dem gemeinsamen Geheimnis, nicht mit einem Kürzel. */
+export const SYSTEM_KUERZEL = "automatik";
+
+export function istSystem(kuerzel: string | null | undefined): boolean {
+  return (kuerzel ?? "").toLowerCase() === SYSTEM_KUERZEL;
+}
+
+/** Wer Aufgaben anderen zuteilen darf: Geschäftsführung und die Automatik (SOP 17/18). */
+export function darfVerteilen(kuerzel: string | null | undefined): boolean {
+  return istGeschaeftsfuehrung(kuerzel) || istSystem(kuerzel);
+}

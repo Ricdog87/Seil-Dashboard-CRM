@@ -1114,3 +1114,14 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
 104. **Motivierend heißt ehrlich.** Der graue Strich im Balken ist die verstrichene Zeit; liegt der
     Balken rechts davon, ist man vor dem Plan. Der Satz darunter sagt, was fehlt – kein Konfetti, kein
     Ranking für alle. Einzelvergleiche sieht nur die Geschäftsführung.
+
+105. **Maschinenzugang.** Die Automatik hat kein Cookie. An den `/api`-Routen gilt das gemeinsame
+    Geheimnis (`X-Seil-Secret`, dasselbe, mit dem das Cockpit ihre Webhooks ruft) als Anmeldung; sie
+    tritt als `automatik` auf. Nur an `/api` – eine Maschine braucht keine Seiten. Die Automatik darf
+    Aufgaben zuteilen (SOP 17/18), sonst gelten die Regeln wie für alle.
+106. **Antworten bewegen den Trichter.** `POST /api/antwort` nimmt die Einordnung aus der
+    Antworterkennung (WF 06) mit Absenderadresse entgegen, sucht die offenen Kontakte zu dieser
+    Adresse und setzt sie weiter: Absage → abgesagt, Preisanfrage → Preisanfrage, Interesse/
+    Unterlagen/Telefonat/Besichtigung → Interesse. Rückwärts nur bei Absage – eine zweite Mail nach
+    einer Preisanfrage setzt niemanden zurück. Die Aufgaben aus dem Prozess entstehen über denselben
+    Weg wie bei Handeingaben; es gibt eine Regel, nicht zwei. n8n muss dafür nichts über Mandate wissen.
