@@ -1,10 +1,10 @@
 {
-  "name": "SEIL 13 · Kontaktstand (CRM)",
+  "name": "SEIL 13 · CRM-Stand (Mandat & Kontakte)",
   "nodes": [
     {
       "parameters": {
-        "content": "## Kontaktstand je Mandat\nWer ist angeschrieben, wer hat ein NDA unterschrieben, wer hat geantwortet.\n\nTabelle `kontakt` in Supabase, ein Eintrag je Mandat und Investor.\n\nLesen: `GET seil/kontakte?mandat=…`\nSchreiben: `POST seil/kontakt` (einer oder viele auf einmal).\n\nZugangsdaten stehen im Anmeldedaten-Speicher, nicht in dieser Datei.",
-        "height": 280,
+        "content": "## CRM-Stand eines Mandats\nZwei Dinge, die sich das Cockpit merken muss:\n\n**Kontakte** - wer steht wo im Prozess.\n`GET seil/kontakte?mandat=…` / `POST seil/kontakt`\n\n**SOP-Schritte** - der Stand der 26 Schritte je Mandat.\n`GET seil/schritte?mandat=…` / `POST seil/schritt`\n\nWas die Automatik selbst weiss (Datenraum, Abgleich, Versand, Rueckmeldungen), wird NICHT hier gespeichert - das leitet das Cockpit aus den Live-Quellen ab. Sonst gaebe es zwei Wahrheiten zum selben Schritt.",
+        "height": 420,
         "width": 380
       },
       "id": "kt-sticky",
@@ -293,6 +293,272 @@
         680,
         280
       ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "seil/schritte",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "ms-webhook-lesen",
+      "name": "Mandatsstand abrufen",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        260,
+        560
+      ],
+      "webhookId": "seil-schritte-lesen"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ms-c1",
+              "name": "supabaseBasis",
+              "value": "https://PROJEKT-KENNUNG.supabase.co",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "ms-konfig",
+      "name": "Konfiguration Mandatsstand",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.supabaseBasis }}/rest/v1/mandat_schritt?mandat=eq.{{ encodeURIComponent($('Mandatsstand abrufen').first().json.query?.mandat ?? '') }}&order=schritt.asc&limit=100",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json",
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "ms-lesen",
+      "name": "Mandatsstand lesen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Den eingetragenen Stand der SOP-Schritte eines Mandats liefern.\n// Was die Automatik selbst weiss, steht hier bewusst nicht drin - das leitet\n// das Cockpit aus den Live-Quellen ab. Sonst gaebe es zwei Wahrheiten.\nconst r = $input.first()?.json ?? {};\nconst status = Number(r.statusCode ?? 0);\nconst zeilen = r.body;\nif (!(status >= 200 && status < 300) || !Array.isArray(zeilen)) {\n  return [{ json: { stoerung: true, stand: new Date().toISOString(),\n                    grund: 'Mandatsstand nicht lesbar (HTTP ' + (status || 'ohne Antwort') + ')' } }];\n}\nconst schritte = zeilen.filter((z) => z && z.schritt).map((z) => ({\n  schritt: Number(z.schritt),\n  status: z.status ?? 'pending',\n  notiz: z.notiz ?? null,\n  geaendertDurch: z.geaendert_durch ?? null,\n  geaendert: z.geaendert ?? null,\n}));\nreturn [{ json: { stand: new Date().toISOString(), anzahl: schritte.length, schritte } }];\n"
+      },
+      "id": "ms-mappen",
+      "name": "Mandatsstand aufbereiten",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ms-if",
+              "leftValue": "={{ $json.stoerung ? 'ja' : 'nein' }}",
+              "rightValue": "nein",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ms-lesbar",
+      "name": "Mandatsstand lesbar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "ms-antwort",
+      "name": "Mandatsstand antworten",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ fehler: $json.grund }) }}",
+        "options": {
+          "responseCode": 502
+        }
+      },
+      "id": "ms-stoerung",
+      "name": "Mandatsstand-Stoerung melden",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "seil/schritt",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "ms-webhook-schreiben",
+      "name": "Schritt setzen",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        260,
+        820
+      ],
+      "webhookId": "seil-schritt-setzen"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Einen Schritt setzen. Nur bekannte Stufen und nur Schritte 1 bis 26 - eine\n// falsche Nummer faengt sonst erst die Datenbank, und im Cockpit steht ein\n// Fehler ohne Erklaerung.\nconst STUFEN = ['done','in_progress','pending','na'];\nconst b = $input.first().json.body ?? $input.first().json;\nconst mandat = String(b.mandat ?? '').trim();\nif (!mandat) throw new Error('Schritt ohne Mandat');\nconst nr = Number(b.schritt);\nif (!Number.isInteger(nr) || nr < 1 || nr > 26) throw new Error('Schritt ausserhalb 1 bis 26');\nif (!STUFEN.includes(b.status)) throw new Error('Unbekannte Stufe');\nconst zeile = {\n  mandat,\n  schritt: nr,\n  status: b.status,\n  geaendert_durch: String(b.durch || 'cockpit'),\n  geaendert: new Date().toISOString(),\n};\nif (b.notiz !== undefined) zeile.notiz = b.notiz;\nreturn [{ json: { zeilen: [zeile] } }];\n"
+      },
+      "id": "ms-pruefen",
+      "name": "Schritt pruefen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ms-c2",
+              "name": "supabaseBasis",
+              "value": "https://PROJEKT-KENNUNG.supabase.co",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "ms-konfig2",
+      "name": "Konfiguration Schritt schreiben",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        680,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.supabaseBasis }}/rest/v1/mandat_schritt?on_conflict=mandat,schritt",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=representation"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.zeilen) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json",
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "ms-schreiben",
+      "name": "Schritt schreiben",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Hat das Schreiben gegriffen? Null Zeilen heisst: nichts gespeichert.\nconst r = $input.first()?.json ?? {};\nconst status = Number(r.statusCode ?? 0);\nconst zeilen = Array.isArray(r.body) ? r.body : [];\nconst ok = status >= 200 && status < 300;\nreturn [{ json: { ok: ok && zeilen.length > 0, gespeichert: ok ? zeilen.length : 0, status } }];\n"
+      },
+      "id": "ms-ergebnis",
+      "name": "Schritt-Ergebnis zusammenfassen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: $json.ok, gespeichert: $json.gespeichert }) }}",
+        "options": {}
+      },
+      "id": "ms-schreib-antwort",
+      "name": "Schritt bestaetigen",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        820
+      ]
     }
   ],
   "connections": {
@@ -407,6 +673,123 @@
         [
           {
             "node": "Speichern bestaetigen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mandatsstand abrufen": {
+      "main": [
+        [
+          {
+            "node": "Konfiguration Mandatsstand",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Konfiguration Mandatsstand": {
+      "main": [
+        [
+          {
+            "node": "Mandatsstand lesen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mandatsstand lesen": {
+      "main": [
+        [
+          {
+            "node": "Mandatsstand aufbereiten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mandatsstand aufbereiten": {
+      "main": [
+        [
+          {
+            "node": "Mandatsstand lesbar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mandatsstand lesbar?": {
+      "main": [
+        [
+          {
+            "node": "Mandatsstand antworten",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mandatsstand-Stoerung melden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schritt setzen": {
+      "main": [
+        [
+          {
+            "node": "Schritt pruefen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schritt pruefen": {
+      "main": [
+        [
+          {
+            "node": "Konfiguration Schritt schreiben",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Konfiguration Schritt schreiben": {
+      "main": [
+        [
+          {
+            "node": "Schritt schreiben",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schritt schreiben": {
+      "main": [
+        [
+          {
+            "node": "Schritt-Ergebnis zusammenfassen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schritt-Ergebnis zusammenfassen": {
+      "main": [
+        [
+          {
+            "node": "Schritt bestaetigen",
             "type": "main",
             "index": 0
           }

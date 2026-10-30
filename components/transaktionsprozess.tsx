@@ -1,11 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLive, uhrzeit } from "@/components/live-abruf";
 import type { LiveInvestoren, LiveInvestor } from "@/app/api/investoren/route";
 import type { Modul01Objekt, Modul01Stand } from "@/lib/modul01";
 import { Anschreiben } from "@/components/anschreiben";
 import { Verteiler } from "@/components/verteiler";
+import { SopProzess } from "@/components/sop-prozess";
+import type { Kontaktstand } from "@/app/api/kontakte/route";
+import type { Mandatsstand } from "@/app/api/schritte/route";
+import type { FreigabeEingang } from "@/app/api/freigaben/route";
+import type { Stand } from "@/lib/sop-ableitung";
 
 /**
  * Der Transaktionsprozess eines Mandats – von der Datenraum-Übernahme bis zur
@@ -18,13 +23,6 @@ import { Verteiler } from "@/components/verteiler";
  * ist.
  */
 
-type Zustand = "erledigt" | "laeuft" | "wartet";
-
-const zustandMeta: Record<Zustand, { punkt: string; rahmen: string; wort: string }> = {
-  erledigt: { punkt: "bg-seil-success", rahmen: "border-seil-line", wort: "erledigt" },
-  laeuft: { punkt: "bg-seil-accent", rahmen: "border-seil-accent", wort: "läuft" },
-  wartet: { punkt: "bg-seil-muted", rahmen: "border-dashed border-seil-line", wort: "wartet" },
-};
 
 /** "Portfolio-Otto-Probe-30-10_20261030-070222" → Name und Zeitpunkt des Laufs. */
 function laufName(roh: string): { name: string; lauf: string } {
@@ -69,6 +67,24 @@ export function Transaktionsprozess() {
   const [assetklasse, setAssetklasse] = useState("alle");
   const [ticket, setTicket] = useState("");
   const [auswahl, setAuswahl] = useState<Set<string>>(new Set());
+  const [kontaktstand, setKontaktstand] = useState<Kontaktstand | null>(null);
+  const [mandatsstand, setMandatsstand] = useState<Mandatsstand | null>(null);
+  const [freigabeEingang, setFreigabeEingang] = useState<FreigabeEingang | null>(null);
+
+  // Kontakte und Schrittstand haengen am Mandat: beim Wechsel neu holen, sonst
+  // steht der Stand des vorigen Mandats unter dem neuen Namen.
+  const crmLaden = useCallback(async (m: string) => {
+    if (!m) return;
+    const q = `?mandat=${encodeURIComponent(m)}`;
+    const [k, sr, fg] = await Promise.allSettled([
+      fetch(`/api/kontakte${q}`, { cache: "no-store" }).then((r) => r.json() as Promise<Kontaktstand>),
+      fetch(`/api/schritte${q}`, { cache: "no-store" }).then((r) => r.json() as Promise<Mandatsstand>),
+      fetch("/api/freigaben", { cache: "no-store" }).then((r) => r.json() as Promise<FreigabeEingang>),
+    ]);
+    if (k.status === "fulfilled") setKontaktstand(k.value);
+    if (sr.status === "fulfilled") setMandatsstand(sr.value);
+    if (fg.status === "fulfilled") setFreigabeEingang(fg.value);
+  }, []);
 
   const mandate = useMemo(
     () => (stand ? [...Object.values(stand.objekte ?? {}), ...(stand.unbekannt ?? [])] : []),
@@ -114,6 +130,40 @@ export function Transaktionsprozess() {
   const freigaben = mandat?.freigaben?.length ?? 0;
   const { name, lauf } = laufName(mandat?.objektName ?? "");
 
+  useEffect(() => {
+    void crmLaden(name);
+    const takt = setInterval(() => {
+      if (typeof document === "undefined" || document.visibilityState === "visible") void crmLaden(name);
+    }, 30000);
+    return () => clearInterval(takt);
+  }, [crmLaden, name]);
+
+  // Nur die Freigaben dieses Mandats zaehlen - eine Sendung fuer ein anderes
+  // Objekt sagt ueber diesen Schritt nichts aus.
+  const offeneFreigabenDesMandats = (freigabeEingang?.sendungen ?? [])
+    .filter((sd) => !sd.objekt || !name || sd.objekt === name)
+    .reduce((n, sd) => n + sd.empfaenger.length, 0);
+
+  /** Einen SOP-Schritt setzen. Gibt zurueck, ob es wirklich gespeichert wurde. */
+  const schrittSetzen = useCallback(
+    async (nr: number, status: Stand) => {
+      try {
+        const r = await fetch("/api/schritte", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mandat: name, schritt: nr, status }),
+        });
+        const a = (await r.json()) as { ok?: boolean };
+        if (!a.ok) return false;
+        await crmLaden(name);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [crmLaden, name],
+  );
+
   const kriterium =
     region === "alle" && assetklasse === "alle" && ticketMio === null
       ? "ganze Liste, noch nicht eingegrenzt"
@@ -124,68 +174,6 @@ export function Transaktionsprozess() {
         ]
           .filter(Boolean)
           .join(" · ");
-
-  const stufen: { nr: number; titel: string; wer: string; zustand: Zustand; wert: string; hinweis: string }[] = [
-    {
-      nr: 1,
-      titel: "Datenraum übernommen",
-      wer: "Automatik",
-      zustand: verarbeitet ? "erledigt" : "wartet",
-      wert: verarbeitet !== null ? `${verarbeitet} Dokumente` : "—",
-      hinweis: "aus dem Mandatsordner in OneDrive eingelesen",
-    },
-    {
-      nr: 2,
-      titel: "Struktur & Ablage",
-      wer: "Automatik",
-      zustand: abgelegt && verarbeitet && abgelegt >= verarbeitet ? "erledigt" : abgelegt ? "laeuft" : "wartet",
-      wert: abgelegt !== null ? `${abgelegt} abgelegt` : "—",
-      hinweis: dubletten !== null ? `${dubletten} Dubletten erkannt` : "einsortiert nach Ordnerlogik",
-    },
-    {
-      nr: 3,
-      titel: "Qualitätsprüfung",
-      wer: "Team",
-      zustand: offen > 0 ? "laeuft" : "erledigt",
-      wert: `${offen} offen`,
-      hinweis: offen > 0 ? "Bearbeitung im Datenraum-Center" : "keine offenen Prüffälle",
-    },
-    {
-      nr: 4,
-      titel: "Investoren-Abgleich",
-      wer: "Automatik",
-      zustand: liste?.modus === "live" ? "laeuft" : "wartet",
-      wert:
-        liste?.modus === "live"
-          ? `${treffer.length} von ${liste.gesamt ?? investoren.length}`
-          : "—",
-      hinweis: kriterium,
-    },
-    {
-      nr: 5,
-      titel: "Freigabe",
-      wer: "Geschäftsführung",
-      zustand: freigaben > 0 ? "erledigt" : "wartet",
-      wert: `${freigaben} erteilt`,
-      hinweis: "ohne Freigabe geht keine Mail raus",
-    },
-    {
-      nr: 6,
-      titel: "Versand",
-      wer: "Automatik",
-      zustand: "wartet",
-      wert: "nach Freigabe",
-      hinweis: "Anschreiben je Investor, BCC-Verteiler",
-    },
-    {
-      nr: 7,
-      titel: "Rückmeldungen",
-      wer: "Automatik & Team",
-      zustand: "wartet",
-      wert: "—",
-      hinweis: "Interesse → Broker Call, Preisanfrage → Rückruf GF",
-    },
-  ];
 
   if (stand && stand.modus !== "live") {
     return (
@@ -243,28 +231,15 @@ export function Transaktionsprozess() {
         {mandat ? (
           <>
             <div className="mb-1 text-body text-seil-text">{name}</div>
-            <ol className="grid gap-2 lg:grid-cols-7">
-              {stufen.map((s) => {
-                const meta = zustandMeta[s.zustand];
-                return (
-                  <li
-                    key={s.nr}
-                    className={`min-w-0 rounded-[var(--seil-radius)] border bg-seil-surface px-3 py-2 ${meta.rahmen}`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-block h-2 w-2 shrink-0 rounded-full ${meta.punkt}`} aria-hidden />
-                      <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
-                        {s.nr}. {s.wer}
-                      </span>
-                    </div>
-                    <div className="mt-1 text-body text-seil-text">{s.titel}</div>
-                    <div className="mt-1 text-body tabular-nums text-seil-accent">{s.wert}</div>
-                    <div className="mt-1 text-kicker leading-relaxed text-seil-muted">{s.hinweis}</div>
-                    <span className="sr-only">{meta.wort}</span>
-                  </li>
-                );
-              })}
-            </ol>
+            <SopProzess
+              mandat={name}
+              datenraum={mandat}
+              kontakte={kontaktstand?.kontakte ?? []}
+              schritte={mandatsstand?.schritte ?? []}
+              investorenGesamt={liste?.modus === "live" ? (liste.gesamt ?? investoren.length) : null}
+              offeneFreigaben={offeneFreigabenDesMandats}
+              onSetzen={schrittSetzen}
+            />
           </>
         ) : (
           <p className="text-kicker text-seil-muted">Noch kein Datenraum-Lauf vorhanden.</p>
@@ -272,7 +247,9 @@ export function Transaktionsprozess() {
       </div>
 
       {/* Stufen 5 bis 7 zum Anfassen: wer steht wo im Prozess. */}
-      {mandat ? <Verteiler mandat={name} /> : null}
+      {mandat ? (
+        <Verteiler mandat={name} stand={kontaktstand} neuLaden={() => void crmLaden(name)} />
+      ) : null}
 
       {/* Stufe 4 zum Anfassen: der Abgleich rechnet gegen die echte Liveliste. */}
       <div className="mt-3 rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4">

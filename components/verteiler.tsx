@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { STUFEN, STUFEN_LABEL, STUFEN_TON, type Stufe } from "@/lib/crm";
 import type { Kontakt, Kontaktstand } from "@/app/api/kontakte/route";
 
@@ -13,44 +13,26 @@ import type { Kontakt, Kontaktstand } from "@/app/api/kontakte/route";
  * und sagt warum – eine Oberfläche, die eine nicht gespeicherte Änderung
  * anzeigt, ist schlimmer als eine, die hakt.
  */
-export function Verteiler({ mandat }: { mandat: string }) {
-  const [stand, setStand] = useState<Kontaktstand | null>(null);
+export function Verteiler({
+  mandat,
+  stand,
+  neuLaden,
+}: {
+  mandat: string;
+  stand: Kontaktstand | null;
+  neuLaden: () => void;
+}) {
   const [fehler, setFehler] = useState<string | null>(null);
   const [speichert, setSpeichert] = useState<string | null>(null);
   const [nurOffene, setNurOffene] = useState(false);
-  const holend = useRef(false);
-
-  const holen = useCallback(async () => {
-    if (!mandat || holend.current) return;
-    holend.current = true;
-    try {
-      const r = await fetch(`/api/kontakte?mandat=${encodeURIComponent(mandat)}`, { cache: "no-store" });
-      setStand((await r.json()) as Kontaktstand);
-    } catch {
-      // Der nächste Takt holt es nach.
-    } finally {
-      holend.current = false;
-    }
-  }, [mandat]);
-
-  useEffect(() => {
-    void holen();
-    const takt = setInterval(() => {
-      if (typeof document === "undefined" || document.visibilityState === "visible") void holen();
-    }, 30000);
-    return () => clearInterval(takt);
-  }, [holen]);
+  // Was gerade gesetzt wurde, bevor der naechste Abruf es bestaetigt - damit
+  // sich die Liste nicht traege anfuehlt.
+  const [vorlaeufig, setVorlaeufig] = useState<Record<string, Stufe>>({});
 
   async function setzen(k: Kontakt, status: Stufe) {
-    const vorher = k.status;
     setSpeichert(k.investorId);
     setFehler(null);
-    // Sofort anzeigen, damit sich die Liste nicht träge anfühlt.
-    setStand((s) =>
-      s
-        ? { ...s, kontakte: s.kontakte.map((x) => (x.investorId === k.investorId ? { ...x, status } : x)) }
-        : s,
-    );
+    setVorlaeufig((v) => ({ ...v, [k.investorId]: status }));
     try {
       const r = await fetch("/api/kontakte", {
         method: "POST",
@@ -71,29 +53,29 @@ export function Verteiler({ mandat }: { mandat: string }) {
       });
       const a = (await r.json()) as { ok?: boolean; grund?: string };
       if (!a.ok) throw new Error(a.grund ?? "nicht gespeichert");
+      neuLaden();
     } catch (e) {
+      // Zurueck auf den Stand, der wirklich gespeichert ist. Eine Oberflaeche,
+      // die eine nicht gespeicherte Aenderung anzeigt, ist schlimmer als eine,
+      // die hakt.
+      setVorlaeufig((v) => {
+        const n = { ...v };
+        delete n[k.investorId];
+        return n;
+      });
       setFehler(
         `„${k.firma ?? k.investorId}" konnte nicht gespeichert werden: ${
           e instanceof Error ? e.message : "unbekannt"
         }`,
       );
-      setStand((s) =>
-        s
-          ? {
-              ...s,
-              kontakte: s.kontakte.map((x) =>
-                x.investorId === k.investorId ? { ...x, status: vorher } : x,
-              ),
-            }
-          : s,
-      );
     } finally {
       setSpeichert(null);
-      void holen();
     }
   }
 
-  const kontakte = stand?.kontakte ?? [];
+  const kontakte = (stand?.kontakte ?? []).map((k) =>
+    vorlaeufig[k.investorId] ? { ...k, status: vorlaeufig[k.investorId] } : k,
+  );
   const offen = kontakte.filter((k) => k.status !== "abgesagt");
   const sichtbar = nurOffene ? offen : kontakte;
 

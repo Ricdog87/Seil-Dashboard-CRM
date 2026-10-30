@@ -1001,3 +1001,15 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     bei „sofort senden“ als angeschrieben, bei „zur Freigabe“ als vorgemerkt. Auf angeschrieben
     setzt ihn erst der tatsächliche Versand. Schlägt dieser Eintrag fehl, ist der Versand
     trotzdem passiert – die Antwort sagt das über `imVerteiler`, statt es zu verschweigen.
+
+79. **Das Dashboard folgt der SOP, nicht einem eigenen Schema.** Die 26 Schritte in vier Phasen
+    stehen jetzt in `lib/sop.ts` statt zwischen den Beispieldaten – sie sind der bestätigte Ablauf
+    des Teams, keine Demo. Die vorher gezeigte Siebener-Kette war meine Erfindung und ist weg.
+80. **Abgeleitet schlägt eingetragen.** Schritte 9, 14, 15, 16, 17, 18 und 19 liest das Cockpit aus
+    den Live-Quellen (Modul 01, Liveliste, Freigabe-Eingang, Verteiler) und lässt sie nicht von
+    Hand setzen. Sonst stünden zwei Wahrheiten zum selben Schritt, und die ältere gewinnt
+    irgendwann. Die übrigen 19 Schritte trägt das Team ein, gespeichert in `mandat_schritt`.
+81. **Schrittstand je Mandat, nicht je Objekt-ID.** Geschlüsselt wird über den Namen des
+    Datenraum-Laufs ohne Zeitstempel (`Portfolio-Otto-Probe-30-10`). Ein zweiter Lauf desselben
+    Mandats trifft damit denselben Stand; ein umbenanntes Mandat beginnt von vorn – das ist der
+    Preis dafür, ohne Mandats-ID auszukommen, und sollte mit SEIL geklärt werden.
