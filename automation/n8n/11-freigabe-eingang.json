@@ -233,7 +233,7 @@
         "options": {
           "response": {
             "response": {
-              "neverError": true,
+              "neverError": false,
               "responseFormat": "text"
             }
           }
@@ -253,7 +253,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ ok: true, anzahl: $json.getroffen ?? 0, entscheidung: $('Entscheidung lesen').first().json.entscheidung }) }}",
+        "responseBody": "={{ JSON.stringify({ ok: true, anzahl: $('Ergebnis zusammenfassen').first().json.getroffen, entscheidung: $('Entscheidung lesen').first().json.entscheidung }) }}",
         "options": {}
       },
       "id": "fg-ent-antwort",
@@ -347,7 +347,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ ok: false, entwurfId: $('Entscheidung lesen').first().json.entwurfId, grund: 'Kein offener Eintrag mit dieser Entwurfs-ID - schon entschieden oder unbekannt. Es wurde nichts versendet.' }) }}",
+        "responseBody": "={{ JSON.stringify({ ok: false, entwurfIds: $('Entscheidung lesen').first().json.entwurfIds, grund: 'Kein offener Eintrag mit diesen Entwurfs-IDs - schon entschieden oder unbekannt. Es wurde nichts versendet.' }) }}",
         "options": {
           "responseCode": 409
         }
