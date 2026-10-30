@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { NAMEN, PERSONEN } from "@/lib/sitzung-token";
-import { fmtDatum, istUeberfaellig, type Aufgabe } from "@/lib/mandat";
+import { istUeberfaellig, type Aufgabe } from "@/lib/mandat";
+import { AufgabeZeile } from "@/components/aufgabe-zeile";
 import type { Aufgabenliste } from "@/app/api/aufgaben/route";
 
 /**
@@ -141,40 +142,12 @@ export function AufgabenListe({
         ) : (
           <ul>
             {sichtbar.map((a) => (
-              <li
+              <AufgabeZeile
                 key={a.id}
-                className="flex flex-wrap items-start gap-x-3 gap-y-1 border-b border-seil-line px-4 py-2 last:border-0"
-              >
-                <input
-                  type="checkbox"
-                  className="mt-1"
-                  checked={a.erledigt}
-                  onChange={(e) => void abhaken(a, e.target.checked)}
-                  aria-label={`${a.titel} abhaken`}
-                />
-                <span className="min-w-[12rem] flex-1">
-                  <span
-                    className={`block text-body ${a.erledigt ? "text-seil-muted line-through" : "text-seil-text"}`}
-                  >
-                    {a.titel}
-                  </span>
-                  <span className="block text-kicker text-seil-muted">
-                    {[
-                      a.objekt,
-                      a.zustaendig ? (NAMEN[a.zustaendig] ?? a.zustaendig) : "niemand zugeteilt",
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </span>
-                </span>
-                <span
-                  className={`whitespace-nowrap text-kicker ${
-                    istUeberfaellig(a) ? "text-seil-danger" : "text-seil-muted"
-                  }`}
-                >
-                  {a.faellig ? fmtDatum(a.faellig) : "ohne Datum"}
-                </span>
-              </li>
+                a={a}
+                zeigeMandat={!mandat}
+                onAbhaken={(e) => void abhaken(a, e)}
+              />
             ))}
           </ul>
         )}
