@@ -121,5 +121,35 @@
         }
       }
     }
+  },
+  "13-crm-kontakte.json": {
+    "supabaseBasis": "https://PROJEKT-KENNUNG.supabase.co",
+    "tabelle": "kontakt",
+    "_credentials": {
+      "Kontaktstand abrufen": {
+        "httpHeaderAuth": {
+          "id": "ID-DER-WEBHOOK-ANMELDEDATEN",
+          "name": "SEIL Webhook-Header"
+        }
+      },
+      "Kontaktstand setzen": {
+        "httpHeaderAuth": {
+          "id": "ID-DER-WEBHOOK-ANMELDEDATEN",
+          "name": "SEIL Webhook-Header"
+        }
+      },
+      "Kontaktstand lesen": {
+        "httpHeaderAuth": {
+          "id": "ID-DER-DATENBANK-ANMELDEDATEN",
+          "name": "Supabase (SEIL) apikey"
+        }
+      },
+      "Kontaktstand schreiben": {
+        "httpHeaderAuth": {
+          "id": "ID-DER-DATENBANK-ANMELDEDATEN",
+          "name": "Supabase (SEIL) apikey"
+        }
+      }
+    }
   }
 }

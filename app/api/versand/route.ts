@@ -18,6 +18,48 @@ export interface VersandEmpfaenger {
   email?: string | null;
 }
 
+/**
+ * Den Verteiler nachtragen. Vor der Freigabe steht ein Investor auf
+ * „vorgemerkt“ – angeschrieben ist er erst, wenn die Mail wirklich raus ist.
+ * Diese Unterscheidung ist der Grund, warum hier nicht pauschal
+ * „angeschrieben“ geschrieben wird.
+ */
+async function verteilerNachtragen(
+  mandat: string,
+  empfaenger: VersandEmpfaenger[],
+  modus: string,
+  durch: string,
+): Promise<boolean> {
+  const url = process.env.KONTAKT_SETZEN_URL;
+  if (!url || !mandat) return false;
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        ...(process.env.MODUL01_SECRET ? { "X-Seil-Secret": process.env.MODUL01_SECRET } : {}),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        mandat,
+        durch,
+        kontakte: empfaenger.map((e) => ({
+          investorId: e.id,
+          firma: e.firma,
+          ansprechpartner: e.ansprechpartner ?? null,
+          email: e.email ?? null,
+          status: modus === "sofort" ? "angeschrieben" : "vorgemerkt",
+          ...(modus === "sofort" ? { letzterKontakt: new Date().toISOString() } : {}),
+        })),
+      }),
+      cache: "no-store",
+      signal: AbortSignal.timeout(Number(process.env.KONTAKTE_TIMEOUT_MS ?? 10000)),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: Request): Promise<NextResponse> {
   const url = process.env.VERSAND_URL;
   if (!url) {
@@ -74,7 +116,11 @@ export async function POST(request: Request): Promise<NextResponse> {
         { status: 502 },
       );
     }
-    return NextResponse.json({ ok: true, anzahl: empfaenger.length, modus });
+    // Wer in einen Versand geht, gehoert in den Verteiler - sonst weiss das
+    // Cockpit morgen nicht mehr, wen es angeschrieben hat. Schlaegt das fehl,
+    // ist der Versand trotzdem passiert: das darf die Antwort nicht verfaelschen.
+    const imVerteiler = await verteilerNachtragen(b.objekt ?? "", empfaenger, modus, durch);
+    return NextResponse.json({ ok: true, anzahl: empfaenger.length, modus, imVerteiler });
   } catch (e) {
     const grund =
       e instanceof Error ? (e.name === "TimeoutError" ? "Zeitüberschreitung" : e.message) : "unbekannt";

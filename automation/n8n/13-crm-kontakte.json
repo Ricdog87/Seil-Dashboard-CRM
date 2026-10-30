@@ -1,0 +1,420 @@
+{
+  "name": "SEIL 13 · Kontaktstand (CRM)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Kontaktstand je Mandat\nWer ist angeschrieben, wer hat ein NDA unterschrieben, wer hat geantwortet.\n\nTabelle `kontakt` in Supabase, ein Eintrag je Mandat und Investor.\n\nLesen: `GET seil/kontakte?mandat=…`\nSchreiben: `POST seil/kontakt` (einer oder viele auf einmal).\n\nZugangsdaten stehen im Anmeldedaten-Speicher, nicht in dieser Datei.",
+        "height": 280,
+        "width": 380
+      },
+      "id": "kt-sticky",
+      "name": "Hinweis",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "seil/kontakte",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "kt-webhook-lesen",
+      "name": "Kontaktstand abrufen",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        260,
+        0
+      ],
+      "webhookId": "seil-kontakte-lesen"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "kt-c1",
+              "name": "supabaseBasis",
+              "value": "https://PROJEKT-KENNUNG.supabase.co",
+              "type": "string"
+            },
+            {
+              "id": "kt-c2",
+              "name": "tabelle",
+              "value": "kontakt",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "kt-konfig",
+      "name": "Konfiguration Kontakte (Platzhalter)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.supabaseBasis }}/rest/v1/{{ $json.tabelle }}?mandat=eq.{{ encodeURIComponent($('Kontaktstand abrufen').first().json.query?.mandat ?? '') }}&order=firma.asc&limit=500",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json",
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "kt-lesen",
+      "name": "Kontaktstand lesen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Kontaktstaende eines Mandats fuers Cockpit aufbereiten.\n// Volle Antwort von PostgREST: ein leeres Mandat ist ein leeres Array mit 200,\n// eine Stoerung ist alles andere. Das Cockpit zeigt sonst \"niemand im\n// Verteiler\", obwohl die Leitung gestoert ist.\nconst r = $input.first()?.json ?? {};\nconst status = Number(r.statusCode ?? 0);\nconst zeilen = r.body;\nif (!(status >= 200 && status < 300) || !Array.isArray(zeilen)) {\n  return [{ json: { stoerung: true, stand: new Date().toISOString(),\n                    grund: 'Kontaktstand nicht lesbar (HTTP ' + (status || 'ohne Antwort') + ')' } }];\n}\nconst kontakte = zeilen.filter((z) => z && z.investor_id).map((z) => ({\n  investorId: z.investor_id,\n  mandat: z.mandat,\n  firma: z.firma ?? null,\n  ansprechpartner: z.ansprechpartner ?? null,\n  email: z.email ?? null,\n  status: z.status ?? 'vorgemerkt',\n  notiz: z.notiz ?? null,\n  letzterKontakt: z.letzter_kontakt ?? null,\n  naechstesFollowUp: z.naechstes_followup ?? null,\n  geaendertDurch: z.geaendert_durch ?? null,\n  geaendert: z.geaendert ?? null,\n}));\nreturn [{ json: { stand: new Date().toISOString(), anzahl: kontakte.length, kontakte } }];\n"
+      },
+      "id": "kt-mappen",
+      "name": "Antwort fuers Cockpit bauen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "kt-if-lesbar",
+              "leftValue": "={{ $json.stoerung ? 'ja' : 'nein' }}",
+              "rightValue": "nein",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "kt-lesbar",
+      "name": "Lesbar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "kt-antwort",
+      "name": "JSON antworten",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ fehler: $json.grund }) }}",
+        "options": {
+          "responseCode": 502
+        }
+      },
+      "id": "kt-stoerung",
+      "name": "Stoerung melden",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "seil/kontakt",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "kt-webhook-schreiben",
+      "name": "Kontaktstand setzen",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        260,
+        280
+      ],
+      "webhookId": "seil-kontakt-setzen"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Einen oder viele Kontaktstaende setzen. Das Cockpit schickt beim Versand die\n// ganze Empfaengerliste auf einmal, beim Haendischen einen einzelnen Eintrag.\n// Nur bekannte Stufen werden durchgelassen - eine falsche Stufe faengt sonst\n// erst die Datenbank, und dann steht im Cockpit ein Fehler ohne Erklaerung.\nconst STUFEN = ['vorgemerkt','angeschrieben','nda_angefragt','nda_unterzeichnet',\n                'datenraum_freigegeben','interesse','preisanfrage','abgesagt'];\nconst b = $input.first().json.body ?? $input.first().json;\nconst mandat = String(b.mandat ?? '').trim();\nif (!mandat) throw new Error('Kontaktstand ohne Mandat');\nconst roh = Array.isArray(b.kontakte) ? b.kontakte : [b];\nconst jetzt = new Date().toISOString();\nconst zeilen = roh\n  .filter((k) => k && k.investorId)\n  .map((k) => {\n    const stufe = STUFEN.includes(k.status) ? k.status : 'vorgemerkt';\n    const z = {\n      mandat,\n      investor_id: String(k.investorId),\n      firma: k.firma ?? null,\n      ansprechpartner: k.ansprechpartner ?? null,\n      email: k.email ?? null,\n      status: stufe,\n      geaendert_durch: String(b.durch || 'cockpit'),\n      geaendert: jetzt,\n    };\n    if (k.notiz !== undefined) z.notiz = k.notiz;\n    if (k.letzterKontakt !== undefined) z.letzter_kontakt = k.letzterKontakt;\n    if (k.naechstesFollowUp !== undefined) z.naechstes_followup = k.naechstesFollowUp;\n    return z;\n  });\nif (zeilen.length === 0) throw new Error('Kontaktstand ohne Investor');\nreturn [{ json: { mandat, anzahl: zeilen.length, zeilen } }];\n"
+      },
+      "id": "kt-pruefen",
+      "name": "Eingabe pruefen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.supabaseBasis }}/rest/v1/kontakt?on_conflict=mandat,investor_id",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=representation"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.zeilen) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json",
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "kt-schreiben",
+      "name": "Kontaktstand schreiben",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Hat das Schreiben wirklich gegriffen? Null geaenderte Zeilen heisst: nichts\n// gespeichert - das muss das Cockpit erfahren und nicht stillschweigend\n// annehmen, es sei gut gegangen.\nconst r = $input.first()?.json ?? {};\nconst status = Number(r.statusCode ?? 0);\nconst zeilen = Array.isArray(r.body) ? r.body : [];\nconst ok = status >= 200 && status < 300;\nreturn [{ json: { ok: ok && zeilen.length > 0, gespeichert: ok ? zeilen.length : 0, status } }];\n"
+      },
+      "id": "kt-ergebnis",
+      "name": "Ergebnis zusammenfassen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: $json.ok, gespeichert: $json.gespeichert }) }}",
+        "options": {}
+      },
+      "id": "kt-schreib-antwort",
+      "name": "Speichern bestaetigen",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "kt-c3",
+              "name": "supabaseBasis",
+              "value": "https://PROJEKT-KENNUNG.supabase.co",
+              "type": "string"
+            },
+            {
+              "id": "kt-c4",
+              "name": "tabelle",
+              "value": "kontakt",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "kt-konfig2",
+      "name": "Konfiguration Kontakte schreiben",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        680,
+        280
+      ]
+    }
+  ],
+  "connections": {
+    "Kontaktstand abrufen": {
+      "main": [
+        [
+          {
+            "node": "Konfiguration Kontakte (Platzhalter)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Konfiguration Kontakte (Platzhalter)": {
+      "main": [
+        [
+          {
+            "node": "Kontaktstand lesen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kontaktstand lesen": {
+      "main": [
+        [
+          {
+            "node": "Antwort fuers Cockpit bauen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Antwort fuers Cockpit bauen": {
+      "main": [
+        [
+          {
+            "node": "Lesbar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lesbar?": {
+      "main": [
+        [
+          {
+            "node": "JSON antworten",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stoerung melden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kontaktstand setzen": {
+      "main": [
+        [
+          {
+            "node": "Eingabe pruefen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eingabe pruefen": {
+      "main": [
+        [
+          {
+            "node": "Konfiguration Kontakte schreiben",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Konfiguration Kontakte schreiben": {
+      "main": [
+        [
+          {
+            "node": "Kontaktstand schreiben",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kontaktstand schreiben": {
+      "main": [
+        [
+          {
+            "node": "Ergebnis zusammenfassen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ergebnis zusammenfassen": {
+      "main": [
+        [
+          {
+            "node": "Speichern bestaetigen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

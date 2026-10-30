@@ -5,6 +5,7 @@ import { useLive, uhrzeit } from "@/components/live-abruf";
 import type { LiveInvestoren, LiveInvestor } from "@/app/api/investoren/route";
 import type { Modul01Objekt, Modul01Stand } from "@/lib/modul01";
 import { Anschreiben } from "@/components/anschreiben";
+import { Verteiler } from "@/components/verteiler";
 
 /**
  * Der Transaktionsprozess eines Mandats – von der Datenraum-Übernahme bis zur
@@ -269,6 +270,9 @@ export function Transaktionsprozess() {
           <p className="text-kicker text-seil-muted">Noch kein Datenraum-Lauf vorhanden.</p>
         )}
       </div>
+
+      {/* Stufen 5 bis 7 zum Anfassen: wer steht wo im Prozess. */}
+      {mandat ? <Verteiler mandat={name} /> : null}
 
       {/* Stufe 4 zum Anfassen: der Abgleich rechnet gegen die echte Liveliste. */}
       <div className="mt-3 rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4">

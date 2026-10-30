@@ -987,3 +987,17 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     SEIL-Postfach in n8n; Vercel bekommt keine Postfach-Zugangsdaten. Die Umleitung auf einen
     Demo-Empfänger aus WF 05 gilt auch hier, und „sofort senden“ steht hinter einer zweiten
     Bestätigung. Obergrenze 50 Empfänger je Auftrag.
+
+76. **Freigabe ist eine Sendung, kein Entwurf.** Links der Text, rechts die Empfänger, einzeln
+    abwählbar (Vorgabe aus dem Workshop 30.10.). Die Zeilen einer Sendung tragen dieselbe Kennung
+    in der Spalte `sendung`; die Entscheidung geht für mehrere Entwürfe auf einmal raus.
+    Freigeben darf nur, wer in `FREIGEBER` steht – derzeit `tp`. Die Route weist eine fremde
+    Entscheidung auch dann ab, wenn sie direkt geschickt wird.
+77. **Kontaktstand (CRM-Gedächtnis).** Tabelle `kontakt`, ein Eintrag je Mandat und Investor, RLS
+    aktiv und ohne Richtlinie. Acht Stufen von „vorgemerkt“ bis „abgesagt“, als Prüfung in der
+    Spalte: eine neue Stufe ist eine Migration und keine stille Freitexteingabe. Gelesen und
+    geschrieben über WF 13, nicht direkt – das Cockpit hält weiterhin keinen Datenbankzugang.
+78. **Vorgemerkt ist nicht angeschrieben.** Wer in einen Versand geht, steht danach im Verteiler:
+    bei „sofort senden“ als angeschrieben, bei „zur Freigabe“ als vorgemerkt. Auf angeschrieben
+    setzt ihn erst der tatsächliche Versand. Schlägt dieser Eintrag fehl, ist der Versand
+    trotzdem passiert – die Antwort sagt das über `imVerteiler`, statt es zu verschweigen.
