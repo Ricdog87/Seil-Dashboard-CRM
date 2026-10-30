@@ -6,6 +6,7 @@ import { laufPraefix, type Mandat, type Phase } from "@/lib/mandat";
 import type { Kontakt } from "@/app/api/kontakte/route";
 import type { SchrittStand } from "@/app/api/schritte/route";
 import type { Modul01Antwort, Modul01Objekt } from "@/lib/modul01";
+import { followupLage } from "@/lib/followup";
 
 /**
  * Die Pipeline: jedes Mandat mit allem, was eine Karte auf der Tafel braucht.
@@ -36,6 +37,8 @@ export interface PipelineKarte extends Mandat {
   };
   aufgabenOffen: number;
   aufgabenUeberfaellig: number;
+  /** Investoren, bei denen laut SOP 16 ein Follow-up faellig ist. */
+  followupsFaellig: number;
   naechsteAufgabe: { titel: string; faellig: string | null; zustaendig: string | null } | null;
   datenraum: { eingelesen: number; abgelegt: number; offen: number } | null;
   freigabenOffen: number;
@@ -50,11 +53,11 @@ export interface Pipeline {
 
 interface DbMandat {
   id: string; name: string; stadt: string | null; assetklasse: string | null;
-  auftraggeber: string | null; phase: Phase; zustaendig: string | null;
+  auftraggeber: string | null; auftraggeber_id: string | null; phase: Phase; zustaendig: string | null;
   lauf_praefix: string | null; notiz: string | null; erstellt: string | null;
   geaendert: string | null; geaendert_durch: string | null;
 }
-interface DbKontakt { mandat: string; investor_id: string; firma: string | null; status: Kontakt["status"]; }
+interface DbKontakt { mandat: string; investor_id: string; firma: string | null; status: Kontakt["status"]; letzter_kontakt: string | null; followups: number | null; }
 interface DbSchritt { mandat: string; schritt: number; status: SchrittStand["status"]; }
 interface DbAufgabe { objekt: string | null; titel: string; faellig: string | null; zustaendig: string | null; }
 interface DbFreigabe { objekt: string | null; }
@@ -97,7 +100,7 @@ export async function GET(): Promise<NextResponse<Pipeline>> {
   try {
     const [mandate, kontakte, schritte, aufgaben, freigaben, raeume] = await Promise.all([
       dbLesen<DbMandat>("mandat", "order=geaendert.desc&limit=300"),
-      dbLesen<DbKontakt>("kontakt", "select=mandat,investor_id,firma,status&limit=5000"),
+      dbLesen<DbKontakt>("kontakt", "select=mandat,investor_id,firma,status,letzter_kontakt,followups&limit=5000"),
       dbLesen<DbSchritt>("mandat_schritt", "select=mandat,schritt,status&limit=10000"),
       dbLesen<DbAufgabe>("aufgaben", "select=objekt,titel,faellig,zustaendig&erledigt=is.false&order=faellig.asc.nullslast&limit=2000"),
       dbLesen<DbFreigabe>("freigabe_eingang", "select=objekt&status=eq.offen&limit=2000"),
@@ -133,7 +136,7 @@ export async function GET(): Promise<NextResponse<Pipeline>> {
       const wert = (feld: string) => Number(dr?.kennwerte?.find((x) => x.feld === feld)?.wert ?? NaN);
 
       return {
-        id: m.id, name: m.name, stadt: m.stadt, assetklasse: m.assetklasse, auftraggeber: m.auftraggeber,
+        id: m.id, name: m.name, stadt: m.stadt, assetklasse: m.assetklasse, auftraggeber: m.auftraggeber, auftraggeberId: m.auftraggeber_id,
         phase: m.phase, zustaendig: m.zustaendig, laufPraefix: m.lauf_praefix, notiz: m.notiz,
         erstellt: m.erstellt, geaendert: m.geaendert, geaendertDurch: m.geaendert_durch,
         schritteFertig: fertigJeNr.size,
@@ -154,6 +157,7 @@ export async function GET(): Promise<NextResponse<Pipeline>> {
         },
         aufgabenOffen: a.length,
         aufgabenUeberfaellig: ueberfaellig,
+        followupsFaellig: k.filter((x) => followupLage({ status: x.status, letzterKontakt: x.letzter_kontakt, followups: x.followups ?? 0 }).lage === "faellig").length,
         naechsteAufgabe: a[0] ? { titel: a[0].titel, faellig: a[0].faellig, zustaendig: a[0].zustaendig } : null,
         datenraum: dr
           ? {

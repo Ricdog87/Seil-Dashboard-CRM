@@ -75,3 +75,55 @@ export const PROZESS_SCHRITTE: readonly ProzessSchritt[] = [
 
 /** Index (0-basiert) des Human-in-the-Loop-Schritts: Approach-Mailing erst nach Freigabe. */
 export const FREIGABE_SCHRITT_INDEX = 14;
+
+// ---------------------------------------------------------------------------
+// Datenraum-SOP: die Standarddokumente (Schritt 8) und der Datenraum light (Schritt 18)
+// ---------------------------------------------------------------------------
+
+/** Die 20 Kategorien der SOP „Anlage und Standardisierung eines SEIL REAL ESTATE
+ *  Datenraums“ (18.02.2026), in der Reihenfolge der Terminologie-Tabelle. Die
+ *  Namen sind die Ordnernamen der SOP – bewusst wortgetreu, damit die Lückenliste
+ *  dieselben Begriffe zeigt wie der Datenraum selbst (ANNAHMEN.md, Punkt 57). */
+export const STANDARD_DOKUMENTE = [
+  "Mieterliste",
+  "Altlasten",
+  "Baulasten",
+  "Denkmalschutz",
+  "Grundbuch",
+  "Grundrisse",
+  "Ansichten",
+  "Schnitte",
+  "Kataster",
+  "Bilder",
+  "Betriebskosten",
+  "Mietverträge",
+  "Energienachweis",
+  "Versicherungen",
+  "Bauakte",
+  "Mietrückstände",
+  "Grundsteuer",
+  "Brandschutz",
+  "Wartungs- und Serviceverträge",
+  "Gutachten",
+] as const;
+
+/** Der 00_Datenraum light ist keine eigene Struktur, sondern ein reduzierter und
+ *  geschwärzter Ausschnitt des 99_Datenraums (SOP, Abschnitt 1). Diese elf
+ *  Kategorien gehören laut Terminologie-Tabelle hinein. */
+export const LIGHT_KATEGORIEN: readonly string[] = [
+  "Mieterliste",
+  "Altlasten",
+  "Baulasten",
+  "Denkmalschutz",
+  "Grundbuch",
+  "Grundrisse",
+  "Ansichten",
+  "Schnitte",
+  "Kataster",
+  "Bilder",
+  "Energienachweis",
+];
+
+/** Stand eines Standarddokuments beim Auftraggeber (Schritt 8). */
+export const DOKUMENT_STATUS = ["fehlt", "angefordert", "liegt_vor", "nicht_noetig"] as const;
+export type DokumentStatus = (typeof DOKUMENT_STATUS)[number];

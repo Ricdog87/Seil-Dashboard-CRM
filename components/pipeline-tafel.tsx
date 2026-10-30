@@ -166,6 +166,12 @@ function Karte({
         {k.aufgabenUeberfaellig > 0 ? (
           <div className="text-seil-danger">{k.aufgabenUeberfaellig} überfällig</div>
         ) : null}
+        {k.followupsFaellig > 0 ? (
+          <div className="flex justify-between text-seil-danger">
+            <span>Follow-up fällig</span>
+            <span className="tabular-nums">{k.followupsFaellig} Investoren</span>
+          </div>
+        ) : null}
       </div>
     </article>
   );

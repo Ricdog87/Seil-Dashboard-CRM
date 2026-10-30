@@ -43,6 +43,8 @@ export interface Mandat {
   stadt: string | null;
   assetklasse: string | null;
   auftraggeber: string | null;
+  /** Verweis auf den Kunden der Art „Auftraggeber“ (kunde.investor_id). */
+  auftraggeberId: string | null;
   phase: Phase;
   zustaendig: string | null;
   laufPraefix: string | null;

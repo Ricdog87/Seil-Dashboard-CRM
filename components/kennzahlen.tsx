@@ -43,6 +43,7 @@ export function Kennzahlen() {
   const interesse = sum((k) => k.verteiler.interesse);
   const freigaben = sum((k) => k.freigabenOffen);
   const ueberfaellig = sum((k) => k.aufgabenUeberfaellig);
+  const followups = sum((k) => k.followupsFaellig);
   const pruefen = dr
     ? [...Object.values(dr.objekte ?? {}), ...(dr.unbekannt ?? [])].reduce((n, o) => n + (o.dokumente?.length ?? 0), 0)
     : null;
@@ -105,11 +106,11 @@ export function Kennzahlen() {
         ton={freigaben > 0 ? "text-seil-warning" : ""}
       />
       <Kachel
-        wert={z(ueberfaellig)}
+        wert={z(ueberfaellig + followups)}
         label="Überfällig"
-        sub="Aufgaben"
+        sub={`${ueberfaellig} Aufgaben · ${followups} Follow-ups`}
         href="/aufgaben"
-        ton={ueberfaellig > 0 ? "text-seil-danger" : ""}
+        ton={ueberfaellig + followups > 0 ? "text-seil-danger" : ""}
       />
       <Kachel
         wert={pruefen === null ? "—" : String(pruefen)}

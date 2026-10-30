@@ -16,6 +16,10 @@ import { Anschreiben } from "@/components/anschreiben";
 import { AufgabenListe } from "@/components/aufgaben-liste";
 import { AktivitaetenListe } from "@/components/aktivitaeten-liste";
 import type { Kundenliste } from "@/app/api/kunden/route";
+import type { Mandatsliste } from "@/app/api/mandate/route";
+import { PHASE_LABEL } from "@/lib/mandat";
+import Link from "next/link";
+import { DokumenteCheckliste } from "@/components/dokumente-checkliste";
 
 /**
  * Ein Kunde auf einer Seite: Stammdaten aus der Liveliste, der CRM-Stand
@@ -26,6 +30,15 @@ export function KundeDetail({ id }: { id: string }) {
   const [fehlt, setFehlt] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
   const [schreiben, setSchreiben] = useState(false);
+  const [mandate, setMandate] = useState<Mandatsliste | null>(null);
+
+  // Welche Mandate haengen an diesem Kunden - als Auftraggeber.
+  useEffect(() => {
+    fetch("/api/mandate", { cache: "no-store" })
+      .then((r) => r.json() as Promise<Mandatsliste>)
+      .then(setMandate)
+      .catch(() => undefined);
+  }, [id]);
 
   const holen = useCallback(async () => {
     try {
@@ -211,6 +224,39 @@ export function KundeDetail({ id }: { id: string }) {
           Ohne E-Mail-Adresse lässt sich von hier aus nichts verschicken.
         </p>
       )}
+
+      {(() => {
+        const eigene = (mandate?.mandate ?? []).filter(
+          (m) => m.auftraggeberId === kunde.id || (!m.auftraggeberId && m.auftraggeber === kunde.firma),
+        );
+        if (kunde.art !== "auftraggeber" && eigene.length === 0) return null;
+        return (
+          <section className="mt-5">
+            <h2 className="mb-2 text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
+              Mandate als Auftraggeber · {eigene.length}
+            </h2>
+            {eigene.length === 0 ? (
+              <div className="rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4 text-body text-seil-muted">
+                Noch kein Mandat zugeordnet. Auf der Mandatsseite unter „Auftraggeber“ auswählen.
+              </div>
+            ) : (
+              eigene.map((m) => (
+                <div key={m.id} className="mb-3 rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <Link href={`/mandate/${encodeURIComponent(m.name)}`} className="text-body text-seil-text hover:text-seil-accent hover:underline">
+                      {m.name}
+                    </Link>
+                    <span className="text-kicker text-seil-muted">
+                      {[m.stadt, PHASE_LABEL[m.phase]].filter(Boolean).join(" · ")}
+                    </span>
+                  </div>
+                  <DokumenteCheckliste mandat={m.name} kompakt />
+                </div>
+              ))
+            )}
+          </section>
+        );
+      })()}
 
       <AufgabenListe titel="Aufgaben zu diesem Kunden" mandat={undefined} />
       <AktivitaetenListe grenze={20} />

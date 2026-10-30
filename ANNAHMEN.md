@@ -1064,3 +1064,24 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     nächste Aufgabe und Datenraum-Stand je Mandat einmal auf dem Server zusammen – nicht jede Karte
     für sich. Die Kennzahlen oben auf der Übersicht kommen aus derselben Antwort; keine Zahl dort
     wird separat gepflegt.
+
+94. **Der Auftraggeber ist ein Kunde.** `mandat.auftraggeber_id` verweist auf einen Kunden der Art
+    „Auftraggeber“ (`kunde.investor_id`); das alte Freitextfeld bleibt als Anzeige für Altbestand.
+    Kein Fremdschlüssel, damit ein Mandat auch gespeichert werden kann, bevor der Kunde angelegt ist.
+    Die Kundenseite eines Auftraggebers zeigt seine Mandate samt Dokumentenstand.
+95. **Standarddokumente je Mandat (SOP Schritt 8).** Die zwanzig Kategorien der Datenraum-SOP vom
+    18.02.2026 stehen jetzt in `lib/sop.ts` statt in den Beispieldaten. Je Mandat und Dokument ein
+    Stand: fehlt · angefordert · liegt vor · nicht nötig (`mandat_dokument`). Was in den Datenraum
+    light gehört (Schritt 18), ist markiert. Ob das Dokument wirklich im Datenraum liegt, prüft
+    weiterhin Modul 01 – diese Liste hält fest, was beim Auftraggeber angefordert und geliefert ist.
+96. **Follow-up-Regel aus Schritt 16, sichtbar gemacht.** Alle zwei Tage nachfassen, höchstens drei
+    Stufen (`lib/followup.ts`). Wer auf „angeschrieben“ oder „NDA angefragt“ steht und seit zwei
+    Tagen nichts gehört hat, bekommt eine rote Markierung „Follow-up 2/3 fällig“; nach drei Mal
+    gilt er als stumm, nicht als abgesagt. „Nachgefasst“ zählt `kontakt.followups` hoch und setzt
+    den letzten Kontakt. Das Cockpit zeigt die Fälligkeit; den Versand macht weiterhin WF 05.
+97. **Aufgaben aus dem Prozess.** Wechselt ein Investor auf „Interesse“, entsteht „Broker Call“
+    (Schritt 17); bei „NDA unterzeichnet“ „Datenraum Light freigeben“ (Schritt 18); bei
+    „Preisanfrage“ „Rückruf GF (nur telefonisch)“ (Festlegung aus dem Kundentermin). Zugewiesen an
+    den Zuständigen des Mandats, fällig in ein bis zwei Tagen, `quelle = 'prozess'`. Nur beim
+    Wechsel, nicht beim erneuten Speichern, und nicht, wenn dieselbe Aufgabe offen schon da ist.
+    Eine nicht angelegte Aufgabe rollt den Stufenwechsel nicht zurück.

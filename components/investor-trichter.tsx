@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { STUFEN, STUFEN_LABEL, type Stufe } from "@/lib/crm";
 import type { Kontakt, Kontaktstand } from "@/app/api/kontakte/route";
+import { followupLage } from "@/lib/followup";
 
 /**
  * Der Investoren-Trichter eines Mandats – die Investorenseite der SOP als Tafel.
@@ -79,6 +80,25 @@ export function InvestorTrichter({
     }
   }
 
+  async function nachgefasst(k: Kontakt) {
+    setFehler(null);
+    try {
+      const r = await fetch("/api/kontakte", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mandat,
+          kontakte: [{ investorId: k.investorId, firma: k.firma, ansprechpartner: k.ansprechpartner, email: k.email, status: k.status, nachgefasst: true }],
+        }),
+      });
+      const a = (await r.json()) as { ok?: boolean; grund?: string };
+      if (!a.ok) throw new Error(a.grund ?? "nicht gespeichert");
+      neuLaden();
+    } catch (e) {
+      setFehler(`„${k.firma ?? k.investorId}": ${e instanceof Error ? e.message : "nicht gespeichert"}`);
+    }
+  }
+
   const inSpalte = (s: Stufe) => kontakte.filter((k) => k.status === s);
   const absagen = inSpalte("abgesagt");
 
@@ -119,11 +139,41 @@ export function InvestorTrichter({
         {k.firma ?? k.investorId}
       </Link>
       <div className="truncate text-kicker text-seil-muted">{k.ansprechpartner ?? k.email ?? "—"}</div>
-      {k.letzterKontakt ? (
-        <div className="mt-0.5 text-[10px] text-seil-muted">
-          zuletzt {new Date(k.letzterKontakt).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" })}
-        </div>
-      ) : null}
+      {(() => {
+        const f = followupLage(k);
+        if (f.lage === "faellig")
+          return (
+            <div className="mt-1 flex items-center justify-between gap-1">
+              <span className="text-[10px] text-seil-danger">
+                Follow-up {f.stufe}/3 fällig · {f.tage} Tage still
+              </span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  void nachgefasst(k);
+                }}
+                className="rounded-seil border border-seil-line px-1.5 text-[10px] text-seil-body hover:border-seil-accent hover:text-seil-accent"
+              >
+                nachgefasst
+              </button>
+            </div>
+          );
+        if (f.lage === "stumm")
+          return <div className="mt-0.5 text-[10px] text-seil-muted">3× nachgefasst, keine Antwort</div>;
+        if (f.lage === "wartet")
+          return (
+            <div className="mt-0.5 text-[10px] text-seil-muted">
+              wartet seit {f.tage === 0 ? "heute" : `${f.tage} Tag${f.tage === 1 ? "" : "en"}`}
+              {k.followups > 0 ? ` · ${k.followups}× nachgefasst` : ""}
+            </div>
+          );
+        return k.letzterKontakt ? (
+          <div className="mt-0.5 text-[10px] text-seil-muted">
+            zuletzt {new Date(k.letzterKontakt).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" })}
+          </div>
+        ) : null;
+      })()}
     </article>
   );
 

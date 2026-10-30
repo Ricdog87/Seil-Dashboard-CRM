@@ -207,49 +207,8 @@ export const auftraggeber: Auftraggeber[] = [
 // Standard-Dokumentencheckliste des Datenraums (Anzeige aus Modul 01)
 // ---------------------------------------------------------------------------
 
-/** Die 20 Kategorien der SOP „Anlage und Standardisierung eines SEIL REAL ESTATE
- *  Datenraums“ (18.02.2026), in der Reihenfolge der Terminologie-Tabelle. Die
- *  Namen sind die Ordnernamen der SOP – bewusst wortgetreu, damit die Lückenliste
- *  dieselben Begriffe zeigt wie der Datenraum selbst (ANNAHMEN.md, Punkt 57). */
-export const STANDARD_DOKUMENTE = [
-  "Mieterliste",
-  "Altlasten",
-  "Baulasten",
-  "Denkmalschutz",
-  "Grundbuch",
-  "Grundrisse",
-  "Ansichten",
-  "Schnitte",
-  "Kataster",
-  "Bilder",
-  "Betriebskosten",
-  "Mietverträge",
-  "Energienachweis",
-  "Versicherungen",
-  "Bauakte",
-  "Mietrückstände",
-  "Grundsteuer",
-  "Brandschutz",
-  "Wartungs- und Serviceverträge",
-  "Gutachten",
-] as const;
-
-/** Der 00_Datenraum light ist keine eigene Struktur, sondern ein reduzierter und
- *  geschwärzter Ausschnitt des 99_Datenraums (SOP, Abschnitt 1). Diese elf
- *  Kategorien gehören laut Terminologie-Tabelle hinein. */
-export const LIGHT_KATEGORIEN: readonly string[] = [
-  "Mieterliste",
-  "Altlasten",
-  "Baulasten",
-  "Denkmalschutz",
-  "Grundbuch",
-  "Grundrisse",
-  "Ansichten",
-  "Schnitte",
-  "Kataster",
-  "Bilder",
-  "Energienachweis",
-];
+export { STANDARD_DOKUMENTE, LIGHT_KATEGORIEN } from "./sop";
+import { LIGHT_KATEGORIEN, STANDARD_DOKUMENTE } from "./sop";
 
 
 type SchrittMap = Partial<Record<number, "done" | "in_progress" | "pending" | "na">>;

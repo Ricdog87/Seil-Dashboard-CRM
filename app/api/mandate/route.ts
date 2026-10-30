@@ -18,6 +18,7 @@ interface DbMandat {
   stadt: string | null;
   assetklasse: string | null;
   auftraggeber: string | null;
+  auftraggeber_id: string | null;
   phase: Phase;
   zustaendig: string | null;
   lauf_praefix: string | null;
@@ -33,6 +34,7 @@ const auf = (z: DbMandat): Mandat => ({
   stadt: z.stadt,
   assetklasse: z.assetklasse,
   auftraggeber: z.auftraggeber,
+  auftraggeberId: z.auftraggeber_id,
   phase: z.phase,
   zustaendig: z.zustaendig,
   laufPraefix: z.lauf_praefix,
@@ -83,6 +85,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       ["stadt", "stadt"],
       ["assetklasse", "assetklasse"],
       ["auftraggeber", "auftraggeber"],
+      ["auftraggeberId", "auftraggeber_id"],
       ["phase", "phase"],
       ["zustaendig", "zustaendig"],
       ["laufPraefix", "lauf_praefix"],

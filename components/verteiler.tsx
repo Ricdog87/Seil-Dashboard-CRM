@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { STUFEN, STUFEN_LABEL, STUFEN_TON, type Stufe } from "@/lib/crm";
 import type { Kontakt, Kontaktstand } from "@/app/api/kontakte/route";
+import { followupLage } from "@/lib/followup";
 
 /**
  * Der Verteiler eines Mandats – wer steht wo im Prozess.
@@ -141,6 +142,7 @@ export function Verteiler({
               <th className="px-3 py-2 font-medium">Ansprechpartner</th>
               <th className="px-3 py-2 font-medium">Stand</th>
               <th className="px-3 py-2 font-medium">Letzter Kontakt</th>
+              <th className="px-3 py-2 font-medium">Follow-up</th>
               <th className="px-3 py-2 font-medium">Zuletzt geändert</th>
             </tr>
           </thead>
@@ -177,6 +179,15 @@ export function Verteiler({
                         year: "2-digit",
                       })
                     : "—"}
+                </td>
+                <td className="px-3 py-2 text-kicker">
+                  {(() => {
+                    const f = followupLage(k);
+                    if (f.lage === "faellig") return <span className="text-seil-danger">{f.stufe}/3 fällig · {f.tage} Tage</span>;
+                    if (f.lage === "stumm") return <span className="text-seil-muted">stumm nach 3×</span>;
+                    if (f.lage === "wartet") return <span className="text-seil-muted">wartet · {k.followups}×</span>;
+                    return <span className="text-seil-muted">—</span>;
+                  })()}
                 </td>
                 <td className="px-3 py-2 text-kicker text-seil-muted">{k.geaendertDurch ?? "—"}</td>
               </tr>

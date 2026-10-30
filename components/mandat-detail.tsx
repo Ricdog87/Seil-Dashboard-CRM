@@ -7,6 +7,8 @@ import { AufgabenListe } from "@/components/aufgaben-liste";
 import { NotizenListe } from "@/components/notizen-liste";
 import { AktivitaetenListe } from "@/components/aktivitaeten-liste";
 import { MandatProzess } from "@/components/mandat-prozess";
+import { DokumenteCheckliste } from "@/components/dokumente-checkliste";
+import type { Kundenliste } from "@/app/api/kunden/route";
 import type { Mandatsliste } from "@/app/api/mandate/route";
 
 /**
@@ -21,6 +23,15 @@ export function MandatDetail({ mandat, kuerzel }: { mandat: string; kuerzel: str
   const [stand, setStand] = useState<Mandat | null>(null);
   const [fehlt, setFehlt] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
+  const [auftraggeber, setAuftraggeber] = useState<{ id: string; firma: string }[]>([]);
+
+  // Die Auftraggeber unter den Kunden - fuer die Auswahl am Mandat.
+  useEffect(() => {
+    fetch("/api/kunden?quelle=cockpit", { cache: "no-store" })
+      .then((r) => r.json() as Promise<Kundenliste>)
+      .then((l) => setAuftraggeber(l.kunden.filter((k) => k.art === "auftraggeber").map((k) => ({ id: k.id, firma: k.firma }))))
+      .catch(() => undefined);
+  }, []);
 
   const holen = useCallback(async () => {
     try {
@@ -105,7 +116,30 @@ export function MandatDetail({ mandat, kuerzel }: { mandat: string; kuerzel: str
         <div className="mt-3 grid gap-3 rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4 sm:grid-cols-2 lg:grid-cols-4">
           <Feld label="Stadt" wert={stand.stadt} feld="stadt" />
           <Feld label="Assetklasse" wert={stand.assetklasse} feld="assetklasse" />
-          <Feld label="Auftraggeber" wert={stand.auftraggeber} feld="auftraggeber" />
+          <div className="grid gap-1">
+            <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
+              Auftraggeber
+            </span>
+            <select
+              value={stand.auftraggeberId ?? ""}
+              onChange={(e) => {
+                const id = e.target.value || null;
+                const k = auftraggeber.find((x) => x.id === id);
+                void setzen({ auftraggeberId: id, auftraggeber: k?.firma ?? stand.auftraggeber });
+              }}
+              className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text"
+            >
+              <option value="">{stand.auftraggeber ? `${stand.auftraggeber} (Freitext)` : "— noch nicht zugeordnet"}</option>
+              {auftraggeber.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.firma}
+                </option>
+              ))}
+            </select>
+            <span className="text-[10px] text-seil-muted">
+              Auftraggeber sind Kunden der Art „Auftraggeber“ – unter Kunden anlegen.
+            </span>
+          </div>
           <div className="grid gap-1">
             <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
               Phase
@@ -144,6 +178,7 @@ export function MandatDetail({ mandat, kuerzel }: { mandat: string; kuerzel: str
         <p className="mt-3 text-body text-seil-muted">wird geladen …</p>
       )}
 
+      <DokumenteCheckliste mandat={mandat} kompakt />
       <MandatProzess mandat={mandat} />
       <AufgabenListe mandat={mandat} zustaendig={undefined} titel="Aufgaben" />
       <NotizenListe mandat={mandat} />
