@@ -17,6 +17,7 @@ const punkte = [
 export function TopNav({ benutzer }: { benutzer?: string }) {
   const pathname = usePathname();
   const { modus } = useModul01();
+  const aufAnmeldeseite = pathname === "/anmelden";
   // Das Abzeichen muss sagen, was AUF DIESER SEITE steht, nicht ob irgendeine
   // Verbindung lebt. Sonst behauptet es "live" ueber erfundene Investoren.
   const abzeichen =
@@ -28,6 +29,10 @@ export function TopNav({ benutzer }: { benutzer?: string }) {
   // Keine Zaehler mehr in der Navigation: die alten kamen aus Beispieldaten und
   // haetten neben echten Zahlen behauptet, es liege etwas zur Bearbeitung an.
   const zaehler: Record<string, number> = {};
+
+  // Die Anmeldeseite bringt ihren eigenen Kopf mit; eine Leiste mit Punkten,
+  // die alle wieder hierher fuehren, hilft niemandem beim Anmelden.
+  if (aufAnmeldeseite) return null;
 
   return (
     <header className="sticky top-0 z-20 border-b border-seil-line bg-seil-surface">
@@ -80,8 +85,8 @@ export function TopNav({ benutzer }: { benutzer?: string }) {
         <span className="ml-auto inline-flex items-center gap-3">
           <BefehlsPalette />
           {benutzer ? (
-            <span className="hidden items-center gap-2 sm:inline-flex">
-              <span className="rounded-seil border border-seil-line bg-seil-card-alt px-2 py-0.5 text-kicker text-seil-body">
+            <span className="inline-flex items-center gap-2">
+              <span className="max-w-[9rem] truncate rounded-seil border border-seil-line bg-seil-card-alt px-2 py-0.5 text-kicker text-seil-body">
                 {benutzer}
               </span>
               <form action="/api/abmelden" method="post">
@@ -93,6 +98,14 @@ export function TopNav({ benutzer }: { benutzer?: string }) {
                 </button>
               </form>
             </span>
+          ) : null}
+          {!benutzer ? (
+            <Link
+              href="/anmelden"
+              className="rounded-seil border border-seil-accent bg-seil-accent-bg px-2 py-0.5 text-kicker text-seil-text"
+            >
+              Anmelden
+            </Link>
           ) : null}
           <span className={`hidden rounded-seil border px-2 py-0.5 text-kicker lg:inline ${abzeichen.echt ? "border-seil-accent text-seil-accent" : "border-seil-line bg-seil-card-alt text-seil-muted"}`}>
             {abzeichen.text}
