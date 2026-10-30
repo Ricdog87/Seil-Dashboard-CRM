@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { NAMEN } from "@/lib/sitzung-token";
+import { NAMEN, PERSONEN } from "@/lib/sitzung-token";
 import { PHASEN, PHASE_LABEL, PHASE_TON, type Mandat, type Phase } from "@/lib/mandat";
 import { AufgabenListe } from "@/components/aufgaben-liste";
 import { NotizenListe } from "@/components/notizen-liste";
@@ -166,7 +166,7 @@ export function MandatDetail({ mandat, kuerzel }: { mandat: string; kuerzel: str
               className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text"
             >
               <option value="">niemand</option>
-              {Object.entries(NAMEN).map(([k, n]) => (
+              {Object.entries(PERSONEN).map(([k, n]) => (
                 <option key={k} value={k}>
                   {n}
                 </option>

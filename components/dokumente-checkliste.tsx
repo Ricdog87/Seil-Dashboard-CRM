@@ -77,7 +77,7 @@ export function DokumenteCheckliste({ mandat, kompakt = false }: { mandat: strin
           {kompakt ? (auf ? "▾ " : "▸ ") : ""}Standarddokumente · Schritt 8
           {stand?.modus === "live" ? (
             <span className="ml-2 normal-case tracking-normal">
-              <span className="text-seil-success">{liegtVor}</span> von {noetig} liegen vor
+              — <span className="text-seil-success">{liegtVor}</span> von {noetig} liegen vor
               {fehlt > 0 ? <span className="text-seil-warning"> · {fehlt} fehlen</span> : null}
             </span>
           ) : null}

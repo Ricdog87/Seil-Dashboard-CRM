@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { NAMEN } from "@/lib/sitzung-token";
+import { NAMEN, PERSONEN } from "@/lib/sitzung-token";
 import {
   ARTEN,
   ART_LABEL,
@@ -172,7 +172,7 @@ export function KundeDetail({ id }: { id: string }) {
               className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text"
             >
               <option value="">niemand</option>
-              {Object.entries(NAMEN).map(([k, n]) => (
+              {Object.entries(PERSONEN).map(([k, n]) => (
                 <option key={k} value={k}>
                   {n}
                 </option>

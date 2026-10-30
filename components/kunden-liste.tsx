@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { NAMEN } from "@/lib/sitzung-token";
+import { NAMEN, PERSONEN } from "@/lib/sitzung-token";
 import {
   ARTEN,
   ART_LABEL,
@@ -331,7 +331,7 @@ export function KundenListe({ kuerzel }: { kuerzel: string }) {
                       className="rounded-seil border border-seil-line bg-seil-surface px-2 py-0.5 text-kicker text-seil-body"
                     >
                       <option value="">—</option>
-                      {Object.entries(NAMEN).map(([ku, n]) => (
+                      {Object.entries(PERSONEN).map(([ku, n]) => (
                         <option key={ku} value={ku}>
                           {n}
                         </option>

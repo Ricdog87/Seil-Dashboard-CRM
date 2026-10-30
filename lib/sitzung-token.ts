@@ -82,3 +82,8 @@ export const NAMEN: Record<string, string> = {
   ag: "Aylin Güven",
   seil: "SEIL Team",
 };
+
+/** Nur echte Personen – das gemeinsame Teamkonto kann nichts zugeteilt bekommen. */
+export const PERSONEN: Record<string, string> = Object.fromEntries(
+  Object.entries(NAMEN).filter(([, name]) => !/\bteam\b/i.test(name)),
+);
