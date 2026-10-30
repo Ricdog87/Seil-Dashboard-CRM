@@ -15,7 +15,7 @@
         -260
       ],
       "parameters": {
-        "content": "## Glied 6: Antworterkennung – Entscheidungsbaum aus dem Standardprozess\n\nEingehende Antworten (zentrales Vertriebs-Postfach per Microsoft Graph (deals@seil.com); Superchat-Webhook für WhatsApp analog) werden klassifiziert und nach dem Standardprozess Investorenkommunikation geroutet. WF 06 versendet selbst NICHTS: Jede Route setzt nur Parameter (Vorlagen-Schlüssel, Follow-up neu?, Aufgabe?) – der generische Ausführer unten übergibt den Versand an WF 05 (einziger Versandpunkt, dort BCC-Regel und Freigabe-Prüfung).\n\nRouten (nur Struktur – Vorlagentexte liegen im n8n-Data-Store):\n– Anfrage/Interesse → Vorlage + Follow-up-Kette neu (2 Tage) + Aufgabe „Broker Call“\n– Absage → Bestätigung mit Kriterien-Rückfrage + Follow-up neu (2 Tage); Antwort pflegt das Ankaufsprofil\n– Kriterien erhalten → Vorlage + Aufgabe „Übergabe an Team + Terminvorschlag“\n– Preisanfrage → NIE schriftlich beantworten: Erstantwort-Vorlage + Aufgabe „Rückruf durch GF“ + Folge-Aufgabe „Gespräch stattgefunden?“; bei ERNEUTER schriftlicher Preisanfrage feste Vorlage „Auskunft nur telefonisch“\n– Unterlagen angefragt → Datenraum-Abgleich über WF 09 (Modul-01-Stand): vorhanden → senden · nicht im Datenraum → Rückfrage an Verkäuferseite · unklar → interne Rücksprache (Team, dann Leitung)\n– Telefonwunsch → Vorlage + Aufgabe „Rückruf durch GF“\n– Besichtigung → WF 08 Besichtigungs-Koordination (mehrstufig, eigener Zustand)\n– Rest → Signal „offen“ im Cockpit-Posteingang (Mensch triagiert)\n\nZielregionen-/Profilinformationen in jeder Antwort setzen das Profil-Update-Flag → Ankaufsprofil im CRM.\n\nSKELETT – vor Aktivierung: Microsoft Graph (deals@seil.com)-Credential (zentrales Vertriebs-Postfach, nach Office-365-Umzug); LLM-Klassifikation (Claude) vor die Keyword-Heuristik schalten; interne Aufrufe über localhost:5678 – keine Anpassung nötig; Datenraum-Abgleich und Aufgaben-Ablage anbinden.\n\n**Umbau 29.10.:** Eingang über Microsoft Graph statt IMAP. Alle 2 Minuten werden ungelesene Mails aus deals@seil.com gelesen, als gelesen markiert und einzeln klassifiziert. Credential: „Microsoft Graph (SEIL)“ (OAuth2, Client Credentials, Scope https://graph.microsoft.com/.default) – eine Stelle für Postfach, Kalender und Liveliste.",
+        "content": "## Glied 6: Antworterkennung – Entscheidungsbaum aus dem Standardprozess\n\nEingehende Antworten (zentrales Vertriebs-Postfach per Microsoft Graph (deals@seil.com); Superchat-Webhook für WhatsApp analog) werden klassifiziert und nach dem Standardprozess Investorenkommunikation geroutet. WF 06 versendet selbst NICHTS: Jede Route setzt nur Parameter (Vorlagen-Schlüssel, Follow-up neu?, Aufgabe?) – der generische Ausführer unten übergibt den Versand an WF 05 (einziger Versandpunkt, dort BCC-Regel und Freigabe-Prüfung).\n\nRouten (nur Struktur – Vorlagentexte liegen im n8n-Data-Store):\n– Anfrage/Interesse → Vorlage + Follow-up-Kette neu (2 Tage) + Aufgabe „Broker Call“\n– Absage → Bestätigung mit Kriterien-Rückfrage + Follow-up neu (2 Tage); Antwort pflegt das Ankaufsprofil\n– Kriterien erhalten → Vorlage + Aufgabe „Übergabe an Team + Terminvorschlag“\n– Preisanfrage → NIE schriftlich beantworten: Erstantwort-Vorlage + Aufgabe „Rückruf durch GF“ + Folge-Aufgabe „Gespräch stattgefunden?“; bei ERNEUTER schriftlicher Preisanfrage feste Vorlage „Auskunft nur telefonisch“\n– Unterlagen angefragt → Datenraum-Abgleich über WF 09 (Modul-01-Stand): vorhanden → senden · nicht im Datenraum → Rückfrage an Verkäuferseite · unklar → interne Rücksprache (Team, dann Leitung)\n– Telefonwunsch → Vorlage + Aufgabe „Rückruf durch GF“\n– Besichtigung → WF 08 Besichtigungs-Koordination (mehrstufig, eigener Zustand)\n– Rest → Signal „offen“ im Cockpit-Posteingang (Mensch triagiert)\n\nZielregionen-/Profilinformationen in jeder Antwort setzen das Profil-Update-Flag → Ankaufsprofil im CRM.\n\nSKELETT – vor Aktivierung: Microsoft Graph (deals@seil.com)-Credential (zentrales Vertriebs-Postfach, nach Office-365-Umzug); LLM-Klassifikation (Claude) vor die Keyword-Heuristik schalten; interne Aufrufe über localhost:5678 – keine Anpassung nötig; Datenraum-Abgleich und Aufgaben-Ablage anbinden.\n\n**Umbau 29.10.:** Eingang über Microsoft Graph statt IMAP. Alle 2 Minuten werden ungelesene Mails aus deals@seil.com gelesen, als gelesen markiert und einzeln klassifiziert. Credential: „Microsoft Graph (SEIL)“ (OAuth2, Client Credentials, Scope https://graph.microsoft.com/.default) – eine Stelle für Postfach, Kalender und Liveliste.\n\n**Cockpit (30.10.2026):** Jede erkannte Antwort geht an `POST /api/antwort` des Cockpits (Header-Auth, dasselbe Geheimnis wie `seil/datenraum-status`). Das Cockpit setzt die Trichterstufe und legt die Prozess-Aufgaben an (Broker Call, Rückruf GF). Die früheren Platzhalter „Aufgabe im Cockpit anlegen\" und „Signal 'offen'\" sind damit entfallen. `cockpitBasis` kommt aus `n8n-konfig.json`.",
         "width": 600,
         "height": 700
       }
@@ -39,7 +39,7 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        700,
+        1160,
         700
       ],
       "parameters": {
@@ -694,17 +694,6 @@
       }
     },
     {
-      "id": "noop-15",
-      "name": "Signal 'offen' in den Posteingang",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        1040,
-        1500
-      ],
-      "parameters": {}
-    },
-    {
       "id": "if-06a",
       "name": "Vorlage zu versenden?",
       "type": "n8n-nodes-base.if",
@@ -779,37 +768,6 @@
         "jsonBody": "={{ JSON.stringify({ kontaktId: $json.kontaktId, objektId: $json.objektId, grund: $json.vorlage }) }}",
         "options": {}
       }
-    },
-    {
-      "id": "if-06c",
-      "name": "Aufgabe anlegen?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-      "position": [
-        2860,
-        600
-      ],
-      "parameters": {
-        "conditions": {
-          "string": [
-            {
-              "value1": "={{ $json.aufgabe ?? '' }}",
-              "operation": "isNotEmpty"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "noop-12",
-      "name": "Aufgabe (+ Folge-Aufgabe) im Cockpit anlegen",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        3100,
-        500
-      ],
-      "parameters": {}
     },
     {
       "id": "if-06",
@@ -952,6 +910,72 @@
         380,
         700
       ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cp-06-basis",
+              "name": "cockpitBasis",
+              "value": "https://COCKPIT-ADRESSE",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "cp-06-konfig",
+      "name": "Cockpit (hier anpassen)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.cockpitBasis }}/api/antwort",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ email: $json.email, art: $json.art, betreff: $json.subject ?? '', auszug: String($json.textPlain ?? $json.text ?? '').slice(0, 300) }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "cp-06-melden",
+      "name": "Antwort ans Cockpit melden",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        760,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { ...$('Klassifizieren (Trigger-Wörter)').item.json, cockpit: $json } }}",
+        "options": {}
+      },
+      "id": "cp-06-zurueck",
+      "name": "Mailfelder nach Cockpit-Meldung zurückholen",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        960,
+        700
+      ]
     }
   ],
   "connections": {
@@ -959,7 +983,7 @@
       "main": [
         [
           {
-            "node": "Routing (Standardprozess)",
+            "node": "Cockpit (hier anpassen)",
             "type": "main",
             "index": 0
           }
@@ -1019,7 +1043,7 @@
         ],
         [
           {
-            "node": "Signal 'offen' in den Posteingang",
+            "node": "Profil-Update dabei?",
             "type": "main",
             "index": 0
           }
@@ -1102,17 +1126,6 @@
         ]
       ]
     },
-    "Signal 'offen' in den Posteingang": {
-      "main": [
-        [
-          {
-            "node": "Profil-Update dabei?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Vorlage zu versenden?": {
       "main": [
         [
@@ -1153,35 +1166,6 @@
         ],
         [
           {
-            "node": "Aufgabe anlegen?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Follow-up planen (WF 05, seil/followup-planen)": {
-      "main": [
-        [
-          {
-            "node": "Aufgabe anlegen?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Aufgabe anlegen?": {
-      "main": [
-        [
-          {
-            "node": "Aufgabe (+ Folge-Aufgabe) im Cockpit anlegen",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
             "node": "Profil-Update dabei?",
             "type": "main",
             "index": 0
@@ -1189,7 +1173,7 @@
         ]
       ]
     },
-    "Aufgabe (+ Folge-Aufgabe) im Cockpit anlegen": {
+    "Follow-up planen (WF 05, seil/followup-planen)": {
       "main": [
         [
           {
@@ -1359,6 +1343,39 @@
         [
           {
             "node": "Klassifizieren (Trigger-Wörter)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cockpit (hier anpassen)": {
+      "main": [
+        [
+          {
+            "node": "Antwort ans Cockpit melden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Antwort ans Cockpit melden": {
+      "main": [
+        [
+          {
+            "node": "Mailfelder nach Cockpit-Meldung zurückholen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mailfelder nach Cockpit-Meldung zurückholen": {
+      "main": [
+        [
+          {
+            "node": "Routing (Standardprozess)",
             "type": "main",
             "index": 0
           }

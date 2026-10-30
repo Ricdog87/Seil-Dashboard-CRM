@@ -151,5 +151,22 @@
         }
       }
     }
+  },
+  "06-antworterkennung.json": {
+    "cockpitBasis": "https://COCKPIT-ADRESSE",
+    "_credentials": {
+      "Antwort ans Cockpit melden": {
+        "httpHeaderAuth": {
+          "id": "ID-DER-WEBHOOK-ANMELDEDATEN",
+          "name": "SEIL Webhook-Header"
+        }
+      },
+      "Datenraum-Status abrufen (WF 09 / Modul 01)": {
+        "httpHeaderAuth": {
+          "id": "ID-DER-WEBHOOK-ANMELDEDATEN",
+          "name": "SEIL Webhook-Header"
+        }
+      }
+    }
   }
 }
