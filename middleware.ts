@@ -8,10 +8,29 @@ import { NextResponse, type NextRequest } from "next/server";
  * konfiguriert ist: ohne COCKPIT_USER und COCKPIT_PASS verhält sich die Seite
  * wie bisher. So kann eine fehlende Variable die Demo nicht blockieren.
  */
+/** Persönliche Zugänge aus COCKPIT_LOGINS, Form {"kuerzel":"passwort"}. */
+function zugaenge(): Record<string, string> {
+  const roh = process.env.COCKPIT_LOGINS;
+  const liste: Record<string, string> = {};
+  if (roh) {
+    try {
+      const o: unknown = JSON.parse(roh);
+      if (o && typeof o === "object" && !Array.isArray(o)) {
+        for (const [k, v] of Object.entries(o as Record<string, unknown>)) liste[k] = String(v);
+      }
+    } catch {
+      // Eine kaputte Variable darf die Seite nicht sperren.
+    }
+  }
+  const b = process.env.COCKPIT_USER;
+  const p = process.env.COCKPIT_PASS;
+  if (b && p) liste[b] = p;
+  return liste;
+}
+
 export function middleware(request: NextRequest) {
-  const benutzer = process.env.COCKPIT_USER;
-  const passwort = process.env.COCKPIT_PASS;
-  if (!benutzer || !passwort) return NextResponse.next();
+  const liste = zugaenge();
+  if (Object.keys(liste).length === 0) return NextResponse.next();
 
   const kopf = request.headers.get("authorization") ?? "";
   if (kopf.startsWith("Basic ")) {
@@ -23,9 +42,10 @@ export function middleware(request: NextRequest) {
     }
     const trenner = entschluesselt.indexOf(":");
     if (trenner > 0) {
-      const b = entschluesselt.slice(0, trenner);
+      const b = entschluesselt.slice(0, trenner).toLowerCase();
       const p = entschluesselt.slice(trenner + 1);
-      if (gleich(b, benutzer) && gleich(p, passwort)) return NextResponse.next();
+      const soll = liste[b];
+      if (soll !== undefined && gleich(p, soll)) return NextResponse.next();
     }
   }
 
