@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { datenbankAktiv, dbSchreiben } from "@/lib/supabase";
+import { protokoll } from "@/lib/protokoll";
 
 /**
  * Anschreiben aus dem Cockpit heraus.
@@ -141,6 +142,12 @@ export async function POST(request: Request): Promise<NextResponse> {
         return NextResponse.json({ ok: false, grund: "Nichts gespeichert" }, { status: 502 });
       }
       const imVerteiler = await verteilerNachtragen(b.objekt ?? "", empfaenger, modus, durch);
+      await protokoll({
+        mandat: b.objekt ?? null,
+        art: "versand",
+        durch,
+        text: `${geschrieben.length} Anschreiben zur Freigabe gegeben: „${b.betreff!.trim()}“`,
+      });
       return NextResponse.json({
         ok: true,
         anzahl: geschrieben.length,

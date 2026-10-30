@@ -1,0 +1,153 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { NAMEN } from "@/lib/sitzung-token";
+import { PHASEN, PHASE_LABEL, PHASE_TON, type Mandat, type Phase } from "@/lib/mandat";
+import { AufgabenListe } from "@/components/aufgaben-liste";
+import { NotizenListe } from "@/components/notizen-liste";
+import { AktivitaetenListe } from "@/components/aktivitaeten-liste";
+import { MandatProzess } from "@/components/mandat-prozess";
+import type { Mandatsliste } from "@/app/api/mandate/route";
+
+/**
+ * Ein Mandat auf einer Seite: Stammdaten, der Prozess entlang der SOP, der
+ * Verteiler, die Aufgaben, die Notizen und der Verlauf.
+ *
+ * Alles, was jemand über dieses Mandat wissen will, ohne dass er zwischen
+ * Ansichten springen muss – das ist der Unterschied zwischen einer Tabelle und
+ * einem CRM.
+ */
+export function MandatDetail({ mandat, kuerzel }: { mandat: string; kuerzel: string }) {
+  const [stand, setStand] = useState<Mandat | null>(null);
+  const [fehlt, setFehlt] = useState(false);
+  const [fehler, setFehler] = useState<string | null>(null);
+
+  const holen = useCallback(async () => {
+    try {
+      const r = await fetch("/api/mandate", { cache: "no-store" });
+      const l = (await r.json()) as Mandatsliste;
+      const m = l.mandate.find((x) => x.name === mandat) ?? null;
+      setStand(m);
+      setFehlt(l.modus === "live" && !m);
+    } catch {
+      // naechster Versuch
+    }
+  }, [mandat]);
+
+  useEffect(() => {
+    void holen();
+  }, [holen]);
+
+  async function setzen(aenderung: Partial<Mandat>) {
+    setStand((s) => (s ? { ...s, ...aenderung } : s));
+    setFehler(null);
+    try {
+      const r = await fetch("/api/mandate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: mandat, ...aenderung }),
+      });
+      const a = (await r.json()) as { ok?: boolean; grund?: string };
+      if (!a.ok) throw new Error(a.grund ?? "nicht gespeichert");
+    } catch (e) {
+      setFehler(e instanceof Error ? e.message : "nicht erreichbar");
+    } finally {
+      await holen();
+    }
+  }
+
+  const Feld = ({
+    label,
+    wert,
+    feld,
+  }: {
+    label: string;
+    wert: string | null;
+    feld: keyof Mandat;
+  }) => (
+    <label className="grid gap-1">
+      <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
+        {label}
+      </span>
+      <input
+        defaultValue={wert ?? ""}
+        onBlur={(e) => {
+          if (e.target.value !== (wert ?? "")) void setzen({ [feld]: e.target.value } as Partial<Mandat>);
+        }}
+        placeholder="—"
+        className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text placeholder:text-seil-muted"
+      />
+    </label>
+  );
+
+  return (
+    <>
+      <h1 className="mt-3 text-title text-seil-text">{mandat}</h1>
+
+      {fehler ? (
+        <p className="mt-2 rounded-[var(--seil-radius)] border border-seil-danger px-3 py-2 text-kicker text-seil-danger">
+          {fehler}
+        </p>
+      ) : null}
+
+      {fehlt ? (
+        <div className="mt-3 rounded-[var(--seil-radius)] border border-seil-warning bg-seil-warning-bg p-4">
+          <p className="text-body text-seil-text">Dieses Mandat gibt es im CRM noch nicht.</p>
+          <button
+            type="button"
+            onClick={() => void setzen({ zustaendig: kuerzel || null, laufPraefix: mandat })}
+            className="mt-2 rounded-seil border border-seil-accent bg-seil-accent-bg px-3 py-1 text-body text-seil-text"
+          >
+            Jetzt als Mandat anlegen
+          </button>
+        </div>
+      ) : stand ? (
+        <div className="mt-3 grid gap-3 rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Feld label="Stadt" wert={stand.stadt} feld="stadt" />
+          <Feld label="Assetklasse" wert={stand.assetklasse} feld="assetklasse" />
+          <Feld label="Auftraggeber" wert={stand.auftraggeber} feld="auftraggeber" />
+          <div className="grid gap-1">
+            <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
+              Phase
+            </span>
+            <select
+              value={stand.phase}
+              onChange={(e) => void setzen({ phase: e.target.value as Phase })}
+              className={`rounded-seil border bg-seil-surface px-2 py-1 text-body ${PHASE_TON[stand.phase]}`}
+            >
+              {PHASEN.map((p) => (
+                <option key={p} value={p}>
+                  {PHASE_LABEL[p]}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="grid gap-1">
+            <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
+              Zuständig
+            </span>
+            <select
+              value={stand.zustaendig ?? ""}
+              onChange={(e) => void setzen({ zustaendig: e.target.value || null })}
+              className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text"
+            >
+              <option value="">niemand</option>
+              {Object.entries(NAMEN).map(([k, n]) => (
+                <option key={k} value={k}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      ) : (
+        <p className="mt-3 text-body text-seil-muted">wird geladen …</p>
+      )}
+
+      <MandatProzess mandat={mandat} />
+      <AufgabenListe mandat={mandat} zustaendig={undefined} titel="Aufgaben" />
+      <NotizenListe mandat={mandat} />
+      <AktivitaetenListe mandat={mandat} />
+    </>
+  );
+}

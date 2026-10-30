@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { darfFreigeben } from "@/lib/freigabe";
 import { datenbankAktiv, dbAendern, dbLesen, inListe } from "@/lib/supabase";
+import { protokoll } from "@/lib/protokoll";
 
 /**
  * Freigabe-Eingang: die Anschreiben, die auf eine Entscheidung warten.
@@ -210,7 +211,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   if (datenbankAktiv()) {
     try {
-      const geaendert = await dbAendern<{ entwurf_id: string }>(
+      const geaendert = await dbAendern<{ entwurf_id: string; objekt: string | null }>(
         "freigabe_eingang",
         // Nur offene Zeilen: ein zweiter Klick darf nicht ein zweites Mal versenden.
         `entwurf_id=${encodeURIComponent(inListe(ids))}&status=eq.offen`,
@@ -240,6 +241,12 @@ export async function POST(request: Request): Promise<NextResponse> {
           );
         }
       }
+      await protokoll({
+        mandat: geaendert[0]?.objekt ?? null,
+        art: "freigabe",
+        durch,
+        text: `${geaendert.length} Anschreiben ${entscheidung === "freigegeben" ? "freigegeben und in den Versand gegeben" : "abgelehnt"}`,
+      });
       return NextResponse.json({ ok: true, anzahl: geaendert.length });
     } catch (e) {
       return NextResponse.json(

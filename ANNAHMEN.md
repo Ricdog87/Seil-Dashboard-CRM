@@ -1013,3 +1013,25 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     Datenraum-Laufs ohne Zeitstempel (`Portfolio-Otto-Probe-30-10`). Ein zweiter Lauf desselben
     Mandats trifft damit denselben Stand; ein umbenanntes Mandat beginnt von vorn – das ist der
     Preis dafür, ohne Mandats-ID auszukommen, und sollte mit SEIL geklärt werden.
+
+82. **Mandat ist nicht gleich Datenraum-Lauf.** Ein Mandat lebt länger: es hat Namen, Stadt,
+    Auftraggeber, Phase und Zuständigen, bevor der erste Ordner hochgeladen ist, und bleibt
+    bestehen, wenn ein zweiter Lauf kommt. Tabelle `mandat`, Schlüssel ist der Name; `lauf_praefix`
+    verbindet es mit Modul 01. Ein Lauf ohne Mandat erscheint im Cockpit als Vorschlag
+    („Create Deal“ aus der SOP, Schritt 10).
+83. **Historie.** Jede Änderung über das Cockpit schreibt eine Zeile nach `aktivitaet`: Mandat,
+    Schritt, Kontakt, Versand, Freigabe, Aufgabe, Notiz. Schlägt das Protokollieren fehl, wird es
+    geschluckt – ein Protokolleintrag darf nie der Grund sein, dass eine Freigabe scheitert. Was
+    fehlt, fehlt sichtbar in der Historie und nicht als stiller Fehler anderswo.
+84. **Jeder sieht sein Cockpit.** Die Zuständigkeit hängt am Mandat (`zustaendig`), nicht am
+    Investor: ein Investor gehört allen, ein Mandat einer Person. Die Übersicht zeigt zuerst die
+    eigenen Aufgaben und Mandate, mit einem Schalter auf alle. Die Freigaben sieht nur, wer sie
+    erteilen darf.
+85. **Keine Demoseiten mehr.** `/vermarktung` und `/objekte/[id]` sind entfernt, nicht nur
+    ausgeblendet – zusammen mit den Komponenten, die nur noch sie benutzt haben. Das Abzeichen in
+    der Kopfzeile sagt deshalb nur noch „Live“ oder dass Modul 01 nicht erreichbar ist.
+86. **Die Datenbank ist der Weg, nicht die Ausnahme.** Freigaben, Verteiler, Schritte, Mandate,
+    Aufgaben, Notizen und Historie liest und schreibt das Cockpit direkt (serverseitig, Schlüssel
+    nur in der Umgebung). Der Mailversand bleibt in n8n. Ohne `SUPABASE_SERVICE_KEY` fällt das
+    Cockpit auf die n8n-Abläufe zurück, soweit es sie gibt, und sagt sonst, dass es nicht
+    angebunden ist.

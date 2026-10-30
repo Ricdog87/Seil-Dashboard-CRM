@@ -1,14 +1,22 @@
-import { AufgabenListe } from "@/components/aufgaben-client";
-import { SeitenKopf } from "@/components/cockpit";
+import { headers } from "next/headers";
+import { AufgabenListe } from "@/components/aufgaben-liste";
+import { NAMEN } from "@/lib/sitzung-token";
 
-export default function AufgabenSeite() {
+export const dynamic = "force-dynamic";
+
+export default async function AufgabenSeite() {
+  const kuerzel = (await headers()).get("x-seil-benutzer") ?? "";
   return (
     <>
-      <SeitenKopf
-        titel="Aufgaben"
-        untertitel="Nach Mitarbeiter gefiltert – Broker Calls aus der Antworterkennung sind hervorgehoben."
-      />
-      <AufgabenListe />
+      <div className="mb-5">
+        <h1 className="text-title text-seil-text">Aufgaben</h1>
+        <p className="mt-1 text-body text-seil-body">
+          Oben die eigenen, darunter alle. Eine Aufgabe ohne Zuständigen und ohne Datum ist ein
+          Zettel – beides lässt sich hier setzen.
+        </p>
+      </div>
+      <AufgabenListe zustaendig={kuerzel} titel={`Meine Aufgaben (${NAMEN[kuerzel] ?? kuerzel})`} kompakt />
+      <AufgabenListe titel="Alle Aufgaben" />
     </>
   );
 }

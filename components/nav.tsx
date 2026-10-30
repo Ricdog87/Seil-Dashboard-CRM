@@ -10,8 +10,10 @@ const punkte = [
   // Nur Seiten mit echten Daten. Vermarktung und Aufgaben sind Beispieldaten
   // und bleiben ausgeblendet, bis sie aus der Datenbank kommen.
   { href: "/", label: "Übersicht", auchAktivBei: [] },
+  { href: "/mandate", label: "Mandate", auchAktivBei: ["/mandate/"] },
   { href: "/freigaben", label: "Freigaben", auchAktivBei: [] },
-  { href: "/investoren", label: "Investoren", auchAktivBei: [] },
+  { href: "/aufgaben", label: "Aufgaben", auchAktivBei: [] },
+  { href: "/investoren", label: "Investoren", auchAktivBei: ["/investoren/"] },
 ];
 
 export function TopNav({ benutzer }: { benutzer?: string }) {
@@ -20,12 +22,13 @@ export function TopNav({ benutzer }: { benutzer?: string }) {
   const aufAnmeldeseite = pathname === "/anmelden";
   // Das Abzeichen muss sagen, was AUF DIESER SEITE steht, nicht ob irgendeine
   // Verbindung lebt. Sonst behauptet es "live" ueber erfundene Investoren.
+  // Es gibt keine Demoseiten mehr: alles im Cockpit kommt aus OneDrive, dem
+  // SEIL-Server oder der Datenbank.
   const abzeichen =
-    pathname.startsWith("/investoren") || pathname.startsWith("/freigaben") || pathname === "/"
-      ? modus === "live" || pathname.startsWith("/investoren") || pathname.startsWith("/freigaben")
-        ? { text: "Live · OneDrive", echt: true }
-        : { text: "Modul 01 nicht erreichbar", echt: false }
-      : { text: "Demodaten", echt: false };
+    modus === "live" || pathname.startsWith("/investoren")
+      ? { text: "Live", echt: true }
+      : { text: "Modul 01 nicht erreichbar", echt: false };
+
   // Keine Zaehler mehr in der Navigation: die alten kamen aus Beispieldaten und
   // haetten neben echten Zahlen behauptet, es liege etwas zur Bearbeitung an.
   const zaehler: Record<string, number> = {};

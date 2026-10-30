@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { STUFEN, type Stufe } from "@/lib/crm";
 import { datenbankAktiv, dbLesen, dbSchreiben } from "@/lib/supabase";
+import { protokoll } from "@/lib/protokoll";
 
 /**
  * Kontaktstand je Mandat – das Gedächtnis des CRM.
@@ -153,6 +154,23 @@ export async function POST(request: Request): Promise<NextResponse> {
         geaendert: jetzt,
       }));
       const geschrieben = await dbSchreiben<DbKontakt>("kontakt", zeilen, "mandat,investor_id");
+      if (geschrieben.length === 1) {
+        const k = geschrieben[0];
+        await protokoll({
+          mandat,
+          investorId: k.investor_id,
+          art: "kontakt",
+          durch,
+          text: `${k.firma ?? k.investor_id}: ${k.status}`,
+        });
+      } else if (geschrieben.length > 1) {
+        await protokoll({
+          mandat,
+          art: "kontakt",
+          durch,
+          text: `${geschrieben.length} Investoren in den Verteiler übernommen`,
+        });
+      }
       return NextResponse.json({ ok: geschrieben.length > 0, gespeichert: geschrieben.length });
     } catch (e) {
       return NextResponse.json(

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { datenbankAktiv, dbLesen, dbSchreiben } from "@/lib/supabase";
+import { protokoll } from "@/lib/protokoll";
+import { PROZESS_SCHRITTE } from "@/lib/sop";
 
 /**
  * Der Stand eines Mandats entlang der SOP.
@@ -131,6 +133,15 @@ export async function POST(request: Request): Promise<NextResponse> {
         ],
         "mandat,schritt",
       );
+      if (geschrieben.length > 0) {
+        const bezeichnung = PROZESS_SCHRITTE.find((x) => x.nr === schritt)?.kurz ?? `Schritt ${schritt}`;
+        await protokoll({
+          mandat,
+          art: "schritt",
+          durch,
+          text: `${schritt}. ${bezeichnung} → ${b.status}`,
+        });
+      }
       return NextResponse.json({ ok: geschrieben.length > 0 });
     } catch (e) {
       return NextResponse.json(
