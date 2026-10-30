@@ -109,7 +109,15 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ message: { subject: $json.betreff, body: { contentType: 'HTML', content: $json.html }, toRecipients: String($json.empfaenger ?? '').split(/[;,]/).map(s => s.trim()).filter(Boolean).map(a => ({ emailAddress: { address: a } })) }, saveToSentItems: true }) }}",
-        "options": {},
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text",
+              "fullResponse": true
+            }
+          }
+        },
         "genericAuthType": "oAuth2Api"
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -120,7 +128,7 @@
       ],
       "id": "mail-07",
       "name": "Bericht senden: GF + Leitung (Graph)",
-      "notes": "Versand über Microsoft Graph aus deals@seil.com, wie in WF04 und WF05. Kein SMTP. Die Empfänger stehen im Feld empfaenger und werden beim Import aus der Konfigurationsdatei gesetzt.",
+      "notes": "Versand über Microsoft Graph aus deals@seil.com, wie in WF04 und WF05. Kein SMTP. Die Empfänger stehen im Feld empfaenger und werden beim Import aus der Konfigurationsdatei gesetzt. Microsoft antwortet auf sendMail mit 202 und leerem Rumpf. Die Antwort wird deshalb als Text gelesen, nicht als JSON, sonst bricht der Knoten ab.",
       "notesInFlow": true,
       "credentials": {
         "oAuth2Api": {

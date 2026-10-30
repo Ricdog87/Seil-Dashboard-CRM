@@ -175,7 +175,8 @@
           "response": {
             "response": {
               "neverError": true,
-              "responseFormat": "json"
+              "responseFormat": "text",
+              "fullResponse": true
             }
           }
         },
@@ -196,7 +197,9 @@
           "id": "seil-graph",
           "name": "Microsoft Graph (SEIL)"
         }
-      }
+      },
+      "notes": "Microsoft antwortet auf sendMail mit 202 und leerem Rumpf. Die Antwort wird deshalb als Text gelesen, nicht als JSON, sonst bricht der Knoten ab.",
+      "notesInFlow": true
     }
   ],
   "connections": {

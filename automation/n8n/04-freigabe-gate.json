@@ -132,13 +132,14 @@
           "response": {
             "response": {
               "neverError": true,
-              "responseFormat": "json"
+              "responseFormat": "text",
+              "fullResponse": true
             }
           }
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ (() => { const b = $json.body ?? $json; const basis = $execution.resumeUrl; const text = 'Ein Entwurf wartet auf Freigabe.\\n\\nObjekt: ' + (b.objektId ?? '') + '\\nEmpfänger: ' + (b.email ?? '') + '\\nBetreff: ' + (b.betreff ?? '') + '\\nQuelle: ' + (b.quelle ?? '') + '\\n\\n--- Entwurf ---\\n' + (b.entwurf ?? '') + '\\n--- Ende ---\\n\\nFREIGEBEN:\\n' + basis + '?entscheidung=freigeben\\n\\nABLEHNEN:\\n' + basis + '?entscheidung=ablehnen\\n\\nOhne Klick verfällt die Anfrage nach ' + $json.fristTage + ' Tagen. Versendet wird nur nach Freigabe.'; return JSON.stringify({ message: { subject: 'Freigabe: ' + (b.betreff ?? b.objektId ?? 'Entwurf'), body: { contentType: 'Text', content: text }, toRecipients: String($json.freigabeAn).split(/[;,]/).map(s => s.trim()).filter(Boolean).map(a => ({ emailAddress: { address: a } })) }, saveToSentItems: true }); })() }}"
+        "jsonBody": "={{ (() => { const b = $json.body ?? $json; const basis = 'https://srv2104755.hstgr.cloud/webhook/seil/freigabe-link' + '?entwurfId=' + encodeURIComponent(b.entwurfId ?? '') + '&objektId=' + encodeURIComponent(b.objektId ?? '') + '&durch=' + encodeURIComponent($json.freigabeAn ?? ''); const text = 'Ein Entwurf wartet auf Freigabe.\\n\\nObjekt: ' + (b.objektId ?? '') + '\\nEmpfänger: ' + (b.email ?? '') + '\\nBetreff: ' + (b.betreff ?? '') + '\\nQuelle: ' + (b.quelle ?? '') + '\\n\\n--- Entwurf ---\\n' + (b.entwurf ?? '') + '\\n--- Ende ---\\n\\nFREIGEBEN:\\n' + basis + '?entscheidung=freigeben\\n\\nABLEHNEN:\\n' + basis + '?entscheidung=ablehnen\\n\\nOhne Klick verfällt die Anfrage nach ' + $json.fristTage + ' Tagen. Versendet wird nur nach Freigabe.'; return JSON.stringify({ message: { subject: 'Freigabe: ' + (b.betreff ?? b.objektId ?? 'Entwurf'), body: { contentType: 'Text', content: text }, toRecipients: String($json.freigabeAn).split(/[;,]/).map(s => s.trim()).filter(Boolean).map(a => ({ emailAddress: { address: a } })) }, saveToSentItems: true }); })() }}"
       },
       "id": "949aea3a-2ed2-410e-bb64-efd864e40b57",
       "name": "Freigabe-Mail an die Leitung (Graph)",
@@ -153,73 +154,9 @@
           "id": "seil-graph",
           "name": "Microsoft Graph (SEIL)"
         }
-      }
-    },
-    {
-      "parameters": {
-        "resume": "webhook",
-        "httpMethod": "GET",
-        "limitWaitTime": true,
-        "limitType": "afterTimeInterval",
-        "resumeAmount": 7,
-        "resumeUnit": "days",
-        "options": {}
       },
-      "id": "43e15041-a6d0-42b2-8a43-edce8ed0c773",
-      "name": "Auf Entscheidung warten (max. 7 Tage)",
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        860,
-        640
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict"
-          },
-          "conditions": [
-            {
-              "id": "fg-1",
-              "leftValue": "={{ $json.query?.entscheidung ?? '' }}",
-              "rightValue": "freigeben",
-              "operator": {
-                "type": "string",
-                "operation": "equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "7a19c848-67b0-411f-b787-a808dcab4e41",
-      "name": "Freigegeben?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [
-        1080,
-        640
-      ]
-    },
-    {
-      "parameters": {
-        "mode": "raw",
-        "jsonOutput": "={{ (() => { const a = $('Freigabe anfordern (aus WF 03)').item.json.body ?? {}; const k = $('Konfiguration Freigabe (hier anpassen)').item.json; return { body: { entwuerfe: [a.entwurfId], objektId: a.objektId, durchId: 'mail-link:' + k.freigabeAn, am: $now.toISO() } }; })() }}",
-        "options": {}
-      },
-      "id": "25204068-b655-45ef-a3de-b9ae9245b8c7",
-      "name": "Freigabe aus Mail-Link aufbereiten",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        1300,
-        560
-      ]
+      "notes": "Microsoft antwortet auf sendMail mit 202 und leerem Rumpf. Die Antwort wird deshalb als Text gelesen, nicht als JSON, sonst bricht der Knoten ab.",
+      "notesInFlow": true
     },
     {
       "parameters": {},
@@ -231,6 +168,72 @@
         1300,
         720
       ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "seil/freigabe-link",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        40,
+        560
+      ],
+      "id": "wf04-linkhook",
+      "name": "Freigabe per Mail-Link",
+      "webhookId": "seil-freigabe-link",
+      "notes": "Der Klick aus der Freigabe-Mail. Bewusst GET, damit jeder Mailclient ihn oeffnen kann, und bewusst ein eigener Weg statt der Wartestelle: so wirkt die Freigabe auch Tage spaeter und unabhaengig davon, ob noch eine Ausfuehrung wartet.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Klick aus der Freigabe-Mail in die Form bringen, die die Sammelfreigabe erwartet.\nconst q = $input.first().json.query ?? {};\nif (!q.entwurfId) throw new Error('Freigabe-Link ohne Entwurf');\nif (q.entscheidung !== 'freigeben') {\n  return [{ json: { abgelehnt: true, entwurfId: q.entwurfId,\n                    antwort: 'Abgelehnt. Der Entwurf bleibt liegen, es wird nichts versendet.' } }];\n}\nreturn [{ json: { body: { entwuerfe: [q.entwurfId], objektId: q.objektId ?? null,\n                          durchId: 'mail-link:' + (q.durch ?? 'unbekannt'),\n                          am: new Date().toISOString() } } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        560
+      ],
+      "id": "wf04-linkpruef",
+      "name": "Entscheidung aus dem Link lesen"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.abgelehnt === true }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        430,
+        560
+      ],
+      "id": "wf04-ifablehn",
+      "name": "Abgelehnt?"
     }
   ],
   "connections": {
@@ -291,46 +294,40 @@
     },
     "Freigabe-Mail an die Leitung (Graph)": {
       "main": [
+        []
+      ]
+    },
+    "Freigabe per Mail-Link": {
+      "main": [
         [
           {
-            "node": "Auf Entscheidung warten (max. 7 Tage)",
+            "node": "Entscheidung aus dem Link lesen",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Auf Entscheidung warten (max. 7 Tage)": {
+    "Entscheidung aus dem Link lesen": {
       "main": [
         [
           {
-            "node": "Freigegeben?",
+            "node": "Abgelehnt?",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Freigegeben?": {
+    "Abgelehnt?": {
       "main": [
-        [
-          {
-            "node": "Freigabe aus Mail-Link aufbereiten",
-            "type": "main",
-            "index": 0
-          }
-        ],
         [
           {
             "node": "Abgelehnt oder Frist abgelaufen – Entwurf bleibt liegen",
             "type": "main",
             "index": 0
           }
-        ]
-      ]
-    },
-    "Freigabe aus Mail-Link aufbereiten": {
-      "main": [
+        ],
         [
           {
             "node": "Sammelfreigabe prüfen und aufteilen",

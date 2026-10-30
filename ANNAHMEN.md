@@ -920,3 +920,24 @@ Mail-Vorbereitung laeuft nachweislich durch.
 **Umleitung vor dem Versand** steht in der Konfiguration auf eine
 RSG-Adresse. Bevor WF05 wieder eingeschaltet wird, muss diese Entscheidung
 bewusst getroffen werden.
+
+## 70. Freigabe-Gate repariert, Kette komplett live
+
+Zwei Ursachen, nicht eine.
+
+**Der Freigabe-Link.** Die Mail an die Leitung baute den Entscheidungslink aus
+`$execution.resumeUrl`, also aus der wartenden Ausfuehrung. Das ist fragil und
+wirkt nur, solange die Ausfuehrung lebt. Ersetzt durch einen eigenen Webhook
+`seil/freigabe-link` (GET, damit jeder Mailclient ihn oeffnen kann). Die
+Freigabe wirkt dadurch auch Tage spaeter. Wartestelle und der zugehoerige
+Zweig sind entfallen.
+
+**Der eigentliche Fehler.** Microsoft Graph antwortet auf `sendMail` mit
+HTTP 202 und leerem Rumpf. Die Versandknoten waren auf `responseFormat: json`
+gestellt und brachen daran ab, mit der nichtssagenden Meldung
+"Cannot read properties of undefined (reading 'data')". Alle vier Knoten, die
+an Graph schreiben, lesen die Antwort jetzt als Text.
+
+Nachweis am 30.10.: Die Kette Matching, Mail-Vorbereitung und Freigabe-Gate
+laeuft vollstaendig gruen durch, und im Ordner "Gesendet" von deals@seil.com
+liegen die Freigabe-Mails.
