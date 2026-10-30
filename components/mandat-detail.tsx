@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { NAMEN, PERSONEN } from "@/lib/sitzung-token";
 import { PHASEN, PHASE_LABEL, PHASE_TON, type Mandat, type Phase } from "@/lib/mandat";
+import { fmtEur } from "@/lib/leistung";
 import { AufgabenListe } from "@/components/aufgaben-liste";
 import { NotizenListe } from "@/components/notizen-liste";
 import { AktivitaetenListe } from "@/components/aktivitaeten-liste";
@@ -19,7 +20,7 @@ import type { Mandatsliste } from "@/app/api/mandate/route";
  * Ansichten springen muss – das ist der Unterschied zwischen einer Tabelle und
  * einem CRM.
  */
-export function MandatDetail({ mandat, kuerzel }: { mandat: string; kuerzel: string }) {
+export function MandatDetail({ mandat, kuerzel, darfVerteilen = false }: { mandat: string; kuerzel: string; darfVerteilen?: boolean }) {
   const [stand, setStand] = useState<Mandat | null>(null);
   const [fehlt, setFehlt] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
@@ -178,9 +179,66 @@ export function MandatDetail({ mandat, kuerzel }: { mandat: string; kuerzel: str
         <p className="mt-3 text-body text-seil-muted">wird geladen …</p>
       )}
 
+      {stand ? (
+        <section className="mt-5 rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">Wirtschaftlichkeit</span>
+            <span className="text-kicker text-seil-muted">
+              {stand.honorarErwartet ? `Erwartetes Honorar ${fmtEur(stand.honorarErwartet)}` : "Kaufpreis und Provision eintragen – daraus ergibt sich das erwartete Honorar"}
+            </span>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <label className="grid gap-1">
+              <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">Kaufpreis €</span>
+              <input type="number" inputMode="decimal" defaultValue={stand.kaufpreis ?? ""} onBlur={(e) => {
+                const kp = e.target.value === "" ? null : Number(e.target.value);
+                if (kp !== (stand.kaufpreis ?? null)) {
+                  const erw = kp !== null && stand.provisionProzent ? Math.round(kp * stand.provisionProzent / 100) : stand.honorarErwartet;
+                  void setzen({ kaufpreis: kp, honorarErwartet: erw ?? null });
+                }
+              }} placeholder="z. B. 8500000" className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body tabular-nums text-seil-text placeholder:text-seil-muted" />
+            </label>
+            <label className="grid gap-1">
+              <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">Provision %</span>
+              <input type="number" inputMode="decimal" step="0.1" defaultValue={stand.provisionProzent ?? ""} onBlur={(e) => {
+                const pz = e.target.value === "" ? null : Number(e.target.value);
+                if (pz !== (stand.provisionProzent ?? null)) {
+                  const erw = pz !== null && stand.kaufpreis ? Math.round(stand.kaufpreis * pz / 100) : stand.honorarErwartet;
+                  void setzen({ provisionProzent: pz, honorarErwartet: erw ?? null });
+                }
+              }} placeholder="z. B. 3" className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body tabular-nums text-seil-text placeholder:text-seil-muted" />
+            </label>
+            <label className="grid gap-1">
+              <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">Honorar erwartet €</span>
+              <input type="number" inputMode="decimal" key={stand.honorarErwartet ?? "leer"} defaultValue={stand.honorarErwartet ?? ""} onBlur={(e) => {
+                const h = e.target.value === "" ? null : Number(e.target.value);
+                if (h !== (stand.honorarErwartet ?? null)) void setzen({ honorarErwartet: h });
+              }} placeholder="oder Pauschale" className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body tabular-nums text-seil-text placeholder:text-seil-muted" />
+            </label>
+            <label className="grid gap-1">
+              <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-success">Honorar realisiert €</span>
+              <input type="number" inputMode="decimal" defaultValue={stand.honorarIst ?? ""} onBlur={(e) => {
+                const h = e.target.value === "" ? null : Number(e.target.value);
+                if (h !== (stand.honorarIst ?? null)) void setzen({ honorarIst: h });
+              }} placeholder="nach Signing" className="rounded-seil border border-seil-success/50 bg-seil-surface px-2 py-1 text-body tabular-nums text-seil-text placeholder:text-seil-muted" />
+            </label>
+            <label className="grid gap-1">
+              <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">Abschluss am</span>
+              <input type="date" defaultValue={stand.abschlussAm ?? ""} onBlur={(e) => {
+                const d = e.target.value || null;
+                if (d !== (stand.abschlussAm ?? null)) void setzen({ abschlussAm: d, ...(d ? { phase: "abschluss" as Phase } : {}) });
+              }} className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text" />
+            </label>
+          </div>
+          <p className="mt-2 text-[10px] leading-relaxed text-seil-muted">
+            Das erwartete Honorar fließt gewichtet nach Phase in den Pipeline-Wert; das realisierte zählt am Abschlusstag auf das Umsatzziel. Ein Abschlussdatum setzt die Phase auf Abschluss.
+          </p>
+        </section>
+      ) : null}
+
       <DokumenteCheckliste mandat={mandat} kompakt />
       <MandatProzess mandat={mandat} />
-      <AufgabenListe mandat={mandat} zustaendig={undefined} titel="Aufgaben" />
+      <AufgabenListe mandat={mandat} zustaendig={undefined} titel="Aufgaben" darfVerteilen={darfVerteilen} />
       <NotizenListe mandat={mandat} />
       <AktivitaetenListe mandat={mandat} />
     </>

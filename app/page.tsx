@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { Kennzahlen } from "@/components/kennzahlen";
+import { LeistungPersoenlich } from "@/components/leistung-persoenlich";
 import { PipelineTafel } from "@/components/pipeline-tafel";
 import { FreigabenEingang } from "@/components/freigaben-eingang";
 import { AufgabenListe } from "@/components/aufgaben-liste";
 import { AktivitaetenListe } from "@/components/aktivitaeten-liste";
 import { darfFreigeben } from "@/lib/freigabe";
+import { istGeschaeftsfuehrung } from "@/lib/rollen";
 import { NAMEN } from "@/lib/sitzung-token";
 
 /**
@@ -43,7 +45,11 @@ export default async function UebersichtSeite() {
         </Link>
       </div>
 
-      <Kennzahlen />
+      <LeistungPersoenlich kuerzel={kuerzel} />
+
+      <div className="mt-5">
+        <Kennzahlen />
+      </div>
 
       <div className="mt-5">
         <PipelineTafel kuerzel={kuerzel} kompakt />
@@ -52,7 +58,7 @@ export default async function UebersichtSeite() {
       {darf ? <FreigabenEingang kompakt kuerzel={name} darfEntscheiden /> : null}
 
       <div className="mt-5">
-        <AufgabenListe zustaendig={kuerzel} titel="Meine Aufgaben" kompakt />
+        <AufgabenListe zustaendig={kuerzel} titel="Meine Aufgaben" kompakt darfVerteilen={istGeschaeftsfuehrung(kuerzel)} />
       </div>
 
       <AktivitaetenListe grenze={15} />

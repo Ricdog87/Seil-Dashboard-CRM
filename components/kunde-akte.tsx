@@ -98,7 +98,7 @@ function Zeitleiste({ eintraege }: { eintraege: HistorieEintrag[] }) {
   );
 }
 
-export function KundeAkte({ id, kuerzel }: { id: string; kuerzel: string }) {
+export function KundeAkte({ id, kuerzel, darfVerteilen = false }: { id: string; kuerzel: string; darfVerteilen?: boolean }) {
   const [kunde, setKunde] = useState<KundeAnsicht | null>(null);
   const [fehlt, setFehlt] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
@@ -274,7 +274,7 @@ export function KundeAkte({ id, kuerzel }: { id: string; kuerzel: string }) {
           {tab === "historie" ? (
             historie ? <Zeitleiste eintraege={historie.eintraege} /> : <p className="text-body text-seil-muted">lädt …</p>
           ) : null}
-          {tab === "aufgaben" ? <AufgabenListe titel="Aufgaben" investorId={kunde.id} kompakt ohneKopf /> : null}
+          {tab === "aufgaben" ? <AufgabenListe titel="Aufgaben" investorId={kunde.id} kompakt ohneKopf darfVerteilen={darfVerteilen} /> : null}
           {tab === "notizen" ? <NotizenListe investorId={kunde.id} kompakt /> : null}
           {tab === "mandate" ? (
             <div className="grid gap-3">

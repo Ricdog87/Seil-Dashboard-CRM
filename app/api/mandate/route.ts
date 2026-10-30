@@ -23,6 +23,11 @@ interface DbMandat {
   zustaendig: string | null;
   lauf_praefix: string | null;
   notiz: string | null;
+  kaufpreis: number | null;
+  provision_prozent: number | null;
+  honorar_erwartet: number | null;
+  honorar_ist: number | null;
+  abschluss_am: string | null;
   erstellt: string | null;
   geaendert: string | null;
   geaendert_durch: string | null;
@@ -39,6 +44,11 @@ const auf = (z: DbMandat): Mandat => ({
   zustaendig: z.zustaendig,
   laufPraefix: z.lauf_praefix,
   notiz: z.notiz,
+  kaufpreis: z.kaufpreis === null ? null : Number(z.kaufpreis),
+  provisionProzent: z.provision_prozent === null ? null : Number(z.provision_prozent),
+  honorarErwartet: z.honorar_erwartet === null ? null : Number(z.honorar_erwartet),
+  honorarIst: z.honorar_ist === null ? null : Number(z.honorar_ist),
+  abschlussAm: z.abschluss_am,
   erstellt: z.erstellt,
   geaendert: z.geaendert,
   geaendertDurch: z.geaendert_durch,
@@ -90,6 +100,11 @@ export async function POST(request: Request): Promise<NextResponse> {
       ["zustaendig", "zustaendig"],
       ["laufPraefix", "lauf_praefix"],
       ["notiz", "notiz"],
+      ["kaufpreis", "kaufpreis"],
+      ["provisionProzent", "provision_prozent"],
+      ["honorarErwartet", "honorar_erwartet"],
+      ["honorarIst", "honorar_ist"],
+      ["abschlussAm", "abschluss_am"],
     ] as const) {
       const w = (b as Record<string, unknown>)[feld];
       if (w !== undefined) zeile[spalte] = w === "" ? null : w;

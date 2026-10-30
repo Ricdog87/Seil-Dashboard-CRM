@@ -46,7 +46,7 @@ const GRUPPEN: { id: ReturnType<typeof gruppe>; titel: string; ton: string }[] =
   { id: "ohne", titel: "Ohne Datum", ton: "text-seil-muted" },
 ];
 
-export function AufgabenTafel({ kuerzel }: { kuerzel: string }) {
+export function AufgabenTafel({ kuerzel, darfVerteilen }: { kuerzel: string; darfVerteilen: boolean }) {
   const [stand, setStand] = useState<Aufgabenliste | null>(null);
   const [mandate, setMandate] = useState<string[]>([]);
   const [sicht, setSicht] = useState<Sicht>("meine");
@@ -181,14 +181,16 @@ export function AufgabenTafel({ kuerzel }: { kuerzel: string }) {
       </section>
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
-        <Segment
-          wert={sicht}
-          setzen={setSicht}
-          optionen={[
-            { id: "meine", label: `Meine`, zahl: meine.filter((a) => !a.erledigt).length },
-            { id: "alle", label: "Alle", zahl: alle.filter((a) => !a.erledigt).length },
-          ]}
-        />
+        {darfVerteilen ? (
+          <Segment
+            wert={sicht}
+            setzen={setSicht}
+            optionen={[
+              { id: "meine", label: `Meine`, zahl: meine.filter((a) => !a.erledigt).length },
+              { id: "alle", label: "Team", zahl: alle.filter((a) => !a.erledigt).length },
+            ]}
+          />
+        ) : null}
         <Segment
           wert={zustand}
           setzen={setZustand}
@@ -206,7 +208,7 @@ export function AufgabenTafel({ kuerzel }: { kuerzel: string }) {
           <option value="alle">alle Mandate</option>
           {mandate.map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
-        {sicht === "alle" ? (
+        {darfVerteilen && sicht === "alle" ? (
           <select
             value={personFilter}
             onChange={(e) => setPersonFilter(e.target.value)}
@@ -244,13 +246,15 @@ export function AufgabenTafel({ kuerzel }: { kuerzel: string }) {
                 {mandate.map((m) => <option key={m} value={m}>{m}</option>)}
               </select>
             </label>
-            <label className="grid gap-1 text-kicker text-seil-muted">
-              Zuständig
-              <select value={neu.zustaendig} onChange={(e) => setNeu({ ...neu, zustaendig: e.target.value })} className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text">
-                <option value="">— niemand</option>
-                {Object.entries(PERSONEN).map(([k, n]) => <option key={k} value={k}>{n}</option>)}
-              </select>
-            </label>
+            {darfVerteilen ? (
+              <label className="grid gap-1 text-kicker text-seil-muted">
+                Zuständig
+                <select value={neu.zustaendig} onChange={(e) => setNeu({ ...neu, zustaendig: e.target.value })} className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text">
+                  <option value="">— niemand</option>
+                  {Object.entries(PERSONEN).map(([k, n]) => <option key={k} value={k}>{n}</option>)}
+                </select>
+              </label>
+            ) : null}
             <label className="grid gap-1 text-kicker text-seil-muted">
               Fällig
               <input type="date" value={neu.faellig} onChange={(e) => setNeu({ ...neu, faellig: e.target.value })} className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text" />
@@ -316,13 +320,15 @@ export function AufgabenTafel({ kuerzel }: { kuerzel: string }) {
                       </ul>
                       {offenId === a.id ? (
                         <div className="flex flex-wrap items-end gap-3 border-b border-seil-line bg-seil-card-alt px-4 py-3 pl-12">
-                          <label className="grid gap-1 text-kicker text-seil-muted">
-                            Zuständig
-                            <select value={a.zustaendig ?? ""} onChange={(e) => void patch(a.id, { zustaendig: e.target.value || null })} className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text">
-                              <option value="">— niemand</option>
-                              {Object.entries(PERSONEN).map(([k, n]) => <option key={k} value={k}>{n}</option>)}
-                            </select>
-                          </label>
+                          {darfVerteilen ? (
+                            <label className="grid gap-1 text-kicker text-seil-muted">
+                              Zuständig
+                              <select value={a.zustaendig ?? ""} onChange={(e) => void patch(a.id, { zustaendig: e.target.value || null })} className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text">
+                                <option value="">— niemand</option>
+                                {Object.entries(PERSONEN).map(([k, n]) => <option key={k} value={k}>{n}</option>)}
+                              </select>
+                            </label>
+                          ) : null}
                           <label className="grid gap-1 text-kicker text-seil-muted">
                             Fällig
                             <input type="date" value={a.faellig ?? ""} onChange={(e) => void patch(a.id, { faellig: e.target.value || null })} className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text" />
@@ -351,7 +357,8 @@ export function AufgabenTafel({ kuerzel }: { kuerzel: string }) {
       </div>
 
       <p className="mt-3 text-kicker text-seil-muted">
-        {sicht === "meine" ? `Aufgaben von ${NAMEN[kuerzel] ?? kuerzel}.` : "Alle Aufgaben des Teams."} Klick auf eine Zeile öffnet Zuweisung und Termin.
+        {sicht === "meine" || !darfVerteilen ? `Aufgaben von ${NAMEN[kuerzel] ?? kuerzel}.` : "Alle Aufgaben des Teams."}{" "}
+        {darfVerteilen ? "Klick auf eine Zeile öffnet Zuweisung und Termin." : "Klick auf eine Zeile öffnet den Termin."}
       </p>
     </>
   );

@@ -1098,3 +1098,19 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
 100. **Die Liste ist zum Finden, die Akte zum Pflegen.** In der Kundenliste stehen Art, Stufe und
     Betreuer als Badges, nicht als Auswahlfelder; ein Klick auf die Zeile öffnet die Akte. Eine
     Tabelle mit tausend Dropdowns ist keine Übersicht.
+
+101. **Rollen.** Geschäftsführung = `GESCHAEFTSFUEHRUNG` (derzeit tp, ms, ng): sieht alle Aufgaben,
+    verteilt sie, bekommt Umsatz, Pipeline, Forecast und Ziele aller. Alle anderen sehen ihre eigene
+    Maske: eigene Aufgaben, eigene Ziele, das Team nur als Summe. Das ist serverseitig erzwungen –
+    `/api/aufgaben` filtert auf die eigene Person, egal was abgefragt wird, und lässt Nicht-GF nur
+    eigene Aufgaben anlegen und ändern. Mandate und Kunden bleiben gemeinsam: ein Team verkauft zusammen.
+102. **Wirtschaft am Mandat.** Kaufpreis, Provision in Prozent, erwartetes Honorar (gerechnet oder
+    Pauschale), realisiertes Honorar, Abschlussdatum. Umsatz ist realisiertes Honorar am Abschlusstag,
+    nicht Hoffnung. Hoffnung heißt Pipeline-Wert und ist nach Phase gewichtet: 10 / 25 / 50 / 75 / 100
+    Prozent – branchenüblich, mit SEIL abzustimmen. Ein Abschlussdatum setzt die Phase auf Abschluss.
+103. **Ziele je Person und Zeitraum** (`ziel`): Umsatz, Abschlüsse, neue Mandate, Anschreiben, NDAs,
+    Broker Calls – für Monat, Quartal oder Jahr. Kürzel NULL = Teamziel; fehlt es, zählt die Summe der
+    Einzelziele. Die Ist-Werte kommen aus Mandaten, Spur und Aufgaben; keine Zahl wird separat gepflegt.
+104. **Motivierend heißt ehrlich.** Der graue Strich im Balken ist die verstrichene Zeit; liegt der
+    Balken rechts davon, ist man vor dem Plan. Der Satz darunter sagt, was fehlt – kein Konfetti, kein
+    Ranking für alle. Einzelvergleiche sieht nur die Geschäftsführung.

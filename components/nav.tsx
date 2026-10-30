@@ -13,6 +13,7 @@ const punkte = [
   { href: "/mandate", label: "Mandate", auchAktivBei: ["/mandate/"] },
   { href: "/freigaben", label: "Freigaben", auchAktivBei: [] },
   { href: "/aufgaben", label: "Aufgaben", auchAktivBei: [] },
+  { href: "/leistung", label: "Leistung", auchAktivBei: [] },
   { href: "/kunden", label: "Kunden", auchAktivBei: ["/kunden/"] },
 ];
 

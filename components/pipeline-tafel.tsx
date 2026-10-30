@@ -133,7 +133,7 @@ function Karte({
       <Fortschritt k={k} />
       <Trichter v={k.verteiler} />
 
-      <div className="mt-2 grid gap-1 text-kicker">
+      <div className="mt-2 grid grid-cols-1 gap-1 text-kicker">
         {k.datenraum ? (
           <div className="flex justify-between gap-2 text-seil-muted">
             <span className="shrink-0">Datenraum</span>

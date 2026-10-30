@@ -49,6 +49,11 @@ export interface Mandat {
   zustaendig: string | null;
   laufPraefix: string | null;
   notiz: string | null;
+  kaufpreis: number | null;
+  provisionProzent: number | null;
+  honorarErwartet: number | null;
+  honorarIst: number | null;
+  abschlussAm: string | null;
   erstellt: string | null;
   geaendert: string | null;
   geaendertDurch: string | null;

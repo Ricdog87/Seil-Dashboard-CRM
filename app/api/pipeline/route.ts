@@ -54,7 +54,8 @@ export interface Pipeline {
 interface DbMandat {
   id: string; name: string; stadt: string | null; assetklasse: string | null;
   auftraggeber: string | null; auftraggeber_id: string | null; phase: Phase; zustaendig: string | null;
-  lauf_praefix: string | null; notiz: string | null; erstellt: string | null;
+  lauf_praefix: string | null; notiz: string | null; kaufpreis: number | null; provision_prozent: number | null;
+  honorar_erwartet: number | null; honorar_ist: number | null; abschluss_am: string | null; erstellt: string | null;
   geaendert: string | null; geaendert_durch: string | null;
 }
 interface DbKontakt { mandat: string; investor_id: string; firma: string | null; status: Kontakt["status"]; letzter_kontakt: string | null; followups: number | null; }
@@ -138,6 +139,8 @@ export async function GET(): Promise<NextResponse<Pipeline>> {
       return {
         id: m.id, name: m.name, stadt: m.stadt, assetklasse: m.assetklasse, auftraggeber: m.auftraggeber, auftraggeberId: m.auftraggeber_id,
         phase: m.phase, zustaendig: m.zustaendig, laufPraefix: m.lauf_praefix, notiz: m.notiz,
+        kaufpreis: m.kaufpreis === null ? null : Number(m.kaufpreis), provisionProzent: m.provision_prozent === null ? null : Number(m.provision_prozent),
+        honorarErwartet: m.honorar_erwartet === null ? null : Number(m.honorar_erwartet), honorarIst: m.honorar_ist === null ? null : Number(m.honorar_ist), abschlussAm: m.abschluss_am,
         erstellt: m.erstellt, geaendert: m.geaendert, geaendertDurch: m.geaendert_durch,
         schritteFertig: fertigJeNr.size,
         schritteLaufen: laufen,

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { datenbankAktiv, dbAendern, dbLesen, dbSchreiben } from "@/lib/supabase";
 import { protokoll } from "@/lib/protokoll";
 import type { Aufgabe } from "@/lib/mandat";
+import { istGeschaeftsfuehrung } from "@/lib/rollen";
 
 /**
  * Aufgaben – was jemand tun muss, mit Namen und Datum daran.
@@ -50,7 +51,10 @@ export async function GET(request: Request): Promise<NextResponse<Aufgabenliste>
   const q = new URL(request.url).searchParams;
   const teile = ["order=faellig.asc.nullslast,erstellt.desc", "limit=300"];
   const mandat = q.get("mandat");
-  const zustaendig = q.get("zustaendig");
+  // Wer nicht zur Geschaeftsfuehrung gehoert, sieht nur eigene Aufgaben - egal,
+  // was er abfragt. Das ist die Regel, nicht die Oberflaeche.
+  const ich = (request.headers.get("x-seil-benutzer") ?? "").toLowerCase();
+  const zustaendig = istGeschaeftsfuehrung(ich) ? q.get("zustaendig") : ich || "niemand";
   if (mandat) teile.push(`objekt=eq.${encodeURIComponent(mandat)}`);
   const investor = q.get("investor");
   if (investor) teile.push(`investor_id=eq.${encodeURIComponent(investor)}`);
@@ -79,6 +83,8 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ ok: false, grund: "Ohne Titel geht es nicht" }, { status: 400 });
   }
   const durch = request.headers.get("x-seil-benutzer") ?? "";
+  // Verteilen darf die Geschaeftsfuehrung; alle anderen legen Aufgaben nur fuer sich an.
+  const zustaendig = istGeschaeftsfuehrung(durch) ? (b?.zustaendig ?? durch ?? null) : durch || null;
 
   try {
     const geschrieben = await dbSchreiben<DbAufgabe>(
@@ -88,7 +94,7 @@ export async function POST(request: Request): Promise<NextResponse> {
           titel,
           objekt: b?.objekt ?? null,
           investor_id: b?.investorId ?? null,
-          zustaendig: b?.zustaendig ?? durch ?? null,
+          zustaendig,
           faellig: b?.faellig || null,
           notiz: b?.notiz ?? null,
           quelle: "cockpit",
@@ -120,18 +126,19 @@ export async function PATCH(request: Request): Promise<NextResponse> {
     return NextResponse.json({ ok: false, grund: "Welche Aufgabe?" }, { status: 400 });
   }
   const durch = request.headers.get("x-seil-benutzer") ?? "";
+  const gf = istGeschaeftsfuehrung(durch);
 
   const aenderung: Record<string, unknown> = { geaendert: new Date().toISOString() };
   if (b.erledigt !== undefined) aenderung.erledigt = b.erledigt;
-  if (b.zustaendig !== undefined) aenderung.zustaendig = b.zustaendig || null;
+  if (b.zustaendig !== undefined && gf) aenderung.zustaendig = b.zustaendig || null;
   if (b.faellig !== undefined) aenderung.faellig = b.faellig || null;
 
   try {
-    const geaendert = await dbAendern<DbAufgabe>(
-      "aufgaben",
-      `id=eq.${encodeURIComponent(b.id)}`,
-      aenderung,
-    );
+    // Nicht-GF duerfen nur eigene Aufgaben anfassen - der Filter steht in der Abfrage.
+    const filter = gf
+      ? `id=eq.${encodeURIComponent(b.id)}`
+      : `id=eq.${encodeURIComponent(b.id)}&zustaendig=eq.${encodeURIComponent(durch.toLowerCase())}`;
+    const geaendert = await dbAendern<DbAufgabe>("aufgaben", filter, aenderung);
     if (geaendert.length === 0) {
       return NextResponse.json({ ok: false, grund: "Aufgabe nicht gefunden" }, { status: 404 });
     }

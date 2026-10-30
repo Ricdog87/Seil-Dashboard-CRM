@@ -20,6 +20,7 @@ export function AufgabenListe({
   titel,
   kompakt = false,
   ohneKopf = false,
+  darfVerteilen = false,
 }: {
   mandat?: string;
   zustaendig?: string;
@@ -27,6 +28,8 @@ export function AufgabenListe({
   titel: string;
   kompakt?: boolean;
   ohneKopf?: boolean;
+  /** Nur die Geschäftsführung wählt, wer eine Aufgabe bekommt. */
+  darfVerteilen?: boolean;
 }) {
   const [stand, setStand] = useState<Aufgabenliste | null>(null);
   const [neu, setNeu] = useState("");
@@ -162,19 +165,21 @@ export function AufgabenListe({
             placeholder="Neue Aufgabe …"
             className="min-w-[14rem] flex-1 rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text placeholder:text-seil-muted"
           />
-          <select
-            value={wer}
-            onChange={(e) => setWer(e.target.value)}
-            aria-label="Zuständig"
-            className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-kicker text-seil-body"
-          >
-            <option value="">niemand</option>
-            {Object.entries(PERSONEN).map(([k, n]) => (
-              <option key={k} value={k}>
-                {n}
-              </option>
-            ))}
-          </select>
+          {darfVerteilen ? (
+            <select
+              value={wer}
+              onChange={(e) => setWer(e.target.value)}
+              aria-label="Zuständig"
+              className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-kicker text-seil-body"
+            >
+              <option value="">niemand</option>
+              {Object.entries(PERSONEN).map(([k, n]) => (
+                <option key={k} value={k}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          ) : null}
           <input
             type="date"
             value={faellig}
