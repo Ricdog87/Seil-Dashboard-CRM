@@ -54,13 +54,13 @@ function Fortschritt({ k }: { k: PipelineKarte }) {
           </div>
         ))}
       </div>
-      <div className="mt-1 flex justify-between text-kicker text-seil-muted">
-        <span>
+      <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-2 text-kicker text-seil-muted">
+        <span className="shrink-0">
           {k.schritteFertig} von 26 Schritten
           {k.schritteLaufen > 0 ? ` · ${k.schritteLaufen} läuft` : ""}
         </span>
         {k.phaseLautSchritten !== k.phase && !NEBEN.includes(k.phase) && k.phase !== "abschluss" ? (
-          <span className="text-seil-warning" title="Die Schritte legen eine andere Phase nahe">
+          <span className="min-w-0 truncate text-seil-warning" title="Die Schritte legen eine andere Phase nahe">
             Schritte: {PHASE_LABEL[k.phaseLautSchritten]}
           </span>
         ) : null}
@@ -91,7 +91,7 @@ function Trichter({ v }: { v: PipelineKarte["verteiler"] }) {
         </div>
       ))}
       {v.abgesagt > 0 ? (
-        <span className="ml-1 self-end text-[10px] text-seil-muted">{v.abgesagt} abgesagt</span>
+        <span className="ml-1 shrink-0 self-end whitespace-nowrap text-[10px] text-seil-muted">{v.abgesagt} ✕</span>
       ) : null}
     </div>
   );
@@ -113,7 +113,7 @@ function Karte({
         e.dataTransfer.setData("text/plain", k.name);
         onDrag(k.name);
       }}
-      className="cursor-grab rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-3 transition-colors hover:border-seil-accent active:cursor-grabbing"
+      className="min-w-0 cursor-grab overflow-hidden rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-3 transition-colors hover:border-seil-accent active:cursor-grabbing"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
@@ -135,9 +135,9 @@ function Karte({
 
       <div className="mt-2 grid gap-1 text-kicker">
         {k.datenraum ? (
-          <div className="flex justify-between text-seil-muted">
-            <span>Datenraum</span>
-            <span className="tabular-nums">
+          <div className="flex justify-between gap-2 text-seil-muted">
+            <span className="shrink-0">Datenraum</span>
+            <span className="min-w-0 truncate text-right tabular-nums">
               {k.datenraum.abgelegt}/{k.datenraum.eingelesen}
               {k.datenraum.offen > 0 ? (
                 <span className="text-seil-warning"> · {k.datenraum.offen} zu prüfen</span>
@@ -148,14 +148,14 @@ function Karte({
           </div>
         ) : null}
         {k.freigabenOffen > 0 ? (
-          <div className="flex justify-between text-seil-warning">
-            <span>Freigabe</span>
+          <div className="flex justify-between gap-2 text-seil-warning">
+            <span className="shrink-0">Freigabe</span>
             <span className="tabular-nums">{k.freigabenOffen} warten</span>
           </div>
         ) : null}
         {k.naechsteAufgabe ? (
           <div className={`flex justify-between gap-2 ${ueberfaellig ? "text-seil-danger" : "text-seil-body"}`}>
-            <span className="truncate">→ {k.naechsteAufgabe.titel}</span>
+            <span className="min-w-0 truncate">→ {k.naechsteAufgabe.titel}</span>
             <span className="shrink-0 tabular-nums">
               {k.naechsteAufgabe.faellig ? fmtDatum(k.naechsteAufgabe.faellig) : "o. D."}
             </span>
@@ -167,8 +167,8 @@ function Karte({
           <div className="text-seil-danger">{k.aufgabenUeberfaellig} überfällig</div>
         ) : null}
         {k.followupsFaellig > 0 ? (
-          <div className="flex justify-between text-seil-danger">
-            <span>Follow-up fällig</span>
+          <div className="flex justify-between gap-2 text-seil-danger">
+            <span className="shrink-0">Follow-up fällig</span>
             <span className="tabular-nums">{k.followupsFaellig} Investoren</span>
           </div>
         ) : null}
@@ -279,20 +279,20 @@ export function PipelineTafel({ kuerzel, kompakt = false }: { kuerzel: string; k
                 setGezogen(null);
                 if (name) void verschieben(name, sp.phase);
               }}
-              className={`flex min-h-[12rem] flex-col rounded-[var(--seil-radius)] border bg-seil-surface p-2 transition-colors ${
+              className={`flex min-h-[12rem] min-w-0 flex-col rounded-[var(--seil-radius)] border bg-seil-surface p-2 transition-colors ${
                 aktiv ? "border-seil-accent bg-seil-accent-bg" : "border-seil-line"
               }`}
             >
               <div className="mb-2 px-1">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-body text-seil-text">{sp.titel}</span>
+                  <span className="min-w-0 truncate text-body text-seil-text" title={sp.titel}>{sp.titel}</span>
                   <span className="rounded-seil bg-seil-card-alt px-1.5 text-kicker tabular-nums text-seil-muted">
                     {liste.length}
                   </span>
                 </div>
                 <div className="text-kicker text-seil-muted">{sp.untertitel}</div>
               </div>
-              <div className="grid gap-2">
+              <div className="grid min-w-0 gap-2">
                 {liste.map((k) => (
                   <Karte key={k.id} k={k} onDrag={setGezogen} />
                 ))}
@@ -336,7 +336,7 @@ export function PipelineTafel({ kuerzel, kompakt = false }: { kuerzel: string; k
                 }`}
               >
                 <div className="mb-2 px-1 text-body text-seil-muted">{PHASE_LABEL[p]}</div>
-                <div className="grid gap-2">
+                <div className="grid min-w-0 gap-2">
                   {inSpalte(p).map((k) => (
                     <Karte key={k.id} k={k} onDrag={setGezogen} />
                   ))}
