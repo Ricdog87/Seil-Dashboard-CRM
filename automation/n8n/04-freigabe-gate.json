@@ -32,7 +32,8 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "seil/freigabe",
-        "options": {}
+        "options": {},
+        "authentication": "headerAuth"
       }
     },
     {
@@ -45,7 +46,7 @@
         380
       ],
       "parameters": {
-        "jsCode": "// Sammelfreigabe aus dem Cockpit (Beschluss Sales-Update 28.09.): Eine Freigabe trägt\n// mehrere Entwürfe über mehrere Mandate. Das Vier-Augen-Prinzip bleibt (Human in the Loop,\n// EU AI Act) – es sinkt nur der Klickaufwand.\n// Erwartet: { entwuerfe: [\"e1\",\"e2\", …], durchId, am? }  (einzelne Freigabe: ein Eintrag)\nconst b = $input.first().json.body ?? $input.first().json;\nconst ids = Array.isArray(b.entwuerfe) ? b.entwuerfe.filter(Boolean) : [b.entwurfId].filter(Boolean);\nif (ids.length === 0) throw new Error('Freigabe ohne Entwürfe – Versand wird nicht gestartet');\nif (!b.durchId) throw new Error('Freigabe ohne Person – Versand wird nicht gestartet');\nconst am = b.am ?? new Date().toISOString();\n// Ein Item je Entwurf: WF 05 verarbeitet sie einzeln, der Audit-Eintrag bleibt je Entwurf nachvollziehbar.\nreturn ids.map((entwurfId) => ({ json: { entwurfId, durchId: b.durchId, am, sammelfreigabe: ids.length > 1,\n                                         anzahlInFreigabe: ids.length } }));"
+        "jsCode": "// Sammelfreigabe aus dem Cockpit (Beschluss Sales-Update 28.09.): Eine Freigabe trägt\n// mehrere Entwürfe über mehrere Mandate. Das Vier-Augen-Prinzip bleibt (Human in the Loop,\n// EU AI Act) – es sinkt nur der Klickaufwand.\n// Erwartet: { entwuerfe: [\"e1\",\"e2\", …], durchId, am? }  (einzelne Freigabe: ein Eintrag)\nconst b = $input.first().json.body ?? $input.first().json;\nconst ids = Array.isArray(b.entwuerfe) ? b.entwuerfe.filter(Boolean) : [b.entwurfId].filter(Boolean);\nif (ids.length === 0) throw new Error('Freigabe ohne Entwürfe – Versand wird nicht gestartet');\nif (!b.durchId) throw new Error('Freigabe ohne Person – Versand wird nicht gestartet');\nconst am = b.am ?? new Date().toISOString();\n// Ein Item je Entwurf: WF 05 verarbeitet sie einzeln, der Audit-Eintrag bleibt je Entwurf nachvollziehbar.\nreturn ids.map((entwurfId) => ({ json: { entwurfId, objektId: b.objektId ?? null, durchId: b.durchId, am,\n                                         sammelfreigabe: ids.length > 1, anzahlInFreigabe: ids.length } }));"
       }
     },
     {
@@ -73,7 +74,7 @@
         "url": "http://localhost:5678/webhook/seil/versand",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ objektId: $json.objektId, anlass: 'erstversand' }) }}",
+        "jsonBody": "={{ JSON.stringify({ objektId: $json.objektId ?? null, entwurfId: $json.entwurfId, durchId: $json.durchId, anlass: 'erstversand' }) }}",
         "options": {}
       }
     },
@@ -250,7 +251,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $json.supabaseBasis }}/rest/v1/{{ $json.tabelle }}",
+        "url": "={{ $json.supabaseBasis }}/rest/v1/{{ $json.tabelle }}?on_conflict=entwurf_id",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendHeaders": true,
@@ -342,6 +343,11 @@
             "node": "Freigabe-Eingang im Cockpit anlegen",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Freigabe-Mail an die Leitung (Graph)",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -393,13 +399,7 @@
     },
     "Freigabe-Eingang im Cockpit anlegen": {
       "main": [
-        [
-          {
-            "node": "Freigabe-Mail an die Leitung (Graph)",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     }
   }

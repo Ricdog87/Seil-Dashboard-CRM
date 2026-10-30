@@ -79,7 +79,8 @@
           "response": {
             "response": {
               "neverError": true,
-              "responseFormat": "json"
+              "responseFormat": "json",
+              "fullResponse": true
             }
           }
         }
@@ -91,11 +92,12 @@
       "position": [
         680,
         0
-      ]
+      ],
+      "alwaysOutputData": true
     },
     {
       "parameters": {
-        "jsCode": "// Zeilen aus dem Freigabe-Eingang in die Form bringen, die das Cockpit anzeigt.\n// Tolerant gegenueber beiden Antwortformen von n8n: ein Item je Zeile oder ein\n// Item mit einem Array darin.\nconst roh = $input.all().map((i) => i.json);\nconst zeilen = roh.length === 1 && Array.isArray(roh[0]?.data)\n  ? roh[0].data\n  : Array.isArray(roh[0]) ? roh[0] : roh;\nconst offen = (zeilen ?? [])\n  .filter((z) => z && z.entwurf_id)\n  .map((z) => ({\n    entwurfId: z.entwurf_id,\n    objekt: z.objekt ?? null,\n    investorFirma: z.investor_firma ?? null,\n    investorName: z.investor_name ?? null,\n    investorEmail: z.investor_email ?? null,\n    betreff: z.betreff ?? null,\n    entwurf: z.entwurf ?? null,\n    treffer: Array.isArray(z.treffer) ? z.treffer : [],\n    erstellt: z.erstellt ?? null,\n  }));\nreturn [{ json: { stand: new Date().toISOString(), anzahl: offen.length, offen } }];\n"
+        "jsCode": "// Zeilen aus dem Freigabe-Eingang in die Form bringen, die das Cockpit anzeigt.\n// Volle Antwort von PostgREST (Statuscode + Body): ein leerer Eingang ist ein\n// leeres Array mit 200, eine Stoerung ist alles andere. Beides wird\n// unterschieden - das Cockpit zeigt sonst \"nichts offen\", obwohl die Leitung\n// gestoert ist.\nconst r = $input.first()?.json ?? {};\nconst status = Number(r.statusCode ?? 0);\nconst zeilen = r.body;\nif (!(status >= 200 && status < 300) || !Array.isArray(zeilen)) {\n  return [{ json: { stoerung: true, stand: new Date().toISOString(),\n                    grund: 'Freigabe-Eingang nicht lesbar (HTTP ' + (status || 'ohne Antwort') + ')' } }];\n}\nconst offen = zeilen\n  .filter((z) => z && z.entwurf_id)\n  .map((z) => ({\n    entwurfId: z.entwurf_id,\n    objekt: z.objekt ?? null,\n    investorFirma: z.investor_firma ?? null,\n    investorName: z.investor_name ?? null,\n    investorEmail: z.investor_email ?? null,\n    betreff: z.betreff ?? null,\n    entwurf: z.entwurf ?? null,\n    treffer: Array.isArray(z.treffer) ? z.treffer : [],\n    erstellt: z.erstellt ?? null,\n  }));\nreturn [{ json: { stand: new Date().toISOString(), anzahl: offen.length, offen } }];\n"
       },
       "id": "fg-mappen",
       "name": "Antwort fuers Cockpit bauen",
@@ -116,8 +118,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1120,
-        0
+        1340,
+        -100
       ]
     },
     {
@@ -154,7 +156,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "={{ $('Konfiguration Freigaben (Platzhalter)').first().json.supabaseBasis }}/rest/v1/{{ $('Konfiguration Freigaben (Platzhalter)').first().json.tabelle }}?entwurf_id=eq.{{ encodeURIComponent($json.entwurfId) }}",
+        "url": "={{ $('Konfiguration Freigaben (Platzhalter)').first().json.supabaseBasis }}/rest/v1/{{ $('Konfiguration Freigaben (Platzhalter)').first().json.tabelle }}?entwurf_id=eq.{{ encodeURIComponent($json.entwurfId) }}&status=eq.offen",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendHeaders": true,
@@ -186,7 +188,8 @@
       "position": [
         680,
         240
-      ]
+      ],
+      "alwaysOutputData": true
     },
     {
       "parameters": {
@@ -215,7 +218,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        900,
+        1120,
         240
       ]
     },
@@ -233,14 +236,16 @@
               "responseFormat": "text"
             }
           }
-        }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
       },
       "id": "fg-versand",
       "name": "Versand ueber WF 04 anstossen",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1120,
+        1340,
         160
       ]
     },
@@ -255,8 +260,104 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        1340,
+        1560,
         240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fe-if-lesbar",
+              "leftValue": "={{ $json.stoerung === true ? 'stoerung' : 'ok' }}",
+              "rightValue": "ok",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fe-if-lesbar-0001",
+      "name": "Eingang lesbar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ stand: $json.stand, fehler: $json.grund, offen: [] }) }}",
+        "options": {
+          "responseCode": 502
+        }
+      },
+      "id": "fe-resp-stoerung-0001",
+      "name": "Stoerung melden",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fe-if-gefunden",
+              "leftValue": "={{ $json.entwurf_id ? 'ja' : 'nein' }}",
+              "rightValue": "ja",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fe-if-gefunden-0001",
+      "name": "Offener Eintrag getroffen?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        900,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, entwurfId: $('Entscheidung lesen').first().json.entwurfId, grund: 'Kein offener Eintrag mit dieser Entwurfs-ID - schon entschieden oder unbekannt. Es wurde nichts versendet.' }) }}",
+        "options": {
+          "responseCode": 409
+        }
+      },
+      "id": "fe-resp-nicht-offen-0001",
+      "name": "Nicht offen melden",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        400
       ]
     }
   ],
@@ -298,7 +399,7 @@
       "main": [
         [
           {
-            "node": "JSON antworten",
+            "node": "Eingang lesbar?",
             "type": "main",
             "index": 0
           }
@@ -331,7 +432,7 @@
       "main": [
         [
           {
-            "node": "Freigegeben?",
+            "node": "Offener Eintrag getroffen?",
             "type": "main",
             "index": 0
           }
@@ -361,6 +462,42 @@
         [
           {
             "node": "Entscheidung bestaetigen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eingang lesbar?": {
+      "main": [
+        [
+          {
+            "node": "JSON antworten",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stoerung melden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Offener Eintrag getroffen?": {
+      "main": [
+        [
+          {
+            "node": "Freigegeben?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nicht offen melden",
             "type": "main",
             "index": 0
           }

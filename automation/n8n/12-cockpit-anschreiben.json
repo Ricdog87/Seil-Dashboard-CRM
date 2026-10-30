@@ -176,7 +176,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Betriebsart (hier umschalten)').first().json.supabaseBasis }}/rest/v1/{{ $('Betriebsart (hier umschalten)').first().json.tabelle }}",
+        "url": "={{ $('Betriebsart (hier umschalten)').first().json.supabaseBasis }}/rest/v1/{{ $('Betriebsart (hier umschalten)').first().json.tabelle }}?on_conflict=entwurf_id",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendHeaders": true,
@@ -257,7 +257,7 @@
       "main": [
         [
           {
-            "node": "Demo-Umleitung anwenden",
+            "node": "Sofort senden?",
             "type": "main",
             "index": 0
           }
@@ -268,7 +268,7 @@
       "main": [
         [
           {
-            "node": "Sofort senden?",
+            "node": "Anschreiben senden (Graph)",
             "type": "main",
             "index": 0
           }
@@ -279,7 +279,7 @@
       "main": [
         [
           {
-            "node": "Anschreiben senden (Graph)",
+            "node": "Demo-Umleitung anwenden",
             "type": "main",
             "index": 0
           }
