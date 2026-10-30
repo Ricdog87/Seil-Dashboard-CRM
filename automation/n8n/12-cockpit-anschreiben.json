@@ -90,7 +90,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Einen Auftrag aus dem Cockpit in einzelne Anschreiben zerlegen.\n// Ein Item je Empfaenger - so laesst sich jede Mail einzeln nachvollziehen,\n// freigeben und im Protokoll wiederfinden.\nconst a = $input.first().json;\nconst b = a.body ?? a;\nconst empf = Array.isArray(b.empfaenger) ? b.empfaenger.filter((e) => e && e.email) : [];\nif (empf.length === 0) throw new Error('Auftrag ohne Empfaenger - es wird nichts versendet');\nif (!String(b.betreff ?? '').trim()) throw new Error('Auftrag ohne Betreff');\nconst stempel = Date.now();\nreturn empf.map((e, n) => ({ json: {\n  entwurfId: 'cockpit-' + stempel + '-' + n,\n  objekt: b.objekt ?? null,\n  modus: b.modus === 'sofort' ? 'sofort' : 'freigabe',\n  durch: b.durch || 'cockpit',\n  firma: e.firma ?? null,\n  ansprechpartner: e.ansprechpartner ?? null,\n  email: e.email,\n  betreff: String(b.betreff).trim(),\n  text: String(b.text ?? '').trim(),\n  demoEmpfaenger: a.demoEmpfaenger ?? '',\n  signaturHtml: a.signaturHtml ?? '',\n  rechtshinweisHtml: a.rechtshinweisHtml ?? '',\n  supabaseBasis: a.supabaseBasis,\n  tabelle: a.tabelle,\n} }));\n"
+        "jsCode": "// Einen Auftrag aus dem Cockpit in einzelne Anschreiben zerlegen.\n// Ein Item je Empfaenger - so laesst sich jede Mail einzeln nachvollziehen,\n// freigeben und im Protokoll wiederfinden.\nconst a = $input.first().json;\nconst b = a.body ?? a;\nconst empf = Array.isArray(b.empfaenger) ? b.empfaenger.filter((e) => e && e.email) : [];\nif (empf.length === 0) throw new Error('Auftrag ohne Empfaenger - es wird nichts versendet');\nif (!String(b.betreff ?? '').trim()) throw new Error('Auftrag ohne Betreff');\nconst stempel = Date.now();\n// Alle Anschreiben eines Auftrags tragen dieselbe Sendungskennung: im\n// Cockpit stehen sie dann als ein Entwurf mit vielen Empfaengern.\nconst sendung = 'cockpit-' + stempel;\nreturn empf.map((e, n) => ({ json: {\n  entwurfId: sendung + '-' + n,\n  sendung,\n  objekt: b.objekt ?? null,\n  modus: b.modus === 'sofort' ? 'sofort' : 'freigabe',\n  durch: b.durch || 'cockpit',\n  firma: e.firma ?? null,\n  ansprechpartner: e.ansprechpartner ?? null,\n  email: e.email,\n  betreff: String(b.betreff).trim(),\n  text: String(b.text ?? '').trim(),\n  demoEmpfaenger: a.demoEmpfaenger ?? '',\n  signaturHtml: a.signaturHtml ?? '',\n  rechtshinweisHtml: a.rechtshinweisHtml ?? '',\n  supabaseBasis: a.supabaseBasis,\n  tabelle: a.tabelle,\n} }));\n"
       },
       "id": "cv-aufteilen",
       "name": "Auftrag in Anschreiben zerlegen",
@@ -195,7 +195,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({\n  entwurf_id: $json.entwurfId,\n  objekt: $json.objekt,\n  investor_firma: $json.firma,\n  investor_name: $json.ansprechpartner,\n  investor_email: $json.email,\n  betreff: $json.betreff,\n  entwurf: $json.text,\n  treffer: ['aus dem Cockpit, ausgewaehlt von ' + $json.durch],\n  status: 'offen'\n}) }}",
+        "jsonBody": "={{ JSON.stringify({\n  entwurf_id: $json.entwurfId,\n  sendung: $json.sendung,\n  objekt: $json.objekt,\n  investor_firma: $json.firma,\n  investor_name: $json.ansprechpartner,\n  investor_email: $json.email,\n  betreff: $json.betreff,\n  entwurf: $json.text,\n  treffer: ['aus dem Cockpit, ausgewaehlt von ' + $json.durch],\n  status: 'offen'\n}) }}",
         "options": {
           "response": {
             "response": {

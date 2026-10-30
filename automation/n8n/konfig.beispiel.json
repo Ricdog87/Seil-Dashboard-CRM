@@ -54,7 +54,8 @@
           "name": "SEIL Webhook-Header"
         }
       }
-    }
+    },
+    "cockpitFreigaben": "https://COCKPIT-ADRESSE/freigaben"
   },
   "11-freigabe-eingang.json": {
     "supabaseBasis": "https://PROJEKT-KENNUNG.supabase.co",

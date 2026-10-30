@@ -1,8 +1,11 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { LiveBand } from "@/components/live-band";
 import { LiveDatenraeume } from "@/components/live-datenraeume";
 import { Transaktionsprozess } from "@/components/transaktionsprozess";
 import { FreigabenEingang } from "@/components/freigaben-eingang";
+import { darfFreigeben } from "@/lib/freigabe";
+import { NAMEN } from "@/lib/sitzung-token";
 
 /**
  * Übersicht mit ausschließlich echten Daten.
@@ -13,7 +16,10 @@ import { FreigabenEingang } from "@/components/freigaben-eingang";
  * page.demo.tsx.bak im Repository und kommt zurück, sobald die Mandate aus
  * der Datenbank kommen.
  */
-export default function UebersichtSeite() {
+export const dynamic = "force-dynamic";
+
+export default async function UebersichtSeite() {
+  const kuerzel = (await headers()).get("x-seil-benutzer") ?? "";
   const werkzeuge = [
     {
       titel: "Investorenliste",
@@ -46,7 +52,11 @@ export default function UebersichtSeite() {
       </div>
 
       <LiveBand />
-      <FreigabenEingang kompakt />
+      <FreigabenEingang
+        kompakt
+        kuerzel={NAMEN[kuerzel] ?? kuerzel}
+        darfEntscheiden={darfFreigeben(kuerzel)}
+      />
       <Transaktionsprozess />
       <LiveDatenraeume />
 

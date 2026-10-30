@@ -97,7 +97,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Zeilen aus dem Freigabe-Eingang in die Form bringen, die das Cockpit anzeigt.\n// Volle Antwort von PostgREST (Statuscode + Body): ein leerer Eingang ist ein\n// leeres Array mit 200, eine Stoerung ist alles andere. Beides wird\n// unterschieden - das Cockpit zeigt sonst \"nichts offen\", obwohl die Leitung\n// gestoert ist.\nconst r = $input.first()?.json ?? {};\nconst status = Number(r.statusCode ?? 0);\nconst zeilen = r.body;\nif (!(status >= 200 && status < 300) || !Array.isArray(zeilen)) {\n  return [{ json: { stoerung: true, stand: new Date().toISOString(),\n                    grund: 'Freigabe-Eingang nicht lesbar (HTTP ' + (status || 'ohne Antwort') + ')' } }];\n}\nconst offen = zeilen\n  .filter((z) => z && z.entwurf_id)\n  .map((z) => ({\n    entwurfId: z.entwurf_id,\n    objekt: z.objekt ?? null,\n    investorFirma: z.investor_firma ?? null,\n    investorName: z.investor_name ?? null,\n    investorEmail: z.investor_email ?? null,\n    betreff: z.betreff ?? null,\n    entwurf: z.entwurf ?? null,\n    treffer: Array.isArray(z.treffer) ? z.treffer : [],\n    erstellt: z.erstellt ?? null,\n  }));\nreturn [{ json: { stand: new Date().toISOString(), anzahl: offen.length, offen } }];\n"
+        "jsCode": "// Zeilen aus dem Freigabe-Eingang in die Form bringen, die das Cockpit anzeigt.\n// Volle Antwort von PostgREST (Statuscode + Body): ein leerer Eingang ist ein\n// leeres Array mit 200, eine Stoerung ist alles andere. Beides wird\n// unterschieden - das Cockpit zeigt sonst \"nichts offen\", obwohl die Leitung\n// gestoert ist.\nconst r = $input.first()?.json ?? {};\nconst status = Number(r.statusCode ?? 0);\nconst zeilen = r.body;\nif (!(status >= 200 && status < 300) || !Array.isArray(zeilen)) {\n  return [{ json: { stoerung: true, stand: new Date().toISOString(),\n                    grund: 'Freigabe-Eingang nicht lesbar (HTTP ' + (status || 'ohne Antwort') + ')' } }];\n}\nconst offen = zeilen\n  .filter((z) => z && z.entwurf_id)\n  .map((z) => ({\n    entwurfId: z.entwurf_id,\n    // Klammer um die Zeilen einer Sendung: links ein Text, rechts viele Empfaenger.\n    sendung: z.sendung ?? z.entwurf_id,\n    objekt: z.objekt ?? null,\n    investorFirma: z.investor_firma ?? null,\n    investorName: z.investor_name ?? null,\n    investorEmail: z.investor_email ?? null,\n    betreff: z.betreff ?? null,\n    entwurf: z.entwurf ?? null,\n    treffer: Array.isArray(z.treffer) ? z.treffer : [],\n    erstellt: z.erstellt ?? null,\n  }));\nreturn [{ json: { stand: new Date().toISOString(), anzahl: offen.length, offen } }];\n"
       },
       "id": "fg-mappen",
       "name": "Antwort fuers Cockpit bauen",
@@ -142,7 +142,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Die Entscheidung aus dem Cockpit. Wer entschieden hat, kommt aus der Sitzung\n// des Cockpits und nicht aus dem Browser - hier wird es nur uebernommen.\nconst b = $input.first().json.body ?? $input.first().json;\nif (!b.entwurfId) throw new Error('Entscheidung ohne Entwurf - es wird nichts versendet');\nconst entscheidung = b.entscheidung === 'freigegeben' ? 'freigegeben' : 'abgelehnt';\nreturn [{ json: {\n  entwurfId: String(b.entwurfId),\n  entscheidung,\n  durch: String(b.durch || 'cockpit'),\n  am: new Date().toISOString(),\n} }];\n"
+        "jsCode": "// Die Entscheidung aus dem Cockpit - fuer einen Empfaenger oder fuer die ganze\n// Sendung. Wer entschieden hat, kommt aus der Sitzung des Cockpits und nicht aus\n// dem Browser; hier wird es nur uebernommen.\nconst b = $input.first().json.body ?? $input.first().json;\nconst ids = Array.isArray(b.entwurfIds) ? b.entwurfIds.filter(Boolean)\n          : b.entwurfId ? [b.entwurfId] : [];\nif (ids.length === 0) throw new Error('Entscheidung ohne Entwurf - es wird nichts versendet');\nconst entscheidung = b.entscheidung === 'freigegeben' ? 'freigegeben' : 'abgelehnt';\nreturn [{ json: {\n  entwurfIds: ids,\n  // PostgREST-Filter in.(\"a\",\"b\"). Anfuehrungszeichen, damit Komma oder Punkt in\n  // einer Kennung den Filter nicht zerlegen; ein eigenes Anfuehrungszeichen in\n  // der Kennung faellt weg, es gehoert dort ohnehin nicht hin.\n  filter: 'in.(' + ids.map((x) => '\"' + String(x).replace(/\"/g, '') + '\"').join(',') + ')',\n  entscheidung,\n  durch: String(b.durch || 'cockpit'),\n  am: new Date().toISOString(),\n} }];\n"
       },
       "id": "fg-ent-lesen",
       "name": "Entscheidung lesen",
@@ -156,7 +156,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "={{ $('Konfiguration Freigaben (Platzhalter)').first().json.supabaseBasis }}/rest/v1/{{ $('Konfiguration Freigaben (Platzhalter)').first().json.tabelle }}?entwurf_id=eq.{{ encodeURIComponent($json.entwurfId) }}&status=eq.offen",
+        "url": "={{ $('Konfiguration Freigaben (Platzhalter)').first().json.supabaseBasis }}/rest/v1/{{ $('Konfiguration Freigaben (Platzhalter)').first().json.tabelle }}?entwurf_id={{ $json.filter }}&status=eq.offen",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
         "sendHeaders": true,
@@ -176,7 +176,8 @@
           "response": {
             "response": {
               "neverError": true,
-              "responseFormat": "json"
+              "responseFormat": "json",
+              "fullResponse": true
             }
           }
         }
@@ -228,7 +229,7 @@
         "url": "={{ $('Konfiguration Freigaben (Platzhalter)').first().json.freigabeWebhook }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ entwuerfe: [$('Entscheidung lesen').first().json.entwurfId], durchId: $('Entscheidung lesen').first().json.durch, am: $('Entscheidung lesen').first().json.am }) }}",
+        "jsonBody": "={{ JSON.stringify({ entwuerfe: $json.entwurfIds, durchId: $('Entscheidung lesen').first().json.durch, am: $('Entscheidung lesen').first().json.am }) }}",
         "options": {
           "response": {
             "response": {
@@ -252,7 +253,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ ok: true, entwurfId: $('Entscheidung lesen').first().json.entwurfId, entscheidung: $('Entscheidung lesen').first().json.entscheidung }) }}",
+        "responseBody": "={{ JSON.stringify({ ok: true, anzahl: $json.getroffen ?? 0, entscheidung: $('Entscheidung lesen').first().json.entscheidung }) }}",
         "options": {}
       },
       "id": "fg-ent-antwort",
@@ -322,7 +323,7 @@
           "conditions": [
             {
               "id": "fe-if-gefunden",
-              "leftValue": "={{ $json.entwurf_id ? 'ja' : 'nein' }}",
+              "leftValue": "={{ $json.getroffen > 0 ? 'ja' : 'nein' }}",
               "rightValue": "ja",
               "operator": {
                 "type": "string",
@@ -358,6 +359,19 @@
       "position": [
         1120,
         400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Wie viele Zeilen hat die Entscheidung wirklich getroffen?\n// PATCH mit return=representation liefert die geaenderten Zeilen. Null Zeilen\n// heisst: schon entschieden oder unbekannt - dann wird nichts versendet.\nconst r = $input.first()?.json ?? {};\nconst status = Number(r.statusCode ?? 0);\nconst zeilen = Array.isArray(r.body) ? r.body : [];\nconst ok = status >= 200 && status < 300;\nreturn [{ json: {\n  getroffen: ok ? zeilen.length : 0,\n  status,\n  entwurfIds: zeilen.map((z) => z.entwurf_id).filter(Boolean),\n} }];\n"
+      },
+      "id": "fg-zusammen",
+      "name": "Ergebnis zusammenfassen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        790,
+        240
       ]
     }
   ],
@@ -432,7 +446,7 @@
       "main": [
         [
           {
-            "node": "Offener Eintrag getroffen?",
+            "node": "Ergebnis zusammenfassen",
             "type": "main",
             "index": 0
           }
@@ -498,6 +512,17 @@
         [
           {
             "node": "Nicht offen melden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ergebnis zusammenfassen": {
+      "main": [
+        [
+          {
+            "node": "Offener Eintrag getroffen?",
             "type": "main",
             "index": 0
           }
