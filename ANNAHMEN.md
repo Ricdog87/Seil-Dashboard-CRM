@@ -941,3 +941,32 @@ an Graph schreiben, lesen die Antwort jetzt als Text.
 Nachweis am 30.10.: Die Kette Matching, Mail-Vorbereitung und Freigabe-Gate
 laeuft vollstaendig gruen durch, und im Ordner "Gesendet" von deals@seil.com
 liegen die Freigabe-Mails.
+
+## 71. Mails in SEIL-Gestaltung, Datenfluss repariert
+
+Die erste echte Freigabe-Mail war unbrauchbar: leere Felder bei Objekt und
+Empfaenger, stehengebliebene Platzhalter, ein Hinweis der KI an den Leser und
+rohe Links. Drei Ursachen.
+
+**Der Datenfluss brach ab.** WF02 reichte an WF03 ausschliesslich die
+Objekt-Kennung weiter, keine Objektdaten und keinen Investor. Jetzt gehen
+Objekt (Name, Region, Assetklasse, Kaufpreis), Investor (Firma,
+Ansprechpartner, Mailadresse) und die Trefferbegruendung durch die ganze
+Kette.
+
+**Die Liveliste wurde unvollstaendig gelesen.** Mailadresse, Firma und
+Vorname fehlten in der Spaltenzuordnung. Ohne Mailadresse gibt es keinen
+Empfaenger.
+
+**Die Mails waren roher Text.** Freigabe-Mail und Investorenmail sind jetzt
+HTML in der SEIL-Gestaltung: Kopf, Faktenblock, Trefferbegruendung als
+farbige Marken, Entwurf im Rahmen, zwei Schaltflaechen statt roher Links.
+
+Signatur und Rechtshinweis der SEIL Group stehen **nicht im Repository**,
+sondern in der Konfigurationsdatei auf dem Server. Das Cockpit-Repository
+ist oeffentlich.
+
+**Auswahl korrigiert.** Ohne vollen Treffer schlug das Matching einfach die
+bestsortierten Investoren vor, auch solche mit nachweislich falschem
+Standort. Jetzt gilt: Standort muss passen, fehlende Angaben sind erlaubt,
+nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.

@@ -45,7 +45,7 @@
         400
       ],
       "parameters": {
-        "jsCode": "// Nimmt den KI-Text, wenn Claude geantwortet hat; sonst die gefüllte Vorlage als Fallback.\n// So bleibt die Kette lauffähig, auch wenn der Key fehlt – der Entwurf ist dann sichtbar als 'vorlage' markiert.\nconst d = $('Vorlage + Leitplanken').item.json;\nconst antwort = $input.first().json;\nconst kiText = Array.isArray(antwort.content) ? (antwort.content.find(c => c.type === 'text')?.text ?? '') : '';\nconst fallback = String(d.vorlage ?? '')\n  .replaceAll('[assetklasse]', d.objekt?.assetklasse ?? '')\n  .replaceAll('[region]', d.objekt?.region ?? '');\nconst entwurf = kiText.trim() || fallback;\nreturn [{ json: {\n  entwurfId: d.entwurfId ?? ('e-' + Date.now()),\n  objektId: d.objektId, investorId: d.investorId ?? null, email: d.email ?? null,\n  betreff: d.betreff ?? `${d.objekt?.name ?? 'Objekt'} – vertrauliche Vorabinformation`,\n  entwurf, quelle: kiText.trim() ? 'ki' : 'vorlage', kiFehler: antwort.error ? JSON.stringify(antwort.error) : null,\n  status: 'wartet_auf_freigabe', erstellt: new Date().toISOString(),\n} }];"
+        "jsCode": "// Nimmt den KI-Text, wenn Claude geantwortet hat; sonst die gefüllte Vorlage als Fallback.\n// So bleibt die Kette lauffähig, auch wenn der Key fehlt – der Entwurf ist dann sichtbar als 'vorlage' markiert.\nconst d = $('Vorlage + Leitplanken').item.json;\nconst antwort = $input.first().json;\nconst kiText = Array.isArray(antwort.content) ? (antwort.content.find(c => c.type === 'text')?.text ?? '') : '';\nconst fallback = String(d.vorlage ?? '')\n  .replaceAll('[assetklasse]', d.objekt?.assetklasse ?? '')\n  .replaceAll('[region]', d.objekt?.region ?? '');\nconst entwurf = kiText.trim() || fallback;\nreturn [{ json: {\n  entwurfId: d.entwurfId ?? ('e-' + Date.now()),\n  objektId: d.objektId, objekt: d.objekt ?? {},\n  investorId: d.investorId ?? null, firma: d.firma ?? null,\n  ansprechpartner: d.ansprechpartner ?? null, email: d.email ?? null,\n  treffer: d.treffer ?? {},\n  betreff: d.betreff ?? `${d.objekt?.name ?? 'Objekt'} – vertrauliche Vorabinformation`,\n  entwurf, quelle: kiText.trim() ? 'ki' : 'vorlage', kiFehler: antwort.error ? JSON.stringify(antwort.error) : null,\n  status: 'wartet_auf_freigabe', erstellt: new Date().toISOString(),\n} }];"
       }
     },
     {
@@ -90,7 +90,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ model: 'claude-opus-5', max_tokens: 900, system: \"Du formulierst E-Mail-Entwürfe für SEIL Real Estate, eine Immobilienboutique in Frankfurt. Die mitgegebene Vorlage ist der verbindliche Rahmen: Struktur, Anrede (Sie), Tonfall und Signaturplatzhalter übernehmen, nur die objektbezogenen Sätze ausformulieren. Keine Preise, keine Renditen, keine Zusagen, keine Fristen erfinden. Keine Floskeln, keine Superlative. Deutsch. Gib nur den fertigen E-Mail-Text zurück, ohne Betreff, ohne Erklärung.\", messages: [{ role: 'user', content: 'VORLAGE:\\n' + $json.vorlage + '\\n\\nOBJEKTDATEN (JSON):\\n' + JSON.stringify($json.objekt ?? {}) + '\\n\\nANLASS: ' + ($json.anlass ?? 'presound') }] }) }}",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-opus-5', max_tokens: 900, system: \"Du formulierst E-Mail-Entwürfe für SEIL Real Estate, eine Immobilienboutique in Frankfurt. Die mitgegebene Vorlage ist der verbindliche Rahmen: Struktur, Anrede (Sie), Tonfall und Signaturplatzhalter übernehmen, nur die objektbezogenen Sätze ausformulieren. Keine Preise, keine Renditen, keine Zusagen, keine Fristen erfinden. Keine Floskeln, keine Superlative. Deutsch. Gib ausschliesslich den fertigen E-Mail-Text zurueck: kein Betreff, keine Einleitung, keine Anmerkung, kein Hinweis auf fehlende Angaben. Fehlt eine Angabe, lass den betreffenden Satz weg, statt einen Platzhalter stehen zu lassen.\", messages: [{ role: 'user', content: 'VORLAGE:\\n' + $json.vorlage + '\\n\\nOBJEKTDATEN (JSON):\\n' + JSON.stringify($json.objekt ?? {}) + '\\n\\nANLASS: ' + ($json.anlass ?? 'presound') }] }) }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -135,7 +135,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ entwurfId: $json.entwurfId, objektId: $json.objektId, investorId: $json.investorId, email: $json.email, betreff: $json.betreff, entwurf: $json.entwurf, quelle: $json.quelle }) }}"
+        "jsonBody": "={{ JSON.stringify({ entwurfId: $json.entwurfId, objektId: $json.objektId, objekt: $json.objekt, investorId: $json.investorId, firma: $json.firma, ansprechpartner: $json.ansprechpartner, email: $json.email, treffer: $json.treffer, betreff: $json.betreff, entwurf: $json.entwurf, quelle: $json.quelle }) }}"
       },
       "id": "cc31fe40-5667-4135-9f61-f837fcd2c670",
       "name": "Freigabe anfordern (WF 04, Mail-Link)",

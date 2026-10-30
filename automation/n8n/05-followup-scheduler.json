@@ -309,7 +309,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ message: { subject: $json.betreff, body: { contentType: 'Text', content: $json.text }, toRecipients: [{ emailAddress: { address: $json.email } }], bccRecipients: String($json.bccLeitung ?? '').split(/[;,]/).map(s => s.trim()).filter(Boolean).map(a => ({ emailAddress: { address: a } })) }, saveToSentItems: true }) }}"
+        "jsonBody": "={{ (() => {\nconst j = $json;\nconst e = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst signatur = String(j.signaturHtml ?? '').trim();\nconst recht = String(j.rechtshinweisHtml ?? '').trim();\nconst text = String(j.text ?? '').replace(/\\[Signatur\\]\\s*$/,'').trimEnd();\nconst html = '<!doctype html><html><body style=\"margin:0;padding:0;background:#ffffff\">'\n+ '<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"padding:0\">'\n+ '<div style=\"max-width:620px;font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#16181c;white-space:pre-wrap\">'\n+ e(text) + '</div>'\n+ (signatur ? '<div style=\"max-width:620px;margin-top:22px;font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:1.6;color:#16181c\">' + signatur + '</div>' : '')\n+ (recht ? '<div style=\"max-width:620px;margin-top:22px;padding-top:14px;border-top:1px solid #d6dade;font-family:Helvetica,Arial,sans-serif;font-size:11px;line-height:1.5;color:#6b727b\">' + recht + '</div>' : '')\n+ '</td></tr></table></body></html>';\nreturn JSON.stringify({ message: {\n  subject: j.betreff,\n  body: { contentType: 'HTML', content: html },\n  toRecipients: [{ emailAddress: { address: j.email } }],\n  bccRecipients: String(j.bccLeitung ?? '').split(/[;,]/).map(s => s.trim()).filter(Boolean).map(a => ({ emailAddress: { address: a } })),\n}, saveToSentItems: true });\n})() }}"
       },
       "id": "f72a27a0-5cf9-407c-9e2f-2105846fc551",
       "name": "E-Mail senden über deals@ (Graph)",
@@ -352,6 +352,18 @@
               "name": "demoEmpfaenger",
               "value": "",
               "type": "string"
+            },
+            {
+              "id": "ba-signaturHtml",
+              "name": "signaturHtml",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "ba-rechtshinweisHtml",
+              "name": "rechtshinweisHtml",
+              "value": "",
+              "type": "string"
             }
           ]
         },
@@ -366,7 +378,7 @@
       ],
       "id": "wf05-betriebsart",
       "name": "Betriebsart (hier umschalten)",
-      "notes": "Leer = echter Versand an den Investor. Steht hier eine Adresse, geht JEDE Mail stattdessen dorthin, mit Vermerk im Text. Für Vorführungen und Tests. Wird beim Import aus der Konfigurationsdatei gesetzt.",
+      "notes": "Leer = echter Versand an den Investor. Steht hier eine Adresse, geht JEDE Mail stattdessen dorthin, mit Vermerk im Text. Für Vorführungen und Tests. Wird beim Import aus der Konfigurationsdatei gesetzt. Signatur und Rechtshinweis stehen bewusst NICHT im Repository, sondern in der Konfigurationsdatei auf dem Server: das Repository ist oeffentlich.",
       "notesInFlow": true
     },
     {
