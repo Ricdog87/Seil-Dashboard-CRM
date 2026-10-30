@@ -1047,3 +1047,20 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
 89. **Kein Link in die Automatik.** Die n8n-Oberfläche ist von der Übersicht entfernt. Sie ist
     Werkzeug der Entwicklung und verwirrt im Vertrieb; wer sie braucht, kennt die Adresse.
     `/investoren` leitet auf `/kunden` um, damit alte Verweise ankommen.
+
+90. **Pipeline entlang der SOP-Phasen.** Die Mandate stehen als Tafel in fünf Spalten: die vier
+    Phasen der SOP (Mandat & Bewertung · Vermarktungsvorbereitung · Aktive Vermarktung · Angebote &
+    Reporting) plus Abschluss. Ruht und Verloren liegen zusammengeklappt darunter, nicht als sechste
+    und siebte Spalte. Ziehen ändert die Phase – gespeichert in `mandat.phase`.
+91. **Die Karte entscheidet nicht selbst.** Legen die Schritte eine andere Phase nahe als die
+    gesetzte, sagt die Karte das („Schritte: Vermarktung“), verschiebt aber nichts. Die Phase ist
+    eine Aussage des Teams, der Schrittstand eine Beobachtung – die zwei dürfen auseinanderliegen,
+    und das soll man sehen.
+92. **Investoren-Trichter = Schritte 14–19.** Die Spalten der Trichter-Tafel sind Vorgemerkt
+    (Abgleich, 14), Angeschrieben (15), NDA angefragt / unterzeichnet (16), Datenraum Light (18),
+    Interesse (17, Broker Call), Preisanfrage (19). Absagen liegen als Ablage darunter. Dieselben
+    acht Stufen wie in der Liste; nur der Blick ist anders.
+93. **Eine Abfrage für die Tafel.** `/api/pipeline` rechnet SOP-Fortschritt, Trichterzahlen,
+    nächste Aufgabe und Datenraum-Stand je Mandat einmal auf dem Server zusammen – nicht jede Karte
+    für sich. Die Kennzahlen oben auf der Übersicht kommen aus derselben Antwort; keine Zahl dort
+    wird separat gepflegt.

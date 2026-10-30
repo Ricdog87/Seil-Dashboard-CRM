@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLive } from "@/components/live-abruf";
 import { SopProzess } from "@/components/sop-prozess";
 import { Verteiler } from "@/components/verteiler";
+import { InvestorTrichter } from "@/components/investor-trichter";
 import { Anschreiben } from "@/components/anschreiben";
 import type { LiveInvestor, LiveInvestoren } from "@/app/api/investoren/route";
 import type { Kontaktstand } from "@/app/api/kontakte/route";
@@ -47,6 +48,7 @@ export function MandatProzess({ mandat }: { mandat: string }) {
   const [assetklasse, setAssetklasse] = useState("alle");
   const [ticket, setTicket] = useState("");
   const [auswahl, setAuswahl] = useState<Set<string>>(new Set());
+  const [trichterAnsicht, setTrichterAnsicht] = useState<"tafel" | "liste">("tafel");
 
   const crmLaden = useCallback(async () => {
     const q = `?mandat=${encodeURIComponent(mandat)}`;
@@ -141,7 +143,32 @@ export function MandatProzess({ mandat }: { mandat: string }) {
         />
       </section>
 
-      <Verteiler mandat={mandat} stand={kontaktstand} neuLaden={() => void crmLaden()} />
+      <section className="mt-5">
+        <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
+            Investoren-Trichter · Schritte 14–19
+          </h2>
+          <div className="inline-flex rounded-seil border border-seil-line bg-seil-surface p-0.5 text-kicker">
+            {(["tafel", "liste"] as const).map((a) => (
+              <button
+                key={a}
+                type="button"
+                onClick={() => setTrichterAnsicht(a)}
+                className={`rounded-seil px-2.5 py-0.5 ${
+                  trichterAnsicht === a ? "bg-seil-card-alt text-seil-text" : "text-seil-muted hover:text-seil-text"
+                }`}
+              >
+                {a === "tafel" ? "Tafel" : "Liste"}
+              </button>
+            ))}
+          </div>
+        </div>
+        {trichterAnsicht === "tafel" ? (
+          <InvestorTrichter mandat={mandat} stand={kontaktstand} neuLaden={() => void crmLaden()} />
+        ) : (
+          <Verteiler mandat={mandat} stand={kontaktstand} neuLaden={() => void crmLaden()} />
+        )}
+      </section>
 
       <section className="mt-5 rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4">
         <h2 className="mb-3 text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
