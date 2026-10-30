@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { STUFEN, type Stufe } from "@/lib/crm";
+import { datenbankAktiv, dbLesen, dbSchreiben } from "@/lib/supabase";
 
 /**
  * Kontaktstand je Mandat – das Gedächtnis des CRM.
@@ -37,14 +38,60 @@ function kopf(): Record<string, string> {
   return process.env.MODUL01_SECRET ? { "X-Seil-Secret": process.env.MODUL01_SECRET } : {};
 }
 
+interface DbKontakt {
+  investor_id: string;
+  mandat: string;
+  firma: string | null;
+  ansprechpartner: string | null;
+  email: string | null;
+  status: Stufe;
+  notiz: string | null;
+  letzter_kontakt: string | null;
+  naechstes_followup: string | null;
+  geaendert_durch: string | null;
+  geaendert: string | null;
+}
+
 export async function GET(request: Request): Promise<NextResponse<Kontaktstand>> {
-  const url = process.env.KONTAKTE_URL;
-  if (!url) {
-    return NextResponse.json({ modus: "aus", grund: "KONTAKTE_URL nicht gesetzt", kontakte: [] });
-  }
   const mandat = new URL(request.url).searchParams.get("mandat") ?? "";
   if (!mandat) {
     return NextResponse.json({ modus: "fehler", grund: "Kein Mandat angegeben", kontakte: [] });
+  }
+
+  if (datenbankAktiv()) {
+    try {
+      const zeilen = await dbLesen<DbKontakt>(
+        "kontakt",
+        `mandat=eq.${encodeURIComponent(mandat)}&order=firma.asc&limit=500`,
+      );
+      return NextResponse.json({
+        modus: "live",
+        kontakte: zeilen.map((z) => ({
+          investorId: z.investor_id,
+          mandat: z.mandat,
+          firma: z.firma,
+          ansprechpartner: z.ansprechpartner,
+          email: z.email,
+          status: z.status,
+          notiz: z.notiz,
+          letzterKontakt: z.letzter_kontakt,
+          naechstesFollowUp: z.naechstes_followup,
+          geaendertDurch: z.geaendert_durch,
+          geaendert: z.geaendert,
+        })),
+      });
+    } catch (e) {
+      return NextResponse.json({
+        modus: "fehler",
+        grund: e instanceof Error ? e.message : "Datenbank nicht erreichbar",
+        kontakte: [],
+      });
+    }
+  }
+
+  const url = process.env.KONTAKTE_URL;
+  if (!url) {
+    return NextResponse.json({ modus: "aus", grund: "KONTAKTE_URL nicht gesetzt", kontakte: [] });
   }
   const ziel = new URL(url);
   ziel.searchParams.set("mandat", mandat);
@@ -75,9 +122,6 @@ export async function GET(request: Request): Promise<NextResponse<Kontaktstand>>
 /** Einen oder viele Stände setzen. Wer es war, kommt aus der Sitzung. */
 export async function POST(request: Request): Promise<NextResponse> {
   const url = process.env.KONTAKT_SETZEN_URL;
-  if (!url) {
-    return NextResponse.json({ ok: false, grund: "KONTAKT_SETZEN_URL nicht gesetzt" }, { status: 503 });
-  }
   const b = (await request.json().catch(() => null)) as
     | { mandat?: string; kontakte?: Partial<Kontakt>[] }
     | null;
@@ -90,15 +134,43 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ ok: false, grund: "Unbekannte Stufe" }, { status: 400 });
   }
 
+  const durch = request.headers.get("x-seil-benutzer") ?? "";
+
+  if (datenbankAktiv()) {
+    try {
+      const jetzt = new Date().toISOString();
+      const zeilen = kontakte.map((k) => ({
+        mandat,
+        investor_id: String(k.investorId),
+        firma: k.firma ?? null,
+        ansprechpartner: k.ansprechpartner ?? null,
+        email: k.email ?? null,
+        status: k.status ?? "vorgemerkt",
+        ...(k.notiz !== undefined ? { notiz: k.notiz } : {}),
+        ...(k.letzterKontakt !== undefined ? { letzter_kontakt: k.letzterKontakt } : {}),
+        ...(k.naechstesFollowUp !== undefined ? { naechstes_followup: k.naechstesFollowUp } : {}),
+        geaendert_durch: durch,
+        geaendert: jetzt,
+      }));
+      const geschrieben = await dbSchreiben<DbKontakt>("kontakt", zeilen, "mandat,investor_id");
+      return NextResponse.json({ ok: geschrieben.length > 0, gespeichert: geschrieben.length });
+    } catch (e) {
+      return NextResponse.json(
+        { ok: false, grund: e instanceof Error ? e.message : "Datenbank nicht erreichbar" },
+        { status: 502 },
+      );
+    }
+  }
+
+  if (!url) {
+    return NextResponse.json({ ok: false, grund: "KONTAKT_SETZEN_URL nicht gesetzt" }, { status: 503 });
+  }
+
   try {
     const res = await fetch(url, {
       method: "POST",
       headers: { ...kopf(), "Content-Type": "application/json" },
-      body: JSON.stringify({
-        mandat,
-        durch: request.headers.get("x-seil-benutzer") ?? "",
-        kontakte,
-      }),
+      body: JSON.stringify({ mandat, durch, kontakte }),
       cache: "no-store",
       signal: AbortSignal.timeout(Number(process.env.KONTAKTE_TIMEOUT_MS ?? 15000)),
     });

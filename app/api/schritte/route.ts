@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { datenbankAktiv, dbLesen, dbSchreiben } from "@/lib/supabase";
 
 /**
  * Der Stand eines Mandats entlang der SOP.
@@ -29,14 +30,48 @@ function kopf(): Record<string, string> {
   return process.env.MODUL01_SECRET ? { "X-Seil-Secret": process.env.MODUL01_SECRET } : {};
 }
 
+interface DbSchritt {
+  schritt: number;
+  status: SchrittStand["status"];
+  notiz: string | null;
+  geaendert_durch: string | null;
+  geaendert: string | null;
+}
+
 export async function GET(request: Request): Promise<NextResponse<Mandatsstand>> {
-  const url = process.env.SCHRITTE_URL;
-  if (!url) {
-    return NextResponse.json({ modus: "aus", grund: "SCHRITTE_URL nicht gesetzt", schritte: [] });
-  }
   const mandat = new URL(request.url).searchParams.get("mandat") ?? "";
   if (!mandat) {
     return NextResponse.json({ modus: "fehler", grund: "Kein Mandat angegeben", schritte: [] });
+  }
+
+  if (datenbankAktiv()) {
+    try {
+      const zeilen = await dbLesen<DbSchritt>(
+        "mandat_schritt",
+        `mandat=eq.${encodeURIComponent(mandat)}&order=schritt.asc&limit=100`,
+      );
+      return NextResponse.json({
+        modus: "live",
+        schritte: zeilen.map((z) => ({
+          schritt: Number(z.schritt),
+          status: z.status,
+          notiz: z.notiz,
+          geaendertDurch: z.geaendert_durch,
+          geaendert: z.geaendert,
+        })),
+      });
+    } catch (e) {
+      return NextResponse.json({
+        modus: "fehler",
+        grund: e instanceof Error ? e.message : "Datenbank nicht erreichbar",
+        schritte: [],
+      });
+    }
+  }
+
+  const url = process.env.SCHRITTE_URL;
+  if (!url) {
+    return NextResponse.json({ modus: "aus", grund: "SCHRITTE_URL nicht gesetzt", schritte: [] });
   }
   const ziel = new URL(url);
   ziel.searchParams.set("mandat", mandat);
@@ -66,9 +101,6 @@ export async function GET(request: Request): Promise<NextResponse<Mandatsstand>>
 
 export async function POST(request: Request): Promise<NextResponse> {
   const url = process.env.SCHRITT_SETZEN_URL;
-  if (!url) {
-    return NextResponse.json({ ok: false, grund: "SCHRITT_SETZEN_URL nicht gesetzt" }, { status: 503 });
-  }
   const b = (await request.json().catch(() => null)) as
     | { mandat?: string; schritt?: number; status?: string; notiz?: string }
     | null;
@@ -81,6 +113,37 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ ok: false, grund: "Unbekannte Stufe" }, { status: 400 });
   }
 
+  const durch = request.headers.get("x-seil-benutzer") ?? "";
+
+  if (datenbankAktiv()) {
+    try {
+      const geschrieben = await dbSchreiben<DbSchritt>(
+        "mandat_schritt",
+        [
+          {
+            mandat,
+            schritt,
+            status: b.status,
+            ...(b.notiz !== undefined ? { notiz: b.notiz } : {}),
+            geaendert_durch: durch,
+            geaendert: new Date().toISOString(),
+          },
+        ],
+        "mandat,schritt",
+      );
+      return NextResponse.json({ ok: geschrieben.length > 0 });
+    } catch (e) {
+      return NextResponse.json(
+        { ok: false, grund: e instanceof Error ? e.message : "Datenbank nicht erreichbar" },
+        { status: 502 },
+      );
+    }
+  }
+
+  if (!url) {
+    return NextResponse.json({ ok: false, grund: "SCHRITT_SETZEN_URL nicht gesetzt" }, { status: 503 });
+  }
+
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -90,7 +153,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         schritt,
         status: b.status,
         ...(b.notiz !== undefined ? { notiz: b.notiz } : {}),
-        durch: request.headers.get("x-seil-benutzer") ?? "",
+        durch,
       }),
       cache: "no-store",
       signal: AbortSignal.timeout(Number(process.env.KONTAKTE_TIMEOUT_MS ?? 15000)),
