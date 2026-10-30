@@ -10,12 +10,14 @@ export default async function AnmeldenSeite({
   const s = await searchParams;
   const meldung =
     s.fehler === "1"
-      ? "Kürzel oder Passwort stimmt nicht."
+      ? "Kürzel oder Passwort stimmt nicht. Beim Einfügen aus einer Nachricht bitte darauf achten, dass kein Leerzeichen mitkommt."
       : s.fehler === "2"
         ? "Die Anmeldung ist auf dem Server noch nicht eingerichtet."
-        : s.abgemeldet
-          ? "Abgemeldet. Bis später."
-          : null;
+        : s.fehler === "3"
+          ? "Hier gehört das persönliche Kürzel hin, nicht die Mailadresse – zum Beispiel tp statt t.pfoehler@…"
+          : s.abgemeldet
+            ? "Abgemeldet. Bis später."
+            : null;
 
   return (
     <main className="mx-auto flex min-h-[70vh] w-full max-w-sm flex-col justify-center px-4">
