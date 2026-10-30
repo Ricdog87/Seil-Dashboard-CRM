@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useLive, uhrzeit } from "@/components/live-abruf";
 import type { LiveInvestoren, LiveInvestor } from "@/app/api/investoren/route";
 import type { Modul01Objekt, Modul01Stand } from "@/lib/modul01";
+import { Anschreiben } from "@/components/anschreiben";
 
 /**
  * Der Transaktionsprozess eines Mandats – von der Datenraum-Übernahme bis zur
@@ -66,6 +67,7 @@ export function Transaktionsprozess() {
   const [region, setRegion] = useState("alle");
   const [assetklasse, setAssetklasse] = useState("alle");
   const [ticket, setTicket] = useState("");
+  const [auswahl, setAuswahl] = useState<Set<string>>(new Set());
 
   const mandate = useMemo(
     () => (stand ? [...Object.values(stand.objekte ?? {}), ...(stand.unbekannt ?? [])] : []),
@@ -95,6 +97,14 @@ export function Transaktionsprozess() {
     [investoren, region, assetklasse, ticketMio],
   );
   const erreichbar = treffer.filter((i) => i.email);
+  const markiert = treffer.filter((i) => auswahl.has(i.id));
+  const umschalten = (id: string) =>
+    setAuswahl((a) => {
+      const n = new Set(a);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
 
   const verarbeitet = zahl(mandat, "verarbeitet");
   const abgelegt = zahl(mandat, "abgelegt");
@@ -310,10 +320,31 @@ export function Transaktionsprozess() {
           </span>
         </div>
 
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-kicker text-seil-muted">
+          <button
+            type="button"
+            onClick={() => setAuswahl(new Set(erreichbar.map((i) => i.id)))}
+            className="rounded-seil border border-seil-line px-2 py-0.5 text-seil-body hover:border-seil-accent hover:text-seil-accent"
+          >
+            alle {erreichbar.length} erreichbaren auswählen
+          </button>
+          <button
+            type="button"
+            onClick={() => setAuswahl(new Set())}
+            className="rounded-seil border border-seil-line px-2 py-0.5 text-seil-body hover:border-seil-accent hover:text-seil-accent"
+          >
+            Auswahl leeren
+          </button>
+          <span>{markiert.length} ausgewählt</span>
+        </div>
+
         <div className="mt-3 overflow-x-auto rounded-[var(--seil-radius)] border border-seil-line">
           <table className="w-full min-w-[640px] border-collapse text-body">
             <thead>
               <tr className="bg-seil-surface text-left text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
+                <th className="w-8 px-3 py-2 font-medium">
+                  <span className="sr-only">Auswählen</span>
+                </th>
                 <th className="px-3 py-2 font-medium">Investor</th>
                 <th className="px-3 py-2 font-medium">Ansprechpartner</th>
                 <th className="px-3 py-2 font-medium">Standort</th>
@@ -324,6 +355,14 @@ export function Transaktionsprozess() {
             <tbody>
               {treffer.slice(0, 12).map((i) => (
                 <tr key={i.id} className="border-t border-seil-line hover:bg-seil-card-alt">
+                  <td className="px-3 py-2">
+                    <input
+                      type="checkbox"
+                      checked={auswahl.has(i.id)}
+                      onChange={() => umschalten(i.id)}
+                      aria-label={`${i.firma} auswählen`}
+                    />
+                  </td>
                   <td className="px-3 py-2 text-seil-text">{i.firma}</td>
                   <td className="px-3 py-2 text-seil-body">{i.ansprechpartner ?? "—"}</td>
                   <td className="px-3 py-2 text-seil-body">{(i.regionen ?? []).join(", ") || "—"}</td>
@@ -337,7 +376,7 @@ export function Transaktionsprozess() {
               ))}
               {treffer.length === 0 ? (
                 <tr>
-                  <td className="px-3 py-3 text-seil-muted" colSpan={5}>
+                  <td className="px-3 py-3 text-seil-muted" colSpan={6}>
                     Mit diesen Kriterien passt niemand aus der Liveliste.
                   </td>
                 </tr>
@@ -345,6 +384,19 @@ export function Transaktionsprozess() {
             </tbody>
           </table>
         </div>
+        {markiert.length > 0 ? (
+          <Anschreiben
+            objekt={name}
+            empfaenger={markiert.map((i) => ({
+              id: i.id,
+              firma: i.firma,
+              ansprechpartner: i.ansprechpartner,
+              email: i.email,
+            }))}
+            onFertig={() => setAuswahl(new Set())}
+          />
+        ) : null}
+
         <p className="mt-2 text-kicker leading-relaxed text-seil-muted">
           Gerechnet wird über alle {liste?.gesamt ?? investoren.length} Einträge der Liveliste, nicht
           über einen Ausschnitt; die Tabelle zeigt die ersten zwölf Treffer. Der Standort ist das

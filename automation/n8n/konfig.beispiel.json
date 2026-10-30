@@ -80,5 +80,33 @@
         }
       }
     }
+  },
+  "12-cockpit-anschreiben.json": {
+    "demoEmpfaenger": "WAEHREND-DER-EINFUEHRUNG-HIER-EINE-INTERNE-ADRESSE",
+    "signaturHtml": "<!-- Signatur HTML -->",
+    "rechtshinweisHtml": "<!-- Rechtshinweis HTML -->",
+    "absender": "POSTFACH@BEISPIEL-DOMAIN.de",
+    "supabaseBasis": "https://PROJEKT-KENNUNG.supabase.co",
+    "tabelle": "freigabe_eingang",
+    "_credentials": {
+      "Auftrag aus dem Cockpit": {
+        "httpHeaderAuth": {
+          "id": "ID-DER-WEBHOOK-ANMELDEDATEN",
+          "name": "SEIL Webhook-Header"
+        }
+      },
+      "Anschreiben senden (Graph)": {
+        "oAuth2Api": {
+          "id": "ID-DER-GRAPH-ANMELDEDATEN",
+          "name": "Microsoft Graph (SEIL)"
+        }
+      },
+      "In den Freigabe-Eingang legen": {
+        "httpHeaderAuth": {
+          "id": "ID-DER-DATENBANK-ANMELDEDATEN",
+          "name": "Supabase (SEIL) apikey"
+        }
+      }
+    }
   }
 }

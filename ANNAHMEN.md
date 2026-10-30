@@ -970,3 +970,20 @@ ist oeffentlich.
 bestsortierten Investoren vor, auch solche mit nachweislich falschem
 Standort. Jetzt gilt: Standort muss passen, fehlende Angaben sind erlaubt,
 nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
+
+72. **Transaktionsprozess im Cockpit.** Die sieben Stufen auf der Übersicht rechnen ausschließlich
+    mit Live-Werten: Dokument- und Prüfzahlen aus Modul 01 (WF 09), Treffer aus der
+    Investoren-Liveliste (WF 10). Stufen ohne Datenquelle stehen auf „wartet“ und bekommen keine
+    erfundene Zahl.
+73. **Abgleich über die ganze Liste.**  nimmt jetzt ein  entgegen; die
+    Prozessansicht fordert 2000 an, damit „x von 1362“ stimmt und nicht aus einem Ausschnitt
+    stammt. Der Standort ist das harte Kriterium; Assetklasse und Ticket verengen nur dort, wo die
+    Liste gepflegt ist (Stand 30.10.: 1314 von 1362 mit Region, 12 mit Ticket).
+74. **Freigabe-Eingang.** Tabelle  in Supabase, RLS aktiv und ohne Richtlinie:
+    der öffentliche Schlüssel kommt nicht heran. Das Cockpit hält keinen Datenbankzugang, es liest
+    und entscheidet über WF 11 mit demselben Header-Geheimnis wie bei Modul 01. Wer entschieden
+    hat, kommt aus dem Sitzungs-Cookie, nicht aus dem Browser.
+75. **Anschreiben aus dem Cockpit (WF 12).** Versand läuft weiterhin ausschließlich über das
+    SEIL-Postfach in n8n; Vercel bekommt keine Postfach-Zugangsdaten. Die Umleitung auf einen
+    Demo-Empfänger aus WF 05 gilt auch hier, und „sofort senden“ steht hinter einer zweiten
+    Bestätigung. Obergrenze 50 Empfänger je Auftrag.
