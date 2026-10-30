@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { NAMEN } from "@/lib/sitzung-token";
 import { TopNav } from "@/components/nav";
 import { Modul01Provider } from "@/components/modul01";
 import { SitzungsProvider } from "@/components/sitzung";
@@ -9,20 +10,6 @@ export const metadata: Metadata = {
   title: "SEIL Cockpit · Prototyp",
   description:
     "SEIL Cockpit (Modul 02) – visueller Frontend-Prototyp für Transaktionsberatung: Objekte, Investoren und Auftraggeber relational verknüpft. Klickdummy mit Demodaten, ohne Backend.",
-};
-
-/** Kuerzel aus der Anmeldung in den Namen uebersetzen, den das Team kennt. */
-const NAMEN: Record<string, string> = {
-  ms: "Maximilian Seil",
-  ng: "Nino Grubišić",
-  tp: "Tobias Pföhler",
-  ns: "Norman Schulz",
-  ab: "Amrit Brar",
-  ln: "Luca Niemann",
-  lk: "Lütfihan Karakas",
-  ml: "Max Lorenz",
-  ag: "Aylin Güven",
-  seil: "SEIL Team",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

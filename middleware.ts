@@ -1,78 +1,61 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { SITZUNG_COOKIE, sitzungPruefen, zugaenge } from "@/lib/sitzung-token";
 
 /**
- * Passwortschutz für das Cockpit.
+ * Zugangsschutz fürs Cockpit.
  *
- * Sobald das Cockpit echte Datenraum-Stände aus Modul 01 zeigt, darf es nicht
- * mehr offen im Netz stehen. Der Schutz ist bewusst durchlässig, wenn er nicht
- * konfiguriert ist: ohne COCKPIT_USER und COCKPIT_PASS verhält sich die Seite
- * wie bisher. So kann eine fehlende Variable die Demo nicht blockieren.
+ * Normalfall ist die Anmeldeseite mit Sitzungs-Cookie. Zusätzlich wird eine
+ * Basic-Auth-Kopfzeile akzeptiert, damit bestehende Lesezeichen und Prüfungen
+ * weiter funktionieren und niemand ausgesperrt ist, falls die Sitzung klemmt.
+ *
+ * Ohne hinterlegte Zugänge lässt die Middleware durch: eine fehlende
+ * Umgebungsvariable soll die Seite nicht unbrauchbar machen.
  */
-/** Persönliche Zugänge aus COCKPIT_LOGINS, Form {"kuerzel":"passwort"}. */
-function zugaenge(): Record<string, string> {
-  const roh = process.env.COCKPIT_LOGINS;
-  const liste: Record<string, string> = {};
-  if (roh) {
-    try {
-      const o: unknown = JSON.parse(roh);
-      if (o && typeof o === "object" && !Array.isArray(o)) {
-        for (const [k, v] of Object.entries(o as Record<string, unknown>)) liste[k] = String(v);
-      }
-    } catch {
-      // Eine kaputte Variable darf die Seite nicht sperren.
-    }
-  }
-  const b = process.env.COCKPIT_USER;
-  const p = process.env.COCKPIT_PASS;
-  if (b && p) liste[b] = p;
-  return liste;
-}
-
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const liste = zugaenge();
   if (Object.keys(liste).length === 0) return NextResponse.next();
 
-  const kopf = request.headers.get("authorization") ?? "";
-  if (kopf.startsWith("Basic ")) {
-    let entschluesselt = "";
-    try {
-      entschluesselt = atob(kopf.slice(6));
-    } catch {
-      entschluesselt = "";
-    }
-    const trenner = entschluesselt.indexOf(":");
-    if (trenner > 0) {
-      const b = entschluesselt.slice(0, trenner).toLowerCase();
-      const p = entschluesselt.slice(trenner + 1);
-      const soll = liste[b];
-      if (soll !== undefined && gleich(p, soll)) {
-        // Wer angemeldet ist, reicht die Middleware an die Seite weiter, damit
-        // die Kopfzeile den echten Namen zeigt statt einer gewaehlten Rolle.
-        const kopfzeilen = new Headers(request.headers);
-        kopfzeilen.set("x-seil-benutzer", b);
-        return NextResponse.next({ request: { headers: kopfzeilen } });
-      }
-    }
+  const pfad = request.nextUrl.pathname;
+  if (pfad === "/anmelden" || pfad.startsWith("/api/anmelden") || pfad.startsWith("/api/abmelden")) {
+    return NextResponse.next();
   }
 
-  return new NextResponse("Anmeldung erforderlich.", {
-    status: 401,
-    headers: {
-      "WWW-Authenticate": 'Basic realm="SEIL Cockpit", charset="UTF-8"',
-      "Cache-Control": "no-store",
-    },
-  });
+  const geheimnis = process.env.COCKPIT_SECRET ?? process.env.COCKPIT_PASS ?? "";
+  const ausCookie = await sitzungPruefen(request.cookies.get(SITZUNG_COOKIE)?.value, geheimnis);
+  const angemeldet = ausCookie ?? ausKopfzeile(request, liste);
+
+  if (angemeldet) {
+    const kopfzeilen = new Headers(request.headers);
+    kopfzeilen.set("x-seil-benutzer", angemeldet);
+    return NextResponse.next({ request: { headers: kopfzeilen } });
+  }
+
+  const ziel = new URL("/anmelden", request.url);
+  if (pfad !== "/") ziel.searchParams.set("weiter", pfad + request.nextUrl.search);
+  return NextResponse.redirect(ziel);
 }
 
-/** Vergleich ohne frühen Abbruch, damit die Laufzeit nichts über den Wert verrät. */
-function gleich(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
+/** Alte Basic-Auth-Kopfzeile, weiterhin gültig. */
+function ausKopfzeile(request: NextRequest, liste: Record<string, string>): string | null {
+  const kopf = request.headers.get("authorization") ?? "";
+  if (!kopf.startsWith("Basic ")) return null;
+  let entschluesselt = "";
+  try {
+    entschluesselt = atob(kopf.slice(6));
+  } catch {
+    return null;
+  }
+  const trenner = entschluesselt.indexOf(":");
+  if (trenner <= 0) return null;
+  const b = entschluesselt.slice(0, trenner).toLowerCase();
+  const p = entschluesselt.slice(trenner + 1);
+  const soll = liste[b];
+  if (soll === undefined || soll.length !== p.length) return null;
   let abweichung = 0;
-  for (let i = 0; i < a.length; i++) abweichung |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return abweichung === 0;
+  for (let i = 0; i < soll.length; i++) abweichung |= soll.charCodeAt(i) ^ p.charCodeAt(i);
+  return abweichung === 0 ? b : null;
 }
 
 export const config = {
-  // Statisches und Build-Artefakte bleiben frei, sonst lädt die Seite nicht.
   matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)"],
 };

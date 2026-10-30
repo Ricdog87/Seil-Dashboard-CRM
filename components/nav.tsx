@@ -87,8 +87,18 @@ export function TopNav({ benutzer }: { benutzer?: string }) {
         <span className="ml-auto inline-flex items-center gap-3">
           <BefehlsPalette />
           {benutzer ? (
-            <span className="hidden rounded-seil border border-seil-line bg-seil-card-alt px-2 py-0.5 text-kicker text-seil-body sm:inline">
-              Angemeldet: {benutzer}
+            <span className="hidden items-center gap-2 sm:inline-flex">
+              <span className="rounded-seil border border-seil-line bg-seil-card-alt px-2 py-0.5 text-kicker text-seil-body">
+                {benutzer}
+              </span>
+              <form action="/api/abmelden" method="post">
+                <button
+                  type="submit"
+                  className="rounded-seil border border-seil-line px-2 py-0.5 text-kicker text-seil-muted hover:border-seil-accent hover:text-seil-accent"
+                >
+                  Abmelden
+                </button>
+              </form>
             </span>
           ) : null}
           <span className={`hidden rounded-seil border px-2 py-0.5 text-kicker lg:inline ${abzeichen.echt ? "border-seil-accent text-seil-accent" : "border-seil-line bg-seil-card-alt text-seil-muted"}`}>
