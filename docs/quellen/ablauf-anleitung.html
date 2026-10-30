@@ -1,0 +1,327 @@
+<title>Vom Mandat zum Investor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* SEIL-CI, bewusst einfarbig dunkel wie das Cockpit: Rahmen statt Schatten,
+     ein Radius, ein Akzent. Aufbau: die Kette als Bild, dann acht Schritte,
+     dann Zahlen, Rollen, Lernfrage, Stand. */
+  :root {
+    --bg: #121214; --surface: #1a1a1e; --card: #232328; --card-alt: #2a2a31;
+    --line: #37373f; --fg: #f4f5f6; --body: #c2c6cc; --muted: #8a8f97;
+    --accent: #9daab8; --accent-dk: #748596;
+    --accent-bg: color-mix(in srgb, var(--accent) 12%, transparent);
+    --ok: #7fb894; --ok-bg: color-mix(in srgb, #7fb894 12%, transparent);
+    --warn: #c9a56b; --warn-bg: color-mix(in srgb, #c9a56b 14%, transparent);
+    --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --r: 6px;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--body); font-family: var(--font);
+    font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .rand {
+    max-width: 780px; margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  h1, h2, h3 { color: var(--fg); font-weight: 400; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.3rem); line-height: 1.15; letter-spacing: -0.02em; }
+  h2 { font-size: 1.2rem; letter-spacing: -0.01em; }
+  h3 { font-size: 0.98rem; font-weight: 500; }
+  p { margin: 0; }
+  b, em { font-style: normal; font-weight: 500; color: var(--fg); }
+  code { font-family: var(--mono); font-size: 0.86em; color: var(--fg);
+         background: var(--card-alt); border-radius: 3px; padding: 1px 5px; }
+  .kicker {
+    font-size: 0.69rem; font-weight: 500; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  header { padding-block: 44px 28px; border-bottom: 1px solid var(--line); }
+  header h1 { margin: 10px 0 14px; }
+  header .lead { max-width: 62ch; font-size: 1.03rem; }
+
+  section { padding-block: 34px; border-bottom: 1px solid var(--line); }
+  section:last-of-type { border-bottom: none; }
+  .kopf { margin-bottom: 20px; }
+  .kopf .kicker { display: block; margin-bottom: 6px; }
+  .kopf p { margin-top: 8px; max-width: 62ch; }
+
+  /* --- Die Kette als Bild ------------------------------------------------ */
+  .kette { display: grid; gap: 8px; }
+  .glied {
+    display: grid; grid-template-columns: 30px 1fr auto; gap: 0 14px; align-items: center;
+    border: 1px solid var(--line); border-radius: var(--r);
+    background: var(--card); padding: 11px 14px; min-width: 0;
+  }
+  .glied .nr {
+    font-variant-numeric: tabular-nums; color: var(--accent); font-weight: 500; font-size: 0.9rem;
+  }
+  .glied .was { min-width: 0; }
+  .glied .was b { display: block; }
+  .glied .was span { color: var(--muted); font-size: 0.88rem; }
+  .glied .wer {
+    font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--muted); border: 1px solid var(--line); border-radius: var(--r);
+    padding: 3px 8px; white-space: nowrap;
+  }
+  .glied.stopp { border-color: var(--warn); background: var(--warn-bg); }
+  .glied.stopp .nr, .glied.stopp .wer { color: var(--warn); border-color: var(--warn); }
+
+  /* --- Schritte ----------------------------------------------------------- */
+  ol.schritte { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; counter-reset: s; }
+  ol.schritte > li {
+    display: grid; grid-template-columns: 28px 1fr; gap: 0 16px;
+    padding-block: 18px; border-top: 1px solid var(--line); min-width: 0;
+  }
+  ol.schritte > li:first-child { border-top: none; padding-top: 2px; }
+  ol.schritte > li::before {
+    counter-increment: s; content: counter(s, decimal-leading-zero);
+    color: var(--accent); font-weight: 500; font-variant-numeric: tabular-nums; font-size: 0.9rem;
+  }
+  ol.schritte > li > div { min-width: 0; display: grid; gap: 7px; }
+
+  /* --- Zahlen ------------------------------------------------------------- */
+  .zahlen { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 10px; }
+  .zahl {
+    border: 1px solid var(--line); border-radius: var(--r); background: var(--card);
+    padding: 14px 15px; min-width: 0;
+  }
+  .zahl .wert { color: var(--fg); font-size: 1.65rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .zahl .was { color: var(--muted); font-size: 0.85rem; margin-top: 5px; }
+  .zahl.gut .wert { color: var(--ok); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.07em; text-transform: uppercase; }
+  td.n { font-variant-numeric: tabular-nums; color: var(--fg); white-space: nowrap; }
+  .scroll { overflow-x: auto; }
+
+  /* --- Rollen und Kästen --------------------------------------------------- */
+  .rollen { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+  .rolle {
+    border: 1px solid var(--line); border-radius: var(--r); background: var(--card);
+    padding: 16px 17px; min-width: 0; display: grid; gap: 8px; align-content: start;
+  }
+  .rolle .kicker { color: var(--accent); }
+
+  .kasten { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 16px 18px; }
+  .kasten.akzent { border-left: 3px solid var(--accent); background: var(--accent-bg); }
+  .kasten.gut { border-left: 3px solid var(--ok); background: var(--ok-bg); }
+  .kasten h3 { margin-bottom: 8px; }
+  .kasten + .kasten { margin-top: 11px; }
+
+  ul.schlicht { margin: 0; padding-left: 1.15em; display: grid; gap: 6px; }
+
+  .satz {
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    padding-block: 22px; margin-block: 4px;
+  }
+  .satz p { font-size: 1.22rem; color: var(--fg); line-height: 1.45; text-wrap: balance; max-width: 54ch; }
+
+  footer { padding-block: 26px 48px; color: var(--muted); font-size: 0.85rem; }
+  footer .rand { display: grid; gap: 6px; }
+
+  @media (max-width: 460px) {
+    .glied { grid-template-columns: 24px 1fr; gap: 0 10px; }
+    .glied .wer { grid-column: 2; justify-self: start; margin-top: 6px; }
+    ol.schritte > li { grid-template-columns: 24px 1fr; gap: 0 12px; }
+  }
+</style>
+
+<header>
+  <div class="rand">
+    <span class="kicker">SEIL Real Estate &middot; Modul 01 und Modul 02 &middot; Oktober 2026</span>
+    <h1>Vom Mandat zum Investor</h1>
+    <p class="lead">Wie ab sofort gearbeitet wird: ein Mandat, acht Schritte, ein einziger Stopp, an dem ein Mensch entscheidet. Alles l&auml;uft auf dem eigenen Server der SEIL Group, mit dem eigenen KI-Schl&uuml;ssel, nach der SOP vom 18.02.2026.</p>
+  </div>
+</header>
+
+<section>
+  <div class="rand">
+    <div class="kopf">
+      <span class="kicker">Der Weg im &Uuml;berblick</span>
+      <h2>Acht Glieder, ein Stopp</h2>
+      <p>Jedes Glied l&auml;sst sich von Hand &uuml;bersteuern. Die Automatik arbeitet zu, sie entscheidet nicht.</p>
+    </div>
+    <div class="kette">
+      <div class="glied"><span class="nr">01</span><span class="was"><b>Unterlagen kommen an</b><span>Im Mandatsordner, so wie sie sind</span></span><span class="wer">Backoffice</span></div>
+      <div class="glied"><span class="nr">02</span><span class="was"><b>Datenraum bauen</b><span>Erkennen, benennen, schw&auml;rzen, nummerieren</span></span><span class="wer">Modul 01</span></div>
+      <div class="glied"><span class="nr">03</span><span class="was"><b>Markiertes pr&uuml;fen</b><span>Nur Zweifelsf&auml;lle, Schw&auml;rzung freigeben</span></span><span class="wer">Backoffice</span></div>
+      <div class="glied"><span class="nr">04</span><span class="was"><b>Investoren finden</b><span>Abgleich gegen die Liveliste</span></span><span class="wer">Modul 02</span></div>
+      <div class="glied"><span class="nr">05</span><span class="was"><b>Ansprache vorbereiten</b><span>Entw&uuml;rfe, es geht nichts raus</span></span><span class="wer">Modul 02</span></div>
+      <div class="glied stopp"><span class="nr">06</span><span class="was"><b>Freigabe</b><span>Der einzige manuelle Stopp der Kette</span></span><span class="wer">Mensch</span></div>
+      <div class="glied"><span class="nr">07</span><span class="was"><b>Versand und Nachfassen</b><span>Presound, dann automatisch alle zwei Tage</span></span><span class="wer">Modul 02</span></div>
+      <div class="glied"><span class="nr">08</span><span class="was"><b>Antworten einsortieren</b><span>Interesse, Preisanfrage, Termin, Absage</span></span><span class="wer">Modul 02</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf">
+      <span class="kicker">Im Einzelnen</span>
+      <h2>Was in jedem Schritt passiert</h2>
+    </div>
+    <ol class="schritte">
+      <li><div>
+        <h3>Unterlagen kommen an</h3>
+        <p>Die Unterlagen des Verk&auml;ufers landen im Mandatsordner in OneDrive, unsortiert, chaotisch benannt, in beliebigen Unterordnern. Niemand r&auml;umt vorher auf. Das Original bleibt unver&auml;ndert liegen.</p>
+      </div></li>
+      <li><div>
+        <h3>Datenraum bauen</h3>
+        <p>Im Datenraum-Center drei Angaben: welches Objekt, welcher Quellordner, Light-Raum ja oder nein. Dann starten.</p>
+        <p>Die Engine liest jedes Dokument und erkennt <b>am Inhalt</b>, nie am Dateinamen, eine von zwanzig SOP-Kategorien. Sie benennt nach eurer Schreibweise, schw&auml;rzt Mieterdaten, im Light-Raum zus&auml;tzlich die Eigent&uuml;merdaten, und baut beide Datenr&auml;ume mit l&uuml;ckenloser Nummerierung.</p>
+      </div></li>
+      <li><div>
+        <h3>Markiertes pr&uuml;fen</h3>
+        <p>Die Engine r&auml;t nie. Ab 90 Prozent Sicherheit legt sie ab. Zwischen 60 und 90 legt sie ab und markiert zur Best&auml;tigung. Darunter landet das Dokument im Pr&uuml;fordner.</p>
+        <p>Euer Team sieht sich nur das Markierte an, best&auml;tigt oder korrigiert, und gibt die Schw&auml;rzung frei. <b>Erst danach gilt der Light-Raum als sauber.</b></p>
+      </div></li>
+      <li><div>
+        <h3>Investoren finden</h3>
+        <p>Die Automatik geht die Liveliste durch und pr&uuml;ft in dieser Reihenfolge: passt die Region, passt die Assetklasse, passt die Ticketspanne. Fehlt eine Angabe in der Liste, wird der Investor <b>nicht</b> aussortiert, sondern mit dem Hinweis vorgeschlagen, was fehlt.</p>
+        <p>Vorgeschlagen werden die besten f&uuml;nf, nicht alle. Eine Rundmail ist keine Ansprache.</p>
+      </div></li>
+      <li><div>
+        <h3>Ansprache vorbereiten</h3>
+        <p>Zu jedem Vorschlag entsteht ein Mailentwurf. Es geht nichts hinaus. Die Entw&uuml;rfe warten.</p>
+      </div></li>
+      <li><div>
+        <h3>Freigabe</h3>
+        <p>Ein Mitarbeiter sieht sich Liste und Entw&uuml;rfe an und gibt frei. Das ist der einzige manuelle Stopp, und er ist Absicht. Vor der Freigabe verl&auml;sst nichts das Haus.</p>
+      </div></li>
+      <li><div>
+        <h3>Versand und Nachfassen</h3>
+        <p>Nach der Freigabe geht die Presound-Mail aus <code>deals@seil.com</code> hinaus. Jede ausgehende Nachricht liegt danach im Ordner &bdquo;Gesendet&ldquo; dieses Postfachs, nachvollziehbar wie jede andere Mail.</p>
+        <p>Danach fasst die Automatik nach: alle zwei Tage, h&ouml;chstens drei Stufen, per E-Mail und WhatsApp. Stufe zwei fragt die Zielregionen ab.</p>
+      </div></li>
+      <li><div>
+        <h3>Antworten einsortieren</h3>
+        <p>Die Antworten laufen im Sammelpostfach auf. Die Automatik liest sie und sortiert nach dem Standardprozess: Interesse f&uuml;hrt zum Broker Call, eine Preisanfrage zum R&uuml;ckruf durch die Gesch&auml;ftsf&uuml;hrung und ausschlie&szlig;lich telefonisch, eine Absage f&auml;llt heraus. Terminw&uuml;nsche landen direkt im Kalender.</p>
+      </div></li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf">
+      <span class="kicker">Generalprobe 30.10.2026</span>
+      <h2>Was ein echter Datenraum ergeben hat</h2>
+      <p>Ein Lauf gegen einen echten Mandatsordner, nicht gegen einen aufger&auml;umten Testordner.</p>
+    </div>
+    <div class="zahlen">
+      <div class="zahl"><div class="wert">227</div><div class="was">Dokumente eingelesen</div></div>
+      <div class="zahl gut"><div class="wert">151</div><div class="was">automatisch abgelegt</div></div>
+      <div class="zahl"><div class="wert">101</div><div class="was">offene Pr&uuml;ff&auml;lle</div></div>
+      <div class="zahl"><div class="wert">24</div><div class="was">Duplikate erkannt</div></div>
+    </div>
+    <div class="kasten akzent" style="margin-top:14px">
+      <p>Zwei von drei Dokumenten waren ohne Zutun fertig abgelegt, benannt und geschw&auml;rzt. Die 24 Duplikate h&auml;tte von Hand vermutlich niemand gefunden. Geblieben ist die Entscheidung in den Grenzf&auml;llen &ndash; also genau das, wof&uuml;r man Menschen braucht.</p>
+      <p style="margin-top:8px">Die beiden Zahlen addieren sich nicht: Was mit mittlerer Sicherheit abgelegt wurde, ist bereits an seinem Platz und steht trotzdem zur Best&auml;tigung auf der Liste.</p>
+    </div>
+    <div class="scroll" style="margin-top:16px">
+      <table>
+        <tr><th>Lauf</th><th>Eingelesen</th><th>Automatisch abgelegt</th><th>Offene Pr&uuml;ff&auml;lle</th><th>Duplikate</th></tr>
+        <tr><td>Aufger&auml;umter Testordner</td><td class="n">63</td><td class="n">63</td><td class="n">9</td><td class="n">0</td></tr>
+        <tr><td>Echter Mandatsordner</td><td class="n">227</td><td class="n">151</td><td class="n">101</td><td class="n">24</td></tr>
+      </table>
+    </div>
+    <p class="kicker" style="margin-top:10px">Echte Datenr&auml;ume sind unordentlicher als Testordner. Mit mehr Pr&uuml;ff&auml;llen ist zu rechnen, und das ist richtig so: lieber einmal nachsehen als einmal falsch ablegen.</p>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf">
+      <span class="kicker">Im Alltag</span>
+      <h2>Was sich f&uuml;r wen &auml;ndert</h2>
+    </div>
+    <div class="rollen">
+      <div class="rolle">
+        <span class="kicker">Backoffice</span>
+        <p>Sortiert, benennt und nummeriert nicht mehr. Pr&uuml;ft nur noch das Markierte und gibt die Schw&auml;rzung frei. Hier liegt der gr&ouml;&szlig;te Zeitgewinn.</p>
+      </div>
+      <div class="rolle">
+        <span class="kicker">Vertrieb</span>
+        <p>Durchsucht die Investorenliste nicht mehr. Bekommt einen Vorschlag mit Begr&uuml;ndung je Investor, gibt frei und &uuml;bernimmt ab konkretem Interesse. Das Nachfassen l&auml;uft von selbst.</p>
+      </div>
+      <div class="rolle">
+        <span class="kicker">Gesch&auml;ftsf&uuml;hrung</span>
+        <p>Bekommt werkt&auml;glich um 8 Uhr einen Statusbericht. Preisanfragen kommen wie bisher telefonisch. Daran &auml;ndert sich bewusst nichts.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf">
+      <span class="kicker">H&auml;ufig gefragt</span>
+      <h2>Lernt das System mit?</h2>
+    </div>
+    <div class="kasten">
+      <h3>Nicht von allein &ndash; und das ist Absicht</h3>
+      <p>Die Engine ver&auml;ndert ihr Verhalten nicht im Hintergrund. Derselbe Ordner ergibt morgen dasselbe Ergebnis wie heute. Bei einem Prozess, der pr&uuml;fbar sein muss, ist das die wichtigere Eigenschaft: niemand muss erkl&auml;ren, warum ein Dokument vor drei Monaten anders einsortiert wurde.</p>
+    </div>
+    <div class="kasten gut">
+      <h3>Es lernt, wenn Sie es ihm sagen</h3>
+      <p>Jede Korrektur wird protokolliert, mit Zeitpunkt und Person. Zeigt sich ein Muster, also dieselbe Korrektur immer wieder, wird daraus eine Regel in der Konfiguration: eine Kategorie, eine Schreibweise, ein Beispiel. Ab diesem Moment gilt sie f&uuml;r <b>jeden</b> Datenraum, r&uuml;ckwirkend nachvollziehbar und jederzeit wieder &auml;nderbar.</p>
+      <p style="margin-top:8px">Das ist der Unterschied zwischen einem System, das sich unbemerkt verschiebt, und einem, das Sie steuern.</p>
+    </div>
+    <div class="kasten">
+      <h3>Und sp&auml;ter?</h3>
+      <p>Dass die Engine Korrekturen selbst auswertet und Vorschl&auml;ge daraus ableitet, ist der n&auml;chste Ausbauschritt. Die Daten daf&uuml;r entstehen ab heute, mit jedem Pr&uuml;ffall.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="satz">
+      <p>Die Fleißarbeit f&auml;llt weg, nicht das Urteil. Jeder Datenraum sieht gleich aus, egal wer ihn anlegt &ndash; und ein Investor findet jede Unterlage an derselben Stelle.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="rand">
+    <div class="kopf">
+      <span class="kicker">Stand 30.10.2026</span>
+      <h2>Was heute l&auml;uft und was noch nicht</h2>
+    </div>
+    <div class="kasten gut">
+      <h3>L&auml;uft produktiv</h3>
+      <ul class="schlicht">
+        <li>Datenraum bauen, benennen, schw&auml;rzen, nummerieren</li>
+        <li>Datenraum-Center mit Pr&uuml;fliste und Vorschau</li>
+        <li>Abgleich gegen die Investoren-Liveliste</li>
+        <li>Vorbereitung der Ansprache als Entwurf</li>
+        <li>Stand jedes Datenraums im Cockpit</li>
+        <li>Eigener Server, n&auml;chtliche Sicherung, l&uuml;ckenloses Protokoll</li>
+      </ul>
+    </div>
+    <div class="kasten">
+      <h3>Braucht noch Ihre Entscheidung</h3>
+      <ul class="schlicht">
+        <li><b>Versand und Nachfassen.</b> Technisch fertig, bewusst ausgeschaltet. Wird freigeschaltet, wenn Sie es wollen.</li>
+        <li><b>Feste Schreibweisen</b> f&uuml;r Geschoss und Lage, Wohnungsnummer, Flurst&uuml;ck.</li>
+        <li><b>Auswahl f&uuml;r den Light-Raum</b> nach SOP &sect;1.1: was Externe sehen d&uuml;rfen.</li>
+        <li><b>Dateiformate:</b> Word und Excel so behalten oder vorher in PDF wandeln.</li>
+        <li><b>Umgang mit dem Eingang:</b> Originale nach dem Lauf verschieben oder liegen lassen.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="rand">
+    <span>Modul 01 und Modul 02 laufen auf dem Server der SEIL Group in Deutschland. Dokumentinhalte werden nicht protokolliert, nur Pr&uuml;fsummen, Kategorien und Entscheidungen.</span>
+    <span>SEIL Real Estate GmbH &times; RSG AI &middot; Ricardo Serrano &middot; r.serrano@recruiting-sg.de</span>
+  </div>
+</footer>

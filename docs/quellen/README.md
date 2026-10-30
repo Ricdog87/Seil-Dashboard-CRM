@@ -12,6 +12,7 @@ verloren gegangen, weil sie nur im temporären Verzeichnis lagen.
 | `SEIL-Automatik-Kette-Onepager.pdf` | `automatik-kette-onepager.html` |
 | `SEIL-Anbindung-Donnerstag.pdf` | `anbindung-donnerstag.html` |
 | `SEIL-IT-Checkliste.pdf` | `it-checkliste.html` (Skala 0.71, drei Seiten) |
+| `SEIL-Ablauf-Anleitung.pdf` | `ablauf-anleitung.html` (Skala 0.80) |
 
 Nur `SEIL-Cockpit-Anleitung.pdf` stammt noch aus einer Zeit ohne abgelegte Quelle.
 
