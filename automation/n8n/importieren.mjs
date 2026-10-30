@@ -44,6 +44,19 @@ function koerper(roh) {
 function konfigurieren(werk, eintraege) {
   const gesetzt = [];
   if (!eintraege) return gesetzt;
+
+  // Zugangsdateien je Knoten, damit nichts von Hand in der Oberflaeche
+  // gesetzt werden muss. Form: { "_credentials": { "<Knoten>": { ... } } }
+  const zugaenge = eintraege._credentials ?? {};
+  for (const [knotenName, eintrag] of Object.entries(zugaenge)) {
+    const knoten = (werk.nodes ?? []).find((k) => k.name === knotenName);
+    if (knoten === undefined) {
+      throw new Error(`Konfiguration nennt den Knoten "${knotenName}", den es im Workflow nicht gibt.`);
+    }
+    knoten.credentials = { ...(knoten.credentials ?? {}), ...eintrag };
+    gesetzt.push(`Zugang:${knotenName}`);
+  }
+
   for (const knoten of werk.nodes ?? []) {
     for (const zu of knoten.parameters?.assignments?.assignments ?? []) {
       if (!(zu.name in eintraege)) continue;
@@ -52,7 +65,10 @@ function konfigurieren(werk, eintraege) {
       gesetzt.push(zu.name);
     }
   }
-  const fehlend = Object.keys(eintraege).filter((f) => !gesetzt.includes(f));
+
+  const fehlend = Object.keys(eintraege).filter(
+    (f) => f !== "_credentials" && !gesetzt.includes(f),
+  );
   if (fehlend.length > 0) {
     throw new Error(`Konfiguration nennt Felder, die es im Workflow nicht gibt: ${fehlend.join(", ")}`);
   }

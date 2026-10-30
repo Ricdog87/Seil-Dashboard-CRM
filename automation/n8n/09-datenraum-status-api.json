@@ -38,23 +38,12 @@
       }
     },
     {
-      "id": "noop-09",
-      "name": "Ablage datenraum_status lesen (Data Table / DB)",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        420,
-        480
-      ],
-      "parameters": {}
-    },
-    {
       "id": "code-09",
       "name": "Antwort im Cockpit-Vertrag bauen",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        680,
+        1140,
         480
       ],
       "parameters": {
@@ -67,13 +56,77 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        940,
+        1320,
         480
       ],
       "parameters": {
         "respondWith": "firstIncomingItem",
         "options": {}
       }
+    },
+    {
+      "parameters": {
+        "url": "http://engine:3000/qc/api/laeufe",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "timeout": 8000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        420,
+        480
+      ],
+      "id": "wf09-laeufe",
+      "name": "Läufe von Modul 01 holen",
+      "notes": "Liest die Lauf-Liste der Engine im Docker-Netz. Basic Auth mit QC_USER/QC_PASS, Zugangsdatei wird beim Import gesetzt.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lauf-Liste der Engine in einzelne Elemente auftrennen.\nconst roh = $input.first().json;\nconst laeufe = Array.isArray(roh.laeufe) ? roh.laeufe : [];\nif (laeufe.length === 0) return [];\nreturn laeufe.map((lauf) => ({ json: { lauf } }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        480
+      ],
+      "id": "wf09-split",
+      "name": "Läufe auftrennen"
+    },
+    {
+      "parameters": {
+        "url": "=http://engine:3000/qc/api/lauf/{{ encodeURIComponent($json.lauf) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "timeout": 8000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        780,
+        480
+      ],
+      "id": "wf09-detail",
+      "name": "Stand je Lauf holen"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lauf-Übersicht von Modul 01 auf den Cockpit-Vertrag abbilden.\n// Die Engine liefert Prüffälle (eintraege) und Kennzahlen (kpi), keine\n// vollständige Dokumentliste. Entsprechend werden nur Prüffälle als\n// Dokumente gemeldet; die Mengen stehen in den Kennwerten.\nconst jetzt = new Date().toISOString();\nreturn $input.all().map((i) => {\n  const u = i.json ?? {};\n  const eintraege = Array.isArray(u.eintraege) ? u.eintraege : [];\n  const dokumente = eintraege.map((e) => ({\n    name: e.anzeige ?? e.datei ?? 'unbenannt',\n    status: e.art === 'review' ? 'in_pruefung' : 'unklar',\n  }));\n  const k = u.kpi ?? null;\n  const kennwerte = k === null ? [] : [\n    { feld: 'verarbeitet', wert: String(k.verarbeitet ?? 0), quelle: 'Modul 01' },\n    { feld: 'abgelegt', wert: String(k.abgelegt ?? 0), quelle: 'Modul 01' },\n    { feld: 'zu bestätigen', wert: String(k.qc ?? 0), quelle: 'Modul 01' },\n    { feld: 'in Prüfung', wert: String(k.review ?? 0), quelle: 'Modul 01' },\n    { feld: 'Duplikate', wert: String(k.duplikate ?? 0), quelle: 'Modul 01' },\n    { feld: 'offen', wert: String(k.offen ?? 0), quelle: 'Modul 01', pruefstatus: 'pruefen' },\n  ];\n  return { json: { objektId: null, objektName: u.lauf ?? null, stand: jetzt,\n                   dokumente, kennwerte, freigaben: [] } };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        480
+      ],
+      "id": "wf09-map",
+      "name": "Läufe → Cockpit-Zeilen"
     }
   ],
   "connections": {
@@ -81,18 +134,7 @@
       "main": [
         [
           {
-            "node": "Ablage datenraum_status lesen (Data Table / DB)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ablage datenraum_status lesen (Data Table / DB)": {
-      "main": [
-        [
-          {
-            "node": "Antwort im Cockpit-Vertrag bauen",
+            "node": "Läufe von Modul 01 holen",
             "type": "main",
             "index": 0
           }
@@ -104,6 +146,50 @@
         [
           {
             "node": "JSON antworten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Läufe von Modul 01 holen": {
+      "main": [
+        [
+          {
+            "node": "Läufe auftrennen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Läufe auftrennen": {
+      "main": [
+        [
+          {
+            "node": "Stand je Lauf holen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stand je Lauf holen": {
+      "main": [
+        [
+          {
+            "node": "Läufe → Cockpit-Zeilen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Läufe → Cockpit-Zeilen": {
+      "main": [
+        [
+          {
+            "node": "Antwort im Cockpit-Vertrag bauen",
             "type": "main",
             "index": 0
           }

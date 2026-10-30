@@ -11,5 +11,27 @@
       "sweetspot": "<Spalte mit der Ticketspanne, Form 1000000-10000000>",
       "letzteAnkaeufe": "<Spalte mit den letzten Ankaeufen>"
     }
+  },
+  "09-datenraum-status-api.json": {
+    "_credentials": {
+      "Datenraum-Status abrufen": {
+        "httpHeaderAuth": {
+          "id": "<ID der n8n-Zugangsdatei>",
+          "name": "Seil Webhook Secret"
+        }
+      },
+      "Läufe von Modul 01 holen": {
+        "httpBasicAuth": {
+          "id": "<ID der n8n-Zugangsdatei>",
+          "name": "Datenraum-Center (QC)"
+        }
+      },
+      "Stand je Lauf holen": {
+        "httpBasicAuth": {
+          "id": "<ID der n8n-Zugangsdatei>",
+          "name": "Datenraum-Center (QC)"
+        }
+      }
+    }
   }
 }
