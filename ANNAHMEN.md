@@ -975,11 +975,11 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     mit Live-Werten: Dokument- und Prüfzahlen aus Modul 01 (WF 09), Treffer aus der
     Investoren-Liveliste (WF 10). Stufen ohne Datenquelle stehen auf „wartet“ und bekommen keine
     erfundene Zahl.
-73. **Abgleich über die ganze Liste.**  nimmt jetzt ein  entgegen; die
+73. **Abgleich über die ganze Liste.** `/api/investoren` nimmt jetzt ein `limit` entgegen; die
     Prozessansicht fordert 2000 an, damit „x von 1362“ stimmt und nicht aus einem Ausschnitt
     stammt. Der Standort ist das harte Kriterium; Assetklasse und Ticket verengen nur dort, wo die
     Liste gepflegt ist (Stand 30.10.: 1314 von 1362 mit Region, 12 mit Ticket).
-74. **Freigabe-Eingang.** Tabelle  in Supabase, RLS aktiv und ohne Richtlinie:
+74. **Freigabe-Eingang.** Tabelle `freigabe_eingang` in Supabase, RLS aktiv und ohne Richtlinie:
     der öffentliche Schlüssel kommt nicht heran. Das Cockpit hält keinen Datenbankzugang, es liest
     und entscheidet über WF 11 mit demselben Header-Geheimnis wie bei Modul 01. Wer entschieden
     hat, kommt aus dem Sitzungs-Cookie, nicht aus dem Browser.
