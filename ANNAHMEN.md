@@ -854,3 +854,17 @@ Ausdruecken standardmaessig. Ihn zu oeffnen haette jedem, der Workflows
 bearbeiten darf, auch das Datenbankpasswort und den Verschluesselungsschluessel
 zugaenglich gemacht. Die Konfigurationsdatei loest dasselbe Problem, ohne diese
 Rechte aufzuweichen.
+
+## 67. Das Cockpit bekommt einen Passwortschutz
+
+Das Cockpit war bis zum 30.10. ohne Anmeldung oeffentlich erreichbar. Solange
+es reine Demodaten zeigt, ist das vertretbar. Sobald es echte Datenraum-Staende
+aus Modul 01 anzeigt, waere es die Veroeffentlichung von Mandatsdaten.
+
+Deshalb gibt es jetzt eine Middleware mit HTTP-Basic-Auth, gesteuert ueber
+`COCKPIT_USER` und `COCKPIT_PASS`. Sind beide nicht gesetzt, laesst die
+Middleware durch. Das ist Absicht: eine fehlende Variable soll die Seite nicht
+blockieren, sondern sie auf den bisherigen Stand zuruecksetzen.
+
+Das ist eine Zwischenloesung fuer die Uebergabe, kein Benutzerkonzept. Ein
+richtiger Login mit Rollen gehoert zur Cockpit-Ausbaustufe mit Datenbank.
