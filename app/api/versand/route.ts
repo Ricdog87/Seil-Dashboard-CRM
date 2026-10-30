@@ -148,6 +148,17 @@ export async function POST(request: Request): Promise<NextResponse> {
         durch,
         text: `${geschrieben.length} Anschreiben zur Freigabe gegeben: „${b.betreff!.trim()}“`,
       });
+      // Und je Empfaenger eine Zeile mit Kennung - sonst findet die Kundenakte
+      // das Anschreiben nur ueber den Firmennamen.
+      for (const e of empfaenger) {
+        await protokoll({
+          mandat: b.objekt ?? null,
+          investorId: e.id,
+          art: "versand",
+          durch,
+          text: `Anschreiben zur Freigabe gegeben: „${b.betreff!.trim()}“`,
+        });
+      }
       return NextResponse.json({
         ok: true,
         anzahl: geschrieben.length,

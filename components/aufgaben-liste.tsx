@@ -15,13 +15,17 @@ import type { Aufgabenliste } from "@/app/api/aufgaben/route";
 export function AufgabenListe({
   mandat,
   zustaendig,
+  investorId,
   titel,
   kompakt = false,
+  ohneKopf = false,
 }: {
   mandat?: string;
   zustaendig?: string;
+  investorId?: string;
   titel: string;
   kompakt?: boolean;
+  ohneKopf?: boolean;
 }) {
   const [stand, setStand] = useState<Aufgabenliste | null>(null);
   const [neu, setNeu] = useState("");
@@ -35,13 +39,14 @@ export function AufgabenListe({
     const q = new URLSearchParams();
     if (mandat) q.set("mandat", mandat);
     if (zustaendig) q.set("zustaendig", zustaendig);
+    if (investorId) q.set("investor", investorId);
     try {
       const r = await fetch(`/api/aufgaben?${q}`, { cache: "no-store" });
       setStand((await r.json()) as Aufgabenliste);
     } catch {
       // naechster Versuch holt es nach
     }
-  }, [mandat, zustaendig]);
+  }, [mandat, zustaendig, investorId]);
 
   useEffect(() => {
     void holen();
@@ -59,6 +64,7 @@ export function AufgabenListe({
         body: JSON.stringify({
           titel: t,
           objekt: mandat ?? null,
+          investorId: investorId ?? null,
           zustaendig: wer || null,
           faellig: faellig || null,
         }),
@@ -101,7 +107,7 @@ export function AufgabenListe({
 
   return (
     <section className={kompakt ? "" : "mt-5"}>
-      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+      <div className={`mb-2 flex flex-wrap items-baseline justify-between gap-2 ${ohneKopf ? "hidden" : ""}`}>
         <h2 className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
           {titel} {offen.length > 0 ? `· ${offen.length} offen` : ""}
           {ueberfaellig > 0 ? (

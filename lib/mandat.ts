@@ -69,7 +69,8 @@ export interface Aufgabe {
 
 export interface Notiz {
   id: string;
-  objekt: string;
+  objekt: string | null;
+  investorId?: string | null;
   text: string;
   autor: string | null;
   erstellt: string | null;

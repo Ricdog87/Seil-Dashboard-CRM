@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { NAMEN, PERSONEN } from "@/lib/sitzung-token";
 import {
   ARTEN,
@@ -26,6 +27,7 @@ import type { Kundenliste } from "@/app/api/kunden/route";
  * sie sind als „im Cockpit angelegt“ erkennbar.
  */
 export function KundenListe({ kuerzel }: { kuerzel: string }) {
+  const router = useRouter();
   const [stand, setStand] = useState<Kundenliste | null>(null);
   const [suche, setSuche] = useState("");
   const [art, setArt] = useState<"alle" | Art>("alle");
@@ -33,7 +35,6 @@ export function KundenListe({ kuerzel }: { kuerzel: string }) {
   const [nurMeine, setNurMeine] = useState(false);
   const [laeuft, setLaeuft] = useState(true);
   const [fehler, setFehler] = useState<string | null>(null);
-  const [speichert, setSpeichert] = useState<string | null>(null);
   const [anlegen, setAnlegen] = useState(false);
   const [neu, setNeu] = useState({ firma: "", ansprechpartner: "", email: "", art: "interessent" as Art });
 
@@ -58,36 +59,6 @@ export function KundenListe({ kuerzel }: { kuerzel: string }) {
     const t = setTimeout(() => void holen(suche.trim()), suche ? 350 : 0);
     return () => clearTimeout(t);
   }, [holen, suche]);
-
-  async function pflegen(k: KundeAnsicht, aenderung: Partial<KundeAnsicht>) {
-    setSpeichert(k.id);
-    setFehler(null);
-    setStand((s) =>
-      s ? { ...s, kunden: s.kunden.map((x) => (x.id === k.id ? { ...x, ...aenderung } : x)) } : s,
-    );
-    try {
-      const r = await fetch("/api/kunden", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: k.id,
-          firma: k.firma,
-          ansprechpartner: k.ansprechpartner,
-          email: k.email,
-          ...aenderung,
-        }),
-      });
-      const a = (await r.json()) as { ok?: boolean; grund?: string };
-      if (!a.ok) throw new Error(a.grund ?? "nicht gespeichert");
-    } catch (e) {
-      setFehler(
-        `„${k.firma}" konnte nicht gespeichert werden: ${e instanceof Error ? e.message : "unbekannt"}`,
-      );
-      await holen(suche.trim());
-    } finally {
-      setSpeichert(null);
-    }
-  }
 
   async function neuAnlegen() {
     const f = neu.firma.trim();
@@ -275,68 +246,49 @@ export function KundenListe({ kuerzel }: { kuerzel: string }) {
               </tr>
             ) : (
               sichtbar.slice(0, 200).map((k) => (
-                <tr key={k.id} className="border-t border-seil-line hover:bg-seil-card-alt">
-                  <td className="px-3 py-2">
+                <tr
+                  key={k.id}
+                  onClick={() => router.push(`/kunden/${encodeURIComponent(k.id)}`)}
+                  className="cursor-pointer border-t border-seil-line transition-colors hover:bg-seil-card-alt"
+                >
+                  <td className="px-3 py-2.5">
                     <Link
                       href={`/kunden/${encodeURIComponent(k.id)}`}
-                      className="text-seil-text hover:text-seil-accent hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-seil-text hover:text-seil-accent"
                     >
                       {k.firma}
                     </Link>
                     {k.herkunft === "cockpit" ? (
-                      <div className="text-kicker text-seil-muted">im Cockpit angelegt</div>
+                      <span className="ml-2 rounded-seil border border-seil-line px-1.5 text-[10px] text-seil-muted">Cockpit</span>
                     ) : null}
                   </td>
-                  <td className="px-3 py-2 text-seil-body">
-                    {k.ansprechpartner ?? "—"}
+                  <td className="px-3 py-2.5 text-seil-body">
+                    {k.ansprechpartner ?? <span className="text-seil-muted">—</span>}
                     {k.email ? <div className="text-kicker text-seil-muted">{k.email}</div> : null}
                   </td>
-                  <td className="px-3 py-2 text-seil-body">{k.regionen.join(", ") || "—"}</td>
-                  <td className="px-3 py-2">
-                    <select
-                      value={k.art}
-                      disabled={speichert === k.id}
-                      onChange={(e) => void pflegen(k, { art: e.target.value as Art })}
-                      aria-label={`Art von ${k.firma}`}
-                      className="rounded-seil border border-seil-line bg-seil-surface px-2 py-0.5 text-kicker text-seil-body"
-                    >
-                      {ARTEN.map((a) => (
-                        <option key={a} value={a}>
-                          {ART_LABEL[a]}
-                        </option>
-                      ))}
-                    </select>
+                  <td className="px-3 py-2.5 text-seil-body">{k.regionen.join(", ") || <span className="text-seil-muted">—</span>}</td>
+                  <td className="px-3 py-2.5">
+                    <span className="rounded-seil border border-seil-line bg-seil-card-alt px-2 py-0.5 text-kicker text-seil-body">
+                      {ART_LABEL[k.art]}
+                    </span>
                   </td>
-                  <td className="px-3 py-2">
-                    <select
-                      value={k.stufe}
-                      disabled={speichert === k.id}
-                      onChange={(e) => void pflegen(k, { stufe: e.target.value as Stufe })}
-                      aria-label={`Stufe von ${k.firma}`}
-                      className={`rounded-seil border bg-seil-surface px-2 py-0.5 text-kicker ${STUFE_TON[k.stufe]}`}
-                    >
-                      {STUFEN.map((s) => (
-                        <option key={s} value={s}>
-                          {STUFE_LABEL[s]}
-                        </option>
-                      ))}
-                    </select>
+                  <td className="px-3 py-2.5">
+                    <span className={`rounded-seil border px-2 py-0.5 text-kicker ${STUFE_TON[k.stufe]}`}>
+                      {STUFE_LABEL[k.stufe]}
+                    </span>
                   </td>
-                  <td className="px-3 py-2">
-                    <select
-                      value={k.betreuer ?? ""}
-                      disabled={speichert === k.id}
-                      onChange={(e) => void pflegen(k, { betreuer: e.target.value || null })}
-                      aria-label={`Betreuer von ${k.firma}`}
-                      className="rounded-seil border border-seil-line bg-seil-surface px-2 py-0.5 text-kicker text-seil-body"
-                    >
-                      <option value="">—</option>
-                      {Object.entries(PERSONEN).map(([ku, n]) => (
-                        <option key={ku} value={ku}>
-                          {n}
-                        </option>
-                      ))}
-                    </select>
+                  <td className="px-3 py-2.5 text-seil-body">
+                    {k.betreuer ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-seil-line bg-seil-card-alt text-[10px] uppercase text-seil-body">
+                          {k.betreuer}
+                        </span>
+                        {NAMEN[k.betreuer] ?? k.betreuer}
+                      </span>
+                    ) : (
+                      <span className="text-seil-muted">—</span>
+                    )}
                   </td>
                 </tr>
               ))
@@ -351,8 +303,8 @@ export function KundenListe({ kuerzel }: { kuerzel: string }) {
         </p>
       ) : null}
       <p className="mt-2 text-kicker leading-relaxed text-seil-muted">
-        Stammdaten kommen aus der Investorenliste in OneDrive und werden dort gepflegt. Art, Stufe,
-        Betreuer und Notizen stehen im Cockpit – die Excel bleibt unverändert.
+        Klick auf eine Zeile öffnet die Kundenakte mit der vollständigen Historie. Stammdaten kommen
+        aus der Investorenliste in OneDrive; Art, Stufe und Betreuer werden in der Akte gepflegt.
       </p>
     </section>
   );

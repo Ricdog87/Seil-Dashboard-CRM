@@ -6,7 +6,7 @@ import { fmtZeitpunkt } from "@/lib/mandat";
 import type { Notizenliste } from "@/app/api/notizen/route";
 
 /** Notizen zum Mandat – was zwischen den Schritten passiert ist. */
-export function NotizenListe({ mandat }: { mandat: string }) {
+export function NotizenListe({ mandat, investorId, kompakt = false }: { mandat?: string; investorId?: string; kompakt?: boolean }) {
   const [stand, setStand] = useState<Notizenliste | null>(null);
   const [text, setText] = useState("");
   const [laeuft, setLaeuft] = useState(false);
@@ -14,12 +14,13 @@ export function NotizenListe({ mandat }: { mandat: string }) {
 
   const holen = useCallback(async () => {
     try {
-      const r = await fetch(`/api/notizen?mandat=${encodeURIComponent(mandat)}`, { cache: "no-store" });
+      const q = mandat ? `mandat=${encodeURIComponent(mandat)}` : `investor=${encodeURIComponent(investorId ?? "")}`;
+      const r = await fetch(`/api/notizen?${q}`, { cache: "no-store" });
       setStand((await r.json()) as Notizenliste);
     } catch {
       // naechster Versuch
     }
-  }, [mandat]);
+  }, [mandat, investorId]);
 
   useEffect(() => {
     void holen();
@@ -34,7 +35,7 @@ export function NotizenListe({ mandat }: { mandat: string }) {
       const r = await fetch("/api/notizen", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mandat, text: t }),
+        body: JSON.stringify({ mandat: mandat ?? null, investorId: investorId ?? null, text: t }),
       });
       const a = (await r.json()) as { ok?: boolean; grund?: string };
       if (!a.ok) throw new Error(a.grund ?? "nicht gespeichert");
@@ -50,10 +51,12 @@ export function NotizenListe({ mandat }: { mandat: string }) {
   const notizen = stand?.notizen ?? [];
 
   return (
-    <section className="mt-5">
-      <h2 className="mb-2 text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
-        Notizen
-      </h2>
+    <section className={kompakt ? "" : "mt-5"}>
+      {kompakt ? null : (
+        <h2 className="mb-2 text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
+          Notizen
+        </h2>
+      )}
       {fehler ? (
         <p className="mb-2 rounded-[var(--seil-radius)] border border-seil-danger px-3 py-2 text-kicker text-seil-danger">
           {fehler}

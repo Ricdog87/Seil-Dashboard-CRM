@@ -52,6 +52,8 @@ export async function GET(request: Request): Promise<NextResponse<Aufgabenliste>
   const mandat = q.get("mandat");
   const zustaendig = q.get("zustaendig");
   if (mandat) teile.push(`objekt=eq.${encodeURIComponent(mandat)}`);
+  const investor = q.get("investor");
+  if (investor) teile.push(`investor_id=eq.${encodeURIComponent(investor)}`);
   if (zustaendig) teile.push(`zustaendig=eq.${encodeURIComponent(zustaendig)}`);
   if (q.get("offen") === "1") teile.push("erledigt=is.false");
 

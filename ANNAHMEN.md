@@ -1085,3 +1085,16 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     den Zuständigen des Mandats, fällig in ein bis zwei Tagen, `quelle = 'prozess'`. Nur beim
     Wechsel, nicht beim erneuten Speichern, und nicht, wenn dieselbe Aufgabe offen schon da ist.
     Eine nicht angelegte Aufgabe rollt den Stufenwechsel nicht zurück.
+
+98. **Die Kundenakte.** Aufgebaut wie eine Akte, nicht wie ein Formular: Kopf mit Art, Stufe,
+    Betreuer und den fünf Fakten, die man im Gespräch braucht; links die Historie als Zeitleiste –
+    Anschreiben, Freigaben, Stufenwechsel, Aufgaben, Notizen zu genau diesem Kunden, nach Tagen
+    gruppiert; rechts Details und Ankaufsprofil. `/api/historie` sammelt dafür aus vier Tabellen
+    und sortiert serverseitig. Vorher zeigte die Kundenseite den globalen Verlauf – Einträge zu
+    anderen Kunden unter fremdem Namen. Das war falsch und ist behoben.
+99. **Spur je Empfänger.** Versand und Freigabe schreiben zusätzlich zur Mandatszeile eine Zeile
+    je Investor mit Kennung, sonst fände die Akte das Anschreiben nur über den Firmennamen.
+    Notizen und Aufgaben hängen wahlweise am Mandat oder am Kunden (`investor_id`).
+100. **Die Liste ist zum Finden, die Akte zum Pflegen.** In der Kundenliste stehen Art, Stufe und
+    Betreuer als Badges, nicht als Auswahlfelder; ein Klick auf die Zeile öffnet die Akte. Eine
+    Tabelle mit tausend Dropdowns ist keine Übersicht.
