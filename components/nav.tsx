@@ -19,7 +19,13 @@ const punkte = [
 export function TopNav() {
   const pathname = usePathname();
   const { modus } = useModul01();
-  const live = modus === "live";
+  // Das Abzeichen muss sagen, was AUF DIESER SEITE steht, nicht ob irgendeine
+  // Verbindung lebt. Sonst behauptet es "live" ueber erfundene Investoren.
+  const abzeichen = pathname.startsWith("/investoren")
+    ? { text: "Live · OneDrive", echt: true }
+    : pathname === "/"
+      ? { text: modus === "live" ? "Teils live · teils Demo" : "Demodaten", echt: modus === "live" }
+      : { text: "Demodaten", echt: false };
   const { aufgabenPatches, signalErledigt } = useSitzung();
 
   // Live-Zähler: hängen am Sitzungszustand und sinken beim Abhaken/Triagieren mit.
@@ -82,8 +88,8 @@ export function TopNav() {
         <span className="ml-auto inline-flex items-center gap-3">
           <BefehlsPalette />
           <ArbeitenAls />
-          <span className="hidden rounded-seil border border-seil-line bg-seil-card-alt px-2 py-0.5 text-kicker text-seil-muted lg:inline">
-            {live ? "Live · OneDrive" : "Teilweise Demodaten"}
+          <span className={`hidden rounded-seil border px-2 py-0.5 text-kicker lg:inline ${abzeichen.echt ? "border-seil-accent text-seil-accent" : "border-seil-line bg-seil-card-alt text-seil-muted"}`}>
+            {abzeichen.text}
           </span>
         </span>
       </div>
