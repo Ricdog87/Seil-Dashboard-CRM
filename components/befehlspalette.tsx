@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
-import { Building2, ClipboardList, LayoutDashboard, Megaphone, Search, Users } from "lucide-react";
-import { aufgaben, investoren, objekte } from "@/lib/mock-data";
+import { Building2, FolderOpen, LayoutDashboard, Search, Stamp, Users } from "lucide-react";
 import { ICON_SM, ICON_STROKE, Input } from "@/components/ui";
+import type { LiveInvestoren } from "@/app/api/investoren/route";
+import type { Modul01Stand } from "@/lib/modul01";
 
 interface Treffer {
   id: string;
@@ -16,50 +17,28 @@ interface Treffer {
   href: string;
 }
 
-/** Suchraum: Objekte, Investoren, offene Aufgaben und die drei Bereiche. */
-function alleTreffer(): Treffer[] {
-  return [
-    { id: "p1", gruppe: "Bereiche", icon: LayoutDashboard, titel: "Übersicht", href: "/" },
-    { id: "p2", gruppe: "Bereiche", icon: Megaphone, titel: "Vermarktung", href: "/vermarktung" },
-    { id: "p3", gruppe: "Bereiche", icon: ClipboardList, titel: "Aufgaben", href: "/aufgaben" },
-    ...objekte.map((o) => ({
-      id: o.id,
-      gruppe: "Objekte",
-      icon: Building2,
-      titel: o.name,
-      detail: `${o.assetklasse} · ${o.stadt}`,
-      href: `/objekte/${o.id}`,
-    })),
-    ...investoren.map((i) => ({
-      id: i.id,
-      gruppe: "Investoren",
-      icon: Users,
-      titel: i.firma,
-      detail: `${i.typ} · ${i.ansprechpartner}`,
-      href: `/investoren/${i.id}`,
-    })),
-    ...aufgaben
-      .filter((t) => !t.erledigt)
-      .map((t) => ({
-        id: t.id,
-        gruppe: "Offene Aufgaben",
-        icon: ClipboardList,
-        titel: t.titel,
-        href: "/aufgaben",
-      })),
-  ];
-}
+const BEREICHE: Treffer[] = [
+  { id: "b1", gruppe: "Bereiche", icon: LayoutDashboard, titel: "Übersicht", href: "/" },
+  { id: "b2", gruppe: "Bereiche", icon: Stamp, titel: "Freigaben", href: "/freigaben" },
+  { id: "b3", gruppe: "Bereiche", icon: Users, titel: "Investoren", href: "/investoren" },
+];
 
 /**
- * Globale Suche des Cockpits: öffnet mit Cmd/Ctrl+K (oder über den Such-Knopf
- * in der Kopfleiste), findet Objekte, Investoren und Aufgaben, navigiert per
- * Enter. Bewusst ohne Schatten und Verlauf – Rahmen auf abgedunkeltem Grund.
+ * Die Suche des Cockpits – über die echten Kunden, nicht über Beispiele.
+ *
+ * Gesucht wird dort, wo die Daten leben: der Investorenname geht an die
+ * Liveliste in OneDrive, die Datenräume kommen aus Modul 01. Die Liste ist zu
+ * groß, um sie in den Browser zu laden, deshalb sucht der Server mit – mit
+ * kurzer Verzögerung, damit nicht jeder Tastendruck eine Abfrage auslöst.
  */
 export function BefehlsPalette() {
   const router = useRouter();
   const [offen, setOffen] = useState(false);
   const [frage, setFrage] = useState("");
   const [aktiv, setAktiv] = useState(0);
+  const [investoren, setInvestoren] = useState<LiveInvestoren | null>(null);
+  const [raeume, setRaeume] = useState<Modul01Stand | null>(null);
+  const [sucht, setSucht] = useState(false);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -75,14 +54,61 @@ export function BefehlsPalette() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Datenräume einmal beim Öffnen – es sind wenige, die passen in den Browser.
+  useEffect(() => {
+    if (!offen || raeume) return;
+    fetch("/api/modul01/status", { cache: "no-store" })
+      .then((r) => r.json() as Promise<Modul01Stand>)
+      .then(setRaeume)
+      .catch(() => undefined);
+  }, [offen, raeume]);
+
+  // Investoren sucht der Server: 1362 Einträge gehören nicht in den Browser.
+  useEffect(() => {
+    if (!offen) return;
+    const q = frage.trim();
+    setSucht(true);
+    const t = setTimeout(
+      () => {
+        fetch(`/api/investoren?limit=40${q ? `&suche=${encodeURIComponent(q)}` : ""}`, {
+          cache: "no-store",
+        })
+          .then((r) => r.json() as Promise<LiveInvestoren>)
+          .then(setInvestoren)
+          .catch(() => undefined)
+          .finally(() => setSucht(false));
+      },
+      q ? 250 : 0,
+    );
+    return () => clearTimeout(t);
+  }, [offen, frage]);
+
   const treffer = useMemo(() => {
     const q = frage.trim().toLowerCase();
-    const alle = alleTreffer();
-    const gefiltert = q
-      ? alle.filter((t) => `${t.titel} ${t.detail ?? ""}`.toLowerCase().includes(q))
-      : alle;
-    return gefiltert.slice(0, 9);
-  }, [frage]);
+    const passt = (t: Treffer) => !q || `${t.titel} ${t.detail ?? ""}`.toLowerCase().includes(q);
+
+    const datenraeume: Treffer[] = raeume
+      ? [...Object.values(raeume.objekte ?? {}), ...(raeume.unbekannt ?? [])].map((o, i) => ({
+          id: `dr-${i}`,
+          gruppe: "Datenräume",
+          icon: FolderOpen,
+          titel: (o.objektName ?? "").replace(/_\d{8}-\d{6}$/, ""),
+          detail: `${o.dokumente?.length ?? 0} offene Prüffälle`,
+          href: "/",
+        }))
+      : [];
+
+    const kunden: Treffer[] = (investoren?.investoren ?? []).slice(0, 12).map((i) => ({
+      id: i.id,
+      gruppe: "Investoren",
+      icon: Building2,
+      titel: i.firma,
+      detail: [i.ansprechpartner, (i.regionen ?? []).join(", ")].filter(Boolean).join(" · "),
+      href: `/investoren/${encodeURIComponent(i.id)}`,
+    }));
+
+    return [...kunden, ...datenraeume.filter(passt), ...BEREICHE.filter(passt)].slice(0, 12);
+  }, [frage, investoren, raeume]);
 
   const oeffne = (t: Treffer) => {
     setOffen(false);
@@ -105,7 +131,6 @@ export function BefehlsPalette() {
         <span className="hidden md:inline" aria-hidden>
           Suchen
         </span>
-        {/* Der Shortcut-Hinweis hilft nur dort, wo es eine Tastatur gibt. */}
         <kbd className="hidden rounded-seil border border-seil-line px-1 text-kicker sm:inline">⌘K</kbd>
       </button>
 
@@ -125,7 +150,7 @@ export function BefehlsPalette() {
               <Input
                 autoFocus
                 value={frage}
-                placeholder="Objekt, Investor oder Aufgabe suchen …"
+                placeholder="Kunde, Ansprechpartner, Region oder Datenraum …"
                 aria-label="Suchbegriff"
                 className="w-full"
                 onChange={(e) => {
@@ -147,7 +172,7 @@ export function BefehlsPalette() {
             </div>
             {treffer.length === 0 ? (
               <p className="px-4 py-6 text-center text-kicker text-seil-muted">
-                Keine Treffer für „{frage}“.
+                {sucht ? "sucht …" : `Keine Treffer für „${frage}“.`}
               </p>
             ) : (
               <ul className="max-h-[50vh] overflow-y-auto py-1" role="listbox">
@@ -185,7 +210,7 @@ export function BefehlsPalette() {
               </ul>
             )}
             <p className="border-t border-seil-line px-4 py-2 text-kicker text-seil-muted">
-              ↑↓ wählen · Enter öffnen · Esc schließen
+              ↑↓ wählen · Enter öffnen · Esc schließen · gesucht wird in der Liveliste
             </p>
           </div>
         </div>
