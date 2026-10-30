@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { darfFreigeben } from "@/lib/freigabe";
-import { datenbankAktiv, dbAendern, dbLesen, inListe } from "@/lib/supabase";
+import { datenbankAktiv, dbAendern, dbLesen, dbSchreiben, inListe } from "@/lib/supabase";
 import { protokoll } from "@/lib/protokoll";
 
 /**
@@ -169,24 +169,111 @@ export async function GET(): Promise<NextResponse<FreigabeEingang>> {
  * die Middleware reicht das Kürzel als Kopfzeile weiter. Und freigeben darf
  * nur, wer dafür benannt ist.
  */
+/** Was nach der Freigabe wirklich verschickt werden soll. */
+interface Freigegeben {
+  entwurf_id: string;
+  objekt: string | null;
+  investor_firma: string | null;
+  investor_name: string | null;
+  investor_email: string | null;
+  betreff: string | null;
+  entwurf: string | null;
+}
+
 /**
- * Den Versand anstoßen. Das bleibt bei der Automatik – dort liegen die
- * Postfach-Zugangsdaten, und dort soll der Versand auch protokolliert werden.
+ * Den Versand auslösen.
+ *
+ * Das Cockpit verschickt nicht selbst – es übergibt Betreff, Text und
+ * Empfänger an die Automatik, die über das SEIL-Postfach sendet. Die
+ * Zugangsdaten dafür liegen dort und nirgends sonst.
+ *
+ * Übergeben wird der Inhalt, nicht nur eine Kennung: ein Entwurf, der im
+ * Cockpit entstanden ist, steht in keiner Tabelle der Automatik, und eine
+ * Kennung, die der Empfänger nicht auflösen kann, ist kein Auftrag.
  */
-async function versandAnstossen(entwuerfe: string[], durch: string): Promise<boolean> {
-  const url = process.env.FREIGABE_ANSTOSS_URL;
-  if (!url) return false;
+async function versandAnstossen(
+  zeilen: Freigegeben[],
+  durch: string,
+): Promise<{ ok: true } | { ok: false; grund: string }> {
+  const url = process.env.VERSAND_URL;
+  if (!url) return { ok: false, grund: "Der Versandweg ist nicht eingerichtet (VERSAND_URL fehlt)." };
+  if (zeilen.length === 0) return { ok: false, grund: "Keine Zeile zum Versenden." };
+
+  // Nach Betreff und Text bündeln: so geht je Sendung ein Auftrag raus, auch
+  // wenn jemand zwei verschiedene Sendungen auf einmal freigibt.
+  const nach = new Map<string, Freigegeben[]>();
+  for (const z of zeilen) {
+    const schluessel = `${z.betreff ?? ""}\u0000${z.entwurf ?? ""}`;
+    nach.set(schluessel, [...(nach.get(schluessel) ?? []), z]);
+  }
+
   try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { ...kopf(), "Content-Type": "application/json" },
-      body: JSON.stringify({ entwuerfe, durchId: durch, am: new Date().toISOString() }),
-      cache: "no-store",
-      signal: AbortSignal.timeout(Number(process.env.FREIGABEN_TIMEOUT_MS ?? 15000)),
-    });
-    return res.ok;
+    for (const gruppe of nach.values()) {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { ...kopf(), "Content-Type": "application/json" },
+        body: JSON.stringify({
+          objekt: gruppe[0].objekt,
+          betreff: gruppe[0].betreff,
+          text: gruppe[0].entwurf,
+          modus: "sofort",
+          durch,
+          empfaenger: gruppe
+            .filter((z) => z.investor_email)
+            .map((z) => ({
+              id: z.investor_firma ?? z.entwurf_id,
+              firma: z.investor_firma,
+              ansprechpartner: z.investor_name,
+              email: z.investor_email,
+            })),
+        }),
+        cache: "no-store",
+        signal: AbortSignal.timeout(Number(process.env.VERSAND_TIMEOUT_MS ?? 25000)),
+      });
+      if (res.status === 404) {
+        return {
+          ok: false,
+          grund:
+            "Der Versand-Ablauf liegt noch nicht auf dem Server. Freigeben geht, Versenden noch nicht.",
+        };
+      }
+      if (!res.ok) return { ok: false, grund: `Die Automatik antwortet mit HTTP ${res.status}.` };
+    }
+    return { ok: true };
+  } catch (e) {
+    return {
+      ok: false,
+      grund: e instanceof Error ? `Die Automatik ist nicht erreichbar: ${e.message}` : "Die Automatik ist nicht erreichbar.",
+    };
+  }
+}
+
+/** Nach dem Versand stehen die Empfänger auf „angeschrieben“, nicht mehr auf „vorgemerkt“. */
+async function verteilerNachziehen(zeilen: Freigegeben[], durch: string): Promise<void> {
+  const mandat = zeilen.find((z) => z.objekt)?.objekt;
+  if (!mandat || !datenbankAktiv()) return;
+  try {
+    const jetzt = new Date().toISOString();
+    await dbSchreiben(
+      "kontakt",
+      zeilen
+        .filter((z) => z.investor_firma)
+        .map((z) => ({
+          mandat,
+          investor_id: z.investor_firma as string,
+          firma: z.investor_firma,
+          ansprechpartner: z.investor_name,
+          email: z.investor_email,
+          status: "angeschrieben",
+          letzter_kontakt: jetzt,
+          geaendert_durch: durch,
+          geaendert: jetzt,
+        })),
+      "mandat,investor_id",
+    );
   } catch {
-    return false;
+    // Der Versand ist passiert; ein nicht nachgezogener Verteiler darf ihn
+    // nicht zum Fehler machen.
   }
 }
 
@@ -211,7 +298,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   if (datenbankAktiv()) {
     try {
-      const geaendert = await dbAendern<{ entwurf_id: string; objekt: string | null }>(
+      const geaendert = await dbAendern<Freigegeben>(
         "freigabe_eingang",
         // Nur offene Zeilen: ein zweiter Klick darf nicht ein zweites Mal versenden.
         `entwurf_id=${encodeURIComponent(inListe(ids))}&status=eq.offen`,
@@ -224,22 +311,25 @@ export async function POST(request: Request): Promise<NextResponse> {
         );
       }
       if (entscheidung === "freigegeben") {
-        const angestossen = await versandAnstossen(
-          geaendert.map((z) => z.entwurf_id),
-          durch,
-        );
-        if (!angestossen) {
+        const angestossen = await versandAnstossen(geaendert, durch);
+        if (!angestossen.ok) {
           // Die Entscheidung steht, der Versand nicht. Das darf nicht als
           // Erfolg durchgehen – sonst wartet jemand auf Mails, die nie kommen.
+          await protokoll({
+            mandat: geaendert[0]?.objekt ?? null,
+            art: "freigabe",
+            durch,
+            text: `${geaendert.length} freigegeben, aber nicht versendet: ${angestossen.grund}`,
+          });
           return NextResponse.json(
             {
               ok: false,
-              grund:
-                "Freigabe ist gespeichert, aber der Versand ließ sich nicht anstoßen. Bitte Ricardo Bescheid geben.",
+              grund: `${angestossen.grund} Die Freigabe ist gespeichert, rausgegangen ist nichts.`,
             },
             { status: 502 },
           );
         }
+        await verteilerNachziehen(geaendert, durch);
       }
       await protokoll({
         mandat: geaendert[0]?.objekt ?? null,
