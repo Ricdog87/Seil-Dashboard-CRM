@@ -339,6 +339,45 @@
         2140,
         500
       ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ba-1",
+              "name": "demoEmpfaenger",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1520,
+        500
+      ],
+      "id": "wf05-betriebsart",
+      "name": "Betriebsart (hier umschalten)",
+      "notes": "Leer = echter Versand an den Investor. Steht hier eine Adresse, geht JEDE Mail stattdessen dorthin, mit Vermerk im Text. Für Vorführungen und Tests. Wird beim Import aus der Konfigurationsdatei gesetzt.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Sicherung gegen ungewollten Versand an echte Investoren.\n// Ist demoEmpfaenger gesetzt, geht jede Mail dorthin statt an den Investor.\n// Der eigentliche Empfänger bleibt im Text sichtbar, damit eine Vorführung\n// zeigt, wer angeschrieben worden wäre.\nreturn $input.all().map((i) => {\n  const j = { ...i.json };\n  const demo = String(j.demoEmpfaenger ?? '').trim();\n  if (demo === '') return { json: j };\n  const echt = j.email ?? '(unbekannt)';\n  j.empfaengerEcht = echt;\n  j.email = demo;\n  j.bccLeitung = '';\n  j.betreff = '[VORFÜHRUNG] ' + (j.betreff ?? '');\n  j.text = 'Diese Nachricht wurde umgeleitet. Echter Empfänger wäre: ' + echt +\n           '\\n\\n--- ursprünglicher Text ---\\n' + (j.text ?? '');\n  return { json: j };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1720,
+        500
+      ],
+      "id": "wf05-umleitung",
+      "name": "Demo-Umleitung anwenden"
     }
   ],
   "connections": {
@@ -493,7 +532,13 @@
             "index": 0
           }
         ],
-        []
+        [
+          {
+            "node": "Betriebsart (hier umschalten)",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "WhatsApp über Superchat-API": {
@@ -523,6 +568,28 @@
         [
           {
             "node": "Versand protokollieren + nächstes Follow-up (+2 Tage) ablegen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Betriebsart (hier umschalten)": {
+      "main": [
+        [
+          {
+            "node": "Demo-Umleitung anwenden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Demo-Umleitung anwenden": {
+      "main": [
+        [
+          {
+            "node": "E-Mail senden über deals@ (Graph)",
             "type": "main",
             "index": 0
           }

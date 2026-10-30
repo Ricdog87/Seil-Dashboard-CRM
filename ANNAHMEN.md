@@ -868,3 +868,28 @@ blockieren, sondern sie auf den bisherigen Stand zuruecksetzen.
 
 Das ist eine Zwischenloesung fuer die Uebergabe, kein Benutzerkonzept. Ein
 richtiger Login mit Rollen gehoert zur Cockpit-Ausbaustufe mit Datenbank.
+
+## 68. Zwei unterbrochene Ketten repariert, Umleitung vor dem Versand
+
+Vor dem Scharfschalten am 30.10. wurden alle neun Workflows auf
+unterbrochene Verbindungen geprueft. Zwei Stellen waren tot:
+
+- **WF02**: Der Auslöser "Matching-Anstoß" war mit nichts verbunden. Der
+  Workflow haette auf einen Anstoss nicht reagiert.
+- **WF05**: Die Verzweigung "WhatsApp-Kanal?" hatte nur den WhatsApp-Ausgang
+  verdrahtet. Der E-Mail-Ausgang fuehrte ins Leere, der Versandknoten war
+  verwaist. Es waere nie eine Mail verschickt worden.
+
+Beides ist verbunden; die Gegenpruefung ueber alle neun Workflows meldet
+keine verwaisten Knoten und keinen Ausloeser ohne Ziel mehr.
+
+**Umleitung vor dem Versand.** WF05 bekommt vor dem Versandknoten zwei neue
+Knoten: "Betriebsart (hier umschalten)" mit dem Feld `demoEmpfaenger` und
+"Demo-Umleitung anwenden". Ist eine Adresse eingetragen, geht jede Mail
+dorthin statt an den Investor, mit Vermerk des eigentlichen Empfaengers im
+Text und dem Zusatz [VORFÜHRUNG] im Betreff. Leer bedeutet echter Versand.
+
+Grund: Die Empfaengeradresse stammt aus der echten Liveliste mit 1571
+Investoren. Eine versehentlich versendete Mail laesst sich nicht
+zurueckholen. Die Umleitung macht aus einem unumkehrbaren Risiko eine
+Einstellung, die beim Import gesetzt wird.

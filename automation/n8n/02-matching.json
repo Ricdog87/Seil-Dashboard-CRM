@@ -168,7 +168,13 @@
   "connections": {
     "Matching-Anstoß": {
       "main": [
-        []
+        [
+          {
+            "node": "Konfiguration Liveliste (Platzhalter)",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Abgleich: Standort → Klasse → Ticket": {
