@@ -8,6 +8,7 @@ import type { SchrittStand } from "@/app/api/schritte/route";
 import type { Modul01Antwort, Modul01Objekt } from "@/lib/modul01";
 import { followupLage } from "@/lib/followup";
 import { ANGESCHRIEBEN, GEANTWORTET } from "@/lib/crm";
+import { datenraeumeAbgleichen } from "@/lib/modul01-sync";
 
 /**
  * Die Pipeline: jedes Mandat mit allem, was eine Karte auf der Tafel braucht.
@@ -52,14 +53,16 @@ export interface Pipeline {
   grund?: string;
   karten: PipelineKarte[];
   stand: string;
+  /** Mandate, die bei diesem Abruf aus Datenräumen angelegt wurden. */
+  angelegt?: string[];
 }
 
 interface DbMandat {
-  id: string; name: string; stadt: string | null; assetklasse: string | null;
+  id: string; name: string; stadt: string | null; region?: string | null; assetklasse: string | null;
   auftraggeber: string | null; auftraggeber_id: string | null; phase: Phase; zustaendig: string | null;
   lauf_praefix: string | null; notiz: string | null; kaufpreis: number | null; provision_prozent: number | null;
-  honorar_erwartet: number | null; honorar_ist: number | null; abschluss_am: string | null; erstellt: string | null;
-  geaendert: string | null; geaendert_durch: string | null;
+  honorar_erwartet: number | null; honorar_ist: number | null; abschluss_am: string | null; abgleich_am?: string | null;
+  quelle?: string | null; erstellt: string | null; geaendert: string | null; geaendert_durch: string | null;
 }
 interface DbKontakt { mandat: string; investor_id: string; firma: string | null; status: Kontakt["status"]; letzter_kontakt: string | null; followups: number | null; letzte_antwort: string | null; }
 interface DbSchritt { mandat: string; schritt: number; status: SchrittStand["status"]; }
@@ -104,13 +107,15 @@ export async function GET(): Promise<NextResponse<Pipeline>> {
     return NextResponse.json({ modus: "aus", grund: "Datenbank nicht eingerichtet", karten: [], stand });
   }
   try {
-    const [mandate, kontakte, schritte, aufgaben, freigaben, raeume] = await Promise.all([
+    const raeume = await datenraeume();
+    // Modul 01 → Modul 02: jeder Datenraum-Lauf ohne Mandat wird eines (Flowchart 8 → 9).
+    const sync = await datenraeumeAbgleichen(raeume, "automatik");
+    const [mandate, kontakte, schritte, aufgaben, freigaben] = await Promise.all([
       dbLesen<DbMandat>("mandat", "order=geaendert.desc&limit=300"),
       dbLesen<DbKontakt>("kontakt", "limit=5000"),
       dbLesen<DbSchritt>("mandat_schritt", "select=mandat,schritt,status&limit=10000"),
       dbLesen<DbAufgabe>("aufgaben", "select=objekt,titel,faellig,zustaendig&erledigt=is.false&order=faellig.asc.nullslast&limit=2000"),
       dbLesen<DbFreigabe>("freigabe_eingang", "select=objekt&status=eq.offen&limit=2000"),
-      datenraeume(),
     ]);
 
     const heute = new Date();
@@ -143,10 +148,10 @@ export async function GET(): Promise<NextResponse<Pipeline>> {
       const wert = (feld: string) => Number(dr?.kennwerte?.find((x) => x.feld === feld)?.wert ?? NaN);
 
       return {
-        id: m.id, name: m.name, stadt: m.stadt, assetklasse: m.assetklasse, auftraggeber: m.auftraggeber, auftraggeberId: m.auftraggeber_id,
+        id: m.id, name: m.name, stadt: m.stadt, region: m.region ?? null, assetklasse: m.assetklasse, auftraggeber: m.auftraggeber, auftraggeberId: m.auftraggeber_id,
         phase: m.phase, zustaendig: m.zustaendig, laufPraefix: m.lauf_praefix, notiz: m.notiz,
         kaufpreis: m.kaufpreis === null ? null : Number(m.kaufpreis), provisionProzent: m.provision_prozent === null ? null : Number(m.provision_prozent),
-        honorarErwartet: m.honorar_erwartet === null ? null : Number(m.honorar_erwartet), honorarIst: m.honorar_ist === null ? null : Number(m.honorar_ist), abschlussAm: m.abschluss_am,
+        honorarErwartet: m.honorar_erwartet === null ? null : Number(m.honorar_erwartet), honorarIst: m.honorar_ist === null ? null : Number(m.honorar_ist), abschlussAm: m.abschluss_am, abgleichAm: m.abgleich_am ?? null, quelle: m.quelle ?? null,
         erstellt: m.erstellt, geaendert: m.geaendert, geaendertDurch: m.geaendert_durch,
         schritteFertig: fertigJeNr.size,
         schritteLaufen: laufen,
@@ -180,7 +185,7 @@ export async function GET(): Promise<NextResponse<Pipeline>> {
       };
     });
 
-    return NextResponse.json({ modus: "live", karten, stand });
+    return NextResponse.json({ modus: "live", karten, stand, ...(sync.angelegt.length > 0 ? { angelegt: sync.angelegt } : {}) });
   } catch (e) {
     return NextResponse.json({
       modus: "fehler",

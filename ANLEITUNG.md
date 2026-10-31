@@ -1,89 +1,96 @@
-# SEIL Cockpit · Leitfaden
+# SEIL Cockpit · Leitfaden für das Team
 
-Das Cockpit ersetzt Pipedrive und die Excel-Liste durch **ein** System:
-Objekte, Investoren und Auftraggeber sind relational verknüpft, der
-Transaktionsprozess (26 Schritte in 4 Phasen, wie eure Team-Liste) ist je
-Objekt sichtbar, und die Routinearbeit – Follow-ups, Antworterkennung,
-Datenraum-Status – läuft automatisch. Ihr entscheidet an den Stellen, die
-Urteilskraft brauchen.
+Das Cockpit ist Modul 02: das CRM der SEIL Real Estate, gebaut entlang eures
+Flowcharts „SEIL Transaction Process“ (17 Schritte) und des „Standardprozess
+Kommunikation Investoren“. Es ersetzt Pipedrive und die Excel-Listen durch
+**ein** System: Mandate, Kunden, Investoren-Trichter, Aufgaben, Freigaben und
+Zahlen – alles live aus OneDrive, dem SEIL-Server (Modul 01) und der Datenbank.
+Nichts darin ist von Hand nachgetragen.
 
-## Der Morgen in 4 Schritten
+Adresse: https://seil-cockpit.vercel.app · Anmeldung mit Kürzel und Passwort
+(12 Stunden gültig). Die Zugänge hat jede Person einzeln bekommen.
 
-1. **Anmelden.** Oben rechts „Arbeiten als“ wählen – das Cockpit stellt sich
-   auf euch ein (Begrüßung, eure Aufgaben, euer Name an Notizen).
-2. **Posteingang triagieren.** Die Antworterkennung legt jede eingegangene
-   Antwort mit Kernaussage und Vorschlag ab. Standardfälle (Interesse →
-   Broker Call, Preisanfrage → Rückruf durch die Geschäftsführung) hat die Automatik schon
-   verarbeitet; den Rest macht ihr mit einem Klick zur Aufgabe.
-3. **Meine Aufgaben abarbeiten.** Heute Fälliges und Überfälliges steht
-   direkt auf der Übersicht – Abhaken genügt, alle Zähler ziehen live mit.
-4. **Pipeline prüfen.** Laufende Transaktionen als Tabelle (sortierbar per
-   Spaltenkopf) oder als Board – eine Spalte je Phase.
+## Der Morgen in vier Schritten
 
-## Die fünf Bereiche
+1. **Übersicht öffnen.** Oben dein Stand gegen deine Ziele, darunter die
+   Kennzahlen des Teams, die Pipeline, deine Aufgaben und der Verlauf.
+   Tobias sieht hier zusätzlich den Freigabe-Eingang.
+2. **Aufgaben abarbeiten.** Überfällig, heute, diese Woche. Aufgaben mit der
+   Marke „aus dem Prozess“ hat niemand getippt – sie kommen aus dem
+   Standardprozess (Exposé senden, Rückruf Herr Seil, Besichtigung …).
+3. **Trichter pflegen.** Im Mandat die Antworten erfassen („Antwort ▾“ an der
+   Karte) oder Karten ziehen. Fällige Follow-ups stehen rot an der Karte.
+4. **Freigaben erteilen** (nur Tobias): Entwurf links, Empfänger rechts mit
+   Haken – freigeben oder ablehnen. Freigegeben heißt: die Automatik sendet.
+
+## Die Bereiche
 
 | Bereich | Wofür |
 |---|---|
-| **Übersicht** | Euer Tag: Posteingang, eigene Aufgaben, KPIs mit 7-Tage-Trend, alle Transaktionen |
-| **Objekt-Detail** | Prozessleiste (26 Schritte, je Schritt Beschreibung + offene Aufgaben), Datenraum-Checkliste live aus Modul 01 (sobald verbunden, sonst Demo – die Karte sagt es), KI-ausgelesene Kennwerte, verknüpfte Investoren, komplette Historie, Notizen |
-| **Investor-Detail** | Ankaufsprofil – Zielregionen und Ticket direkt bearbeitbar (statt Excel), alle verknüpften Objekte mit Antwortstatus, Kommunikationshistorie |
-| **Vermarktung** | Automatik-Kette (Datenraum → Matching → Freigabe → Follow-up), Verteiler je Objekt mit Match- und Antwortstatus – oben die Freigabe |
-| **Aufgaben** | Kanban (Spalten = Fälligkeit, Karten ziehen oder per Griff-Menü verschieben = umplanen) oder Liste, nach Mitarbeiter filterbar, Broker Calls hervorgehoben |
+| **Übersicht** | Dein Tag: Leistung gegen Ziel, Kennzahlen, Pipeline, Freigaben (Tobias), Aufgaben, Verlauf |
+| **Mandate** | Pipeline-Tafel (Spalten = Abschnitte des Flowcharts, Karten ziehen) oder Liste; jedes Mandat mit Stammdaten, Wirtschaftlichkeit, Standarddokumenten, den 17 Schritten, dem Investoren-Trichter, Suche und Anschreiben, Aufgaben, Notizen und Verlauf |
+| **Freigaben** | Der Eingang für Tobias: jedes Anschreiben wartet hier, bis er es freigibt |
+| **Aufgaben** | Meine Aufgaben nach Fälligkeit; Geschäftsführung sieht das ganze Team und verteilt |
+| **Leistung** | Eigene Ziele gegen Ist; Geschäftsführung: Umsatz, Pipeline-Wert, Forecast, Team |
+| **Kunden** | Alle Investoren aus der Liveliste plus Auftraggeber und Partner; Klick öffnet die Akte mit kompletter Historie |
+| **Prozess** | Das Flowchart als Tafel und der Standardprozess mit Vorlagen – zum Nachlesen |
 
-**Alles ist verbunden:** Objekt anklicken zeigt seine Investoren, Investor
-anklicken seine Objekte – der Kern, den Pipedrive nicht konnte. `⌘K` /
-`Strg+K` öffnet die Suche über alles.
+`⌘K` / `Strg+K` öffnet die Suche über Kunden und Mandate.
 
-## Das läuft automatisch
+## Der Prozess, wie das Cockpit ihn führt
 
-- Matching der Investorenliste – Standort zuerst, dann Assetklasse und Ticket
-- Follow-ups alle 2 Tage (max. 3 Stufen) über E-Mail + WhatsApp (Superchat);
-  Stufe 2 und die Absage-Bestätigung fragen nach Zielregionen – Antworten
-  aktualisieren das Profil
-- Antworterkennung nach Standardprozess: Interesse → Broker Call beim Zuständigen, Absage → Kriterien-Rückfrage, Preisanfrage → Rückruf durch die Geschäftsführung (nur telefonisch), Unterlagen → Datenraum-Abgleich, Besichtigung → Termin-Koordination
-- Datenraum-Status und Dokumenten-Checkliste aus Modul 01 – live im Cockpit, sobald die Anbindung konfiguriert ist
-- Se-Circle-Sync für Off-Market-Objekte, KI-Extraktion aus Datenraum-Dokumenten, KI-Teaser-Entwürfe
-- Täglicher Status-Report an das Team
+**Auftraggeberseite (Schritte 1–12).** Ein Datenraum in Modul 01 wird
+automatisch zu einem Mandat im Cockpit (Schritt 8 → 9). Das Team trägt
+Stadt, **Region (Bundesland)**, Assetklasse, Kaufpreis und Provision ein,
+hakt die Standarddokumente ab und setzt die Schritte auf Läuft/Erledigt.
+Der Datenraum-Stand kommt live aus Modul 01.
 
-Dazwischen: das **Backoffice** bereitet vor (Rent Roll, Datenraum, NDA-Versand,
-Fotograf) – der Vertrieb übernimmt erst bei konkretem Interesse.
+**Investorenseite (Schritte 13–17).**
 
-## Hier entscheidet ihr
+- **13 Matching:** sobald Region und Assetklasse stehen, gleicht das Cockpit
+  gegen die Liveliste ab (Standort zuerst, dann Assetklasse und Ticket) und
+  merkt passende Investoren mit E-Mail vor. „Abgleich jetzt“ wiederholt das.
+- **14 Approach-Mail:** im Mandat Investoren auswählen, Anschreiben verfassen,
+  „Zur Freigabe geben“. Tobias gibt frei, die Automatik versendet (BCC).
+- **15 E-Mail-Kommunikation:** jede Antwort wird nach dem Standardprozess
+  erfasst – von Hand („Antwort ▾“) oder durch die Antworterkennung. Das
+  Cockpit setzt die Stufe, legt das Todo an und startet die Follow-up-Leiter
+  neu: 1. Follow Up, 2. Follow Up, weiteres, Final – alle zwei Tage.
+- **16/17 Phone Call und Broker Call:** Preisfragen gehen als Rückruf an
+  Herrn Seil (nur telefonisch), Besichtigungswünsche als Vier-Schritte-Kette
+  an die zuständige Person – als Aufgaben am Investor.
 
-- **Freigabe der Investorenliste** vor jedem Versand – der einzige Pflicht-Stopp
-- **Übernahme KI-gelesener Werte** ins CRM („Prüfen & übernehmen“)
-- **Triage** der Signale, die die Automatik nicht selbst zuordnet
-- Broker Calls, Besichtigungen, Verhandlung – wie immer
+Trichter-Stufen: Vorgemerkt → Angeschrieben → Anfrage/Exposé → NDA angefragt →
+NDA unterzeichnet → Datenraum frei → Preisfrage → Besichtigung. Abgesagt steht
+daneben und löst laut Standardprozess die Frage nach den Investment-Kriterien aus.
 
-## Der GF-Blick
+## Rollen
 
-„Arbeiten als“ **Maximilian Seil** schaltet die Übersicht auf das
-Geschäftsführungs-Dashboard: Pipeline gesamt und in aktiver Vermarktung,
-Honorarpotenzial (Modellrechnung), Antwortquote, Summen je Phase,
-Vermarktungs-Funnel, alle Mandate nach Volumen, Risiken und die Auslastung
-im Team – **nur Zahlen, nichts zum Eintragen**. Zurück zur operativen
-Sicht: einfach wieder einen Mitarbeiter wählen.
+- **Geschäftsführung** (Tobias, Max, Nino): alle Aufgaben, Verteilung, Umsatz,
+  Pipeline-Wert, Forecast, Ziele aller, Ziele setzen.
+- **Freigabe** (Tobias): einziger Freigeber für Anschreiben.
+- **Alle anderen**: eigene Aufgaben, eigene Ziele gegen Ist, das Team nur als
+  Summe. Mandate und Kunden sind gemeinsam – ein Team verkauft zusammen.
+- **Automatik**: tritt als „automatik“ auf, legt Mandate und Prozessaufgaben
+  an, bewegt den Trichter aus Antworten, versendet nach Freigabe.
 
-**Bericht exportieren:** Auf Übersicht und GF-Blick erzeugt „Bericht
-exportieren (HTML)“ den Statusbericht als Datei zum Weitergeben –
-dasselbe HTML-Produkt, das die Automatik werktäglich um 08:00 an das
-Team versendet.
+## Was automatisch läuft – und was nicht
 
-## Unterwegs auf dem Handy
+Automatisch: Datenraum → Mandat, Abgleich → Verteiler, Freigabe → Versand,
+Antwort → Stufe + Todo + Follow-up-Uhr, Datenraum-Stand, Kennzahlen, Spur.
 
-Das Cockpit läuft im Browser auch auf dem Smartphone – gleiche Daten,
-gleiche Funktionen, kein abgespecktes Extra-Layout:
+Von Hand: Stammdaten und Wirtschaftlichkeit am Mandat, Standarddokumente,
+Schritte 1–7 und 10–12, Anschreiben verfassen, Freigabe, Antworten ohne
+Antworterkennung, Aufgaben abhaken, Ziele setzen.
 
-- **Board-Karten verschieben:** Griff-Symbol antippen → „Verschieben nach …“
-  (ersetzt das Ziehen, das es auf Touchscreens nicht gibt)
-- **Breite Tabellen:** innerhalb der Karte seitlich wischen
-- **Suche:** Lupen-Symbol oben in der Kopfleiste (statt `⌘K`)
+Noch nicht scharf: der zeitgesteuerte Follow-up-Versand (WF 05, Cron aus) und
+der Echtversand an Investoren (Demo-Umleitung an eine interne Adresse, bis
+SEIL den Echtversand freigibt). Das Cockpit zeigt Fälligkeiten trotzdem.
 
-## Stand heute
+## Wenn etwas nicht stimmt
 
-Dies ist der **Klickdummy zur Abstimmung**: alle Daten sind erfunden
-(Ausnahme: Nino als Demo-Nutzer), Eingriffe gelten nur für die laufende
-Sitzung, ein Reload stellt den Demostand wieder her. Das produktive
-Modul 02 ergänzt Persistenz, Mail-Anbindung, echte Automatik und den
-einmaligen Pipedrive-Import. Was wir vor dem Bau von euch bestätigt
-brauchen, steht in [`ANNAHMEN.md`](ANNAHMEN.md).
+Screenshot mit zwei Sätzen Kontext in die Feedback-Gruppe. Jede Seite sagt
+selbst, wenn eine Quelle nicht erreichbar ist („Modul 01 nicht erreichbar“,
+„Verteiler nicht erreichbar: …“) – das ist kein Fehler der Seite, sondern der
+Hinweis, wo zu schauen ist. Entscheidungen und Setzungen stehen in
+ANNAHMEN.md, die Übergabe in UEBERGABE.md.

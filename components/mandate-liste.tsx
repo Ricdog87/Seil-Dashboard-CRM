@@ -199,7 +199,7 @@ export function MandateListe({ kuerzel }: { kuerzel: string }) {
       {ohneMandat.length > 0 ? (
         <div className="mt-3 rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-3">
           <div className="text-kicker text-seil-muted">
-            Datenräume ohne Mandat – Modul 01 kennt sie, das CRM noch nicht:
+            Test- und Demoläufe aus Modul 01 (werden nicht automatisch zu Mandaten – echte Datenräume schon):
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {ohneMandat.map((n) => (

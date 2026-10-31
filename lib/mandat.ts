@@ -41,6 +41,8 @@ export interface Mandat {
   id: string;
   name: string;
   stadt: string | null;
+  /** Bundesland – das harte Kriterium des Abgleichs gegen die Liveliste. */
+  region: string | null;
   assetklasse: string | null;
   auftraggeber: string | null;
   /** Verweis auf den Kunden der Art „Auftraggeber“ (kunde.investor_id). */
@@ -54,6 +56,10 @@ export interface Mandat {
   honorarErwartet: number | null;
   honorarIst: number | null;
   abschlussAm: string | null;
+  /** Letzter automatischer Abgleich (Flowchart 13). */
+  abgleichAm: string | null;
+  /** cockpit = von Hand, modul01 = aus einem Datenraum-Lauf. */
+  quelle: string | null;
   erstellt: string | null;
   geaendert: string | null;
   geaendertDurch: string | null;

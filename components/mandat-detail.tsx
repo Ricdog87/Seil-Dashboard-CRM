@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { NAMEN, PERSONEN } from "@/lib/sitzung-token";
 import { PHASEN, PHASE_LABEL, PHASE_TON, type Mandat, type Phase } from "@/lib/mandat";
 import { fmtEur } from "@/lib/leistung";
+import { BUNDESLAENDER } from "@/lib/abgleich";
 import { AufgabenListe } from "@/components/aufgaben-liste";
 import { NotizenListe } from "@/components/notizen-liste";
 import { AktivitaetenListe } from "@/components/aktivitaeten-liste";
@@ -25,6 +26,31 @@ export function MandatDetail({ mandat, kuerzel, darfVerteilen = false }: { manda
   const [fehlt, setFehlt] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
   const [auftraggeber, setAuftraggeber] = useState<{ id: string; firma: string }[]>([]);
+  const [abgleich, setAbgleich] = useState<string | null>(null);
+  const [gleichtAb, setGleichtAb] = useState(false);
+
+  async function abgleichen() {
+    setGleichtAb(true);
+    setAbgleich(null);
+    try {
+      const r = await fetch("/api/mandate/abgleich", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: mandat }),
+      });
+      const a = (await r.json()) as { ok?: boolean; grund?: string; treffer?: number; erreichbar?: number; neu?: number };
+      setAbgleich(
+        a.ok
+          ? `${a.treffer} passen · ${a.erreichbar} mit E-Mail · ${a.neu} neu vorgemerkt`
+          : (a.grund ?? "Abgleich nicht möglich"),
+      );
+      await holen();
+    } catch {
+      setAbgleich("Abgleich nicht erreichbar");
+    } finally {
+      setGleichtAb(false);
+    }
+  }
 
   // Die Auftraggeber unter den Kunden - fuer die Auswahl am Mandat.
   useEffect(() => {
@@ -59,8 +85,15 @@ export function MandatDetail({ mandat, kuerzel, darfVerteilen = false }: { manda
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: mandat, ...aenderung }),
       });
-      const a = (await r.json()) as { ok?: boolean; grund?: string };
+      const a = (await r.json()) as { ok?: boolean; grund?: string; abgleich?: { ok: boolean; treffer: number; erreichbar: number; neu: number; grund?: string } };
       if (!a.ok) throw new Error(a.grund ?? "nicht gespeichert");
+      if (a.abgleich) {
+        setAbgleich(
+          a.abgleich.ok
+            ? `Abgleich gelaufen: ${a.abgleich.treffer} passen · ${a.abgleich.erreichbar} mit E-Mail · ${a.abgleich.neu} neu vorgemerkt`
+            : (a.abgleich.grund ?? null),
+        );
+      }
     } catch (e) {
       setFehler(e instanceof Error ? e.message : "nicht erreichbar");
     } finally {
@@ -116,6 +149,23 @@ export function MandatDetail({ mandat, kuerzel, darfVerteilen = false }: { manda
       ) : stand ? (
         <div className="mt-3 grid gap-3 rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4 sm:grid-cols-2 lg:grid-cols-4">
           <Feld label="Stadt" wert={stand.stadt} feld="stadt" />
+          <div className="grid gap-1">
+            <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
+              Region (Abgleich)
+            </span>
+            <select
+              value={stand.region ?? ""}
+              onChange={(e) => void setzen({ region: e.target.value || null })}
+              className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text"
+            >
+              <option value="">— Bundesland wählen</option>
+              {BUNDESLAENDER.map((b) => (
+                <option key={b} value={b}>
+                  {b}
+                </option>
+              ))}
+            </select>
+          </div>
           <Feld label="Assetklasse" wert={stand.assetklasse} feld="assetklasse" />
           <div className="grid gap-1">
             <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
@@ -178,6 +228,32 @@ export function MandatDetail({ mandat, kuerzel, darfVerteilen = false }: { manda
       ) : (
         <p className="mt-3 text-body text-seil-muted">wird geladen …</p>
       )}
+
+      {stand ? (
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-kicker text-seil-muted">
+          <span>
+            {stand.quelle === "modul01" ? "Aus Modul 01 angelegt (Datenraum)" : "Im Cockpit angelegt"}
+            {stand.laufPraefix ? ` · Datenraum „${stand.laufPraefix}“` : ""}
+          </span>
+          <span>
+            Abgleich (Flowchart 13):{" "}
+            {stand.abgleichAm
+              ? `zuletzt ${new Date(stand.abgleichAm).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`
+              : stand.region && stand.assetklasse
+                ? "noch nicht gelaufen"
+                : "läuft, sobald Region und Assetklasse stehen"}
+          </span>
+          <button
+            type="button"
+            disabled={gleichtAb || !stand.region || !stand.assetklasse}
+            onClick={() => void abgleichen()}
+            className="rounded-seil border border-seil-line px-2 py-0.5 text-kicker text-seil-body hover:border-seil-accent hover:text-seil-accent disabled:opacity-40"
+          >
+            {gleichtAb ? "gleicht ab …" : "Abgleich jetzt"}
+          </button>
+          {abgleich ? <span className="text-seil-accent">{abgleich}</span> : null}
+        </div>
+      ) : null}
 
       {stand ? (
         <section className="mt-5 rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4">

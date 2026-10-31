@@ -13,6 +13,7 @@ import type { FreigabeEingang } from "@/app/api/freigaben/route";
 import type { Modul01Objekt, Modul01Stand } from "@/lib/modul01";
 import { laufPraefix } from "@/lib/mandat";
 import type { Stand } from "@/lib/sop-ableitung";
+import { passt } from "@/lib/abgleich";
 
 /**
  * Ein Mandat im Prozess: die SOP-Schritte, der Verteiler und der Abgleich
@@ -22,20 +23,6 @@ import type { Stand } from "@/lib/sop-ableitung";
  * über den Laufnamen zugeordnet; gibt es keinen, fehlen nur die Zahlen aus
  * Modul 01, der Rest funktioniert.
  */
-function passt(i: LiveInvestor, region: string, assetklasse: string, ticketMio: number | null) {
-  if (region !== "alle" && !(i.regionen ?? []).some((r) => r === region)) return false;
-  if (assetklasse !== "alle") {
-    const ak = i.assetklassen ?? [];
-    if (ak.length > 0 && !ak.some((a) => a.toLowerCase().includes(assetklasse.toLowerCase())))
-      return false;
-  }
-  if (ticketMio !== null && (i.ticketMinMio !== null || i.ticketMaxMio !== null)) {
-    if (i.ticketMinMio !== null && ticketMio < i.ticketMinMio) return false;
-    if (i.ticketMaxMio !== null && ticketMio > i.ticketMaxMio) return false;
-  }
-  return true;
-}
-
 export function MandatProzess({ mandat }: { mandat: string }) {
   const { daten: drStand } = useLive<Modul01Stand>("/api/modul01/status", 30000);
   const { daten: liste } = useLive<LiveInvestoren>("/api/investoren?limit=2000", 60000);

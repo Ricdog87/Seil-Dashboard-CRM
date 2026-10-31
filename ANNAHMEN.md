@@ -1174,3 +1174,21 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
 115. **Aufgeräumt.** 26 Komponenten und `lib/derive.ts` aus dem Prototyp, die keine Seite mehr erreichte,
     sind gelöscht; sie trugen noch die alte 26er-Nummerierung und Beispieldaten.
 
+116. **Modul 01 → Modul 02 ohne Klick.** Jeder Datenraum-Lauf, den Modul 01 meldet, wird im Cockpit
+    ein Mandat (Flowchart 8 → 9): Name = Laufname ohne Zeitstempel, Phase „Vorbereitung“,
+    `quelle = 'modul01'`, Notiz mit dem Lauf. Das passiert bei jedem Laden der Pipeline und auf
+    Zuruf über `POST /api/modul01/sync` (Automatik oder Geschäftsführung). Test- und Demoläufe
+    (Name beginnt mit `TEST-` oder `DEMO-`) sind ausgenommen und bleiben von Hand anlegbar.
+    Modul 01 liefert heute nur Zählwerte; Stadt, Region, Assetklasse und Kaufpreis kann es über
+    `POST /api/mandate` nachreichen, sobald es sie aus dem Datenraum liest.
+117. **Der Abgleich läuft von selbst** (Flowchart 13), sobald Region (Bundesland) und Assetklasse am
+    Mandat stehen oder sich ändern – Standort zuerst, dann Assetklasse und Ticket (Kaufpreis in
+    Mio.). Vorgemerkt werden nur Investoren mit E-Mail („Investors List (E-Mail-Addresses)“),
+    höchstens 400; wer schon im Verteiler steht, behält seinen Stand. Ein Bundesland allein reicht
+    nicht – Nordrhein-Westfalen träfe 984 Einträge. Regionen-Einträge wie „bundesweit“ oder
+    „Deutschland (mehrere Standorte)“ passen überall. `mandat.abgleich_am` hält den letzten Lauf,
+    „Abgleich jetzt“ wiederholt ihn.
+118. **Region ist ein Bundesland.** Die Liveliste führt Bundesländer, nicht Städte; deshalb hat ein
+    Mandat neben der Stadt eine Region aus der festen Liste der sechzehn Länder. Freitext würde den
+    Abgleich leise ins Leere laufen lassen.
+

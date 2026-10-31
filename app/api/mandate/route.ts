@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { datenbankAktiv, dbLesen, dbSchreiben } from "@/lib/supabase";
 import { protokoll } from "@/lib/protokoll";
 import { PHASEN, type Mandat, type Phase } from "@/lib/mandat";
+import { mandatAbgleichen } from "@/lib/modul01-sync";
+import { istSystem } from "@/lib/rollen";
+import { BUNDESLAENDER } from "@/lib/abgleich";
 
 /** Die Mandate – das Rückgrat des CRM. */
 export const dynamic = "force-dynamic";
@@ -16,6 +19,7 @@ interface DbMandat {
   id: string;
   name: string;
   stadt: string | null;
+  region: string | null;
   assetklasse: string | null;
   auftraggeber: string | null;
   auftraggeber_id: string | null;
@@ -28,6 +32,8 @@ interface DbMandat {
   honorar_erwartet: number | null;
   honorar_ist: number | null;
   abschluss_am: string | null;
+  abgleich_am: string | null;
+  quelle: string | null;
   erstellt: string | null;
   geaendert: string | null;
   geaendert_durch: string | null;
@@ -37,6 +43,7 @@ const auf = (z: DbMandat): Mandat => ({
   id: z.id,
   name: z.name,
   stadt: z.stadt,
+  region: z.region ?? null,
   assetklasse: z.assetklasse,
   auftraggeber: z.auftraggeber,
   auftraggeberId: z.auftraggeber_id,
@@ -49,6 +56,8 @@ const auf = (z: DbMandat): Mandat => ({
   honorarErwartet: z.honorar_erwartet === null ? null : Number(z.honorar_erwartet),
   honorarIst: z.honorar_ist === null ? null : Number(z.honorar_ist),
   abschlussAm: z.abschluss_am,
+  abgleichAm: z.abgleich_am ?? null,
+  quelle: z.quelle ?? null,
   erstellt: z.erstellt,
   geaendert: z.geaendert,
   geaendertDurch: z.geaendert_durch,
@@ -83,6 +92,9 @@ export async function POST(request: Request): Promise<NextResponse> {
   if (b?.phase && !PHASEN.includes(b.phase)) {
     return NextResponse.json({ ok: false, grund: "Unbekannte Phase" }, { status: 400 });
   }
+  if (b?.region && !(BUNDESLAENDER as readonly string[]).includes(b.region)) {
+    return NextResponse.json({ ok: false, grund: "Unbekannte Region – bitte ein Bundesland" }, { status: 400 });
+  }
   const durch = request.headers.get("x-seil-benutzer") ?? "";
 
   try {
@@ -91,8 +103,11 @@ export async function POST(request: Request): Promise<NextResponse> {
       geaendert: new Date().toISOString(),
       geaendert_durch: durch,
     };
+    // Die Automatik (Modul 01) legt Mandate aus Datenräumen an – das steht dann dran.
+    if (istSystem(durch) && b?.laufPraefix) zeile.quelle = "modul01";
     for (const [feld, spalte] of [
       ["stadt", "stadt"],
+      ["region", "region"],
       ["assetklasse", "assetklasse"],
       ["auftraggeber", "auftraggeber"],
       ["auftraggeberId", "auftraggeber_id"],
@@ -119,7 +134,14 @@ export async function POST(request: Request): Promise<NextResponse> {
       durch,
       text: b?.phase ? `Mandat auf „${b.phase}“ gesetzt` : "Mandat angelegt oder geändert",
     });
-    return NextResponse.json({ ok: true, mandat: auf(geschrieben[0]) });
+    // Flowchart 13: sobald Region und Assetklasse stehen (oder sich ändern),
+    // läuft der Abgleich gegen die Liveliste von selbst.
+    const kriterienBeruehrt = b?.region !== undefined || b?.assetklasse !== undefined || b?.kaufpreis !== undefined;
+    const m = geschrieben[0];
+    const abgleich =
+      kriterienBeruehrt && m.region && m.assetklasse ? await mandatAbgleichen(name, durch || "automatik") : undefined;
+    const aktuell = abgleich ? await dbLesen<DbMandat>("mandat", `name=eq.${encodeURIComponent(name)}&limit=1`) : geschrieben;
+    return NextResponse.json({ ok: true, mandat: auf(aktuell[0] ?? m), ...(abgleich ? { abgleich } : {}) });
   } catch (e) {
     return NextResponse.json(
       { ok: false, grund: e instanceof Error ? e.message : "Datenbank nicht erreichbar" },
