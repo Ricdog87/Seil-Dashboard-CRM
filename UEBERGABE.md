@@ -67,6 +67,12 @@ Modul 01 → 02 (`lib/modul01-sync.ts`). Jede Abweichung und Setzung: ANNAHMEN.m
 - Antwort „Anfrage“ und „Besichtigung“ am Testmandat: Stufe, Aufgabe, Spur, Badge.
 - Migrationen (17 Schritte, Stufen, letzte Antwort; Region/Abgleich/Quelle): angewendet.
 - Freigabe → WF 12 → Graph 202: am 30.10. durchgängig geprüft.
+- `POST /api/modul01/sync` mit Maschinengeheimnis: Testläufe übersprungen, echte Datenräume
+  hatten schon Mandate. Region „Bayern“ + „Wohnen“ am Testmandat: 22 passen, 1 mit E-Mail,
+  1 neu vorgemerkt – automatisch beim Speichern.
+- Oberfläche mit dem Teamkonto geprüft (Übersicht, Leistung, Aufgaben, Freigaben, Kunden,
+  Mandate, Mandat, Prozess). Die Geschäftsführungs-Sicht (Umsatz, Team-Aufgaben, Freigabe-Eingang)
+  bitte mit einem GF-Login gegenprüfen – fremde persönliche Konten werden hier nicht benutzt.
 
 ## 7. Offene Punkte (Entscheidungen bei SEIL)
 
