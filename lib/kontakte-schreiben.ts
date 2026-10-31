@@ -64,9 +64,11 @@ export function stufeGueltig(s: unknown): s is Stufe {
  * (supabase/migrationen/2026-10-31-…) gelaufen ist, schreiben wir ohne sie –
  * und sagen es in der Antwort, statt still zu scheitern.
  */
-let spaltenStand: boolean | null = null;
+let spaltenStand = false;
 export async function standardprozessSpalten(): Promise<boolean> {
-  if (spaltenStand !== null) return spaltenStand;
+  // Nur „vorhanden“ wird gemerkt – ein „fehlt“ wird jedes Mal neu geprüft,
+  // damit eine warme Instanz die Migration nicht verschläft.
+  if (spaltenStand) return true;
   try {
     await dbLesen("kontakt", "select=letzte_antwort&limit=1");
     spaltenStand = true;
