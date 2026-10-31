@@ -1125,3 +1125,52 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     Unterlagen/Telefonat/Besichtigung → Interesse. Rückwärts nur bei Absage – eine zweite Mail nach
     einer Preisanfrage setzt niemanden zurück. Die Aufgaben aus dem Prozess entstehen über denselben
     Weg wie bei Handeingaben; es gibt eine Regel, nicht zwei. n8n muss dafür nichts über Mandate wissen.
+
+107. **Der Prozess ist das Flowchart.** Mit der Übergabe vom 31.10.2026 („SEIL Transaction Process
+    Flowchart“) ersetzt die 17-Schritte-Liste die bisherige 26er-Liste. `lib/sop.ts` führt die Kästen
+    wörtlich – Responsible, Tool, Task – in denselben Farben wie das Diagramm (`TOOL_FARBE`, `LANE_FARBE`).
+    Die alten Schritte 12 (Vermarktungs-NDA) und 18 (Datenraum Light) gehören laut Flowchart in Schritt 15
+    (E-Mail-Communication: Q&A, NDA, Data room); 19–26 (Angebot bis Signing) liegen hinter dem Flowchart
+    und bleiben als Pipeline-Spalten „Angebot & Verhandlung“ und „Abschluss“, nicht als SOP-Schritte.
+    Die Datenbank wurde mit `supabase/migrationen/2026-10-31-sop-flowchart-standardprozess.sql` umnummeriert
+    (2/3→2, 4→3 … 17→17). Das Flowchart kennt keine Phasen; die vier Abschnitte (1–4, 5–12, 13–14, 15–17)
+    sind eine Lesehilfe des Cockpits für Pipeline und Fortschritt.
+108. **Tools laut Flowchart, Träger laut heute.** Wo das Diagramm „Pipedrive“ sagt (Deal, Matching,
+    Activities), steht das Tool wie gezeichnet und daneben „heute: Cockpit“. Schritt 9 (Create new Deal)
+    gilt als erledigt, sobald das Mandat im Cockpit existiert; Schritt 8 (Data Room) kommt aus Modul 01;
+    13, 14, 15, 16, 17 werden aus Verteiler, Freigaben und Antworten abgeleitet. „Excel?“ am Matching ist
+    aus dem Diagramm übernommen – offen, ob die Liveliste Excel bleibt.
+109. **Standardprozess Kommunikation Investoren = Regelwerk.** Die Excel (Stand 12.09.2024) steht als Daten
+    in `lib/kommunikation.ts`: je Aktion des Investors die Antwort SEIL (Vorlage, wörtlich mit den
+    Platzhaltern des Dokuments), das Todo, die bcc-Regel, die Trichter-Stufe und die Aufgaben. Anfrage →
+    Anfrage/Exposé; Absage → Abgesagt + Kriterien erfragen; Kriterien erhalten → Stufe bleibt, Telefonat
+    und Ankaufsprofil; Preisfrage → Preisfrage + Rückruf durch die Geschäftsführung (nur telefonisch);
+    Weitere Infos → drei Unterfälle; Telefonat → Interesse, Rückruf falls er besteht; Besichtigung →
+    Besichtigung + Vier-Schritte-Kette. Telefonnummern und Signatur sind Platzhalter: das Repository ist
+    öffentlich, die echten Werte liegen in den Vorlagen der Automatik.
+110. **Kürzel aus dem Dokument.** „MS“ = Geschäftsführung, Preisauskunft (`PREISAUSKUNFT`, Standard `ms`);
+    „JD“ = die zuständige Person des Mandats – die Person aus 2024 ist nicht mehr im Team, die Rolle schon;
+    „NG“ bleibt NG. bcc-Regeln werden als Hinweis am Todo angezeigt und im Versandauftrag als Kürzel
+    übergeben; Adressen dazu löst die Automatik aus ihrer Konfiguration auf, nicht das Repository.
+111. **Eine Regel für alle Wege.** `lib/kontakte-schreiben.ts` ist die einzige Stelle, an der sich der
+    Trichter bewegt – ob jemand eine Karte zieht, in der Liste wählt, „Antwort ▾“ drückt oder WF 06 eine
+    Mail einordnet (`/api/antwort` übersetzt interesse → anfrage, unterlagen → infos, preisanfrage →
+    preisfrage). Antworten bewegen nur vorwärts (außer Absage), setzen `letzte_antwort`, starten die
+    Follow-up-Kette neu (`followups = 0`, letzter Kontakt jetzt) und legen die Aufgaben des Standardprozesses
+    an – einmal, nicht doppelt.
+112. **Die Follow-up-Leiter.** Keine Antwort → zwei Tage später nachfassen: 1. Follow Up, 2. Follow Up,
+    weitere im Wechsel, Final Follow up. Wie viele „weitere“ es gibt, sagt das Dokument nicht; das Cockpit
+    setzt eines, also vier Stufen (`FOLLOWUP_LEITER`). Nach dem Final gilt der Investor als stumm – die Mail
+    sagt ihm, dass wir von keinem Interesse ausgehen. Nach einer Preisfrage gibt es genau eine Nachfrage
+    („haben Sie mit Herrn Seil gesprochen?“), danach läuft es telefonisch. Gewartet wird in den Stufen
+    Angeschrieben, Anfrage/Exposé und NDA angefragt. WF 05 muss dieselbe Zahl kennen (maxStufen 4).
+113. **Trichter neu sortiert.** Vorgemerkt → Angeschrieben → Anfrage/Exposé → NDA angefragt → NDA
+    unterzeichnet → Datenraum frei → Preisfrage → Besichtigung → (Abgesagt). „Interesse“ stand vorher
+    hinter dem Datenraum; laut Standardprozess ist die Anfrage aber der erste Schritt nach der
+    Approach-Mail. „Besichtigung“ ist neu (Flowchart 17: Site visit). Jede Spalte nennt ihren Schritt.
+114. **Die Seite /prozess** zeigt das Flowchart als Tafel (drei Bahnen, 17 Kästen) und darunter den
+    Standardprozess mit aufklappbaren Vorlagen, Follow-up-Leiter und Besichtigungskette – zum Nachlesen und
+    Einarbeiten. Im Mandat steht derselbe Prozess mit Stand.
+115. **Aufgeräumt.** 26 Komponenten und `lib/derive.ts` aus dem Prototyp, die keine Seite mehr erreichte,
+    sind gelöscht; sie trugen noch die alte 26er-Nummerierung und Beispieldaten.
+

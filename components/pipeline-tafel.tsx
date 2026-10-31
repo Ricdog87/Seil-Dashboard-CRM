@@ -5,9 +5,10 @@ import Link from "next/link";
 import { NAMEN } from "@/lib/sitzung-token";
 import { PHASE_LABEL, fmtDatum, type Phase } from "@/lib/mandat";
 import type { Pipeline, PipelineKarte } from "@/app/api/pipeline/route";
+import { PROZESS_PHASEN, PROZESS_SCHRITTE } from "@/lib/sop";
 
 /**
- * Die Pipeline-Tafel – die Mandate entlang der vier SOP-Phasen.
+ * Die Pipeline-Tafel – die Mandate entlang der Abschnitte des Flowcharts.
  *
  * So denkt ein Makler-Team: nicht in Tabellenzeilen, sondern in Spalten, durch
  * die ein Mandat wandert. Die Spalten sind die Phasen aus der SOP von SEIL,
@@ -19,11 +20,18 @@ import type { Pipeline, PipelineKarte } from "@/app/api/pipeline/route";
  * ab, sagt die Karte das – sie entscheidet aber nicht selbst.
  */
 
+/** Die Spalten folgen den Abschnitten des Flowcharts; Angebot und Abschluss liegen dahinter. */
+function spalte(phase: Phase, titel: string): { phase: Phase; titel: string; untertitel: string } {
+  const abschnitte = PROZESS_PHASEN.filter((p) => p.mandatPhase === phase);
+  const von = abschnitte[0]?.vonNr;
+  const bis = abschnitte[abschnitte.length - 1]?.bisNr;
+  return { phase, titel, untertitel: von && bis ? `Flowchart · Schritte ${von}–${bis}` : "" };
+}
 const SPALTEN: { phase: Phase; titel: string; untertitel: string }[] = [
-  { phase: "akquise", titel: "Mandat & Bewertung", untertitel: "Phase 1 · Schritte 1–7" },
-  { phase: "vorbereitung", titel: "Vermarktungsvorbereitung", untertitel: "Phase 2 · Schritte 8–14" },
-  { phase: "vermarktung", titel: "Aktive Vermarktung", untertitel: "Phase 3 · Schritte 15–18" },
-  { phase: "angebote", titel: "Angebote & Reporting", untertitel: "Phase 4 · Schritte 19–26" },
+  spalte("akquise", "Mandat & Bewertung"),
+  spalte("vorbereitung", "Vertrag & Vorbereitung"),
+  spalte("vermarktung", "Vermarktung"),
+  { phase: "angebote", titel: "Angebot & Verhandlung", untertitel: "nach dem Flowchart" },
   { phase: "abschluss", titel: "Abschluss", untertitel: "Signing erfolgt" },
 ];
 const NEBEN: Phase[] = ["ruht", "verloren"];
@@ -56,7 +64,7 @@ function Fortschritt({ k }: { k: PipelineKarte }) {
       </div>
       <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-2 text-kicker text-seil-muted">
         <span className="shrink-0">
-          {k.schritteFertig} von 26 Schritten
+          {k.schritteFertig} von {PROZESS_SCHRITTE.length} Schritten
           {k.schritteLaufen > 0 ? ` · ${k.schritteLaufen} läuft` : ""}
         </span>
         {k.phaseLautSchritten !== k.phase && !NEBEN.includes(k.phase) && k.phase !== "abschluss" ? (
@@ -74,10 +82,11 @@ function Trichter({ v }: { v: PipelineKarte["verteiler"] }) {
   const stufen = [
     ["Verteiler", v.gesamt],
     ["angeschrieben", v.angeschrieben],
+    ["geantwortet", v.interesse],
     ["NDA", v.nda],
     ["Datenraum", v.datenraum],
-    ["Interesse", v.interesse],
     ["Preis", v.preisanfrage],
+    ["Besichtigung", v.besichtigung],
   ] as const;
   return (
     <div className="mt-2 flex items-end gap-1" aria-label="Investoren-Trichter">

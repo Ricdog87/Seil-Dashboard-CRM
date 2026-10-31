@@ -108,7 +108,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     | null;
   const mandat = b?.mandat?.trim();
   const schritt = Number(b?.schritt);
-  if (!mandat || !Number.isInteger(schritt) || schritt < 1 || schritt > 26) {
+  if (!mandat || !Number.isInteger(schritt) || schritt < 1 || schritt > PROZESS_SCHRITTE.length) {
     return NextResponse.json({ ok: false, grund: "Mandat oder Schritt fehlt" }, { status: 400 });
   }
   if (!b?.status || !STUFEN.includes(b.status)) {

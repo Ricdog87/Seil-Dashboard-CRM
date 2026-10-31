@@ -146,7 +146,7 @@ export function MandatProzess({ mandat }: { mandat: string }) {
       <section className="mt-5">
         <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
-            Investoren-Trichter · Schritte 14–19
+            Investoren-Trichter · Schritte 13–17 · Standardprozess
           </h2>
           <div className="inline-flex rounded-seil border border-seil-line bg-seil-surface p-0.5 text-kicker">
             {(["tafel", "liste"] as const).map((a) => (

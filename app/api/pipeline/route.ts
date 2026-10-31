@@ -7,6 +7,7 @@ import type { Kontakt } from "@/app/api/kontakte/route";
 import type { SchrittStand } from "@/app/api/schritte/route";
 import type { Modul01Antwort, Modul01Objekt } from "@/lib/modul01";
 import { followupLage } from "@/lib/followup";
+import { ANGESCHRIEBEN, GEANTWORTET } from "@/lib/crm";
 
 /**
  * Die Pipeline: jedes Mandat mit allem, was eine Karte auf der Tafel braucht.
@@ -19,7 +20,7 @@ import { followupLage } from "@/lib/followup";
 export const dynamic = "force-dynamic";
 
 export interface PipelineKarte extends Mandat {
-  /** SOP-Fortschritt: wie viele der 26 Schritte stehen auf erledigt oder entfällt. */
+  /** SOP-Fortschritt: wie viele der 17 Schritte des Flowcharts stehen auf erledigt oder entfällt. */
   schritteFertig: number;
   schritteLaufen: number;
   /** Je SOP-Phase: fertig / gesamt. */
@@ -29,10 +30,12 @@ export interface PipelineKarte extends Mandat {
   verteiler: {
     gesamt: number;
     angeschrieben: number;
+    /** geantwortet: ab Anfrage/Exposé */
+    interesse: number;
     nda: number;
     datenraum: number;
-    interesse: number;
     preisanfrage: number;
+    besichtigung: number;
     abgesagt: number;
   };
   aufgabenOffen: number;
@@ -58,22 +61,24 @@ interface DbMandat {
   honorar_erwartet: number | null; honorar_ist: number | null; abschluss_am: string | null; erstellt: string | null;
   geaendert: string | null; geaendert_durch: string | null;
 }
-interface DbKontakt { mandat: string; investor_id: string; firma: string | null; status: Kontakt["status"]; letzter_kontakt: string | null; followups: number | null; }
+interface DbKontakt { mandat: string; investor_id: string; firma: string | null; status: Kontakt["status"]; letzter_kontakt: string | null; followups: number | null; letzte_antwort: string | null; }
 interface DbSchritt { mandat: string; schritt: number; status: SchrittStand["status"]; }
 interface DbAufgabe { objekt: string | null; titel: string; faellig: string | null; zustaendig: string | null; }
 interface DbFreigabe { objekt: string | null; }
 
-/** Aus den SOP-Phasen die Pipeline-Phase ableiten: die erste, die nicht fertig ist. */
+/**
+ * Aus den Abschnitten des Flowcharts die Pipeline-Phase ableiten: der erste
+ * Abschnitt, der nicht fertig ist. Sind alle 17 Schritte durch, ist das Mandat
+ * in Angeboten – Verhandlung und Abschluss liegen hinter dem Flowchart.
+ */
 function phaseAusSchritten(fertigJeNr: Set<number>): Phase {
-  const reihenfolge: Phase[] = ["akquise", "vorbereitung", "vermarktung", "angebote"];
-  for (let i = 0; i < PROZESS_PHASEN.length; i++) {
-    const ph = PROZESS_PHASEN[i];
+  for (const ph of PROZESS_PHASEN) {
     const alleFertig = PROZESS_SCHRITTE.filter((s) => s.nr >= ph.vonNr && s.nr <= ph.bisNr).every((s) =>
       fertigJeNr.has(s.nr),
     );
-    if (!alleFertig) return reihenfolge[i];
+    if (!alleFertig) return ph.mandatPhase;
   }
-  return "abschluss";
+  return "angebote";
 }
 
 async function datenraeume(): Promise<Modul01Objekt[]> {
@@ -101,7 +106,7 @@ export async function GET(): Promise<NextResponse<Pipeline>> {
   try {
     const [mandate, kontakte, schritte, aufgaben, freigaben, raeume] = await Promise.all([
       dbLesen<DbMandat>("mandat", "order=geaendert.desc&limit=300"),
-      dbLesen<DbKontakt>("kontakt", "select=mandat,investor_id,firma,status,letzter_kontakt,followups&limit=5000"),
+      dbLesen<DbKontakt>("kontakt", "limit=5000"),
       dbLesen<DbSchritt>("mandat_schritt", "select=mandat,schritt,status&limit=10000"),
       dbLesen<DbAufgabe>("aufgaben", "select=objekt,titel,faellig,zustaendig&erledigt=is.false&order=faellig.asc.nullslast&limit=2000"),
       dbLesen<DbFreigabe>("freigabe_eingang", "select=objekt&status=eq.offen&limit=2000"),
@@ -121,9 +126,10 @@ export async function GET(): Promise<NextResponse<Pipeline>> {
       // Stand je Schritt: abgeleitet schlägt eingetragen – wie auf der Mandatsseite.
       const ab = ableiten(
         dr,
-        k.map((x) => ({ investorId: x.investor_id, status: x.status }) as Kontakt),
+        k.map((x) => ({ investorId: x.investor_id, status: x.status, letzteAntwort: x.letzte_antwort ?? null }) as Kontakt),
         null,
         frei,
+        true,
       );
       const eingetragene: SchrittStand[] = s.map((x) => ({
         schritt: x.schritt, status: x.status, notiz: null, geaendertDurch: null, geaendert: null,
@@ -151,11 +157,12 @@ export async function GET(): Promise<NextResponse<Pipeline>> {
         phaseLautSchritten: phaseAusSchritten(fertigJeNr),
         verteiler: {
           gesamt: k.length,
-          angeschrieben: zaehl("angeschrieben", "nda_angefragt", "nda_unterzeichnet", "datenraum_freigegeben", "interesse", "preisanfrage"),
-          nda: zaehl("nda_unterzeichnet", "datenraum_freigegeben", "interesse", "preisanfrage"),
-          datenraum: zaehl("datenraum_freigegeben", "interesse", "preisanfrage"),
-          interesse: zaehl("interesse", "preisanfrage"),
-          preisanfrage: zaehl("preisanfrage"),
+          angeschrieben: zaehl(...ANGESCHRIEBEN),
+          interesse: zaehl(...GEANTWORTET),
+          nda: zaehl("nda_unterzeichnet", "datenraum_freigegeben", "preisanfrage", "besichtigung"),
+          datenraum: zaehl("datenraum_freigegeben", "preisanfrage", "besichtigung"),
+          preisanfrage: zaehl("preisanfrage", "besichtigung"),
+          besichtigung: zaehl("besichtigung"),
           abgesagt: zaehl("abgesagt"),
         },
         aufgabenOffen: a.length,

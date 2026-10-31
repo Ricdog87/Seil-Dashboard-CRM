@@ -214,7 +214,7 @@ import { LIGHT_KATEGORIEN, STANDARD_DOKUMENTE } from "./sop";
 type SchrittMap = Partial<Record<number, "done" | "in_progress" | "pending" | "na">>;
 
 /** Schritt-Status-Array: alles bis `doneBis` done, Rest pending.
- *  Ausnahmen werden über die SCHRITTNUMMER (1–26) adressiert – nie über den Array-Index. */
+ *  Ausnahmen werden über die SCHRITTNUMMER (1–17) adressiert – nie über den Array-Index. */
 function schritteMit(doneBis: number, ausnahmen: SchrittMap = {}) {
   return PROZESS_SCHRITTE.map(
     (sch) => ausnahmen[sch.nr] ?? (sch.nr <= doneBis ? ("done" as const) : ("pending" as const)),

@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import { datenbankAktiv, dbLesen } from "@/lib/supabase";
+import { datenbankAktiv, dbLesen, inListe } from "@/lib/supabase";
 import { protokoll } from "@/lib/protokoll";
 import { istSystem } from "@/lib/rollen";
+import { antwortArt } from "@/lib/kommunikation";
+import { kontakteSchreiben } from "@/lib/kontakte-schreiben";
 import type { Stufe } from "@/lib/crm";
 
 /**
@@ -9,43 +11,22 @@ import type { Stufe } from "@/lib/crm";
  *
  * Die Automatik kennt die Mailadresse und die Einordnung, aber nicht das
  * Mandat. Das Cockpit kennt beides: es sucht die offenen Kontakte zu dieser
- * Adresse und setzt sie weiter. So muss n8n nichts über Mandate wissen, und
- * der Trichter bewegt sich von selbst, wenn jemand antwortet.
+ * Adresse und wendet den Standardprozess an (lib/kommunikation.ts) – Stufe,
+ * Vorlage, Todo, Follow-up-Kette. So muss n8n nichts über Mandate wissen.
  *
- * Einordnung → Stufe (Entscheidungsbaum aus dem Standardprozess):
- *   absage → abgesagt · preisanfrage → preisanfrage ·
- *   interesse, unterlagen, telefonat, besichtigung → interesse ·
- *   kriterien, sonstiges → keine Stufenänderung, nur Spur.
+ * Einordnungen: anfrage · absage · kriterien · preisfrage · infos · telefonat ·
+ * besichtigung · sonstiges. Ältere Namen (interesse, unterlagen, preisanfrage)
+ * werden übersetzt.
+ *
+ * Zweiter Weg zur Adresse: findet sich kein Kontakt mit dieser E-Mail, fragt
+ * die Route die Liveliste (Adresse → Name) und sucht den Verteiler über den
+ * Namen. Ein Eintrag ohne Adresse bekommt sie dabei nachgetragen.
  */
 export const dynamic = "force-dynamic";
 
-const STUFE_JE_ART: Record<string, Stufe | null> = {
-  absage: "abgesagt",
-  preisanfrage: "preisanfrage",
-  interesse: "interesse",
-  unterlagen: "interesse",
-  telefonat: "interesse",
-  besichtigung: "interesse",
-  kriterien: null,
-  sonstiges: null,
-};
+interface DbKontakt { mandat: string; investor_id: string; firma: string | null; email: string | null; status: Stufe; }
 
-/** Rückwärts darf der Trichter nur bei Absage – eine zweite Mail nach einer Preisanfrage setzt niemanden auf „Interesse“ zurück. */
-const RANG: Record<Stufe, number> = {
-  vorgemerkt: 0, angeschrieben: 1, nda_angefragt: 2, nda_unterzeichnet: 3,
-  datenraum_freigegeben: 4, interesse: 5, preisanfrage: 6, abgesagt: 99,
-};
-
-interface DbKontakt {
-  mandat: string; investor_id: string; firma: string | null; ansprechpartner: string | null;
-  email: string | null; status: Stufe; followups: number | null;
-}
-
-/**
- * Zweiter Weg zur Adresse: die Liveliste. Ein Verteiler-Eintrag, der von Hand
- * oder aus einem Abgleich ohne Adresse entstand, hat trotzdem einen Namen – und
- * der ist der Schlüssel der Liveliste. Liefert die Namen, deren Adresse passt.
- */
+/** Die Liveliste kennt zu einer Adresse den Namen – und der ist der Schlüssel des Verteilers. */
 async function namenAusLiveliste(email: string): Promise<string[]> {
   const url = process.env.INVESTOREN_URL;
   if (!url) return [];
@@ -68,11 +49,6 @@ async function namenAusLiveliste(email: string): Promise<string[]> {
   }
 }
 
-/** PostgREST-`in.(...)`: jeder Wert in Anführungszeichen, damit Kommas und Leerzeichen im Namen nichts zerreißen. */
-function inListe(werte: string[]): string {
-  return `in.(${werte.map((w) => `"${w.replace(/"/g, '\\"')}"`).join(",")})`;
-}
-
 export async function POST(request: Request): Promise<NextResponse> {
   const durch = request.headers.get("x-seil-benutzer") ?? "";
   if (!istSystem(durch)) {
@@ -85,7 +61,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     | { email?: string; art?: string; betreff?: string; auszug?: string; mandat?: string }
     | null;
   const email = b?.email?.trim().toLowerCase();
-  const art = (b?.art ?? "sonstiges").toLowerCase();
+  const art = antwortArt(b?.art);
   if (!email) {
     return NextResponse.json({ ok: false, grund: "Ohne Absenderadresse geht es nicht" }, { status: 400 });
   }
@@ -94,13 +70,13 @@ export async function POST(request: Request): Promise<NextResponse> {
     const grund = [
       b?.mandat ? `mandat=eq.${encodeURIComponent(b.mandat)}` : null,
       "status=neq.abgesagt",
+      "select=mandat,investor_id,firma,email,status",
       "order=geaendert.desc",
       "limit=20",
     ].filter(Boolean).join("&");
     let kontakte = await dbLesen<DbKontakt>("kontakt", `email=ilike.${encodeURIComponent(email)}&${grund}`);
     let ueberListe = false;
     if (kontakte.length === 0) {
-      // Zweiter Versuch über die Liveliste: Adresse → Name → Verteiler.
       const namen = await namenAusLiveliste(email);
       if (namen.length > 0) {
         kontakte = await dbLesen<DbKontakt>("kontakt", `investor_id=${encodeURIComponent(inListe(namen))}&${grund}`);
@@ -111,49 +87,29 @@ export async function POST(request: Request): Promise<NextResponse> {
     if (kontakte.length === 0) {
       // Unbekannte Adresse: nicht verlieren, nur protokollieren.
       await protokoll({ art: "kontakt", durch: null, text: `Antwort von ${email} (${art}) – kein offener Kontakt dazu` });
-      return NextResponse.json({ ok: true, getroffen: 0, hinweis: "kein offener Kontakt zu dieser Adresse" });
+      return NextResponse.json({ ok: true, art, getroffen: 0, hinweis: "kein offener Kontakt zu dieser Adresse" });
     }
 
-    const ziel = STUFE_JE_ART[art] ?? null;
-    const jetzt = new Date().toISOString();
-    const aenderungen = kontakte
-      .filter((k) => ziel !== null && (ziel === "abgesagt" || RANG[ziel] > RANG[k.status]))
-      .map((k) => ({ mandat: k.mandat, investorId: k.investor_id, firma: k.firma, ansprechpartner: k.ansprechpartner,
-        // Kam der Treffer über die Liveliste, bekommt der Eintrag seine Adresse – beim nächsten Mal geht es direkt.
-        email: k.email ?? email, status: ziel as Stufe, letzterKontakt: jetzt }));
-
-    // Geschrieben wird NUR über die Kontakt-Route: sie kennt den vorherigen
-    // Stand und legt beim Wechsel die Prozess-Aufgabe an. Ein direkter Schreibzugriff
-    // vorher würde ihr den Wechsel verstecken – dann gäbe es keine Aufgabe.
-    const basis = new URL(request.url).origin;
-    const gespeichert = new Set<string>();
-    for (const a of aenderungen) {
-      const ok = await fetch(`${basis}/api/kontakte`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Seil-Secret": process.env.MODUL01_SECRET ?? "" },
-        body: JSON.stringify({ mandat: a.mandat, kontakte: [{ investorId: a.investorId, firma: a.firma, ansprechpartner: a.ansprechpartner, email: a.email, status: a.status, letzterKontakt: a.letzterKontakt }] }),
-        cache: "no-store",
-      })
-        .then(async (r) => r.ok && ((await r.json().catch(() => ({}))) as { ok?: boolean }).ok === true)
-        .catch(() => false);
-      if (ok) gespeichert.add(`${a.mandat}|${a.investorId}`);
+    const geaendert: { mandat: string; investor: string; status: Stufe }[] = [];
+    let aufgaben = 0;
+    const jeMandat = new Map<string, DbKontakt[]>();
+    for (const k of kontakte) jeMandat.set(k.mandat, [...(jeMandat.get(k.mandat) ?? []), k]);
+    for (const [mandat, liste] of jeMandat) {
+      const r = await kontakteSchreiben(
+        mandat,
+        liste.map((k) => ({
+          investorId: k.investor_id,
+          antwort: art,
+          betreff: `${b?.betreff ?? ""}${ueberListe ? " · Adresse über Liveliste zugeordnet" : ""}`.trim() || null,
+          // Kam der Treffer über die Liveliste, bekommt der Eintrag seine Adresse – beim nächsten Mal geht es direkt.
+          ...(k.email ? {} : { email }),
+        })),
+        durch,
+      );
+      aufgaben += r.aufgaben;
+      for (const g of r.geschrieben) geaendert.push({ mandat, investor: g.investor_id, status: g.status });
     }
-
-    // Immer eine Spur – auch wenn sich die Stufe nicht aendert, war da eine Antwort.
-    for (const k of kontakte) {
-      const bewegt = gespeichert.has(`${k.mandat}|${k.investor_id}`);
-      await protokoll({
-        mandat: k.mandat, investorId: k.investor_id, art: "kontakt", durch: null,
-        text: `Antwort (${art})${b?.betreff ? `: „${b.betreff.slice(0, 80)}“` : ""}${bewegt ? ` → ${ziel}` : ""}${ueberListe ? " · Adresse über Liveliste zugeordnet" : ""}`,
-      });
-    }
-    const fehlgeschlagen = aenderungen.filter((a) => !gespeichert.has(`${a.mandat}|${a.investorId}`));
-    return NextResponse.json({
-      ok: fehlgeschlagen.length === 0,
-      getroffen: kontakte.length,
-      geaendert: aenderungen.filter((a) => gespeichert.has(`${a.mandat}|${a.investorId}`)).map((a) => ({ mandat: a.mandat, investor: a.investorId, status: a.status })),
-      ...(fehlgeschlagen.length > 0 ? { nichtGespeichert: fehlgeschlagen.map((a) => ({ mandat: a.mandat, investor: a.investorId })) } : {}),
-    }, { status: fehlgeschlagen.length === 0 ? 200 : 502 });
+    return NextResponse.json({ ok: true, art, getroffen: kontakte.length, geaendert, aufgaben, ...(ueberListe ? { hinweis: "Adresse über Liveliste zugeordnet" } : {}) });
   } catch (e) {
     return NextResponse.json({ ok: false, grund: e instanceof Error ? e.message : "Datenbank nicht erreichbar" }, { status: 502 });
   }

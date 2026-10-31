@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { STUFEN, STUFEN_LABEL, STUFEN_TON, type Stufe } from "@/lib/crm";
+import { GEANTWORTET, STUFEN, STUFEN_LABEL, STUFEN_TON, type Stufe } from "@/lib/crm";
+import { ANTWORT_LABEL } from "@/lib/kommunikation";
 import type { Kontakt, Kontaktstand } from "@/app/api/kontakte/route";
 import { followupLage } from "@/lib/followup";
 
@@ -81,8 +82,8 @@ export function Verteiler({
   const sichtbar = nurOffene ? offen : kontakte;
 
   const zaehler = (stufen: Stufe[]) => kontakte.filter((k) => stufen.includes(k.status)).length;
-  const geantwortet = zaehler(["interesse", "preisanfrage", "nda_unterzeichnet", "datenraum_freigegeben"]);
-  const stumm = zaehler(["angeschrieben", "nda_angefragt"]);
+  const geantwortet = zaehler([...GEANTWORTET]);
+  const stumm = kontakte.filter((k) => followupLage(k).lage !== "keine").length;
 
   if (!mandat) return null;
 
@@ -135,12 +136,13 @@ export function Verteiler({
       ) : null}
 
       <div className="overflow-x-auto rounded-[var(--seil-radius)] border border-seil-line">
-        <table className="w-full min-w-[720px] border-collapse text-body">
+        <table className="w-full min-w-[860px] border-collapse text-body">
           <thead>
             <tr className="bg-seil-surface text-left text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
               <th className="px-3 py-2 font-medium">Investor</th>
               <th className="px-3 py-2 font-medium">Ansprechpartner</th>
               <th className="px-3 py-2 font-medium">Stand</th>
+              <th className="px-3 py-2 font-medium">Letzte Antwort</th>
               <th className="px-3 py-2 font-medium">Letzter Kontakt</th>
               <th className="px-3 py-2 font-medium">Follow-up</th>
               <th className="px-3 py-2 font-medium">Zuletzt geändert</th>
@@ -171,6 +173,9 @@ export function Verteiler({
                     ))}
                   </select>
                 </td>
+                <td className="whitespace-nowrap px-3 py-2 text-kicker text-seil-body">
+                  {k.letzteAntwort ? ANTWORT_LABEL[k.letzteAntwort] ?? k.letzteAntwort : "—"}
+                </td>
                 <td className="whitespace-nowrap px-3 py-2 text-seil-body">
                   {k.letzterKontakt
                     ? new Date(k.letzterKontakt).toLocaleDateString("de-DE", {
@@ -183,9 +188,9 @@ export function Verteiler({
                 <td className="px-3 py-2 text-kicker">
                   {(() => {
                     const f = followupLage(k);
-                    if (f.lage === "faellig") return <span className="text-seil-danger">{f.stufe}/3 fällig · {f.tage} Tage</span>;
-                    if (f.lage === "stumm") return <span className="text-seil-muted">stumm nach 3×</span>;
-                    if (f.lage === "wartet") return <span className="text-seil-muted">wartet · {k.followups}×</span>;
+                    if (f.lage === "faellig") return <span className="text-seil-danger">{f.name} fällig · {f.tage} Tage</span>;
+                    if (f.lage === "stumm") return <span className="text-seil-muted">{f.max > 1 ? "Final gesendet" : "nachgefragt"}</span>;
+                    if (f.lage === "wartet") return <span className="text-seil-muted">wartet · {k.followups}/{f.max}</span>;
                     return <span className="text-seil-muted">—</span>;
                   })()}
                 </td>
@@ -197,8 +202,8 @@ export function Verteiler({
       </div>
       <p className="mt-2 text-kicker leading-relaxed text-seil-muted">
         Eine Änderung ist sofort gespeichert und für alle sichtbar. Wer angeschrieben wird, kommt
-        automatisch mit dem Stand „Angeschrieben“ hierher – alles danach trägt das Team ein,
-        solange die Antworterkennung es nicht selbst kann.
+        automatisch mit dem Stand „Angeschrieben“ hierher. Antworten erfasst die Tafel („Antwort ▾“)
+        oder die Antworterkennung – beide nach dem Standardprozess.
       </p>
     </div>
   );

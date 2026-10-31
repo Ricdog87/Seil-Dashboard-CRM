@@ -90,7 +90,7 @@ export interface Objekt {
   seCircleSync?: SeCircleSync;
   /** Stand von Teaser & Listing - produktiv KI-generiert mit Pruefschritt. */
   teaser?: TeaserStatus;
-  /** Status je Prozessschritt (Reihenfolge wie PROZESS_SCHRITTE, 26 Einträge).
+  /** Status je Prozessschritt (Reihenfolge wie PROZESS_SCHRITTE, 17 Einträge).
    *  Mehrere Schritte können gleichzeitig in Arbeit sein – wie in der Team-Excel. */
   schritte: SchrittStatus[];
   /** Vertretung des Projekt-Leads (Team-Excel: Lead + Vertretung je Objekt). */

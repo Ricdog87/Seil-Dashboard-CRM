@@ -37,7 +37,7 @@ export function Kennzahlen() {
   const inVermarktung = karten.filter((k) => ["vermarktung", "angebote"].includes(k.phase)).length;
   const sum = (f: (k: (typeof karten)[number]) => number) => karten.reduce((n, k) => n + f(k), 0);
   const angeschrieben = sum((k) => k.verteiler.angeschrieben);
-  const geantwortet = sum((k) => k.verteiler.nda + k.verteiler.interesse);
+  const geantwortet = sum((k) => k.verteiler.interesse);
   const quote = angeschrieben > 0 ? Math.round((geantwortet / angeschrieben) * 100) : null;
   const nda = sum((k) => k.verteiler.nda);
   const interesse = sum((k) => k.verteiler.interesse);
@@ -97,7 +97,7 @@ export function Kennzahlen() {
         sub={`${geantwortet} haben reagiert`}
         ton={quote !== null && quote >= 20 ? "text-seil-success" : ""}
       />
-      <Kachel wert={z(nda)} label="NDAs" sub={`${interesse} mit Interesse`} />
+      <Kachel wert={z(nda)} label="NDAs" sub={`${interesse} haben geantwortet`} />
       <Kachel
         wert={z(freigaben)}
         label="Freigaben"

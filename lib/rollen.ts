@@ -31,3 +31,12 @@ export function istSystem(kuerzel: string | null | undefined): boolean {
 export function darfVerteilen(kuerzel: string | null | undefined): boolean {
   return istGeschaeftsfuehrung(kuerzel) || istSystem(kuerzel);
 }
+
+/**
+ * Wer Preisauskünfte gibt – laut Standardprozess nur persönlich und telefonisch
+ * durch die Geschäftsführung („Herr Seil“). Aufgaben aus Preisfragen gehen an
+ * dieses Kürzel; änderbar über PREISAUSKUNFT.
+ */
+export function preisauskunft(): string {
+  return (process.env.PREISAUSKUNFT ?? "ms").trim().toLowerCase();
+}

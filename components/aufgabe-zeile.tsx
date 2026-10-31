@@ -104,7 +104,7 @@ export function AufgabeZeile({
             </Link>
           ) : null}
           {a.quelle === "prozess" ? (
-            <span className="rounded-seil bg-seil-accent-bg px-1.5 py-px text-seil-accent" title="Aus einem Stufenwechsel im Trichter entstanden">
+            <span className="rounded-seil bg-seil-accent-bg px-1.5 py-px text-seil-accent" title="Aus dem Standardprozess entstanden – Stufenwechsel oder Antwort im Trichter">
               aus dem Prozess
             </span>
           ) : null}

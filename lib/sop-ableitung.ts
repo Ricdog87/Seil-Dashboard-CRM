@@ -1,14 +1,18 @@
 import type { Kontakt } from "@/app/api/kontakte/route";
 import type { Modul01Objekt } from "@/lib/modul01";
 import type { SchrittStand } from "@/app/api/schritte/route";
+import { ANGESCHRIEBEN, GEANTWORTET } from "@/lib/crm";
 
 /**
- * Welcher SOP-Schritt lässt sich aus den Live-Quellen ablesen?
+ * Welcher Schritt des Flowcharts lässt sich aus den Live-Quellen ablesen?
  *
  * Diese Schritte trägt niemand von Hand ein – die Automatik weiß es besser und
  * aktueller. Alles andere bleibt Handarbeit des Teams, und zwar sichtbar:
  * lieber ein leeres Feld, in dem jemand etwas einträgt, als ein grüner Haken,
  * den niemand gesetzt hat.
+ *
+ * Nummern wie im Flowchart: 8 Datenraum · 9 Deal · 13 Matching · 14 Approach ·
+ * 15 E-Mail-Kommunikation · 16 Phone Call · 17 Broker Call.
  */
 export type Stand = "done" | "in_progress" | "pending" | "na";
 
@@ -28,28 +32,34 @@ function wert(o: Modul01Objekt | undefined, feld: string): number | null {
 
 export function ableiten(
   datenraum: Modul01Objekt | undefined,
-  kontakte: Kontakt[],
+  kontakte: Pick<Kontakt, "status" | "letzteAntwort">[],
   investorenGesamt: number | null,
   offeneFreigaben: number,
+  mandatAngelegt = true,
 ): Record<number, Abgeleitet> {
   const ab: Record<number, Abgeleitet> = {};
-  const zaehl = (...stufen: string[]) => kontakte.filter((k) => stufen.includes(k.status)).length;
+  const zaehl = (...stufen: readonly string[]) => kontakte.filter((k) => stufen.includes(k.status)).length;
 
-  // 9 · Datenraum aufbauen – Modul 01 weiß, wie weit er ist.
+  // 8 · Create Data Room – Modul 01 weiß, wie weit er ist.
   if (datenraum) {
     const verarbeitet = wert(datenraum, "verarbeitet");
     const abgelegt = wert(datenraum, "abgelegt");
     const offen = datenraum.dokumente?.length ?? 0;
-    ab[9] = {
+    ab[8] = {
       status: offen === 0 && abgelegt ? "done" : "in_progress",
       wert: `${abgelegt ?? 0} von ${verarbeitet ?? 0} abgelegt, ${offen} zu prüfen`,
       quelle: "Modul 01",
     };
   }
 
-  // 14 · Matching-Liste – gibt es einen Verteiler, ist der Abgleich gelaufen.
-  if (investorenGesamt !== null) {
-    ab[14] =
+  // 9 · Create new Deal – das Mandat im Cockpit ist der Deal.
+  if (mandatAngelegt) {
+    ab[9] = { status: "done", wert: "Mandat im Cockpit angelegt", quelle: "Cockpit" };
+  }
+
+  // 13 · Matching / Investors List – gibt es einen Verteiler, ist der Abgleich gelaufen.
+  if (investorenGesamt !== null || kontakte.length > 0) {
+    ab[13] =
       kontakte.length > 0
         ? { status: "done", wert: `${kontakte.length} im Verteiler`, quelle: "Abgleich" }
         : {
@@ -59,52 +69,41 @@ export function ableiten(
           };
   }
 
-  // 15 · Approach-Mailing – der Schritt mit der manuellen Freigabe.
-  const angeschrieben = zaehl(
-    "angeschrieben",
-    "nda_angefragt",
-    "nda_unterzeichnet",
-    "datenraum_freigegeben",
-    "interesse",
-    "preisanfrage",
-  );
+  // 14 · Investors Approach-E-Mail – der Schritt mit der Freigabe.
+  const angeschrieben = zaehl(...ANGESCHRIEBEN);
   if (offeneFreigaben > 0) {
+    ab[14] = { status: "in_progress", wert: `${offeneFreigaben} warten auf Freigabe`, quelle: "Freigabe-Eingang" };
+  } else if (angeschrieben > 0) {
+    ab[14] = { status: "done", wert: `${angeschrieben} angeschrieben`, quelle: "Verteiler" };
+  }
+
+  // 15 · E-Mail-Communication (Standard Process): Feedbacks, Follow-Ups, Q&A, NDA, Data room
+  const geantwortet = zaehl(...GEANTWORTET);
+  const nda = zaehl("nda_unterzeichnet", "datenraum_freigegeben", "preisanfrage", "besichtigung");
+  const dr = zaehl("datenraum_freigegeben", "preisanfrage", "besichtigung");
+  if (angeschrieben > 0) {
     ab[15] = {
       status: "in_progress",
-      wert: `${offeneFreigaben} warten auf Freigabe`,
-      quelle: "Freigabe-Eingang",
+      wert: `${geantwortet} geantwortet · ${nda} NDA · ${dr} Datenraum`,
+      quelle: "Standardprozess",
     };
-  } else if (angeschrieben > 0) {
-    ab[15] = { status: "done", wert: `${angeschrieben} angeschrieben`, quelle: "Verteiler" };
   }
 
-  // 16 · Follow-ups, Q&A, NDA
-  const nda = zaehl("nda_angefragt", "nda_unterzeichnet", "datenraum_freigegeben");
-  if (nda > 0) {
-    const unterzeichnet = zaehl("nda_unterzeichnet", "datenraum_freigegeben");
-    ab[16] = {
+  // 16 · Phone Call – Telefonate aus dem Standardprozess: Preisfragen und Rückrufwünsche.
+  const anrufe = kontakte.filter((k) => k.status === "preisanfrage" || k.letzteAntwort === "telefonat" || k.letzteAntwort === "preisfrage").length;
+  if (anrufe > 0) {
+    ab[16] = { status: "in_progress", wert: `${anrufe} Rückrufe`, quelle: "Standardprozess" };
+  }
+
+  // 17 · Broker Call – Feedback, Pricing, Site visit.
+  const gespraech = zaehl("preisanfrage", "besichtigung");
+  const besichtigung = zaehl("besichtigung");
+  if (gespraech > 0) {
+    ab[17] = {
       status: "in_progress",
-      wert: `${unterzeichnet} von ${nda} NDA unterzeichnet`,
+      wert: `${gespraech} im Gespräch · ${besichtigung} Besichtigung`,
       quelle: "Verteiler",
     };
-  }
-
-  // 17 · Broker Call – entsteht aus dem Interesse.
-  const interesse = zaehl("interesse", "preisanfrage");
-  if (interesse > 0) {
-    ab[17] = { status: "in_progress", wert: `${interesse} mit Interesse`, quelle: "Verteiler" };
-  }
-
-  // 18 · Datenraum Light – nach NDA freigegeben.
-  const drFrei = zaehl("datenraum_freigegeben");
-  if (drFrei > 0) {
-    ab[18] = { status: "in_progress", wert: `${drFrei} haben Zugang`, quelle: "Verteiler" };
-  }
-
-  // 19 · Indikatives Angebot – eine Preisanfrage ist der Vorbote.
-  const preis = zaehl("preisanfrage");
-  if (preis > 0) {
-    ab[19] = { status: "in_progress", wert: `${preis} Preisanfragen`, quelle: "Verteiler" };
   }
 
   return ab;

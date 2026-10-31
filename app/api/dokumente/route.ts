@@ -4,7 +4,7 @@ import { protokoll } from "@/lib/protokoll";
 import { DOKUMENT_STATUS, STANDARD_DOKUMENTE, type DokumentStatus } from "@/lib/sop";
 
 /**
- * Die Standarddokumente eines Mandats – SOP Schritt 8.
+ * Die Standarddokumente eines Mandats – SOP Schritt 7.
  *
  * Das ist die Sicht des Hausverkäufers auf das Mandat: nach genau diesen
  * Unterlagen wird er gefragt. Was fehlt, was angefordert ist, was vorliegt.

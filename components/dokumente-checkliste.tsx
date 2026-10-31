@@ -5,11 +5,11 @@ import { LIGHT_KATEGORIEN } from "@/lib/sop";
 import type { Dokumentenliste, DokumentStand, DokumentStatus } from "@/app/api/dokumente/route";
 
 /**
- * Die Standarddokumente eines Mandats – SOP Schritt 8, aus Sicht des
+ * Die Standarddokumente eines Mandats – SOP Schritt 7, aus Sicht des
  * Hausverkäufers: nach genau diesen Unterlagen wird er gefragt.
  *
  * Zwanzig Kategorien, wortgetreu aus der Datenraum-SOP. Was in den Datenraum
- * light gehört (Schritt 18), ist markiert – das sind die elf, die ein
+ * light gehört (Schritt 15, nach NDA), ist markiert – das sind die elf, die ein
  * Interessent nach NDA zuerst sieht.
  */
 const STATUS: { wert: DokumentStatus; label: string; ton: string }[] = [
@@ -74,7 +74,7 @@ export function DokumenteCheckliste({ mandat, kompakt = false }: { mandat: strin
           onClick={() => setAuf((x) => !x)}
           className="text-left text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted"
         >
-          {kompakt ? (auf ? "▾ " : "▸ ") : ""}Standarddokumente · Schritt 8
+          {kompakt ? (auf ? "▾ " : "▸ ") : ""}Standarddokumente · Schritt 7
           {stand?.modus === "live" ? (
             <span className="ml-2 normal-case tracking-normal">
               — <span className="text-seil-success">{liegtVor}</span> von {noetig} liegen vor

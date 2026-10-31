@@ -15,7 +15,7 @@ import type { Mandatsliste } from "@/app/api/mandate/route";
  * Zahlen dazu, daneben die Sicht (meine / alle, offen / erledigt), ein
  * Erfassungsbereich mit Schnellterminen, und jede Zeile öffnet sich für
  * Zuweisung, Termin und Notiz. Aufgaben aus dem Prozess sind markiert: die
- * hat niemand getippt, die kommen aus einem Stufenwechsel im Trichter.
+ * hat niemand getippt, die kommen aus dem Standardprozess im Trichter.
  */
 
 type Sicht = "meine" | "alle";
@@ -292,7 +292,7 @@ export function AufgabenTafel({ kuerzel, darfVerteilen }: { kuerzel: string; dar
           <div className="rounded-[var(--seil-radius)] border border-dashed border-seil-line p-8 text-center">
             <div className="text-body text-seil-text">{zustand === "offen" ? "Nichts offen." : "Noch nichts erledigt."}</div>
             <div className="mt-1 text-kicker text-seil-muted">
-              {zustand === "offen" ? "Aufgaben entstehen hier von Hand – oder aus dem Trichter, wenn ein Investor Interesse zeigt." : ""}
+              {zustand === "offen" ? "Aufgaben entstehen hier von Hand – oder aus dem Standardprozess, wenn ein Investor antwortet." : ""}
             </div>
           </div>
         ) : (
