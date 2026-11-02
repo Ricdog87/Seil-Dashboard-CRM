@@ -17,3 +17,8 @@ next-env.d.ts
 
 # vercel
 .vercel
+
+# Gedaechtnis-Dienst (Modul 01)
+modul01/gedaechtnis/node_modules/
+modul01/gedaechtnis/daten/
+modul01/gedaechtnis/.env

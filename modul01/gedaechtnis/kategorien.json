@@ -1,0 +1,294 @@
+{
+  "_quelle": "SOP „Anlage und Standardisierung eines SEIL REAL ESTATE Datenraums“ vom 18.02.2026 – 20 Kategorien, Datenraum light = 11 davon. Stichwörter und Felder sind die Lesehilfe des Gedächtnisses, keine SOP-Änderung.",
+  "kategorien": [
+    {
+      "name": "Mieterliste",
+      "light": true,
+      "definition": "Aufstellung aller Mietverhältnisse mit Fläche, Miete, Laufzeit (Rent Roll).",
+      "stichwoerter": [
+        "mieterliste",
+        "rentroll",
+        "rent roll",
+        "mietaufstellung",
+        "mieteinnahmen",
+        "mietuebersicht"
+      ]
+    },
+    {
+      "name": "Altlasten",
+      "light": true,
+      "definition": "Altlastenauskunft, Bodengutachten, Kataster-Auszug zu Altlasten.",
+      "stichwoerter": [
+        "altlast",
+        "altlasten",
+        "boden",
+        "kontamination",
+        "altlastenkataster",
+        "bodengutachten"
+      ]
+    },
+    {
+      "name": "Baulasten",
+      "light": true,
+      "definition": "Baulastenverzeichnis, Baulastenauskunft.",
+      "stichwoerter": [
+        "baulast",
+        "baulasten",
+        "baulastenverzeichnis"
+      ]
+    },
+    {
+      "name": "Denkmalschutz",
+      "light": true,
+      "definition": "Denkmalbescheid, Denkmalliste, Auskunft Denkmalschutz.",
+      "stichwoerter": [
+        "denkmal",
+        "denkmalschutz",
+        "denkmalliste"
+      ]
+    },
+    {
+      "name": "Grundbuch",
+      "light": true,
+      "definition": "Grundbuchauszug, Abteilungen I–III, Eigentümer, Lasten.",
+      "stichwoerter": [
+        "grundbuch",
+        "grundbuchauszug",
+        "abteilung",
+        "eigentuemer",
+        "grundschuld"
+      ]
+    },
+    {
+      "name": "Grundrisse",
+      "light": true,
+      "definition": "Grundrisspläne je Geschoss und Einheit.",
+      "stichwoerter": [
+        "grundriss",
+        "grundrisse",
+        "geschossplan",
+        "wohnungsplan",
+        "plan",
+        "gr"
+      ]
+    },
+    {
+      "name": "Ansichten",
+      "light": true,
+      "definition": "Ansichtspläne der Fassaden.",
+      "stichwoerter": [
+        "ansicht",
+        "ansichten",
+        "fassade",
+        "nordansicht",
+        "suedansicht"
+      ]
+    },
+    {
+      "name": "Schnitte",
+      "light": true,
+      "definition": "Schnittpläne des Gebäudes.",
+      "stichwoerter": [
+        "schnitt",
+        "schnitte",
+        "laengsschnitt",
+        "querschnitt"
+      ]
+    },
+    {
+      "name": "Kataster",
+      "light": true,
+      "definition": "Flurkarte, Liegenschaftskarte, Katasterauszug, Flurstücke.",
+      "stichwoerter": [
+        "kataster",
+        "flurkarte",
+        "liegenschaftskarte",
+        "flurstueck",
+        "flur",
+        "alkis"
+      ]
+    },
+    {
+      "name": "Bilder",
+      "light": true,
+      "definition": "Fotos des Objekts, Außen- und Innenaufnahmen, Drohnenbilder.",
+      "stichwoerter": [
+        "foto",
+        "fotos",
+        "bild",
+        "bilder",
+        "img",
+        "dsc",
+        "drohne",
+        "aufnahme",
+        "jpg",
+        "jpeg",
+        "png",
+        "heic"
+      ]
+    },
+    {
+      "name": "Betriebskosten",
+      "light": false,
+      "definition": "Betriebskostenabrechnungen, Nebenkostenaufstellungen, Hausgeld.",
+      "stichwoerter": [
+        "betriebskosten",
+        "nebenkosten",
+        "bka",
+        "nka",
+        "hausgeld",
+        "abrechnung"
+      ]
+    },
+    {
+      "name": "Mietverträge",
+      "light": false,
+      "definition": "Mietverträge, Nachträge, Mietanpassungen je Einheit.",
+      "stichwoerter": [
+        "mietvertrag",
+        "mietvertraege",
+        "mv",
+        "nachtrag",
+        "mieterhoehung",
+        "staffelmiete",
+        "indexmiete",
+        "gewerbemietvertrag",
+        "wohnraummietvertrag"
+      ]
+    },
+    {
+      "name": "Energienachweis",
+      "light": true,
+      "definition": "Energieausweis (Bedarf/Verbrauch), Energieberatung.",
+      "stichwoerter": [
+        "energieausweis",
+        "energie",
+        "bedarfsausweis",
+        "verbrauchsausweis",
+        "enev",
+        "geg"
+      ]
+    },
+    {
+      "name": "Versicherungen",
+      "light": false,
+      "definition": "Gebäudeversicherung, Haftpflicht, Policen, Schadenhistorie.",
+      "stichwoerter": [
+        "versicherung",
+        "police",
+        "gebaeudeversicherung",
+        "haftpflicht",
+        "schaden"
+      ]
+    },
+    {
+      "name": "Bauakte",
+      "light": false,
+      "definition": "Baugenehmigung, Bauakte, Abnahmen, Statik, Baubeschreibung.",
+      "stichwoerter": [
+        "bauakte",
+        "baugenehmigung",
+        "statik",
+        "baubeschreibung",
+        "abnahme",
+        "bauantrag",
+        "nutzungsaenderung"
+      ]
+    },
+    {
+      "name": "Mietrückstände",
+      "light": false,
+      "definition": "Offene-Posten-Listen, Mahnungen, Rückstandsaufstellungen.",
+      "stichwoerter": [
+        "rueckstand",
+        "rueckstaende",
+        "mahnung",
+        "offene posten",
+        "op-liste",
+        "forderung"
+      ]
+    },
+    {
+      "name": "Grundsteuer",
+      "light": false,
+      "definition": "Grundsteuerbescheid, Einheitswert, Grundsteuermessbetrag.",
+      "stichwoerter": [
+        "grundsteuer",
+        "einheitswert",
+        "messbetrag",
+        "grundsteuerbescheid"
+      ]
+    },
+    {
+      "name": "Brandschutz",
+      "light": false,
+      "definition": "Brandschutzkonzept, Brandschau, Prüfberichte Brandschutz.",
+      "stichwoerter": [
+        "brandschutz",
+        "brandschau",
+        "feuerwehr",
+        "rauchmelder",
+        "brandschutzkonzept"
+      ]
+    },
+    {
+      "name": "Wartungs- und Serviceverträge",
+      "light": false,
+      "definition": "Wartungsverträge (Aufzug, Heizung, Lüftung), Serviceverträge, Prüfprotokolle.",
+      "stichwoerter": [
+        "wartung",
+        "wartungsvertrag",
+        "service",
+        "servicevertrag",
+        "aufzug",
+        "heizung",
+        "lueftung",
+        "pruefprotokoll",
+        "tuev"
+      ]
+    },
+    {
+      "name": "Gutachten",
+      "light": false,
+      "definition": "Wertgutachten, Verkehrswertgutachten, technische Gutachten.",
+      "stichwoerter": [
+        "gutachten",
+        "verkehrswert",
+        "wertgutachten",
+        "bewertung",
+        "sachverstaendiger"
+      ]
+    }
+  ],
+  "felder": [
+    {
+      "name": "Straße",
+      "beschreibung": "Straßenname des Objekts, wie im Grundbuch oder Mietvertrag."
+    },
+    {
+      "name": "Hausnummer",
+      "beschreibung": "Hausnummer, ggf. mit Zusatz (12a)."
+    },
+    {
+      "name": "PLZ Ort",
+      "beschreibung": "Postleitzahl und Ort."
+    },
+    {
+      "name": "Flurstück",
+      "beschreibung": "Flur und Flurstücksnummer aus Kataster oder Grundbuch."
+    },
+    {
+      "name": "Einheit",
+      "beschreibung": "Wohnungs- oder Gewerbeeinheit (z. B. WE 03, EG links)."
+    },
+    {
+      "name": "Datum",
+      "beschreibung": "Datum des Dokuments (Vertragsdatum, Ausstellungsdatum)."
+    },
+    {
+      "name": "Mieter",
+      "beschreibung": "Mieter oder Firma – im Dateinamen nur, wenn die SOP es verlangt."
+    }
+  ],
+  "dateinamenKonvention": "<Kategorie>_<Straße Hausnummer>_<Einheit oder Geschoss>_<Datum JJJJ-MM-TT>.<ext> – fehlende Angaben als [unbekannt: Feld] kennzeichnen, nie erfinden."
+}

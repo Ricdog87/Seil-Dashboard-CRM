@@ -1,0 +1,15 @@
+# Auf dem SEIL-Server neben n8n starten: `docker compose up -d`.
+# Der Dienst ist nur von localhost erreichbar; n8n ruft ihn über http://host.docker.internal:8787
+# (oder, wenn n8n im selben Docker-Netz läuft, über http://gedaechtnis:8787).
+services:
+  gedaechtnis:
+    build: .
+    container_name: seil-gedaechtnis
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "127.0.0.1:8787:8787"
+    volumes:
+      - ./daten:/daten
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

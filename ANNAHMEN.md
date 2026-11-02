@@ -1192,3 +1192,17 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     Mandat neben der Stadt eine Region aus der festen Liste der sechzehn Länder. Freitext würde den
     Abgleich leise ins Leere laufen lassen.
 
+119. **„Mit jedem Lauf schlauer“ ist Gedächtnis, kein Lernen im Modell.** Ein Sprachmodell lernt
+    nicht aus API-Aufrufen. Was besser wird, ist das System darum herum: `modul01/gedaechtnis`
+    speichert je Datei Pfad, Name, Merkmale, Vorschlag und die Entscheidung des Teams (nie
+    Inhalte), erkennt fast identische Dateien wieder (lexikalische Ähnlichkeit, kein
+    Modellaufruf), gibt dem Modell die ähnlichsten bestätigten Beispiele und freigegebene Regeln
+    mit, destilliert aus Korrekturen Regelentwürfe und misst je Lauf Trefferquote,
+    Kalibrierung und Lernkurve (Abnahme A4). Regeln werden erst durch eine Freigabe aktiv –
+    niemand lernt dem System unbemerkt etwas Falsches an.
+120. **Modell und Kosten.** Einordnung mit `claude-opus-5-5`, Effort `low`, strukturierte Ausgabe
+    nach JSON-Schema; der stabile Prompt-Teil (SOP, Regeln) ist gecacht. Kein serverseitiger
+    Fallback bei Ablehnungen: Dateinamen-Einordnung löst keine Schutzfilter aus; falls doch,
+    greift die Stichwort-Heuristik und kennzeichnet das. Der Dienst läuft auf dem SEIL-Server
+    neben n8n (SQLite, Node ohne native Abhängigkeiten), hört nur lokal, Schlüssel nur in `.env`.
+

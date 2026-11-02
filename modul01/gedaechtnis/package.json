@@ -1,0 +1,15 @@
+{
+  "name": "seil-datenraum-gedaechtnis",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gedächtnis für Modul 01: lernt aus Korrekturen im Datenraum-Center und macht die Einordnung mit jedem Lauf besser.",
+  "type": "module",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node --no-warnings=ExperimentalWarning server.mjs",
+    "test": "node --no-warnings=ExperimentalWarning test/rauchtest.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0"
+  }
+}
