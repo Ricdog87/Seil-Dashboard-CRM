@@ -7,7 +7,8 @@ import { PROZESS_SCHRITTE } from "@/lib/sop";
  * Process“ und der Standardprozess Kommunikation Investoren. Hier zum
  * Nachlesen – im Mandat steht derselbe Prozess mit dem jeweiligen Stand.
  */
-export const dynamic = "force-static";
+// Dynamisch, damit die Kopfzeile den angemeldeten Namen zeigt – statisch wüsste sie ihn nicht.
+export const dynamic = "force-dynamic";
 
 export default function ProzessSeite() {
   return (
