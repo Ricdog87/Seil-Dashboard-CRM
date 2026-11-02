@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { datenbankAktiv, dbSchreiben } from "@/lib/supabase";
 import { protokoll } from "@/lib/protokoll";
+import { bccKuerzel } from "@/lib/bcc";
 
 /**
  * Anschreiben aus dem Cockpit heraus.
@@ -193,6 +194,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         text: b.text.trim(),
         modus,
         durch,
+        bcc: await bccKuerzel(b.objekt, durch),
         empfaenger,
       }),
       cache: "no-store",

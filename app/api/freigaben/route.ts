@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { darfFreigeben } from "@/lib/freigabe";
 import { datenbankAktiv, dbAendern, dbLesen, dbSchreiben, inListe } from "@/lib/supabase";
 import { protokoll } from "@/lib/protokoll";
+import { bccKuerzel } from "@/lib/bcc";
 
 /**
  * Freigabe-Eingang: die Anschreiben, die auf eine Entscheidung warten.
@@ -209,6 +210,8 @@ async function versandAnstossen(
 
   try {
     for (const gruppe of nach.values()) {
+      // Standardprozess: Geschäftsführung und zuständige Person auf bcc – als Kürzel, die Automatik löst auf.
+      const bcc = await bccKuerzel(gruppe[0].objekt, durch);
       const res = await fetch(url, {
         method: "POST",
         headers: { ...kopf(), "Content-Type": "application/json" },
@@ -218,6 +221,7 @@ async function versandAnstossen(
           text: gruppe[0].entwurf,
           modus: "sofort",
           durch,
+          bcc,
           empfaenger: gruppe
             .filter((z) => z.investor_email)
             .map((z) => ({
