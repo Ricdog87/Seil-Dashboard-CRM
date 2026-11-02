@@ -1,49 +1,35 @@
 {
-  "name": "SEIL 05 · Versand & Follow-up-Scheduler (E-Mail + WhatsApp)",
+  "name": "SEIL 05 · Nachfass-Leiter (Follow-up)",
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
   "nodes": [
     {
-      "id": "sticky-05",
+      "id": "note-05",
       "name": "Hinweis",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        140,
-        -160
+        100,
+        -40
       ],
       "parameters": {
-        "content": "## Glied 5: Versand & Follow-ups – der einzige Versandpunkt\n\nAlles, was SEIL per E-Mail/WhatsApp verlässt, läuft durch diesen Workflow – auch die Antwort-Vorlagen aus WF 06 und die Besichtigungs-Mails aus WF 08. Dadurch gibt es genau EINE Stelle für Freigabe-Prüfung, BCC-Regel und Protokoll.\n\nDrei Eingänge:\n– Webhook seil/versand: Erstversand nach Freigabe (WF 04) ODER Versandauftrag mit vorgegebener Vorlage (WF 06/08, Feld `vorlage`)\n– Webhook seil/followup-planen: WF 06 startet die Follow-up-Kette neu (Standardprozess: nach beantworteter Anfrage und nach der Absage-Rückfrage „2 Tage später nachfassen“)\n– Cron 07:00 Mo–Fr: fällige Follow-ups\n\nKonfiguration (Node „Konfiguration (hier anpassen)“):\n– bccLeitung: Leitung Vertrieb im BCC jeder ausgehenden Mail (Regel aus dem Standardprozess)\n– antwortenAutomatisch: true = Standard-Antworten gehen ohne Klick raus; false = als Entwurf zur Bestätigung ablegen (Workshop-Schalter)\n– maxStufen: Voreinstellung 3 (Angebot) – Standardprozess beschreibt eine offene Kette mit Final-Mail → Workshop-Frage\n– whatsappAktiv: Superchat-Kanal zusätzlich zur E-Mail\n\nStufenlogik (Struktur aus dem Standardprozess): Stufe 1 und 2 feste Vorlagen (Stufe 2 fragt Zielregionen ab), weitere Stufen alternierend, letzte Stufe = Final-Mail, danach nur noch manuelle Nachfass-Aufgabe. Vorlagentexte liegen NICHT hier, sondern als Einträge im n8n-Data-Store (Quelle: SEIL-Standardprozess-Dokument).\n\nVor JEDEM Versand wird der Freigabe-Status des Objekts erneut geprüft (doppelter Boden zu WF 04). Antworten gelten als Teil der freigegebenen Kampagne.\n\nSKELETT – vor Aktivierung: Credential „Microsoft Graph (SEIL)“ und optional Superchat im Credential-Store, Kontakt-Quelle anbinden, Vorlagen in den Data-Store, Konfiguration setzen, Testlauf mit internen Adressen.\n\n**Umbau 29.10.:** Versand über Microsoft Graph aus deals@seil.com (sendMail, landet in „Gesendet“). Damit entfallen SMTP-Zugang und eigene SPF/DKIM-Einträge – die Mail verlässt das Haus wie jede Outlook-Mail. Offen: bccLeitung in der Konfiguration (zwei Personen laut Standardprozess).\n\n**Cron deaktiviert (30.10.2026):** Der 07:00-Trigger ist ausgeschaltet, bis die Kette echt ist – „Kontakte laden + Freigabe prüfen“ und „Versand protokollieren“ sind noch Platzhalter. Aktiv würde er werktags eine leere Mail an die Demo-Umleitung schicken. Einschalten erst, wenn fällige Kontakte aus dem Cockpit geladen und Nachfass-Texte hinterlegt sind.",
-        "width": 560,
-        "height": 640
-      }
-    },
-    {
-      "id": "webhook-05",
-      "name": "Versandauftrag (Erstversand / Antwort-Vorlage)",
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [
-        160,
-        560
-      ],
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "seil/versand",
-        "options": {}
+        "content": "## Glied 5: Nachfass-Leiter (Follow-up) — Stand 02.11.2026\n\nStandardprozess Schritt 15: keine Antwort → zwei Tage später nachfassen. Leiter mit **4 Stufen** (1. Follow Up · 2. Follow Up · weiteres (im Wechsel 1/2) · Final Follow up); nach einer **Preisfrage genau eine** Nachfrage („haben Sie mit Herrn Seil gesprochen?“), danach läuft es telefonisch.\n\n**Quelle der Wahrheit ist das Cockpit:** `GET /api/mandate` (Phasen Vermarktung/Angebote) → je Mandat `GET /api/kontakte?mandat=…`. Fällig = Stufe angeschrieben/interesse/nda_angefragt (oder preisanfrage), E-Mail vorhanden, letzter Kontakt ≥ `followupTage`, `followups` < `maxStufen` (Preisfrage: < 1), kein `naechstesFollowUp` in der Zukunft. Höchstens `maxProLauf` Mails je Lauf.\n\n**Nach dem Versand** meldet der Workflow `POST /api/kontakte { nachgefasst: true }` — das Cockpit zählt die Stufe hoch und setzt den letzten Kontakt. Ohne erfolgreiche Graph-Antwort (HTTP 202) wird nichts gemeldet.\n\n**Sicherungen:** `demoEmpfaenger` gesetzt → jede Mail geht dorthin, Bcc entfällt, Betreff „[VORFUEHRUNG]“. Bleibt gesetzt, bis SEIL den Echtversand freigibt. Der **Zeitplan ist absichtlich ausgeschaltet** — Einschalten erst nach Freigabe durch SEIL. Testlauf von Hand: `POST seil/followup-lauf` (Header-Auth) mit `{ \"mandat\": \"<Name>\" }`, optional `\"trocken\": true` (nur anzeigen, nichts senden).\n\n**Bcc-Regel (Punkt 6):** `bccStandard` (z. B. `ms,zustaendig`) wird über `bccAdressen` (Kürzel → Adresse) aufgelöst; `zustaendig` = Kürzel aus `mandat.zustaendig`. Unbekannte Kürzel werden weggelassen.\n\n**Altschnittstellen (WF 04/06/08 rufen sie weiter auf):** `seil/versand` nimmt Versandaufträge an – gesendet wird nur mit vollständigem `email`, `betreff`, `text` (gleiche Sicherungen wie oben); Aufträge, die nur einen Vorlagen-Schlüssel tragen, werden mit Grund quittiert und NICHT gesendet (Antwortvorlagen bearbeitet das Cockpit, kein automatischer Antwortversand). `seil/followup-planen` quittiert nur noch: den Follow-up-Stand führt das Cockpit (`POST /api/antwort` setzt die Kette bei jeder Antwort zurück).\n\n**Konfiguration** im Knoten „Betriebsart (hier umschalten)“ — auf dem Server aus `/opt/seil/n8n-konfig.json`: Postfach, Signatur, Rechtshinweis, Telefonnummern und Bcc-Adressen stehen nur dort, nie im Repository. Zugangsdaten: Header-Auth „Seil Webhook Secret“ (Webhook + Cockpit-Aufrufe), Microsoft Graph (SEIL) am Versandknoten.",
+        "height": 720,
+        "width": 700
       }
     },
     {
       "id": "cron-05",
-      "name": "Täglich 07:00 – fällige Follow-ups",
+      "name": "Werktags 07:00 – fällige Nachfassmails",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        160,
+        200,
         740
       ],
+      "disabled": true,
       "parameters": {
         "rule": {
           "interval": [
@@ -53,83 +39,60 @@
             }
           ]
         }
-      },
-      "disabled": true
+      }
     },
     {
-      "id": "webhook-05b",
-      "name": "Follow-up neu planen (aus WF 06)",
+      "id": "webhook-05",
+      "name": "Nachfass-Lauf von Hand (Header-Auth)",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        160,
-        960
+        200,
+        940
       ],
       "parameters": {
         "httpMethod": "POST",
-        "path": "seil/followup-planen",
+        "path": "seil/followup-lauf",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "responseData": "firstEntryJson",
         "options": {}
       }
     },
     {
-      "id": "code-05b",
-      "name": "Stufe zurücksetzen, fällig in 2 Tagen",
-      "type": "n8n-nodes-base.code",
+      "id": "versand-05",
+      "name": "Versandauftrag (seil/versand, WF 04/06/08)",
+      "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        420,
-        960
+        200,
+        1140
       ],
       "parameters": {
-        "jsCode": "// WF 06 meldet: Antwort gesendet → Follow-up-Kette neu starten, fällig in 2 Tagen (Standardprozess).\nreturn $input.all().map(({ json }) => {\n  const b = json.body ?? json;\n  const faellig = new Date();\n  faellig.setDate(faellig.getDate() + 2);\n  return { json: { kontaktId: b.kontaktId, objektId: b.objektId, grund: b.grund ?? 'antwort-gesendet',\n                   followUpStufe: 0, naechstesFollowUp: faellig.toISOString().slice(0, 10) } };\n});"
+        "httpMethod": "POST",
+        "path": "seil/versand",
+        "responseMode": "lastNode",
+        "responseData": "firstEntryJson",
+        "options": {}
       }
     },
     {
-      "id": "noop-09",
-      "name": "Kontakte laden + Freigabe prüfen",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        420,
-        650
-      ],
-      "parameters": {}
-    },
-    {
-      "id": "set-05",
-      "name": "Konfiguration (hier anpassen)",
+      "id": "kenn-05",
+      "name": "Als Versandauftrag kennzeichnen",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        660,
-        650
+        460,
+        1140
       ],
       "parameters": {
         "assignments": {
           "assignments": [
             {
-              "id": "set-05-0",
-              "name": "bccLeitung",
-              "value": "leitung@BEISPIEL-DOMAIN.de",
+              "id": "kenn-05-art",
+              "name": "art",
+              "value": "versandauftrag",
               "type": "string"
-            },
-            {
-              "id": "set-05-1",
-              "name": "antwortenAutomatisch",
-              "value": true,
-              "type": "boolean"
-            },
-            {
-              "id": "set-05-2",
-              "name": "maxStufen",
-              "value": "={{ $json.maxStufen ?? 3 }}",
-              "type": "number"
-            },
-            {
-              "id": "set-05-3",
-              "name": "whatsappAktiv",
-              "value": true,
-              "type": "boolean"
             }
           ]
         },
@@ -138,167 +101,346 @@
       }
     },
     {
-      "id": "if-05a",
-      "name": "Vorlage vorgegeben?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-      "position": [
-        900,
-        650
-      ],
-      "parameters": {
-        "conditions": {
-          "string": [
-            {
-              "value1": "={{ $json.vorlage ?? '' }}",
-              "operation": "isNotEmpty"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "if-05c",
-      "name": "Antworten automatisch senden?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-      "position": [
-        1140,
-        520
-      ],
-      "parameters": {
-        "conditions": {
-          "boolean": [
-            {
-              "value1": "={{ $json.antwortenAutomatisch }}",
-              "value2": true
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "noop-18",
-      "name": "Entwurf als Aufgabe zur Bestätigung ablegen",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        1400,
-        400
-      ],
-      "parameters": {}
-    },
-    {
-      "id": "if-05",
-      "name": "Stufe < Maximum?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-      "position": [
-        1140,
-        780
-      ],
-      "parameters": {
-        "conditions": {
-          "number": [
-            {
-              "value1": "={{ $json.followUpStufe ?? 0 }}",
-              "operation": "smaller",
-              "value2": "={{ $json.maxStufen }}"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "code-05",
-      "name": "Vorlage wählen (Stufenlogik Standardprozess)",
-      "type": "n8n-nodes-base.code",
+      "id": "planen-05",
+      "name": "Follow-up planen (seil/followup-planen, WF 06)",
+      "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        1400,
-        700
+        200,
+        1340
       ],
       "parameters": {
-        "jsCode": "// Stufenlogik aus dem Standardprozess-Dokument – NUR die Struktur, verarbeitet ALLE fälligen Kontakte.\n// Die Texte liegen als Vorlagen im n8n-Data-Store (Schlüssel unten), niemals in dieser Datei.\nreturn $input.all().map(({ json: k }) => {\n  const stufe = (k.followUpStufe ?? 0) + 1;\n  const max = k.maxStufen ?? 3; // Workshop-Frage: 3 (Angebot) vs. offene Kette (Standardprozess)\n  let vorlage;\n  let zielregionenFrage = false;\n  if (stufe === 1) {\n    vorlage = 'followup-1';            // feste Vorlage 1\n  } else if (stufe === 2) {\n    vorlage = 'followup-2';            // feste Vorlage 2 – fragt aktiv nach Zielregionen (Demo-Check 20.08.)\n    zielregionenFrage = true;\n  } else if (stufe >= max) {\n    vorlage = 'followup-final';        // Final-Mail: kündigt das Ende der Kette an\n  } else {\n    vorlage = stufe % 2 === 1 ? 'followup-a' : 'followup-b'; // weitere Stufen alternierend\n  }\n  return { json: { ...k, neueStufe: stufe, vorlage, zielregionenFrage, istFinal: stufe >= max } };\n});"
-      }
-    },
-    {
-      "id": "noop-11",
-      "name": "Kette ausgeschöpft → Nachfass-Aufgabe (manuell)",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        1400,
-        900
-      ],
-      "parameters": {}
-    },
-    {
-      "id": "noop-17",
-      "name": "Vorlage aus Data-Store laden + Freigabe erneut prüfen",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        1660,
-        600
-      ],
-      "parameters": {}
-    },
-    {
-      "id": "if-05d",
-      "name": "WhatsApp-Kanal?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-      "position": [
-        1920,
-        700
-      ],
-      "parameters": {
-        "conditions": {
-          "boolean": [
-            {
-              "value1": "={{ Boolean($json.whatsapp) && $json.whatsappAktiv !== false }}",
-              "value2": true
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "http-05",
-      "name": "WhatsApp über Superchat-API",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        2180,
-        700
-      ],
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.superchat.com/v1.0/messages",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ to: $json.whatsapp, content: { type: 'text', body: $json.text } }) }}",
+        "httpMethod": "POST",
+        "path": "seil/followup-planen",
+        "responseMode": "lastNode",
+        "responseData": "firstEntryJson",
         "options": {}
       }
     },
     {
-      "id": "noop-10",
-      "name": "Versand protokollieren + nächstes Follow-up (+2 Tage) ablegen",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
+      "id": "quitt-05",
+      "name": "Quittung: Stand führt das Cockpit",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
-        2440,
-        600
+        460,
+        1340
       ],
-      "parameters": {}
+      "parameters": {
+        "jsCode": "// Altschnittstelle seil/followup-planen (WF 06): den Follow-up-Stand führt seit 02.11.2026\n// das Cockpit – POST /api/antwort setzt die Kette bei jeder Antwort zurück. Hier nur Quittung.\nconst b = $input.first().json.body ?? {};\nreturn [{ json: { ok: true, uebernommen: false, kontaktId: b.kontaktId ?? null, objektId: b.objektId ?? null, grund: b.grund ?? null,\n  hinweis: 'Follow-up-Stand führt das Cockpit (POST /api/antwort) – kein eigener Zähler mehr in n8n' } }];"
+      }
     },
     {
+      "id": "if-05-art",
+      "name": "Versandauftrag?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        700,
+        940
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "if-05-art-c",
+              "leftValue": "={{ $json.art === 'versandauftrag' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "pruef-05",
+      "name": "Versandauftrag prüfen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        940,
+        1100
+      ],
+      "parameters": {
+        "jsCode": "// Versandauftrag aus WF 04/06/08 (Altschnittstelle seil/versand). Gesendet wird nur, was\n// vollständig ist: Empfänger, Betreff, Text. Ein Auftrag mit bloßem Vorlagen-Schlüssel\n// (vorlage: 'anfrage-antwort' …) wird quittiert, aber nicht gesendet – Antwortvorlagen\n// bearbeitet das Cockpit, und eine leere Mail darf nie hinausgehen.\nconst cfg = $('Betriebsart (hier umschalten)').first().json ?? {};\nconst b = cfg.body && typeof cfg.body === 'object' ? cfg.body : {};\nconst parse = (v) => { if (typeof v !== 'string') return v && typeof v === 'object' ? v : {}; try { return JSON.parse(v); } catch { return {}; } };\nconst bccAdressen = {};\nfor (const [k, w] of Object.entries(parse(cfg.bccAdressen))) if (typeof w === 'string' && w.includes('@')) bccAdressen[String(k).trim().toLowerCase()] = w.trim();\nconst email = typeof b.email === 'string' ? b.email.trim() : '';\nconst betreff = typeof b.betreff === 'string' ? b.betreff.trim() : '';\nconst text = typeof b.text === 'string' ? b.text.trim() : '';\nconst bccRoh = Array.isArray(b.bcc) ? b.bcc : typeof b.bcc === 'string' ? b.bcc.split(',') : [];\nconst bcc = [...new Set(bccRoh.map((x) => String(x ?? '').trim().toLowerCase()).filter(Boolean).map((x) => x.includes('@') ? x : bccAdressen[x]).filter(Boolean))]\n  .filter((x) => x !== email.toLowerCase());\nconst basis = { art: 'versandauftrag', quelle: b.quelle ?? b.anlass ?? null, vorlage: b.vorlage ?? null, mandat: b.objekt ?? b.objektId ?? null, kontaktId: b.kontaktId ?? null };\nif (!email.includes('@') || betreff === '' || text === '') {\n  const fehlt = [!email.includes('@') ? 'email' : null, betreff === '' ? 'betreff' : null, text === '' ? 'text' : null].filter(Boolean);\n  return [{ json: { ...basis, sendbar: false, grund: 'Versandauftrag unvollständig (' + fehlt.join(', ') + ') – nicht gesendet; Antwortvorlagen bearbeitet das Cockpit' } }];\n}\nreturn [{ json: { ...basis, sendbar: true, email, betreff, text: text.replace(/\\n?\\[Signatur\\]\\s*$/, '').trimEnd(), bcc, investorId: null, firma: b.firma ?? null, stufe: null, stufeName: 'Versandauftrag' } }];"
+      }
+    },
+    {
+      "id": "if-05-sendbar",
+      "name": "Sendbar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1180,
+        1100
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "if-05-sendbar-c",
+              "leftValue": "={{ $json.sendbar }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "cfg-05",
+      "name": "Betriebsart (hier umschalten)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        840
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-05-cp",
+              "name": "cockpitBasis",
+              "value": "https://COCKPIT-ADRESSE",
+              "type": "string"
+            },
+            {
+              "id": "cfg-05-abs",
+              "name": "absender",
+              "value": "POSTFACH@BEISPIEL-DOMAIN.de",
+              "type": "string"
+            },
+            {
+              "id": "cfg-05-demo",
+              "name": "demoEmpfaenger",
+              "value": "WAEHREND-DER-EINFUEHRUNG-HIER-EINE-INTERNE-ADRESSE",
+              "type": "string"
+            },
+            {
+              "id": "cfg-05-sig",
+              "name": "signaturHtml",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "cfg-05-recht",
+              "name": "rechtshinweisHtml",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "cfg-05-bcc",
+              "name": "bccAdressen",
+              "value": "{}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-05-bccs",
+              "name": "bccStandard",
+              "value": "ms,zustaendig",
+              "type": "string"
+            },
+            {
+              "id": "cfg-05-max",
+              "name": "maxStufen",
+              "value": 4,
+              "type": "number"
+            },
+            {
+              "id": "cfg-05-tage",
+              "name": "followupTage",
+              "value": 2,
+              "type": "number"
+            },
+            {
+              "id": "cfg-05-lauf",
+              "name": "maxProLauf",
+              "value": 40,
+              "type": "number"
+            },
+            {
+              "id": "cfg-05-betreff",
+              "name": "betreffVorlage",
+              "value": "Nachfrage zu {mandat}",
+              "type": "string"
+            },
+            {
+              "id": "cfg-05-vorlagen",
+              "name": "vorlagen",
+              "value": "{\"1\": {\"name\": \"1. Follow Up\", \"text\": \"Guten Tag,\\n\\nhaben Sie ein Feedback für uns?\\n\\nFreundliche Grüße\\n[Signatur]\"}, \"2\": {\"name\": \"2. Follow Up\", \"text\": \"Guten Tag,\\n\\nda wir keine Rückmeldung erhalten haben, möchten wir nochmals höflich nachfragen, ob weiteres Interesse besteht?\\n\\nFreundliche Grüße\\n[Signatur]\"}, \"3\": {\"name\": \"Weiteres Follow Up\", \"text\": null}, \"4\": {\"name\": \"Final Follow up\", \"text\": \"Guten Tag,\\n\\nda wir nichts mehr von Ihnen hören, gehen wir davon aus, dass Sie kein weiteres Interesse haben.\\n\\nBitte beachten Sie, dass wir kein klassisches Maklerunternehmen sind. Wir hinterlegen grundsätzlich keine Suchprofile, sondern fokussieren uns auf den professionellen Austausch mit unseren Kunden.\\n\\nFreundliche Grüße\\n[Signatur]\"}, \"preisanfrage\": {\"name\": \"Nachfrage: mit Herrn Seil gesprochen?\", \"text\": \"Guten Tag,\\n\\nhaben Sie mit Herrn Seil gesprochen?\\n\\nGruß\\n[Signatur]\"}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "mandate-05",
+      "name": "Mandate lesen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        940,
+        840
+      ],
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 60000
+        },
+        "method": "GET",
+        "url": "={{ $json.cockpitBasis }}/api/mandate"
+      }
+    },
+    {
+      "id": "auswahl-05",
+      "name": "Mandate auswählen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        940,
+        840
+      ],
+      "parameters": {
+        "jsCode": "// Welche Mandate werden nachgefasst? Nur die in Vermarktung/Angebote — oder genau\n// das Mandat aus dem Aufruf von Hand (Test). Ohne Treffer: ein Platzhalter, damit\n// der Lauf sauber mit einer Zusammenfassung endet.\nconst cfg = $('Betriebsart (hier umschalten)').first().json ?? {};\nconst body = cfg.body && typeof cfg.body === 'object' ? cfg.body : {};\nconst antwort = $input.first().json ?? {};\nconst alle = Array.isArray(antwort.mandate) ? antwort.mandate : [];\nconst nurMandat = typeof body.mandat === 'string' && body.mandat.trim() !== '' ? body.mandat.trim() : null;\nconst PHASEN = ['vermarktung', 'angebote'];\nconst mandate = nurMandat ? alle.filter((m) => m.name === nurMandat) : alle.filter((m) => PHASEN.includes(m.phase));\nconst trocken = body.trocken === true;\nif (mandate.length === 0) {\n  return [{ json: { mandat: null, zustaendig: null, trocken,\n    hinweis: antwort.modus && antwort.modus !== 'live' ? 'Cockpit: ' + antwort.modus + (antwort.grund ? ' – ' + antwort.grund : '')\n      : nurMandat ? 'Mandat nicht gefunden: ' + nurMandat : 'keine Mandate in Vermarktung/Angebote' } }];\n}\nreturn mandate.map((m) => ({ json: { mandat: m.name, zustaendig: m.zustaendig ?? null, phase: m.phase ?? null, trocken } }));"
+      }
+    },
+    {
+      "id": "kontakte-05",
+      "name": "Kontakte je Mandat lesen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1180,
+        840
+      ],
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 60000
+        },
+        "method": "GET",
+        "url": "={{ $('Betriebsart (hier umschalten)').first().json.cockpitBasis }}/api/kontakte?mandat={{ encodeURIComponent($json.mandat ?? '-') }}"
+      }
+    },
+    {
+      "id": "faellig-05",
+      "name": "Fällige Kontakte bestimmen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1420,
+        840
+      ],
+      "parameters": {
+        "jsCode": "// Fällige Kontakte nach dem Standardprozess bestimmen (lib/followup.ts im Cockpit):\n// zwei Tage ohne Antwort → nächste Stufe der Leiter, höchstens maxStufen; nach einer\n// Preisfrage genau eine Nachfrage. Vorlage und Bcc werden hier schon zugeordnet.\nconst cfg = $('Betriebsart (hier umschalten)').first().json ?? {};\nconst mandate = $('Mandate auswählen').all().map((i) => i.json);\nconst antworten = $input.all().map((i) => i.json);\nconst parse = (v) => { if (typeof v !== 'string') return v && typeof v === 'object' ? v : {}; try { return JSON.parse(v); } catch { return {}; } };\nconst vorlagen = parse(cfg.vorlagen);\nconst bccAdressen = {};\nfor (const [k, w] of Object.entries(parse(cfg.bccAdressen))) if (typeof w === 'string' && w.includes('@')) bccAdressen[String(k).trim().toLowerCase()] = w.trim();\nconst maxStufen = Math.max(1, Number(cfg.maxStufen ?? 4));\nconst tage = Math.max(0, Number(cfg.followupTage ?? 2));\nconst maxProLauf = Math.max(1, Number(cfg.maxProLauf ?? 40));\nconst trocken = mandate.some((m) => m.trocken === true);\nconst WARTEND = { angeschrieben: maxStufen, interesse: maxStufen, nda_angefragt: maxStufen, preisanfrage: 1 };\nconst heute = Date.now();\n\nconst vorlageFuer = (status, stufe) => {\n  if (status === 'preisanfrage') return vorlagen.preisanfrage ?? { name: 'Nachfrage', text: null };\n  const v = vorlagen[String(stufe)];\n  if (v && v.text) return v;\n  const vorherige = Object.keys(vorlagen).filter((k) => /^\\d+$/.test(k) && Number(k) < stufe && vorlagen[k].text).sort((a, b) => Number(a) - Number(b));\n  const wahl = vorlagen[vorherige[(stufe - 1) % Math.max(1, vorherige.length)]] ?? vorlagen[vorherige[0]];\n  return { name: (v && v.name) || stufe + '. Follow Up', text: wahl ? wahl.text : null };\n};\nconst bccFuer = (mandat, empfaenger) => {\n  const aus = new Set();\n  for (const roh of String(cfg.bccStandard ?? '').split(',')) {\n    const t = roh.trim().toLowerCase();\n    if (t === '') continue;\n    const adresse = t === 'zustaendig' ? bccAdressen[String(mandat.zustaendig ?? '').trim().toLowerCase()] : t.includes('@') ? t : bccAdressen[t];\n    if (adresse && adresse.toLowerCase() !== String(empfaenger).toLowerCase()) aus.add(adresse);\n  }\n  return [...aus];\n};\n\nlet geprueft = 0;\nconst faellig = [];\nfor (const a of antworten) {\n  const kontakte = Array.isArray(a.kontakte) ? a.kontakte : [];\n  for (const k of kontakte) {\n    geprueft += 1;\n    const max = WARTEND[k.status];\n    if (max === undefined || !k.email || !k.letzterKontakt) continue;\n    const t = Date.parse(k.letzterKontakt);\n    if (Number.isNaN(t)) continue;\n    const seit = Math.floor((heute - t) / 86400000);\n    if (seit < tage) continue;\n    const bisher = Number(k.followups ?? 0);\n    if (bisher >= max) continue;\n    if (k.naechstesFollowUp) { const nf = Date.parse(k.naechstesFollowUp); if (!Number.isNaN(nf) && nf > heute) continue; }\n    const mandat = mandate.find((m) => m.mandat === k.mandat) ?? { mandat: k.mandat, zustaendig: null };\n    const stufe = bisher + 1;\n    const v = vorlageFuer(k.status, stufe);\n    if (!v.text) continue;\n    const betreff = String(cfg.betreffVorlage ?? 'Nachfrage zu {mandat}').replace('{mandat}', k.mandat ?? '').replace('{stufe}', v.name);\n    faellig.push({ json: {\n      faellig: true, mandat: k.mandat, investorId: String(k.investorId), firma: k.firma ?? null, ansprechpartner: k.ansprechpartner ?? null,\n      email: k.email, status: k.status, stufe, stufeName: v.name, max, seitTagen: seit, letzterKontakt: k.letzterKontakt,\n      betreff, text: v.text.replace(/\\n?\\[Signatur\\]\\s*$/, '').trimEnd(), bcc: bccFuer(mandat, k.email),\n    } });\n  }\n}\nfaellig.sort((x, y) => Date.parse(x.json.letzterKontakt) - Date.parse(y.json.letzterKontakt));\nconst zurueckgestellt = Math.max(0, faellig.length - maxProLauf);\nconst heutige = faellig.slice(0, maxProLauf);\nconst uebersicht = heutige.map((f) => ({ mandat: f.json.mandat, firma: f.json.firma, email: f.json.email, stufe: f.json.stufe, name: f.json.stufeName, seitTagen: f.json.seitTagen, bcc: f.json.bcc }));\nif (trocken || heutige.length === 0) {\n  return [{ json: { faellig: false, trocken, geprueft, mandate: mandate.filter((m) => m.mandat).length, faelligAnzahl: heutige.length, zurueckgestellt,\n    wuerdeSenden: uebersicht, hinweis: trocken ? 'Trockenlauf – nichts gesendet' : (mandate[0]?.hinweis ?? 'nichts fällig') } }];\n}\nreturn heutige.map((f) => ({ json: { ...f.json, geprueft, zurueckgestellt } }));"
+      }
+    },
+    {
+      "id": "if-05-faellig",
+      "name": "Etwas fällig?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1660,
+        840
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "if-05-faellig-c",
+              "leftValue": "={{ $json.faellig }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "mail-05",
+      "name": "Mail bauen + Demo-Umleitung",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1900,
+        700
+      ],
+      "parameters": {
+        "jsCode": "// Mail bauen (HTML wie WF 12) und die Demo-Umleitung anwenden: ist demoEmpfaenger\n// gesetzt, geht jede Mail dorthin, Bcc entfällt, der echte Empfänger steht im Text.\nconst cfg = $('Betriebsart (hier umschalten)').first().json ?? {};\nconst demo = String(cfg.demoEmpfaenger ?? '').trim();\nconst e = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst absatz = (t) => e(t).split('\\n').map((z) => z.trim() === '' ? '<div style=\"height:10px\"></div>' : '<div style=\"font-size:14px;line-height:1.6;color:#16181c\">' + z + '</div>').join('');\nreturn $input.all().map((i) => {\n  const j = { ...i.json, demo: demo !== '' };\n  if (demo !== '') {\n    j.empfaengerEcht = j.email;\n    j.bccEcht = j.bcc;\n    j.email = demo;\n    j.bcc = [];\n    j.betreff = '[VORFUEHRUNG] ' + j.betreff;\n    j.text = 'Diese Nachricht wurde umgeleitet. Echter Empfaenger waere: ' + j.empfaengerEcht +\n      (j.bccEcht && j.bccEcht.length ? ' (Bcc waere: ' + j.bccEcht.join(', ') + ')' : '') +\n      '\\n\\n--- urspruenglicher Text ---\\n' + j.text;\n  }\n  const html = '<!doctype html><html><body style=\"margin:0;padding:0;background:#f4f5f6\">'\n    + '<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f4f5f6;padding:24px 12px\"><tr><td align=\"center\">'\n    + '<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:640px;background:#ffffff;border:1px solid #d6dade;border-radius:6px;font-family:Helvetica,Arial,sans-serif\">'\n    + '<tr><td style=\"padding:26px 28px\">' + absatz(j.text) + '</td></tr>'\n    + (cfg.signaturHtml ? '<tr><td style=\"padding:0 28px 22px\">' + cfg.signaturHtml + '</td></tr>' : '')\n    + (cfg.rechtshinweisHtml ? '<tr><td style=\"padding:14px 28px;border-top:1px solid #e4e7ea;font-size:11px;color:#6b727b\">' + cfg.rechtshinweisHtml + '</td></tr>' : '')\n    + '</table></td></tr></table></body></html>';\n  j.graphBody = JSON.stringify({ message: {\n    subject: j.betreff, body: { contentType: 'HTML', content: html },\n    toRecipients: [{ emailAddress: { address: j.email } }],\n    ...(j.bcc && j.bcc.length ? { bccRecipients: j.bcc.map((b) => ({ emailAddress: { address: b } })) } : {}),\n  }, saveToSentItems: true });\n  return { json: j };\n});"
+      }
+    },
+    {
+      "id": "send-05",
+      "name": "Nachfassmail senden (Graph)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2140,
+        700
+      ],
       "parameters": {
         "method": "POST",
-        "url": "https://graph.microsoft.com/v1.0/users/deals@seil.com/sendMail",
+        "url": "=https://graph.microsoft.com/v1.0/users/{{ $('Betriebsart (hier umschalten)').first().json.absender }}/sendMail",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.graphBody }}",
         "options": {
           "response": {
             "response": {
@@ -306,248 +448,108 @@
               "responseFormat": "text",
               "fullResponse": true
             }
-          }
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ (() => {\nconst j = $json;\nconst e = (s) => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\nconst signatur = String(j.signaturHtml ?? '').trim();\nconst recht = String(j.rechtshinweisHtml ?? '').trim();\nconst text = String(j.text ?? '').replace(/\\[Signatur\\]\\s*$/,'').trimEnd();\nconst html = '<!doctype html><html><body style=\"margin:0;padding:0;background:#ffffff\">'\n+ '<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr><td style=\"padding:0\">'\n+ '<div style=\"max-width:620px;font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.65;color:#16181c;white-space:pre-wrap\">'\n+ e(text) + '</div>'\n+ (signatur ? '<div style=\"max-width:620px;margin-top:22px;font-family:Helvetica,Arial,sans-serif;font-size:13px;line-height:1.6;color:#16181c\">' + signatur + '</div>' : '')\n+ (recht ? '<div style=\"max-width:620px;margin-top:22px;padding-top:14px;border-top:1px solid #d6dade;font-family:Helvetica,Arial,sans-serif;font-size:11px;line-height:1.5;color:#6b727b\">' + recht + '</div>' : '')\n+ '</td></tr></table></body></html>';\nreturn JSON.stringify({ message: {\n  subject: j.betreff,\n  body: { contentType: 'HTML', content: html },\n  toRecipients: [{ emailAddress: { address: j.email } }],\n  bccRecipients: String(j.bccLeitung ?? '').split(/[;,]/).map(s => s.trim()).filter(Boolean).map(a => ({ emailAddress: { address: a } })),\n}, saveToSentItems: true });\n})() }}"
-      },
-      "id": "f72a27a0-5cf9-407c-9e2f-2105846fc551",
-      "name": "E-Mail senden über deals@ (Graph)",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1920,
-        500
-      ],
-      "credentials": {
-        "oAuth2Api": {
-          "id": "seil-graph",
-          "name": "Microsoft Graph (SEIL)"
-        }
-      },
-      "notes": "Microsoft antwortet auf sendMail mit 202 und leerem Rumpf. Die Antwort wird deshalb als Text gelesen, nicht als JSON, sonst bricht der Knoten ab.",
-      "notesInFlow": true
-    },
-    {
-      "parameters": {
-        "mode": "raw",
-        "jsonOutput": "={{ { ...$('Vorlage aus Data-Store laden + Freigabe erneut prüfen').item.json, versandStatus: 'gesendet', gesendetAm: $now.toISO() } }}",
-        "options": {}
-      },
-      "id": "0d91bcbc-1c5a-4b05-84c9-2c6d1595117e",
-      "name": "Versandfelder zurückholen",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        2140,
-        500
-      ]
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "ba-1",
-              "name": "demoEmpfaenger",
-              "value": "",
-              "type": "string"
-            },
-            {
-              "id": "ba-signaturHtml",
-              "name": "signaturHtml",
-              "value": "",
-              "type": "string"
-            },
-            {
-              "id": "ba-rechtshinweisHtml",
-              "name": "rechtshinweisHtml",
-              "value": "",
-              "type": "string"
+          },
+          "timeout": 60000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 1200
             }
-          ]
-        },
-        "includeOtherFields": true,
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        1520,
-        500
-      ],
-      "id": "wf05-betriebsart",
-      "name": "Betriebsart (hier umschalten)",
-      "notes": "Leer = echter Versand an den Investor. Steht hier eine Adresse, geht JEDE Mail stattdessen dorthin, mit Vermerk im Text. Für Vorführungen und Tests. Wird beim Import aus der Konfigurationsdatei gesetzt. Signatur und Rechtshinweis stehen bewusst NICHT im Repository, sondern in der Konfigurationsdatei auf dem Server: das Repository ist oeffentlich.",
-      "notesInFlow": true
+          }
+        }
+      }
     },
     {
-      "parameters": {
-        "jsCode": "// Sicherung gegen ungewollten Versand an echte Investoren.\n// Ist demoEmpfaenger gesetzt, geht jede Mail dorthin statt an den Investor.\n// Der eigentliche Empfänger bleibt im Text sichtbar, damit eine Vorführung\n// zeigt, wer angeschrieben worden wäre.\nreturn $input.all().map((i) => {\n  const j = { ...i.json };\n  const demo = String(j.demoEmpfaenger ?? '').trim();\n  if (demo === '') return { json: j };\n  const echt = j.email ?? '(unbekannt)';\n  j.empfaengerEcht = echt;\n  j.email = demo;\n  j.bccLeitung = '';\n  j.betreff = '[VORFÜHRUNG] ' + (j.betreff ?? '');\n  j.text = 'Diese Nachricht wurde umgeleitet. Echter Empfänger wäre: ' + echt +\n           '\\n\\n--- ursprünglicher Text ---\\n' + (j.text ?? '');\n  return { json: j };\n});\n"
-      },
+      "id": "auswerten-05",
+      "name": "Versand auswerten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1720,
-        500
+        2380,
+        700
       ],
-      "id": "wf05-umleitung",
-      "name": "Demo-Umleitung anwenden"
+      "parameters": {
+        "jsCode": "// Graph-Antworten den Mails zuordnen (gleiche Reihenfolge, ein Item je Mail) und\n// je Mandat die erfolgreich gesendeten Kontakte für das Cockpit sammeln.\nconst gebaut = $('Mail bauen + Demo-Umleitung').all().map((i) => i.json);\nconst antworten = $input.all().map((i) => i.json);\nconst jeMandat = new Map();\nconst fehlgeschlagen = [];\nantworten.forEach((a, n) => {\n  const m = gebaut[n] ?? {};\n  const status = Number(a.statusCode ?? a.status ?? 0);\n  const eintrag = { art: m.art ?? 'followup', mandat: m.mandat, investorId: m.investorId, firma: m.firma, email: m.email, empfaengerEcht: m.empfaengerEcht ?? m.email, stufe: m.stufe, name: m.stufeName, bcc: m.bccEcht ?? m.bcc ?? [], demo: m.demo === true, http: status };\n  if (status === 202) {\n    const e = jeMandat.get(m.mandat) ?? { mandat: m.mandat, kontakte: [], gesendet: [] };\n    if (m.art !== 'versandauftrag' && m.investorId) e.kontakte.push({ investorId: m.investorId, nachgefasst: true });\n    e.gesendet.push(eintrag);\n    jeMandat.set(m.mandat, e);\n  } else {\n    fehlgeschlagen.push({ ...eintrag, fehler: typeof a.body === 'string' ? a.body.slice(0, 300) : JSON.stringify(a.body ?? a).slice(0, 300) });\n  }\n});\nconst aus = [...jeMandat.values()].map((e) => ({ json: { ...e, fehlgeschlagen: fehlgeschlagen.filter((f) => f.mandat === e.mandat) } }));\nif (aus.length === 0) return [{ json: { mandat: null, kontakte: [], gesendet: [], fehlgeschlagen } }];\nreturn aus;"
+      }
+    },
+    {
+      "id": "if-05-melden",
+      "name": "Etwas zu melden?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2620,
+        700
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "if-05-melden-c",
+              "leftValue": "={{ $json.kontakte.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "melden-05",
+      "name": "Nachgefasst im Cockpit melden",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2860,
+        560
+      ],
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 60000
+        },
+        "method": "POST",
+        "url": "={{ $('Betriebsart (hier umschalten)').first().json.cockpitBasis }}/api/kontakte",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ mandat: $json.mandat, kontakte: $json.kontakte }) }}"
+      }
+    },
+    {
+      "id": "summe-05",
+      "name": "Zusammenfassung",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3100,
+        840
+      ],
+      "parameters": {
+        "jsCode": "// Eine Zeile Wahrheit je Lauf — für den Aufruf von Hand als Antwort, sonst im Protokoll.\nconst sicher = (name) => { try { return $(name).all().map((i) => i.json); } catch { return []; } };\nconst cfg = $('Betriebsart (hier umschalten)').first().json ?? {};\nconst bestimmt = sicher('Fällige Kontakte bestimmen');\nconst ausgewertet = sicher('Versand auswerten');\nconst gemeldet = sicher('Nachgefasst im Cockpit melden');\nconst auftrag = sicher('Versandauftrag prüfen')[0] ?? null;\nconst marker = bestimmt.find((b) => b.faellig === false);\nconst faellig = bestimmt.filter((b) => b.faellig === true);\nconst gesendet = ausgewertet.flatMap((a) => a.gesendet ?? []);\nconst fehlgeschlagen = ausgewertet.flatMap((a) => a.fehlgeschlagen ?? []);\nreturn [{ json: {\n  zeitpunkt: new Date().toISOString(),\n  betriebsart: String(cfg.demoEmpfaenger ?? '').trim() ? 'demo – Umleitung an ' + String(cfg.demoEmpfaenger).trim() : 'echt',\n  trocken: marker?.trocken === true,\n  mandateGeprueft: marker?.mandate ?? sicher('Mandate auswählen').filter((i) => i.mandat).length,\n  kontakteGeprueft: marker?.geprueft ?? faellig[0]?.geprueft ?? 0,\n  faellig: marker ? (marker.faelligAnzahl ?? 0) : faellig.length,\n  zurueckgestellt: marker?.zurueckgestellt ?? faellig[0]?.zurueckgestellt ?? 0,\n  gesendet: gesendet.length,\n  fehlgeschlagen: fehlgeschlagen.length,\n  cockpitGemeldet: gemeldet.map((g) => ({ ok: g.ok === true, gespeichert: g.gespeichert ?? 0, aufgaben: g.aufgaben ?? null, grund: g.grund ?? null })),\n  details: gesendet,\n  fehler: fehlgeschlagen,\n  wuerdeSenden: marker?.wuerdeSenden ?? [],\n  versandauftrag: auftrag ? { quelle: auftrag.quelle, vorlage: auftrag.vorlage, mandat: auftrag.mandat, sendbar: auftrag.sendbar === true, grund: auftrag.grund ?? null } : null,\n  hinweis: marker?.hinweis ?? auftrag?.grund ?? null,\n} }];"
+      }
     }
   ],
   "connections": {
-    "Versandauftrag (Erstversand / Antwort-Vorlage)": {
+    "Werktags 07:00 – fällige Nachfassmails": {
       "main": [
-        [
-          {
-            "node": "Kontakte laden + Freigabe prüfen",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Täglich 07:00 – fällige Follow-ups": {
-      "main": [
-        [
-          {
-            "node": "Kontakte laden + Freigabe prüfen",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Follow-up neu planen (aus WF 06)": {
-      "main": [
-        [
-          {
-            "node": "Stufe zurücksetzen, fällig in 2 Tagen",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Stufe zurücksetzen, fällig in 2 Tagen": {
-      "main": [
-        [
-          {
-            "node": "Versand protokollieren + nächstes Follow-up (+2 Tage) ablegen",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Kontakte laden + Freigabe prüfen": {
-      "main": [
-        [
-          {
-            "node": "Konfiguration (hier anpassen)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Konfiguration (hier anpassen)": {
-      "main": [
-        [
-          {
-            "node": "Vorlage vorgegeben?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Vorlage vorgegeben?": {
-      "main": [
-        [
-          {
-            "node": "Antworten automatisch senden?",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Stufe < Maximum?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Antworten automatisch senden?": {
-      "main": [
-        [
-          {
-            "node": "Vorlage aus Data-Store laden + Freigabe erneut prüfen",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Entwurf als Aufgabe zur Bestätigung ablegen",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Stufe < Maximum?": {
-      "main": [
-        [
-          {
-            "node": "Vorlage wählen (Stufenlogik Standardprozess)",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Kette ausgeschöpft → Nachfass-Aufgabe (manuell)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Vorlage wählen (Stufenlogik Standardprozess)": {
-      "main": [
-        [
-          {
-            "node": "Vorlage aus Data-Store laden + Freigabe erneut prüfen",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Vorlage aus Data-Store laden + Freigabe erneut prüfen": {
-      "main": [
-        [
-          {
-            "node": "WhatsApp-Kanal?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "WhatsApp-Kanal?": {
-      "main": [
-        [
-          {
-            "node": "WhatsApp über Superchat-API",
-            "type": "main",
-            "index": 0
-          }
-        ],
         [
           {
             "node": "Betriebsart (hier umschalten)",
@@ -557,33 +559,44 @@
         ]
       ]
     },
-    "WhatsApp über Superchat-API": {
+    "Nachfass-Lauf von Hand (Header-Auth)": {
       "main": [
         [
           {
-            "node": "Versand protokollieren + nächstes Follow-up (+2 Tage) ablegen",
+            "node": "Betriebsart (hier umschalten)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "E-Mail senden über deals@ (Graph)": {
+    "Versandauftrag (seil/versand, WF 04/06/08)": {
       "main": [
         [
           {
-            "node": "Versandfelder zurückholen",
+            "node": "Als Versandauftrag kennzeichnen",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Versandfelder zurückholen": {
+    "Als Versandauftrag kennzeichnen": {
       "main": [
         [
           {
-            "node": "Versand protokollieren + nächstes Follow-up (+2 Tage) ablegen",
+            "node": "Betriebsart (hier umschalten)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow-up planen (seil/followup-planen, WF 06)": {
+      "main": [
+        [
+          {
+            "node": "Quittung: Stand führt das Cockpit",
             "type": "main",
             "index": 0
           }
@@ -594,18 +607,178 @@
       "main": [
         [
           {
-            "node": "Demo-Umleitung anwenden",
+            "node": "Versandauftrag?",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Demo-Umleitung anwenden": {
+    "Versandauftrag?": {
       "main": [
         [
           {
-            "node": "E-Mail senden über deals@ (Graph)",
+            "node": "Versandauftrag prüfen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mandate lesen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Versandauftrag prüfen": {
+      "main": [
+        [
+          {
+            "node": "Sendbar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sendbar?": {
+      "main": [
+        [
+          {
+            "node": "Mail bauen + Demo-Umleitung",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Zusammenfassung",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mandate lesen": {
+      "main": [
+        [
+          {
+            "node": "Mandate auswählen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mandate auswählen": {
+      "main": [
+        [
+          {
+            "node": "Kontakte je Mandat lesen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kontakte je Mandat lesen": {
+      "main": [
+        [
+          {
+            "node": "Fällige Kontakte bestimmen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fällige Kontakte bestimmen": {
+      "main": [
+        [
+          {
+            "node": "Etwas fällig?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Etwas fällig?": {
+      "main": [
+        [
+          {
+            "node": "Mail bauen + Demo-Umleitung",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Zusammenfassung",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mail bauen + Demo-Umleitung": {
+      "main": [
+        [
+          {
+            "node": "Nachfassmail senden (Graph)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nachfassmail senden (Graph)": {
+      "main": [
+        [
+          {
+            "node": "Versand auswerten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Versand auswerten": {
+      "main": [
+        [
+          {
+            "node": "Etwas zu melden?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Etwas zu melden?": {
+      "main": [
+        [
+          {
+            "node": "Nachgefasst im Cockpit melden",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Zusammenfassung",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nachgefasst im Cockpit melden": {
+      "main": [
+        [
+          {
+            "node": "Zusammenfassung",
             "type": "main",
             "index": 0
           }

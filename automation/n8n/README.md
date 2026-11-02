@@ -15,18 +15,21 @@ läuft noch auf dem älteren RSG-Server vom 03.08.; der Umzug ist offen (ANNAHME
 | 02 | Matching | Matching – Standort zuerst | Webhook `seil/matching` |
 | 03 | Mail-Vorbereitung | E-Mails vorbereiten (nur Entwürfe) | Webhook `seil/mail-vorbereitung` |
 | 04 | Freigabe-Gate | Freigabe (Human-in-the-Loop) | Webhook `seil/freigabe` (Cockpit-Button) |
-| 05 | Versand & Follow-up-Scheduler | Versand & Follow-ups | Webhook `seil/versand` + Cron 07:00 (Mo–Fr) |
+| 05 | Nachfass-Leiter (Follow-up) | Follow-ups (Standardprozess 15) | Cron 07:00 Mo–Fr (**aus**, bis SEIL freigibt) + Webhook `seil/followup-lauf` (Header-Auth); Altschnittstellen `seil/versand`, `seil/followup-planen` |
 | 06 | Antworterkennung | Antworterkennung | IMAP (Vertriebs-Postfach) |
 | 07 | Status-Bericht | – (flankierend: Reporting) | Cron 08:00 (Mo–Fr) |
 | 08 | Besichtigungs-Koordination | – (Teilprozess aus WF 06) | Webhook `seil/besichtigung` (aus WF 06) |
 | 09 | Datenraum-Status-API | – (Leseweg Modul 01 → Cockpit, WF 06) | Webhook GET `seil/datenraum-status` (Header-Auth) |
 
-**Versandprinzip:** WF 05 ist der einzige Punkt, an dem E-Mails oder
-WhatsApp-Nachrichten an Investoren und Verkäuferseite hinausgehen. WF 06 und
-WF 08 versenden selbst nichts, sondern übergeben *Versandaufträge* mit
-Vorlagen-Schlüssel an `seil/versand`; WF 06 startet über `seil/followup-planen`
-die Follow-up-Kette neu. Dadurch sitzen Freigabe-Prüfung, BCC-Regel und
-Protokoll an genau einer Stelle. WF 07 versendet ausschließlich den internen
+**Versandprinzip (Stand 02.11.2026):** Nach außen senden nur WF 05
+(Nachfassmails) und WF 12 (Anschreiben aus dem Cockpit) – beide über dasselbe
+Postfach, beide mit Demo-Umleitung und Bcc-Regel. WF 04/06/08 übergeben weiter
+*Versandaufträge* an `seil/versand`; gesendet wird dort nur ein vollständiger
+Auftrag (`email`, `betreff`, `text`), ein bloßer Vorlagen-Schlüssel wird
+quittiert und nicht gesendet (Antwortvorlagen bearbeitet das Cockpit, kein
+automatischer Antwortversand). `seil/followup-planen` ist nur noch eine
+Quittung: den Follow-up-Stand führt das Cockpit (`POST /api/antwort` setzt die
+Kette bei jeder Antwort zurück). WF 07 versendet ausschließlich den internen
 Statusbericht.
 
 ## Import
@@ -61,11 +64,12 @@ voraussetzen.
 5. **KI-Nodes einhängen:** In 03 (Textgenerierung) und 06 (Klassifikation)
    sitzt jeweils eine simple Fallback-Logik – produktiv gehört ein
    LLM-/Agent-Node davor, die Heuristik bleibt als Absicherung.
-6. **Konfiguration in WF 05 setzen** (Node „Konfiguration (hier anpassen)“):
-   `bccLeitung` (Leitung Vertrieb im BCC jeder ausgehenden Mail),
-   `antwortenAutomatisch` (Standard-Antworten ohne Klick versenden oder als
-   Entwurf zur Bestätigung ablegen – Workshop-Schalter), `maxStufen`
-   (Voreinstellung 3), `whatsappAktiv`.
+6. **Konfiguration in WF 05 setzen** (Node „Betriebsart (hier umschalten)“,
+   auf dem Server aus `/opt/seil/n8n-konfig.json`): `cockpitBasis`, `absender`,
+   `demoEmpfaenger` (bleibt gesetzt bis zur Freigabe), `signaturHtml`,
+   `rechtshinweisHtml`, `bccAdressen` (Kürzel → Adresse) und `bccStandard`
+   (`ms,zustaendig`), `maxStufen` (4), `followupTage` (2), `maxProLauf` (40),
+   `betreffVorlage`, `vorlagen` (Texte der Leiter, Stand lib/kommunikation.ts).
 7. **Testlauf ausschließlich mit internen Adressen**, erst danach
    aktivieren. WF 05 ist der einzige Workflow, der an Investoren versendet –
    auch die Antwort-Vorlagen aus WF 06 und die Besichtigungs-Mails aus WF 08
@@ -86,19 +90,25 @@ voraussetzen.
 - **Freigabe erfolgt gesammelt:** WF 04 nimmt eine Liste von Entwürfen entgegen
   und teilt sie in einzeln protokollierte Versandaufträge. Ohne diesen Aufruf
   versendet WF 05 nichts – das Vier-Augen-Prinzip bleibt unverändert.
-- **Follow-ups:** alle 2 Tage; Stufe 1 und 2 mit festen Vorlagen, Stufe 2
-  fragt aktiv nach aktuellen Zielregionen; weitere Stufen mit zwei
-  alternierenden Vorlagen; die letzte Stufe ist eine Final-Mail, danach nur
-  noch eine manuelle Nachfass-Aufgabe. Voreinstellung: maximal 3 Stufen
-  (Angebot/Demo-Check) – siehe Workshop-Frage unten.
+- **Follow-ups (WF 05, Stand 02.11.2026):** alle 2 Tage ohne Antwort, Leiter
+  mit 4 Stufen (1. Follow Up · 2. Follow Up · weiteres im Wechsel · Final
+  Follow up), nach einer Preisfrage genau eine Nachfrage. Fällig heißt: Stufe
+  angeschrieben / interesse / nda_angefragt (oder preisanfrage), E-Mail
+  vorhanden, letzter Kontakt ≥ 2 Tage, `followups` < 4, kein verschobenes
+  `naechstesFollowUp`. Quelle ist das Cockpit (`GET /api/mandate`, `GET
+  /api/kontakte?mandat=…`), nach dem Versand meldet WF 05 `POST /api/kontakte
+  { nachgefasst: true }` – nur bei HTTP 202 vom Postfach.
 - **WhatsApp nur über Superchat** (professionelle Lösung,
   datenschutzkonform) – keine privaten Accounts, keine direkte Meta-API.
 - **Preisanfragen werden nie schriftlich beantwortet** (Standardprozess):
   Erstantwort-Vorlage, Aufgabe „Rückruf durch die Geschäftsführung“,
   Folge-Aufgabe „Gespräch stattgefunden?“; bei erneuter schriftlicher
   Preisanfrage die feste Vorlage „Auskunft nur telefonisch“.
-- **Leitung Vertrieb im BCC** jeder ausgehenden Mail – zentraler Parameter
-  in WF 05, nicht je Workflow.
+- **Bcc-Regel (02.11.2026):** Kürzel → Adresse steht nur in
+  `/opt/seil/n8n-konfig.json` (`bccAdressen`, z. B. `ms` = Geschäftsführung);
+  `zustaendig` löst sich über `mandat.zustaendig` auf. WF 05 setzt
+  `bccStandard` auf jede Nachfassmail, WF 12 nimmt `bcc` (Kürzel oder
+  Adressen) im Auftrag entgegen. Mit Demo-Empfänger entfällt Bcc.
 - Antworten mit Regions-/Profilinformation erzeugen ein
   **Ankaufsprofil-Update** – Investorendaten leben im CRM, nicht in Excel.
 
@@ -130,9 +140,9 @@ freigeben soll („Workflow autorisieren“). Abgleich mit unserem Modell:
 **2. Standardprozess Investorenkommunikation (Entscheidungstabelle).**
 Die Struktur steckt Zeile für Zeile in den Workflows:
 
-- **WF 05** – Stufenlogik (zwei feste Vorlagen, danach alternierend,
-  Abschluss mit Final-Mail), Leitung im BCC als zentraler Parameter,
-  Webhook `seil/followup-planen` für den Neustart der Kette.
+- **WF 05** – Stufenlogik der Leiter (1 · 2 · weiteres im Wechsel · Final),
+  Preisfrage mit genau einer Nachfrage, Bcc-Regel über Kürzel; den Stand der
+  Kette führt das Cockpit, `seil/followup-planen` quittiert nur noch.
 - **WF 06** – Routing: Anfrage → Antwort + Follow-up neu (2 Tage) + Broker
   Call; Absage → Kriterien-Rückfrage + Follow-up neu (2 Tage); Kriterien
   erhalten → Übergabe + Termin; Preisanfrage → Mini-Sequenz (Erstantwort,
@@ -151,16 +161,20 @@ Ausgänge – Version 1 hatte fest vier), Code-Nodes verarbeiten alle Items eine
 Laufs (IMAP-Stapel, fällige Kontakte), Send-Email-Parameter korrigiert (BCC
 unter `options`, HTML-Format explizit).
 
-**Vorlagentexte bleiben draußen:** Die Mail-Vorlagen aus dem
-Standardprozess-Dokument werden beim Setup als Einträge im
-n8n-Data-Store hinterlegt (Quelle: das SEIL-Dokument selbst) – sie
-gehören nicht in dieses Repository und nicht in die Workflow-JSONs.
+**Vorlagentexte:** Die Texte der Nachfass-Leiter stehen in
+`lib/kommunikation.ts` (`FOLLOWUP_LEITER`, das Cockpit zeigt sie) und als
+`vorlagen` im Konfigurationsknoten von WF 05 – ohne Telefonnummern und ohne
+Signatur. Signatur, Rechtshinweis, Telefonnummern und Bcc-Adressen stehen
+ausschließlich in `/opt/seil/n8n-konfig.json` auf dem Server. Die Texte
+lassen sich dort ebenfalls überschreiben (`vorlagen`), ohne Neuimport der
+Workflow-Datei. (Ursprünglich war ein n8n-Data-Store vorgesehen; die
+Data-Table-IDs sind je Instanz verschieden und per Import nicht reproduzierbar
+zu binden – deshalb die Konfigurationsdatei.)
 
-**⚠ Workshop-Frage – Follow-up-Stufen:** Angebot und Demo-Check sagen
-„alle 2 Tage, maximal 3 Stufen“; das Standardprozess-Dokument beschreibt
-eine offene Follow-up-Kette mit abschließender Final-Mail. WF 05 ist auf
-`maxStufen = 3` voreingestellt und pro Kampagne überschreibbar – die
-verbindliche Regel legt der Workshop fest.
+**Follow-up-Stufen – entschieden 02.11.2026:** `maxStufen = 4` (1. · 2. ·
+weiteres · Final), wie `FOLLOWUP_LEITER` im Cockpit; nach einer Preisfrage
+genau eine Nachfrage. Der Zeitplan von WF 05 bleibt ausgeschaltet, bis SEIL
+den Echtversand freigibt; bis dahin Testläufe nur mit `demoEmpfaenger`.
 
 ## Anbindung Modul 01 (Datenraum-Automatik – echte Daten)
 

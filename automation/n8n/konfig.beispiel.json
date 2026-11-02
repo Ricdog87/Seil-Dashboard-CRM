@@ -35,7 +35,52 @@
     }
   },
   "05-followup-scheduler.json": {
-    "demoEmpfaenger": "<Adresse fuer Vorfuehrungen, leer lassen fuer echten Versand>"
+    "cockpitBasis": "https://COCKPIT-ADRESSE",
+    "absender": "POSTFACH@BEISPIEL-DOMAIN.de",
+    "demoEmpfaenger": "WAEHREND-DER-EINFUEHRUNG-HIER-EINE-INTERNE-ADRESSE",
+    "signaturHtml": "<!-- Signatur HTML (mit Telefonnummern) – nur hier, nie im Repository -->",
+    "rechtshinweisHtml": "<!-- Rechtshinweis HTML -->",
+    "bccAdressen": {
+      "ms": "GESCHAEFTSFUEHRUNG@BEISPIEL-DOMAIN.de",
+      "jd": "PERSON@BEISPIEL-DOMAIN.de"
+    },
+    "bccStandard": "ms,zustaendig",
+    "maxStufen": 4,
+    "followupTage": 2,
+    "maxProLauf": 40,
+    "betreffVorlage": "Nachfrage zu {mandat}",
+    "_credentials": {
+      "Nachfass-Lauf von Hand (Header-Auth)": {
+        "httpHeaderAuth": {
+          "id": "<n8n-credential-id>",
+          "name": "Seil Webhook Secret"
+        }
+      },
+      "Mandate lesen": {
+        "httpHeaderAuth": {
+          "id": "<n8n-credential-id>",
+          "name": "Seil Webhook Secret"
+        }
+      },
+      "Kontakte je Mandat lesen": {
+        "httpHeaderAuth": {
+          "id": "<n8n-credential-id>",
+          "name": "Seil Webhook Secret"
+        }
+      },
+      "Nachgefasst im Cockpit melden": {
+        "httpHeaderAuth": {
+          "id": "<n8n-credential-id>",
+          "name": "Seil Webhook Secret"
+        }
+      },
+      "Nachfassmail senden (Graph)": {
+        "oAuth2Api": {
+          "id": "<n8n-credential-id>",
+          "name": "Microsoft Graph (SEIL)"
+        }
+      }
+    }
   },
   "04-freigabe-gate.json": {
     "freigabeAn": "FREIGEBENDE-PERSON@BEISPIEL.DE",
@@ -101,6 +146,10 @@
     "absender": "POSTFACH@BEISPIEL-DOMAIN.de",
     "supabaseBasis": "https://PROJEKT-KENNUNG.supabase.co",
     "tabelle": "freigabe_eingang",
+    "bccAdressen": {
+      "ms": "GESCHAEFTSFUEHRUNG@BEISPIEL-DOMAIN.de",
+      "jd": "PERSON@BEISPIEL-DOMAIN.de"
+    },
     "_credentials": {
       "Auftrag aus dem Cockpit": {
         "httpHeaderAuth": {
