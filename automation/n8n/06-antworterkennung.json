@@ -15,7 +15,7 @@
         -260
       ],
       "parameters": {
-        "content": "## Glied 6: Antworterkennung – Entscheidungsbaum aus dem Standardprozess\n\nEingehende Antworten (zentrales Vertriebs-Postfach per Microsoft Graph (deals@seil.com); Superchat-Webhook für WhatsApp analog) werden klassifiziert und nach dem Standardprozess Investorenkommunikation geroutet. WF 06 versendet selbst NICHTS: Jede Route setzt nur Parameter (Vorlagen-Schlüssel, Follow-up neu?, Aufgabe?) – der generische Ausführer unten übergibt den Versand an WF 05 (einziger Versandpunkt, dort BCC-Regel und Freigabe-Prüfung).\n\nRouten (nur Struktur – Vorlagentexte liegen im n8n-Data-Store):\n– Anfrage/Interesse → Vorlage + Follow-up-Kette neu (2 Tage) + Aufgabe „Broker Call“\n– Absage → Bestätigung mit Kriterien-Rückfrage + Follow-up neu (2 Tage); Antwort pflegt das Ankaufsprofil\n– Kriterien erhalten → Vorlage + Aufgabe „Übergabe an Team + Terminvorschlag“\n– Preisanfrage → NIE schriftlich beantworten: Erstantwort-Vorlage + Aufgabe „Rückruf durch GF“ + Folge-Aufgabe „Gespräch stattgefunden?“; bei ERNEUTER schriftlicher Preisanfrage feste Vorlage „Auskunft nur telefonisch“\n– Unterlagen angefragt → Datenraum-Abgleich über WF 09 (Modul-01-Stand): vorhanden → senden · nicht im Datenraum → Rückfrage an Verkäuferseite · unklar → interne Rücksprache (Team, dann Leitung)\n– Telefonwunsch → Vorlage + Aufgabe „Rückruf durch GF“\n– Besichtigung → WF 08 Besichtigungs-Koordination (mehrstufig, eigener Zustand)\n– Rest → Signal „offen“ im Cockpit-Posteingang (Mensch triagiert)\n\nZielregionen-/Profilinformationen in jeder Antwort setzen das Profil-Update-Flag → Ankaufsprofil im CRM.\n\nSKELETT – vor Aktivierung: Microsoft Graph (deals@seil.com)-Credential (zentrales Vertriebs-Postfach, nach Office-365-Umzug); LLM-Klassifikation (Claude) vor die Keyword-Heuristik schalten; interne Aufrufe über localhost:5678 – keine Anpassung nötig; Datenraum-Abgleich und Aufgaben-Ablage anbinden.\n\n**Umbau 29.10.:** Eingang über Microsoft Graph statt IMAP. Alle 2 Minuten werden ungelesene Mails aus deals@seil.com gelesen, als gelesen markiert und einzeln klassifiziert. Credential: „Microsoft Graph (SEIL)“ (OAuth2, Client Credentials, Scope https://graph.microsoft.com/.default) – eine Stelle für Postfach, Kalender und Liveliste.\n\n**Cockpit (30.10.2026):** Jede erkannte Antwort geht an `POST /api/antwort` des Cockpits (Header-Auth, dasselbe Geheimnis wie `seil/datenraum-status`). Das Cockpit setzt die Trichterstufe und legt die Prozess-Aufgaben an (Broker Call, Rückruf GF). Die früheren Platzhalter „Aufgabe im Cockpit anlegen\" und „Signal 'offen'\" sind damit entfallen. `cockpitBasis` kommt aus `n8n-konfig.json`.",
+        "content": "## Glied 6: Antworterkennung – Entscheidungsbaum aus dem Standardprozess\n\nEingehende Antworten (zentrales Vertriebs-Postfach per Microsoft Graph (deals@seil.com); Superchat-Webhook für WhatsApp analog) werden klassifiziert und nach dem Standardprozess Investorenkommunikation geroutet. WF 06 versendet selbst NICHTS: Jede Route setzt nur Parameter (Vorlagen-Schlüssel, Follow-up neu?, Aufgabe?) – der generische Ausführer unten übergibt den Versand an WF 05 (einziger Versandpunkt, dort BCC-Regel und Freigabe-Prüfung).\n\nRouten (nur Struktur – Vorlagentexte liegen im n8n-Data-Store):\n– Anfrage/Interesse → Vorlage + Follow-up-Kette neu (2 Tage) + Aufgabe „Broker Call“\n– Absage → Bestätigung mit Kriterien-Rückfrage + Follow-up neu (2 Tage); Antwort pflegt das Ankaufsprofil\n– Kriterien erhalten → Vorlage + Aufgabe „Übergabe an Team + Terminvorschlag“\n– Preisanfrage → NIE schriftlich beantworten: Erstantwort-Vorlage + Aufgabe „Rückruf durch GF“ + Folge-Aufgabe „Gespräch stattgefunden?“; bei ERNEUTER schriftlicher Preisanfrage feste Vorlage „Auskunft nur telefonisch“\n– Unterlagen angefragt → Datenraum-Abgleich über WF 09 (Modul-01-Stand): vorhanden → senden · nicht im Datenraum → Rückfrage an Verkäuferseite · unklar → interne Rücksprache (Team, dann Leitung)\n– Telefonwunsch → Vorlage + Aufgabe „Rückruf durch GF“\n– Besichtigung → WF 08 Besichtigungs-Koordination (mehrstufig, eigener Zustand)\n– Rest → Signal „offen“ im Cockpit-Posteingang (Mensch triagiert)\n\nZielregionen-/Profilinformationen in jeder Antwort setzen das Profil-Update-Flag → Ankaufsprofil im CRM.\n\nSKELETT – vor Aktivierung: Microsoft Graph (deals@seil.com)-Credential (zentrales Vertriebs-Postfach, nach Office-365-Umzug); LLM-Klassifikation (Claude) vor die Keyword-Heuristik schalten; interne Aufrufe über localhost:5678 – keine Anpassung nötig; Datenraum-Abgleich und Aufgaben-Ablage anbinden.\n\n**Umbau 29.10.:** Eingang über Microsoft Graph statt IMAP. Alle 2 Minuten werden ungelesene Mails aus deals@seil.com gelesen, als gelesen markiert und einzeln klassifiziert. Credential: „Microsoft Graph (SEIL)“ (OAuth2, Client Credentials, Scope https://graph.microsoft.com/.default) – eine Stelle für Postfach, Kalender und Liveliste.\n\n**Cockpit (30.10.2026):** Jede erkannte Antwort geht an `POST /api/antwort` des Cockpits (Header-Auth, dasselbe Geheimnis wie `seil/datenraum-status`). Das Cockpit setzt die Trichterstufe und legt die Prozess-Aufgaben an (Broker Call, Rückruf GF). Die früheren Platzhalter „Aufgabe im Cockpit anlegen\" und „Signal 'offen'\" sind damit entfallen. `cockpitBasis` kommt aus `n8n-konfig.json`.\n\n**Arten seit 02.11.2026** (Standardprozess, identisch mit dem Cockpit): anfrage · absage · kriterien · preisfrage · infos · telefonat · besichtigung · sonstiges. Vorher: interesse → anfrage, unterlagen → infos, preisanfrage → preisfrage.",
         "width": 600,
         "height": 700
       }
@@ -30,7 +30,7 @@
         700
       ],
       "parameters": {
-        "jsCode": "// Fallback-Heuristik – produktiv sitzt davor eine LLM-Klassifikation (Claude).\n// Kategorien = Entscheidungsbaum aus dem Standardprozess. Verarbeitet ALLE eingegangenen Mails.\nreturn $input.all().map(({ json: m }) => {\n  const text = `${m.subject ?? ''} ${m.textPlain ?? m.text ?? ''}`.toLowerCase();\n  const hat = (woerter) => woerter.some((w) => text.includes(w));\n  let art = 'sonstiges';\n  if (hat(['kein interesse', 'absage', 'nicht weiter', 'sehen wir ab', 'passt nicht'])) art = 'absage';\n  else if (hat(['unsere kriterien', 'unser ankaufsprofil', 'wir suchen aktuell', 'suchprofil'])) art = 'kriterien';\n  else if (hat(['besichtigung', 'vor ort', 'objektbesichtigung', 'terminvorschlag'])) art = 'besichtigung';\n  else if (hat(['preis', 'kaufpreisvorstellung', 'faktor', 'indikation'])) art = 'preisanfrage';\n  else if (hat(['unterlagen', 'exposé', 'expose', 'datenraum', 'mietaufstellung', 'grundriss'])) art = 'unterlagen';\n  else if (hat(['rückruf', 'telefonat', 'anrufen', 'telefonisch'])) art = 'telefonat';\n  else if (hat(['interesse', 'ansprechpartner', 'mehr informationen'])) art = 'interesse';\n  const profilUpdate = hat(['region', 'regionen', 'standort', 'zielregion', 'suchen wir', 'ankaufsprofil']);\n  // preisanfragen: Zähler bisheriger schriftlicher Preisanfragen dieses Kontakts (aus der Ablage), Platzhalter 0\n  return { json: { ...m, art, profilUpdate, preisanfragen: m.preisanfragen ?? 0, kontaktId: m.kontaktId ?? m.from ?? '', email: m.from ?? '' } };\n});"
+        "jsCode": "// Fallback-Heuristik – produktiv sitzt davor eine LLM-Klassifikation (Claude).\n// Kategorien = Arten des Standardprozesses (02.11.2026): anfrage · absage · kriterien · preisfrage · infos · telefonat · besichtigung · sonstiges.\n// Das Cockpit (POST /api/antwort) nimmt genau diese Namen. Verarbeitet ALLE eingegangenen Mails.\nreturn $input.all().map(({ json: m }) => {\n  const text = `${m.subject ?? ''} ${m.textPlain ?? m.text ?? ''}`.toLowerCase();\n  const hat = (woerter) => woerter.some((w) => text.includes(w));\n  let art = 'sonstiges';\n  if (hat(['kein interesse', 'absage', 'nicht weiter', 'sehen wir ab', 'passt nicht'])) art = 'absage';\n  else if (hat(['unsere kriterien', 'unser ankaufsprofil', 'wir suchen aktuell', 'suchprofil'])) art = 'kriterien';\n  else if (hat(['besichtigung', 'vor ort', 'objektbesichtigung', 'terminvorschlag'])) art = 'besichtigung';\n  else if (hat(['preis', 'kaufpreisvorstellung', 'faktor', 'indikation'])) art = 'preisfrage';\n  else if (hat(['unterlagen', 'exposé', 'expose', 'datenraum', 'mietaufstellung', 'grundriss'])) art = 'infos';\n  else if (hat(['rückruf', 'telefonat', 'anrufen', 'telefonisch'])) art = 'telefonat';\n  else if (hat(['interesse', 'ansprechpartner', 'mehr informationen'])) art = 'anfrage';\n  const profilUpdate = hat(['region', 'regionen', 'standort', 'zielregion', 'suchen wir', 'ankaufsprofil']);\n  // preisanfragen: Zähler bisheriger schriftlicher Preisanfragen dieses Kontakts (aus der Ablage), Platzhalter 0\n  return { json: { ...m, art, profilUpdate, preisanfragen: m.preisanfragen ?? 0, kontaktId: m.kontaktId ?? m.from ?? '', email: m.from ?? '' } };\n});"
       }
     },
     {
@@ -57,7 +57,7 @@
                   {
                     "id": "switch-06-r0",
                     "leftValue": "={{ $json.art }}",
-                    "rightValue": "interesse",
+                    "rightValue": "anfrage",
                     "operator": {
                       "type": "string",
                       "operation": "equals"
@@ -67,7 +67,7 @@
                 "combinator": "and"
               },
               "renameOutput": true,
-              "outputKey": "interesse"
+              "outputKey": "anfrage"
             },
             {
               "conditions": {
@@ -129,7 +129,7 @@
                   {
                     "id": "switch-06-r3",
                     "leftValue": "={{ $json.art }}",
-                    "rightValue": "preisanfrage",
+                    "rightValue": "preisfrage",
                     "operator": {
                       "type": "string",
                       "operation": "equals"
@@ -139,7 +139,7 @@
                 "combinator": "and"
               },
               "renameOutput": true,
-              "outputKey": "preisanfrage"
+              "outputKey": "preisfrage"
             },
             {
               "conditions": {
@@ -153,7 +153,7 @@
                   {
                     "id": "switch-06-r4",
                     "leftValue": "={{ $json.art }}",
-                    "rightValue": "unterlagen",
+                    "rightValue": "infos",
                     "operator": {
                       "type": "string",
                       "operation": "equals"
@@ -163,7 +163,7 @@
                 "combinator": "and"
               },
               "renameOutput": true,
-              "outputKey": "unterlagen"
+              "outputKey": "infos"
             },
             {
               "conditions": {
