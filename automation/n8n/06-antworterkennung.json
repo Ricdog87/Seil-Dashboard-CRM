@@ -15,7 +15,7 @@
         -260
       ],
       "parameters": {
-        "content": "## Glied 6: Antworterkennung – Entscheidungsbaum aus dem Standardprozess\n\nEingehende Antworten (zentrales Vertriebs-Postfach per Microsoft Graph (deals@seil.com); Superchat-Webhook für WhatsApp analog) werden klassifiziert und nach dem Standardprozess Investorenkommunikation geroutet. WF 06 versendet selbst NICHTS: Jede Route setzt nur Parameter (Vorlagen-Schlüssel, Follow-up neu?, Aufgabe?) – der generische Ausführer unten übergibt den Versand an WF 05 (einziger Versandpunkt, dort BCC-Regel und Freigabe-Prüfung).\n\nRouten (nur Struktur – Vorlagentexte liegen im n8n-Data-Store):\n– Anfrage/Interesse → Vorlage + Follow-up-Kette neu (2 Tage) + Aufgabe „Broker Call“\n– Absage → Bestätigung mit Kriterien-Rückfrage + Follow-up neu (2 Tage); Antwort pflegt das Ankaufsprofil\n– Kriterien erhalten → Vorlage + Aufgabe „Übergabe an Team + Terminvorschlag“\n– Preisanfrage → NIE schriftlich beantworten: Erstantwort-Vorlage + Aufgabe „Rückruf durch GF“ + Folge-Aufgabe „Gespräch stattgefunden?“; bei ERNEUTER schriftlicher Preisanfrage feste Vorlage „Auskunft nur telefonisch“\n– Unterlagen angefragt → Datenraum-Abgleich über WF 09 (Modul-01-Stand): vorhanden → senden · nicht im Datenraum → Rückfrage an Verkäuferseite · unklar → interne Rücksprache (Team, dann Leitung)\n– Telefonwunsch → Vorlage + Aufgabe „Rückruf durch GF“\n– Besichtigung → WF 08 Besichtigungs-Koordination (mehrstufig, eigener Zustand)\n– Rest → Signal „offen“ im Cockpit-Posteingang (Mensch triagiert)\n\nZielregionen-/Profilinformationen in jeder Antwort setzen das Profil-Update-Flag → Ankaufsprofil im CRM.\n\nSKELETT – vor Aktivierung: Microsoft Graph (deals@seil.com)-Credential (zentrales Vertriebs-Postfach, nach Office-365-Umzug); LLM-Klassifikation (Claude) vor die Keyword-Heuristik schalten; interne Aufrufe über localhost:5678 – keine Anpassung nötig; Datenraum-Abgleich und Aufgaben-Ablage anbinden.\n\n**Umbau 29.10.:** Eingang über Microsoft Graph statt IMAP. Alle 2 Minuten werden ungelesene Mails aus deals@seil.com gelesen, als gelesen markiert und einzeln klassifiziert. Credential: „Microsoft Graph (SEIL)“ (OAuth2, Client Credentials, Scope https://graph.microsoft.com/.default) – eine Stelle für Postfach, Kalender und Liveliste.\n\n**Cockpit (30.10.2026):** Jede erkannte Antwort geht an `POST /api/antwort` des Cockpits (Header-Auth, dasselbe Geheimnis wie `seil/datenraum-status`). Das Cockpit setzt die Trichterstufe und legt die Prozess-Aufgaben an (Broker Call, Rückruf GF). Die früheren Platzhalter „Aufgabe im Cockpit anlegen\" und „Signal 'offen'\" sind damit entfallen. `cockpitBasis` kommt aus `n8n-konfig.json`.\n\n**Arten seit 02.11.2026** (Standardprozess, identisch mit dem Cockpit): anfrage · absage · kriterien · preisfrage · infos · telefonat · besichtigung · sonstiges. Vorher: interesse → anfrage, unterlagen → infos, preisanfrage → preisfrage.",
+        "content": "## Glied 6: Antworterkennung – Entscheidungsbaum aus dem Standardprozess\n\nEingehende Antworten (zentrales Vertriebs-Postfach per Microsoft Graph (deals@seil.com); Superchat-Webhook für WhatsApp analog) werden klassifiziert und nach dem Standardprozess Investorenkommunikation geroutet. WF 06 versendet selbst NICHTS: Jede Route setzt nur Parameter (Vorlagen-Schlüssel, Follow-up neu?, Aufgabe?) – der generische Ausführer unten übergibt den Versand an WF 05 (einziger Versandpunkt, dort BCC-Regel und Freigabe-Prüfung).\n\nRouten (nur Struktur – Vorlagentexte liegen im n8n-Data-Store):\n– Anfrage/Interesse → Vorlage + Follow-up-Kette neu (2 Tage) + Aufgabe „Broker Call“\n– Absage → Bestätigung mit Kriterien-Rückfrage + Follow-up neu (2 Tage); Antwort pflegt das Ankaufsprofil\n– Kriterien erhalten → Vorlage + Aufgabe „Übergabe an Team + Terminvorschlag“\n– Preisanfrage → NIE schriftlich beantworten: Erstantwort-Vorlage + Aufgabe „Rückruf durch GF“ + Folge-Aufgabe „Gespräch stattgefunden?“; bei ERNEUTER schriftlicher Preisanfrage feste Vorlage „Auskunft nur telefonisch“\n– Unterlagen angefragt → Datenraum-Abgleich über WF 09 (Modul-01-Stand): vorhanden → senden · nicht im Datenraum → Rückfrage an Verkäuferseite · unklar → interne Rücksprache (Team, dann Leitung)\n– Telefonwunsch → Vorlage + Aufgabe „Rückruf durch GF“\n– Besichtigung → WF 08 Besichtigungs-Koordination (mehrstufig, eigener Zustand)\n– Rest → Signal „offen“ im Cockpit-Posteingang (Mensch triagiert)\n\nZielregionen-/Profilinformationen in jeder Antwort setzen das Profil-Update-Flag → Ankaufsprofil im CRM.\n\nSKELETT – vor Aktivierung: Microsoft Graph (deals@seil.com)-Credential (zentrales Vertriebs-Postfach, nach Office-365-Umzug); LLM-Klassifikation (Claude) vor die Keyword-Heuristik schalten; interne Aufrufe über localhost:5678 – keine Anpassung nötig; Datenraum-Abgleich und Aufgaben-Ablage anbinden.\n\n**Umbau 29.10.:** Eingang über Microsoft Graph statt IMAP. Alle 2 Minuten werden ungelesene Mails aus deals@seil.com gelesen, als gelesen markiert und einzeln klassifiziert. Credential: „Microsoft Graph (SEIL)“ (OAuth2, Client Credentials, Scope https://graph.microsoft.com/.default) – eine Stelle für Postfach, Kalender und Liveliste.\n\n**Cockpit (30.10.2026):** Jede erkannte Antwort geht an `POST /api/antwort` des Cockpits (Header-Auth, dasselbe Geheimnis wie `seil/datenraum-status`). Das Cockpit setzt die Trichterstufe und legt die Prozess-Aufgaben an (Broker Call, Rückruf GF). Die früheren Platzhalter „Aufgabe im Cockpit anlegen\" und „Signal 'offen'\" sind damit entfallen. `cockpitBasis` kommt aus `n8n-konfig.json`.\n\n**Arten seit 02.11.2026** (Standardprozess, identisch mit dem Cockpit): anfrage · absage · kriterien · preisfrage · infos · telefonat · besichtigung · sonstiges. Vorher: interesse → anfrage, unterlagen → infos, preisanfrage → preisfrage.\n\n**Abwesenheits- und Systemmails (seit 02.11.2026, Termin SEIL):** Betreff-Präfixe (Automatische Antwort, Automatic reply, Abwesenheit, Out of office, Unzustellbar …), Systemabsender (no-reply, mailer-daemon …) und typische Abwesenheitstexte werden erkannt und **nicht** als Antwort gewertet: kein Aufruf des Cockpits, keine Stufe, kein Follow-up-Reset, keine Aufgabe. Sie landen nur im Protokoll („Abwesenheit ignoriert“). Antworten per Telefon oder WhatsApp erkennt dieser Workflow nicht — die trägt das Team im Cockpit von Hand ein.",
         "width": 600,
         "height": 700
       }
@@ -30,7 +30,7 @@
         700
       ],
       "parameters": {
-        "jsCode": "// Fallback-Heuristik – produktiv sitzt davor eine LLM-Klassifikation (Claude).\n// Kategorien = Arten des Standardprozesses (02.11.2026): anfrage · absage · kriterien · preisfrage · infos · telefonat · besichtigung · sonstiges.\n// Das Cockpit (POST /api/antwort) nimmt genau diese Namen. Verarbeitet ALLE eingegangenen Mails.\nreturn $input.all().map(({ json: m }) => {\n  const text = `${m.subject ?? ''} ${m.textPlain ?? m.text ?? ''}`.toLowerCase();\n  const hat = (woerter) => woerter.some((w) => text.includes(w));\n  let art = 'sonstiges';\n  if (hat(['kein interesse', 'absage', 'nicht weiter', 'sehen wir ab', 'passt nicht'])) art = 'absage';\n  else if (hat(['unsere kriterien', 'unser ankaufsprofil', 'wir suchen aktuell', 'suchprofil'])) art = 'kriterien';\n  else if (hat(['besichtigung', 'vor ort', 'objektbesichtigung', 'terminvorschlag'])) art = 'besichtigung';\n  else if (hat(['preis', 'kaufpreisvorstellung', 'faktor', 'indikation'])) art = 'preisfrage';\n  else if (hat(['unterlagen', 'exposé', 'expose', 'datenraum', 'mietaufstellung', 'grundriss'])) art = 'infos';\n  else if (hat(['rückruf', 'telefonat', 'anrufen', 'telefonisch'])) art = 'telefonat';\n  else if (hat(['interesse', 'ansprechpartner', 'mehr informationen'])) art = 'anfrage';\n  const profilUpdate = hat(['region', 'regionen', 'standort', 'zielregion', 'suchen wir', 'ankaufsprofil']);\n  // preisanfragen: Zähler bisheriger schriftlicher Preisanfragen dieses Kontakts (aus der Ablage), Platzhalter 0\n  return { json: { ...m, art, profilUpdate, preisanfragen: m.preisanfragen ?? 0, kontaktId: m.kontaktId ?? m.from ?? '', email: m.from ?? '' } };\n});"
+        "jsCode": "// Fallback-Heuristik – produktiv sitzt davor eine LLM-Klassifikation (Claude).\n// Kategorien = Arten des Standardprozesses (02.11.2026): anfrage · absage · kriterien · preisfrage · infos · telefonat · besichtigung · sonstiges.\n// Das Cockpit (POST /api/antwort) nimmt genau diese Namen. Verarbeitet ALLE eingegangenen Mails.\nreturn $input.all().map(({ json: m }) => {\n  const text = `${m.subject ?? ''} ${m.textPlain ?? m.text ?? ''}`.toLowerCase();\n  const hat = (woerter) => woerter.some((w) => text.includes(w));\n  let art = 'sonstiges';\n  if (hat(['kein interesse', 'absage', 'nicht weiter', 'sehen wir ab', 'passt nicht'])) art = 'absage';\n  else if (hat(['unsere kriterien', 'unser ankaufsprofil', 'wir suchen aktuell', 'suchprofil'])) art = 'kriterien';\n  else if (hat(['besichtigung', 'vor ort', 'objektbesichtigung', 'terminvorschlag'])) art = 'besichtigung';\n  else if (hat(['preis', 'kaufpreisvorstellung', 'faktor', 'indikation'])) art = 'preisfrage';\n  else if (hat(['unterlagen', 'exposé', 'expose', 'datenraum', 'mietaufstellung', 'grundriss'])) art = 'infos';\n  else if (hat(['rückruf', 'telefonat', 'anrufen', 'telefonisch'])) art = 'telefonat';\n  else if (hat(['interesse', 'ansprechpartner', 'mehr informationen'])) art = 'anfrage';\n  const profilUpdate = hat(['region', 'regionen', 'standort', 'zielregion', 'suchen wir', 'ankaufsprofil']);\n  // preisanfragen: Zähler bisheriger schriftlicher Preisanfragen dieses Kontakts (aus der Ablage), Platzhalter 0\n  if (m.autoantwort === true) {\n    // Abwesenheit/Systemmail: keine Art, kein Profil-Update, kein Cockpit — wird im nächsten Knoten aussortiert\n    return { json: { ...m, art: 'sonstiges', profilUpdate: false, preisanfragen: m.preisanfragen ?? 0, kontaktId: m.kontaktId ?? m.from ?? '', email: m.from ?? '' } };\n  }\n  return { json: { ...m, art, profilUpdate, preisanfragen: m.preisanfragen ?? 0, kontaktId: m.kontaktId ?? m.from ?? '', email: m.from ?? '' } };\n});"
       }
     },
     {
@@ -852,7 +852,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Graph liefert { value: [ ...Nachrichten ] }. Eine Nachricht je Item, Felder so, wie der\n// Klassifizierer sie erwartet (subject, from als Adresse, textPlain, messageId).\nconst antwort = $input.first().json;\nconst liste = Array.isArray(antwort.value) ? antwort.value : [];\nif (antwort.error) throw new Error('Graph-Fehler beim Lesen von deals@: ' + JSON.stringify(antwort.error));\nconst ohneHtml = (h) => String(h ?? '').replace(/<style[\\s\\S]*?<\\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\\s+/g, ' ').trim();\nreturn liste.map((m) => {\n  const istText = (m.body?.contentType ?? '').toLowerCase() === 'text';\n  const textPlain = istText ? (m.body?.content ?? '') : ohneHtml(m.body?.content ?? m.bodyPreview);\n  return { json: {\n    messageId: m.id, internetMessageId: m.internetMessageId ?? null, conversationId: m.conversationId ?? null,\n    subject: m.subject ?? '', from: m.from?.emailAddress?.address ?? '', fromName: m.from?.emailAddress?.name ?? '',\n    textPlain, text: textPlain, receivedDateTime: m.receivedDateTime ?? null,\n  } };\n});"
+        "jsCode": "// Graph liefert { value: [ ...Nachrichten ] }. Eine Nachricht je Item, Felder so, wie der\n// Klassifizierer sie erwartet (subject, from als Adresse, textPlain, messageId).\nconst antwort = $input.first().json;\nconst liste = Array.isArray(antwort.value) ? antwort.value : [];\nif (antwort.error) throw new Error('Graph-Fehler beim Lesen von deals@: ' + JSON.stringify(antwort.error));\nconst ohneHtml = (h) => String(h ?? '').replace(/<style[\\s\\S]*?<\\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\\s+/g, ' ').trim();\n// Abwesenheits- und Systemmails (Termin 02.11.2026): eine automatische Antwort ist\n// keine Antwort des Investors — sie darf weder die Trichterstufe noch die\n// Follow-up-Kette anfassen. Erkennung über Betreff-Präfixe der Mailprogramme,\n// typische Textbausteine und Systemabsender (Graph liefert keine Kopfzeilen\n// in der Listenabfrage, daher inhaltlich).\nconst BETREFF_AUTO = /^(?:\\s*(?:aw|re|wg|fw|fwd):\\s*)*(?:automatische antwort|automatic reply|auto(?:matic)?[ -]?reply|abwesenheit(?:snotiz)?|out of (?:the )?office|ooo\\b|away from (?:the )?office|autom\\. antwort|réponse automatique|respuesta automática|zustellbenachrichtigung|undeliverable|unzustellbar|delivery status notification|mail delivery failed)/i;\nconst TEXT_AUTO = /(ich bin (?:derzeit|zurzeit|momentan|bis zum|vom|ab dem|voraussichtlich)[^.]{0,80}(?:nicht|außer haus|abwesend|im urlaub|nicht erreichbar|nicht im (?:büro|haus)))|(in meiner abwesenheit (?:wenden|erreichen|kontaktieren|steht ihnen))|(ihre e-?mail wird (?:nicht )?weitergeleitet)|(i am (?:currently )?(?:out of|away from) the office)|(i will be (?:back|returning))|(bin (?:wieder )?ab dem [^.]{0,30} (?:erreichbar|zurück))|(this is an automated (?:message|reply))|(dies ist eine automatische (?:antwort|nachricht))|(automatisch generierte (?:nachricht|antwort))/i;\nconst SYSTEM_ABSENDER = /^(?:no-?reply|noreply|do-?not-?reply|mailer-daemon|postmaster|bounce|notification|notifications)@/i;\nreturn liste.map((m) => {\n  const istText = (m.body?.contentType ?? '').toLowerCase() === 'text';\n  const textPlain = istText ? (m.body?.content ?? '') : ohneHtml(m.body?.content ?? m.bodyPreview);\n  const subject = m.subject ?? '';\n  const from = m.from?.emailAddress?.address ?? '';\n  // Textregel nur für kurze Mails und nur am Anfang — eine echte Antwort mit\n  // Abwesenheitshinweis in der Signatur bleibt eine Antwort\n  const anfang = String(textPlain).slice(0, 300);\n  const kurz = String(textPlain).length < 1500;\n  const grund = BETREFF_AUTO.test(subject) ? 'betreff' : SYSTEM_ABSENDER.test(from) ? 'systemabsender' : kurz && TEXT_AUTO.test(anfang) ? 'text' : null;\n  return { json: {\n    messageId: m.id, internetMessageId: m.internetMessageId ?? null, conversationId: m.conversationId ?? null,\n    subject, from, fromName: m.from?.emailAddress?.name ?? '',\n    textPlain, text: textPlain, receivedDateTime: m.receivedDateTime ?? null,\n    autoantwort: grund !== null, autoantwortGrund: grund,\n  } };\n});"
       },
       "id": "ef584762-a1de-4748-8668-41be462f82cf",
       "name": "Nachrichten vereinzeln + Felder angleichen",
@@ -976,6 +976,53 @@
         960,
         700
       ]
+    },
+    {
+      "id": "if-06-auto",
+      "name": "Automatische Antwort?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        560
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "if-06-auto-c",
+              "leftValue": "={{ $json.autoantwort }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "code-06-auto",
+      "name": "Abwesenheit ignoriert (Protokoll)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        420
+      ],
+      "parameters": {
+        "jsCode": "// Nur eine Protokollzeile je ignorierter Mail — ohne Inhalt, nur Kennung und Grund.\nreturn $input.all().map((i) => ({ json: {\n  ignoriert: true, grund: 'automatische Antwort (' + (i.json.autoantwortGrund ?? 'unbekannt') + ')',\n  von: i.json.from ?? null, betreff: String(i.json.subject ?? '').slice(0, 80), messageId: i.json.messageId ?? null,\n  empfangen: i.json.receivedDateTime ?? null,\n} }));"
+      }
     }
   ],
   "connections": {
@@ -983,7 +1030,7 @@
       "main": [
         [
           {
-            "node": "Cockpit (hier anpassen)",
+            "node": "Automatische Antwort?",
             "type": "main",
             "index": 0
           }
@@ -1376,6 +1423,24 @@
         [
           {
             "node": "Routing (Standardprozess)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Automatische Antwort?": {
+      "main": [
+        [
+          {
+            "node": "Abwesenheit ignoriert (Protokoll)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cockpit (hier anpassen)",
             "type": "main",
             "index": 0
           }
