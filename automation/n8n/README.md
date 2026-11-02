@@ -11,7 +11,7 @@ läuft noch auf dem älteren RSG-Server vom 03.08.; der Umzug ist offen (ANNAHME
 
 | # | Workflow | Kettenglied | Trigger |
 |---|---|---|---|
-| 01 | Datenraum-Intake | Datenraum einlesen | Webhook `seil/datenraum` (Modul 01) |
+| 01 | Lauf-Ende → Cockpit-Sync | Datenraum wird Mandat | Webhook `seil/datenraum` (Modul 01, nach jedem Lauf) |
 | 02 | Matching | Matching – Standort zuerst | Webhook `seil/matching` |
 | 03 | Mail-Vorbereitung | E-Mails vorbereiten (nur Entwürfe) | Webhook `seil/mail-vorbereitung` |
 | 04 | Freigabe-Gate | Freigabe (Human-in-the-Loop) | Webhook `seil/freigabe` (Cockpit-Button) |
@@ -164,74 +164,34 @@ verbindliche Regel legt der Workshop fest.
 
 ## Anbindung Modul 01 (Datenraum-Automatik – echte Daten)
 
-Modul 01 ist die erste echte Datenquelle der Kette – und seit 01.09. auch die
-erste echte Datenquelle des Cockpits. Das Prinzip ist bewusst einfach:
-**Modul 01 schreibt (WF 01), das Cockpit liest (WF 09)** – ein Schreibweg,
-ein Leseweg, eine Ablage (`datenraum_status`, eine Zeile je Objekt).
+Stand 02.11.2026. Zwei Wege, beide mit demselben Header-Geheimnis:
 
 ```
-Modul 01 ──POST seil/datenraum──▶ WF 01 ──▶ Ablage datenraum_status ◀──GET seil/datenraum-status── WF 09
-                                  │  (upsert je Objekt)                        ▲              ▲
-                                  └─ Objekt unbekannt → Deal anlegen      Cockpit-Route     WF 06
-                                     (Nino, 28.08.: „Create data room     /api/modul01/    Datenraum-
-                                      → Deal im CRM“)                     status (Server)  Abgleich
+Modul 01 ──POST seil/datenraum (nach jedem Lauf)──▶ WF 01 ──POST /api/modul01/sync──▶ Cockpit legt Mandat an
+Cockpit  ──GET  /api/modul01/status ──▶ WF 09 ──▶ Läufe + Zählwerte aus der Modul-01-Datenbank
 ```
 
-**Schreibweg – Vertrag an WF 01** (Header-Auth-Credential am Webhook, Header
-`X-Seil-Secret`, Wert nur im Credential-Store):
+**Lauf-Ende (WF 01):** Die Engine ruft den Webhook mit
+`{ lauf, objekt, status, fehler, quelle: "modul01", zeitpunkt }` auf — keine
+Dokumentinhalte. WF 01 stößt im Cockpit `POST /api/modul01/sync` an; das Cockpit
+liest die Läufe über WF 09, legt für jeden echten Datenraum ein Mandat an
+(Name = Laufname ohne Zeitstempel, Phase Vorbereitung) und antwortet
+`{ ok, angelegt, uebersprungen, abgleiche }`. Test- und Demoläufe (`TEST-…`,
+`DEMO-…`) stehen unter `uebersprungen`. Einrichtung auf der Engine-Seite:
+`LAUF_ENDE_WEBHOOK_URL` / `LAUF_ENDE_WEBHOOK_SECRET` (seil-doc-engine,
+`deploy/BETRIEB.md`).
 
-```
-POST https://N8N-BASIS-URL/webhook/seil/datenraum
-Header: X-Seil-Secret: <gemeinsames Secret>
-Body:
-{
-  "objektId": "…",              // Kennung im Cockpit; fehlt sie → neuer Datenraum (Create deal)
-  "objektName": "…",            // Anzeigename, Fallback für die Zuordnung
-  "quelle": "modul01",
-  "stand": "2026-08-21T12:00:00Z",
-  "objekt": {                   // nur bei neuem Datenraum: legt den Deal im Cockpit an
-    "name": "…", "adresse": "…", "stadt": "…", "assetklasse": "…", "flaeche": "…", "kaufpreisMio": 0
-  },
-  "dokumente": [
-    { "name": "Grundbuchauszug", "status": "vorhanden" },   // vorhanden | in_pruefung | ausstehend (tolerant: ok/done/review/fehlt …)
-    { "name": "Mieterliste",     "status": "ausstehend" }
-  ],
-  "kennwerte": [                 // optional: KI-ausgelesene Werte – Übernahme bleibt Human-in-the-Loop
-    { "feld": "Mietflaeche", "wert": "8.310 m²", "quelle": "Mieterliste", "pruefstatus": "pruefen" }
-  ],
-  "freigaben": [                 // optional, Workshop-Thema Datenraum-Freigaben: wer hat wann Zugang bekommen
-    { "investorEmail": "…", "freigegebenAm": "2026-08-22T09:00:00Z" }
-  ]
-}
-```
+**Leseweg (WF 09):** `GET seil/datenraum-status` liefert Läufe und Zählwerte
+(verarbeitet, abgelegt, in Prüfung, Dubletten) je Objekt; die Cockpit-Route
+`/api/modul01/status` ruft ihn serverseitig ab.
 
-**Leseweg – Antwort von WF 09** (`GET seil/datenraum-status?objektId=…`,
-Header-Auth wie oben; ohne `objektId` alle Objekte):
+**Stammdaten (geplant):** Stadt, Region (Bundesland), Assetklasse und Kaufpreis
+reicht Modul 01 über `POST /api/mandate` nach, sobald es sie sicher aus dem
+Datenraum liest (ANNAHMEN 116–118). Unsichere Werte werden weggelassen.
 
-```
-{ "stand": "<ISO>", "objekte": [ { "objektId", "objektName", "stand", "dokumente": [...], "kennwerte": [...], "freigaben": [...] } ] }
-```
-
-**Cockpit-Seite:** Die Next.js-Route `/api/modul01/status` ruft WF 09
-serverseitig ab (URL und Secret nur in der Server-Umgebung, siehe
-`.env.example`), ordnet die Datenräume über `MODUL01_OBJEKT_MAP` den
-Cockpit-Objekten zu und liefert dem Browser nur den normalisierten Stand. Ohne
-Konfiguration antwortet sie mit `modus: "demo"` – das Cockpit zeigt dann
-unverändert die Demodaten, sichtbar gekennzeichnet. Live überlagert werden
-ausschließlich Datenraum-Checkliste und KI-Kennwerte; Datenräume ohne Mandat
-im Cockpit werden gezählt („ohne Mandat“) – produktiv legt WF 01 dafür den
-Deal an. Kein Schreibweg vom Cockpit nach Modul 01.
-
-Je nachdem, wie Modul 01 technisch gebaut ist, gibt es drei Andock-Varianten:
-
-- **A – Modul 01 läuft selbst in n8n:** Am Ende des Modul-01-Workflows ein
-  HTTP-Request- oder Execute-Workflow-Node auf WF 01 (kleinster Eingriff,
-  bevorzugt).
-- **B – Modul 01 schreibt in OneDrive/Ordnerstruktur:** In WF 01 den
-  Webhook-Trigger durch einen OneDrive-Trigger ersetzen; die
-  Normalisierung dahinter bleibt gleich.
-- **C – Modul 01 liefert Exporte (Excel/CSV):** Vorgeschalteter
-  Parser-Workflow, der den Export auf obigen Vertrag mappt.
+Der frühere Skelett-Vertrag dieses Abschnitts (Ablage `datenraum_status`,
+Checkliste, Kennwerte, Deal anlegen in WF 01) ist damit überholt: Matching und
+Abgleich macht das Cockpit selbst, den Stand liest es über WF 09.
 
 Grundsätze: Der Klickdummy (dieses Repo) bleibt demo-only – echte
 SEIL-Daten laufen ausschließlich durch die n8n-Instanz und landen nie im

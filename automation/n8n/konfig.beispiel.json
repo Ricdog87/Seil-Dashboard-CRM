@@ -168,5 +168,22 @@
         }
       }
     }
+  },
+  "01-datenraum-intake.json": {
+    "cockpitBasis": "https://COCKPIT-ADRESSE",
+    "_credentials": {
+      "Lauf-Ende von Modul 01 (Header-Auth)": {
+        "httpHeaderAuth": {
+          "id": "<n8n-credential-id>",
+          "name": "Seil Webhook Secret"
+        }
+      },
+      "Cockpit synchronisieren (Datenraum → Mandat)": {
+        "httpHeaderAuth": {
+          "id": "<n8n-credential-id>",
+          "name": "Seil Webhook Secret"
+        }
+      }
+    }
   }
 }
