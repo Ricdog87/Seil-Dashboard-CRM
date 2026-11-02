@@ -176,6 +176,11 @@ weiteres · Final), wie `FOLLOWUP_LEITER` im Cockpit; nach einer Preisfrage
 genau eine Nachfrage. Der Zeitplan von WF 05 bleibt ausgeschaltet, bis SEIL
 den Echtversand freigibt; bis dahin Testläufe nur mit `demoEmpfaenger`.
 
+**Ausführungsdaten (02.11.2026):** WF 09 und WF 10 sind reine Lese-APIs für das
+Cockpit (Aufruf bei jedem Seitenaufbau) und speichern erfolgreiche Läufe nicht
+mehr (`saveDataSuccessExecution: none`, Fehler weiterhin) – die Datenbank wuchs
+sonst um rund 100 MB je Tag. WF 06 behält seine Läufe als Nachweis.
+
 ## Anbindung Modul 01 (Datenraum-Automatik – echte Daten)
 
 Stand 02.11.2026. Zwei Wege, beide mit demselben Header-Geheimnis:

@@ -2,7 +2,10 @@
   "name": "SEIL 09 · Datenraum-Status-API (Leseweg Cockpit)",
   "active": false,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "all",
+    "saveManualExecutions": true
   },
   "nodes": [
     {
