@@ -12,12 +12,12 @@
       "typeVersion": 1,
       "position": [
         120,
-        80
+        40
       ],
       "parameters": {
-        "content": "## Glied 1: Lauf-Ende → Cockpit-Sync (seit 02.11.2026)\n\nModul 01 (Datenraum-Engine) ruft diesen Webhook nach **jedem beendeten Lauf** auf — Header-Auth, Body `{ lauf, objekt, status, fehler, quelle: 'modul01', zeitpunkt }`, keine Dokumentinhalte.\n\nDer Workflow stößt im Cockpit `POST /api/modul01/sync` an: das Cockpit liest die Läufe (über WF 09), legt für jeden echten Datenraum ein Mandat an (Name = Laufname ohne Zeitstempel, Phase Vorbereitung) und meldet `{ ok, angelegt, uebersprungen, abgleiche }`. Test- und Demoläufe (`TEST-…`, `DEMO-…`) erscheinen unter `uebersprungen` — gewollt.\n\n**Konfiguration:** `cockpitBasis` im Knoten „Cockpit (hier anpassen)“ (auf dem Server aus `/opt/seil/n8n-konfig.json`). Zugangsdaten: Header-Auth „Seil Webhook Secret“ am Webhook UND am HTTP-Knoten (dasselbe Geheimnis wie `MODUL01_SECRET` im Cockpit) — nur im n8n-Credential-Store.\n\nDer frühere Skelett-Ablauf dieses Glieds (Vertrag normalisieren, Ablage datenraum_status, Matching anstoßen) ist überholt: Matching/Abgleich macht das Cockpit selbst (ANNAHMEN 116/117), den Datenraum-Stand liest es über WF 09.",
-        "height": 420,
-        "width": 560
+        "content": "## Glied 1: Lauf-Ende → Cockpit-Sync + Stammdaten (seit 02.11.2026)\n\nModul 01 (Datenraum-Engine) ruft diesen Webhook nach **jedem beendeten Lauf** auf — Header-Auth, Body `{ lauf, objekt, status, fehler, quelle: 'modul01', zeitpunkt, kennwerte }`, keine Dokumentinhalte.\n\n**Schritt 1 – Sync:** `POST /api/modul01/sync` im Cockpit legt für jeden echten Datenraum ein Mandat an (Name = Laufname ohne Zeitstempel, Phase Vorbereitung). Test-/Demoläufe (`TEST-…`, `DEMO-…`) erscheinen unter `uebersprungen` — gewollt.\n\n**Schritt 2 – Stammdaten (Punkt 3 vom 02.11.):** `kennwerte` enthält NUR die Werte, die mehrere Dokumente des Laufs übereinstimmend nennen (plz, ort, strasse, nutzung — „sicher“-Regel der Engine). Hier wird übersetzt: Ort → `stadt`, Ort → `region` (Bundesland) über die Tabelle `stadtBundesland`, Nutzung → `assetklasse` über `nutzungAssetklasse` (beide im Knoten „Cockpit (hier anpassen)“, auf dem Server aus `/opt/seil/n8n-konfig.json`). Geschrieben wird mit `POST /api/mandate` — nur Felder, die im Mandat noch leer sind, nie Kaufpreis/Ziele/Freigaben, nie bei Testläufen oder fehlgeschlagenen Läufen. Unbekannte Stadt oder Nutzung → Feld bleibt leer (nie raten).\n\n**Zugangsdaten:** Header-Auth „Seil Webhook Secret“ am Webhook UND an allen HTTP-Knoten (dasselbe Geheimnis wie `MODUL01_SECRET` im Cockpit) — nur im n8n-Credential-Store.",
+        "height": 560,
+        "width": 620
       }
     },
     {
@@ -27,7 +27,7 @@
       "typeVersion": 2,
       "position": [
         200,
-        560
+        700
       ],
       "parameters": {
         "httpMethod": "POST",
@@ -44,7 +44,7 @@
       "typeVersion": 3.4,
       "position": [
         440,
-        560
+        700
       ],
       "parameters": {
         "assignments": {
@@ -53,6 +53,18 @@
               "id": "cp-01-basis",
               "name": "cockpitBasis",
               "value": "https://COCKPIT-ADRESSE",
+              "type": "string"
+            },
+            {
+              "id": "cp-01-bl",
+              "name": "stadtBundesland",
+              "value": "{}",
+              "type": "string"
+            },
+            {
+              "id": "cp-01-ak",
+              "name": "nutzungAssetklasse",
+              "value": "{}",
               "type": "string"
             }
           ]
@@ -68,16 +80,11 @@
       "typeVersion": 4.2,
       "position": [
         680,
-        560
+        700
       ],
       "parameters": {
-        "method": "POST",
-        "url": "={{ $json.cockpitBasis }}/api/modul01/sync",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({}) }}",
         "options": {
           "response": {
             "response": {
@@ -86,7 +93,12 @@
             }
           },
           "timeout": 60000
-        }
+        },
+        "method": "POST",
+        "url": "={{ $json.cockpitBasis }}/api/modul01/sync",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({}) }}"
       }
     },
     {
@@ -96,10 +108,156 @@
       "typeVersion": 2,
       "position": [
         920,
+        700
+      ],
+      "parameters": {
+        "jsCode": "// Antwort des Cockpits mit dem gemeldeten Lauf zusammenführen — kurz und ohne Dokumentinhalte.\n// Zusätzlich (02.11.2026, Punkt 3): aus den sicheren Kennwerten der Engine die Stammdaten-\n// Kandidaten für das Mandat ableiten — Übersetzung nur über die Konfigurationstabellen.\nconst meldung = $('Lauf-Ende von Modul 01 (Header-Auth)').first().json.body ?? {};\nconst konfig = $('Cockpit (hier anpassen)').first().json ?? {};\nconst antwort = $input.first().json ?? {};\n\nconst tabelle = (v) => {\n  let roh = v;\n  if (typeof roh === 'string') { try { roh = JSON.parse(roh); } catch { roh = {}; } }\n  const aus = {};\n  for (const [k, w] of Object.entries(roh && typeof roh === 'object' ? roh : {})) {\n    if (typeof w === 'string' && w.trim() !== '') aus[String(k).trim().toLowerCase()] = w.trim();\n  }\n  return aus;\n};\nconst stadtBundesland = tabelle(konfig.stadtBundesland);\nconst nutzungAssetklasse = tabelle(konfig.nutzungAssetklasse);\n\nconst laufPraefix = (s) => String(s ?? '').replace(/_\\d{8}-\\d{6}$/, '').trim();\nconst istTestlauf = (s) => /^(test|demo)[-_ ]/i.test(s);\nconst kw = meldung.kennwerte && typeof meldung.kennwerte === 'object' ? meldung.kennwerte : {};\nconst mandatName = laufPraefix(meldung.objekt);\n\nconst kandidat = {};\nif (typeof kw.ort === 'string' && kw.ort.trim() !== '') {\n  const ort = kw.ort.trim();\n  kandidat.stadt = ort;\n  const schluessel = ort.toLowerCase();\n  const bundesland = stadtBundesland[schluessel] ?? stadtBundesland[schluessel.split(/\\s*[,(/]\\s*/)[0]];\n  if (bundesland) kandidat.region = bundesland;\n}\nif (typeof kw.nutzung === 'string' && nutzungAssetklasse[kw.nutzung.trim().toLowerCase()]) {\n  kandidat.assetklasse = nutzungAssetklasse[kw.nutzung.trim().toLowerCase()];\n}\nconst stammdatenPruefen =\n  meldung.status === 'fertig' && mandatName !== '' && !istTestlauf(mandatName) && Object.keys(kandidat).length > 0;\n\nreturn [{ json: {\n  ok: antwort.ok === true,\n  lauf: meldung.lauf ?? null,\n  objekt: meldung.objekt ?? null,\n  laufStatus: meldung.status ?? null,\n  angelegt: Array.isArray(antwort.angelegt) ? antwort.angelegt : [],\n  uebersprungen: Array.isArray(antwort.uebersprungen) ? antwort.uebersprungen : [],\n  abgleiche: antwort.abgleiche ?? null,\n  cockpitFehler: antwort.ok === true ? null : (antwort.grund ?? antwort.fehler ?? 'Cockpit hat nicht mit ok geantwortet'),\n  cockpitBasis: konfig.cockpitBasis ?? null,\n  mandatName,\n  kennwerte: kw,\n  stammdatenKandidat: kandidat,\n  stammdatenPruefen,\n  stammdaten: stammdatenPruefen ? null : { ok: true, geschrieben: {}, grund: istTestlauf(mandatName) ? 'Testlauf' : (meldung.status !== 'fertig' ? 'Lauf nicht fertig' : 'keine sicheren Kennwerte') },\n} }];"
+      }
+    },
+    {
+      "id": "cp-01-if1",
+      "name": "Stammdaten prüfen?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1160,
+        700
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cp-01-if1-c",
+              "leftValue": "={{ $json.stammdatenPruefen }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "cp-01-mandate",
+      "name": "Mandate lesen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
         560
       ],
       "parameters": {
-        "jsCode": "// Antwort des Cockpits mit dem gemeldeten Lauf zusammenführen — kurz und ohne Dokumentinhalte.\nconst meldung = $('Lauf-Ende von Modul 01 (Header-Auth)').first().json.body ?? {};\nconst antwort = $input.first().json ?? {};\nreturn [{ json: {\n  ok: antwort.ok === true,\n  lauf: meldung.lauf ?? null,\n  objekt: meldung.objekt ?? null,\n  laufStatus: meldung.status ?? null,\n  angelegt: Array.isArray(antwort.angelegt) ? antwort.angelegt : [],\n  uebersprungen: Array.isArray(antwort.uebersprungen) ? antwort.uebersprungen : [],\n  abgleiche: antwort.abgleiche ?? null,\n  cockpitFehler: antwort.ok === true ? null : (antwort.grund ?? antwort.fehler ?? 'Cockpit hat nicht mit ok geantwortet'),\n} }];"
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 60000
+        },
+        "method": "GET",
+        "url": "={{ $json.cockpitBasis }}/api/mandate"
+      }
+    },
+    {
+      "id": "cp-01-leer",
+      "name": "Nur leere Felder füllen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1640,
+        560
+      ],
+      "parameters": {
+        "jsCode": "// Nur Felder füllen, die im Mandat noch leer sind — Einträge von Menschen bleiben unangetastet.\nconst z = $('Ergebnis zusammenfassen').first().json;\nconst antwort = $input.first().json ?? {};\nconst mandate = Array.isArray(antwort.mandate) ? antwort.mandate : [];\nconst m = mandate.find((x) => x.name === z.mandatName || x.laufPraefix === z.mandatName);\nconst schreiben = {};\nif (m) {\n  for (const [feld, wert] of Object.entries(z.stammdatenKandidat ?? {})) {\n    const ist = m[feld];\n    if (ist === null || ist === undefined || String(ist).trim() === '') schreiben[feld] = wert;\n  }\n}\nconst anzahl = Object.keys(schreiben).length;\nreturn [{ json: {\n  ...z,\n  mandatGefunden: m !== undefined,\n  stammdatenSchreiben: schreiben,\n  stammdatenAnzahl: anzahl,\n  stammdatenBody: m ? JSON.stringify({ name: m.name, ...schreiben }) : null,\n  stammdaten: anzahl > 0 ? null : { ok: true, geschrieben: {}, grund: m ? 'Felder bereits gefüllt' : 'Mandat nicht im Cockpit gefunden' },\n} }];"
+      }
+    },
+    {
+      "id": "cp-01-if2",
+      "name": "Etwas zu schreiben?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1880,
+        560
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cp-01-if2-c",
+              "leftValue": "={{ $json.stammdatenAnzahl }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "cp-01-schreiben",
+      "name": "Stammdaten ins Mandat schreiben",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2120,
+        420
+      ],
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 60000
+        },
+        "method": "POST",
+        "url": "={{ $json.cockpitBasis }}/api/mandate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.stammdatenBody }}"
+      }
+    },
+    {
+      "id": "cp-01-antwort",
+      "name": "Stammdaten-Antwort",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2360,
+        420
+      ],
+      "parameters": {
+        "jsCode": "// Ergebnis des Stammdaten-Schreibens an die Lauf-Zusammenfassung hängen.\nconst z = $('Nur leere Felder füllen').first().json;\nconst a = $input.first().json ?? {};\nconst { stammdatenBody, ...rest } = z;\nreturn [{ json: {\n  ...rest,\n  stammdaten: {\n    ok: a.ok === true,\n    geschrieben: a.ok === true ? z.stammdatenSchreiben : {},\n    abgleich: a.abgleich ?? null,\n    fehler: a.ok === true ? null : (a.grund ?? a.fehler ?? 'Cockpit hat nicht mit ok geantwortet'),\n  },\n} }];"
       }
     },
     {
@@ -108,8 +266,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1160,
-        560
+        2600,
+        700
       ],
       "parameters": {
         "respondWith": "firstIncomingItem",
@@ -152,6 +310,86 @@
       ]
     },
     "Ergebnis zusammenfassen": {
+      "main": [
+        [
+          {
+            "node": "Stammdaten prüfen?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stammdaten prüfen?": {
+      "main": [
+        [
+          {
+            "node": "Mandate lesen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Antwort an Modul 01",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mandate lesen": {
+      "main": [
+        [
+          {
+            "node": "Nur leere Felder füllen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nur leere Felder füllen": {
+      "main": [
+        [
+          {
+            "node": "Etwas zu schreiben?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Etwas zu schreiben?": {
+      "main": [
+        [
+          {
+            "node": "Stammdaten ins Mandat schreiben",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Antwort an Modul 01",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stammdaten ins Mandat schreiben": {
+      "main": [
+        [
+          {
+            "node": "Stammdaten-Antwort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stammdaten-Antwort": {
       "main": [
         [
           {

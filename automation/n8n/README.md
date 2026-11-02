@@ -172,7 +172,7 @@ Cockpit  ──GET  /api/modul01/status ──▶ WF 09 ──▶ Läufe + Zähl
 ```
 
 **Lauf-Ende (WF 01):** Die Engine ruft den Webhook mit
-`{ lauf, objekt, status, fehler, quelle: "modul01", zeitpunkt }` auf — keine
+`{ lauf, objekt, status, fehler, quelle: "modul01", zeitpunkt, kennwerte }` auf — keine
 Dokumentinhalte. WF 01 stößt im Cockpit `POST /api/modul01/sync` an; das Cockpit
 liest die Läufe über WF 09, legt für jeden echten Datenraum ein Mandat an
 (Name = Laufname ohne Zeitstempel, Phase Vorbereitung) und antwortet
@@ -185,9 +185,21 @@ liest die Läufe über WF 09, legt für jeden echten Datenraum ein Mandat an
 (verarbeitet, abgelegt, in Prüfung, Dubletten) je Objekt; die Cockpit-Route
 `/api/modul01/status` ruft ihn serverseitig ab.
 
-**Stammdaten (geplant):** Stadt, Region (Bundesland), Assetklasse und Kaufpreis
-reicht Modul 01 über `POST /api/mandate` nach, sobald es sie sicher aus dem
-Datenraum liest (ANNAHMEN 116–118). Unsichere Werte werden weggelassen.
+**Stammdaten (WF 01, seit 02.11.2026):** `kennwerte` enthält nur die Werte, die
+mehrere Dokumente des Laufs übereinstimmend nennen (`plz`, `ort`, `strasse`,
+`nutzung`; „sicher“-Regel der Engine: ≥ 3 Dokumente und ≥ 60 % Übereinstimmung).
+WF 01 übersetzt sie in die Mandatsfelder — Ort → `stadt`, Ort → `region`
+(Bundesland) über die Tabelle `stadtBundesland`, Nutzung → `assetklasse` über
+`nutzungAssetklasse` — und schreibt sie mit `POST /api/mandate` **nur in leere
+Felder** des Mandats. Beide Tabellen stehen im Knoten „Cockpit (hier anpassen)“
+und kommen auf dem Server aus `/opt/seil/n8n-konfig.json` (Startbestand in
+`konfig.beispiel.json`: 251 Städte; `nutzungAssetklasse` nur `wohnen → Wohnen`,
+weil „gewerbe“ und „gemischt“ im Liveliste-Vokabular — Büro, Einzelhandel,
+Logistik … — nicht eindeutig sind: Eintrag erst nach Freigabe durch SEIL).
+Unbekannte Stadt oder Nutzung → Feld bleibt leer. Keine Stammdaten bei
+Testläufen, fehlgeschlagenen Läufen oder wenn das Mandat im Cockpit fehlt.
+Kaufpreis, Ziele und Freigaben schreibt die Automatik nie (Grundregel 3).
+Die Antwort an die Engine enthält `stammdaten: { ok, geschrieben, abgleich, fehler | grund }`.
 
 Der frühere Skelett-Vertrag dieses Abschnitts (Ablage `datenraum_status`,
 Checkliste, Kennwerte, Deal anlegen in WF 01) ist damit überholt: Matching und
