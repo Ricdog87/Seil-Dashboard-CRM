@@ -68,7 +68,7 @@ voraussetzen.
    auf dem Server aus `/opt/seil/n8n-konfig.json`): `cockpitBasis`, `absender`,
    `demoEmpfaenger` (bleibt gesetzt bis zur Freigabe), `signaturHtml`,
    `rechtshinweisHtml`, `bccAdressen` (Kürzel → Adresse) und `bccStandard`
-   (`ms,zustaendig`), `maxStufen` (4), `followupTage` (2), `maxProLauf` (40),
+   (`ms,zustaendig`), `maxStufen` (3), `followupTage` (2, Werktage), `maxProLauf` (40),
    `betreffVorlage`, `vorlagen` (Texte der Leiter, Stand lib/kommunikation.ts).
 7. **Testlauf ausschließlich mit internen Adressen**, erst danach
    aktivieren. WF 05 ist der einzige Workflow, der an Investoren versendet –
@@ -90,12 +90,13 @@ voraussetzen.
 - **Freigabe erfolgt gesammelt:** WF 04 nimmt eine Liste von Entwürfen entgegen
   und teilt sie in einzeln protokollierte Versandaufträge. Ohne diesen Aufruf
   versendet WF 05 nichts – das Vier-Augen-Prinzip bleibt unverändert.
-- **Follow-ups (WF 05, Stand 02.11.2026):** alle 2 Tage ohne Antwort, Leiter
-  mit 4 Stufen (1. Follow Up · 2. Follow Up · weiteres im Wechsel · Final
-  Follow up), nach einer Preisfrage genau eine Nachfrage. Fällig heißt: Stufe
-  angeschrieben / interesse / nda_angefragt (oder preisanfrage), E-Mail
-  vorhanden, letzter Kontakt ≥ 2 Tage, `followups` < 4, kein verschobenes
-  `naechstesFollowUp`. Quelle ist das Cockpit (`GET /api/mandate`, `GET
+- **Follow-ups (WF 05, Stand 03.11.2026 nach Lucas Statustracker):** alle
+  2 **Werktage** ohne Antwort, Leiter mit 3 Stufen (1. Follow Up · 2. Follow
+  Up · Final Follow up — nach dem Final endet die Kette), nach einer
+  Preisfrage genau eine Nachfrage. Fällig heißt: Stufe angeschrieben /
+  interesse / nda_angefragt / datenraum_freigegeben (oder preisanfrage),
+  E-Mail vorhanden, letzter Kontakt ≥ 2 Werktage, `followups` < 3, kein
+  verschobenes `naechstesFollowUp`. Quelle ist das Cockpit (`GET /api/mandate`, `GET
   /api/kontakte?mandat=…`), nach dem Versand meldet WF 05 `POST /api/kontakte
   { nachgefasst: true }` – nur bei HTTP 202 vom Postfach.
 - **WhatsApp nur über Superchat** (professionelle Lösung,
@@ -171,9 +172,11 @@ Workflow-Datei. (Ursprünglich war ein n8n-Data-Store vorgesehen; die
 Data-Table-IDs sind je Instanz verschieden und per Import nicht reproduzierbar
 zu binden – deshalb die Konfigurationsdatei.)
 
-**Follow-up-Stufen – entschieden 02.11.2026:** `maxStufen = 4` (1. · 2. ·
-weiteres · Final), wie `FOLLOWUP_LEITER` im Cockpit; nach einer Preisfrage
-genau eine Nachfrage. Der Zeitplan von WF 05 bleibt ausgeschaltet, bis SEIL
+**Follow-up-Stufen – Stand 03.11.2026:** `maxStufen = 3` (1. · 2. · Final),
+wie Lucas Statustracker (FU1–FU3, FU3 = Final) und das SOP-Blatt „Process“;
+Abstand 2 Werktage; nach einer Preisfrage genau eine Nachfrage. Das Cockpit
+(`FOLLOWUP_LEITER` in lib/kommunikation.ts) kennt noch vier Stufen — Angleich
+auf drei steht in ZIELBILD-09-11.md für die Cockpit-Session. Der Zeitplan von WF 05 bleibt ausgeschaltet, bis SEIL
 den Echtversand freigibt; bis dahin Testläufe nur mit `demoEmpfaenger`.
 
 **Ausführungsdaten (02.11.2026):** WF 09 und WF 10 sind reine Lese-APIs für das

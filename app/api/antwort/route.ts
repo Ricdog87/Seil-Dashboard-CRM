@@ -58,7 +58,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ ok: false, grund: "Datenbank nicht eingerichtet" }, { status: 503 });
   }
   const b = (await request.json().catch(() => null)) as
-    | { email?: string; art?: string; betreff?: string; auszug?: string; mandat?: string }
+    | { email?: string; art?: string; betreff?: string; auszug?: string; mandat?: string; mandatHinweis?: string }
     | null;
   const email = b?.email?.trim().toLowerCase();
   const art = antwortArt(b?.art);
@@ -90,6 +90,22 @@ export async function POST(request: Request): Promise<NextResponse> {
       return NextResponse.json({ ok: true, art, getroffen: 0, hinweis: "kein offener Kontakt zu dieser Adresse" });
     }
 
+    // Objekt-Hinweis aus dem Betreff (WF 06, Lucas Pre-Sound-Format „SEIL • Ort | Typ | „Objektname““):
+    // Ist dieselbe Adresse in mehreren Mandaten offen, entscheidet der Hinweis – passt er zu keinem
+    // Mandat, bleibt es bei der Zuordnung über die Adresse (der Hinweis ist Auswahl, nie Filter).
+    const hinweis = b?.mandatHinweis?.trim().toLowerCase();
+    let ueberHinweis = false;
+    if (hinweis && new Set(kontakte.map((k) => k.mandat)).size > 1) {
+      const passend = kontakte.filter((k) => {
+        const m = k.mandat.toLowerCase();
+        return m === hinweis || m.includes(hinweis) || hinweis.includes(m);
+      });
+      if (passend.length > 0 && passend.length < kontakte.length) {
+        kontakte = passend;
+        ueberHinweis = true;
+      }
+    }
+
     const geaendert: { mandat: string; investor: string; status: Stufe }[] = [];
     let aufgaben = 0;
     const jeMandat = new Map<string, DbKontakt[]>();
@@ -109,7 +125,11 @@ export async function POST(request: Request): Promise<NextResponse> {
       aufgaben += r.aufgaben;
       for (const g of r.geschrieben) geaendert.push({ mandat, investor: g.investor_id, status: g.status });
     }
-    return NextResponse.json({ ok: true, art, getroffen: kontakte.length, geaendert, aufgaben, ...(ueberListe ? { hinweis: "Adresse über Liveliste zugeordnet" } : {}) });
+    return NextResponse.json({
+      ok: true, art, getroffen: kontakte.length, geaendert, aufgaben,
+      ...(ueberListe ? { hinweis: "Adresse über Liveliste zugeordnet" } : {}),
+      ...(ueberHinweis ? { mandatHinweis: b?.mandatHinweis } : {}),
+    });
   } catch (e) {
     return NextResponse.json({ ok: false, grund: e instanceof Error ? e.message : "Datenbank nicht erreichbar" }, { status: 502 });
   }

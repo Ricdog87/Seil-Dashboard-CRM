@@ -45,7 +45,7 @@
       "jd": "PERSON@BEISPIEL-DOMAIN.de"
     },
     "bccStandard": "ms,zustaendig",
-    "maxStufen": 4,
+    "maxStufen": 3,
     "followupTage": 2,
     "maxProLauf": 40,
     "betreffVorlage": "Nachfrage zu {mandat}",
