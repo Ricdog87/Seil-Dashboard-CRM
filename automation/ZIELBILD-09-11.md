@@ -17,7 +17,9 @@ keine Kundendaten.
 | Abwesenheitsmails dürfen nicht als Antwort zählen | WF 06 erkennt Betreff-Präfixe (Automatische Antwort, Out of office, Unzustellbar …), Systemabsender und kurze Abwesenheitstexte; solche Mails gehen **nicht** ans Cockpit, kein Stufen-/Follow-up-Reset, keine Aufgabe, nur Protokoll | `automation/n8n/06-antworterkennung.json` (Knoten „Automatische Antwort?“), Offline-Test 6 Fälle |
 | Assetklassen: max. 5 Kategorien, KI schlägt vor, Mensch gibt frei | Engine liest je Dokument `objektart` in SEILs Klassen (Mehrfamilienhaus, Wohn- und Geschäftshaus, Wohnanlage, Grundstück, Ausnahme) und zählt je Lauf zusammen; WF 01 setzt die Assetklasse **nicht mehr automatisch**; WF 09 liefert sie als „Assetklasse (Vorschlag)“ mit Status `pruefen` | seil-doc-engine `src/pipeline/kennwerte.ts`, WF 09 „Läufe → Cockpit-Zeilen“ |
 | Projektseite: Key Facts (Jahresnettokaltmiete, Einheiten, Fläche) | Engine liest sie aus Mieterlisten/Flächenaufstellungen/Exposés (nur Angaben für das ganze Objekt) und liefert sie als Vorschläge mit Stimmen und Quellkategorie; Objektadresse „sicher“ ab 3 übereinstimmenden Dokumenten | WF 09 Kennwerte `Einheiten (Vorschlag)`, `Fläche (Vorschlag)`, `Jahresnettokaltmiete (Vorschlag)`, `Objektadresse` |
-| Follow-ups automatisch | WF 05 Nachfass-Leiter (4 Stufen, Preisfrage 1×) läuft gegen das Cockpit; Zeitplan aus bis Freigabe durch SEIL; demoEmpfaenger gesetzt | Testlauf 02.11.: 1 fällig, HTTP 202, Cockpit `gespeichert: 1` |
+| Follow-ups automatisch | WF 05 Nachfass-Leiter läuft gegen das Cockpit; seit 03.11. nach Lucas Statustracker: **3 Stufen** (FU1 · FU2 · FU3 = Final, Texte wortgleich aus seinem Flow), Abstand **2 Werktage**, auch nach Mappen-/Datenraum-Versand (`datenraum_freigegeben`); Preisfrage 1×; Zeitplan aus bis Freigabe durch SEIL; demoEmpfaenger gesetzt | Testlauf 02.11.: 1 fällig, HTTP 202, Cockpit `gespeichert: 1`; Offline-Test 03.11.: 3 fällig (Stufe 1, Final, Preisfrage), Stufe 4 nicht mehr fällig |
+| Pre-Sound-Betreff als Mandats-Hinweis | WF 06 liest `SEIL • Ort \| Produkttyp \| „Objektname“` (auch hinter AW:/Re:) und schickt den Objektnamen als `mandatHinweis` an `POST /api/antwort`; die Route nutzt ihn nur, wenn dieselbe Adresse in mehreren Mandaten offen ist | WF 06 „Nachrichten vereinzeln“, `app/api/antwort/route.ts`, Offline-Test 4 Betreffe |
+| Pre-Sound-Fakten aus dem Datenraum | Engine liest zusätzlich Baujahr, Grundstücksfläche, Flurstücke, WE/GE/Stellplätze, Leerstand %, JNKM SOLL — als Vorschläge mit Stimmen und Quelle (nie automatisch ins Mandat) | seil-doc-engine `src/pipeline/kennwerte.ts`, 412 Tests |
 | Jede abgeschlossene Aufgabe löst den nächsten Schritt aus | Antwort → Cockpit (`POST /api/antwort`) setzt Stufe + Aufgabe; Lauf-Ende → WF 01 → Mandat; Stammdaten → `POST /api/mandate` (nur leere Felder) | WF 01/06, `lib/kontakte-schreiben.ts` |
 
 ## 2. Cockpit-Oberfläche bis 09.11. (Modul 02 — Cockpit-Session)
@@ -84,15 +86,43 @@ Vorschläge, Qualitätskennzahlen). Die folgenden Punkte sind Oberfläche und Da
   „… für Portfolio Otto“, Verteiler-Treffer, Konversations-ID). Umsetzung in n8n
   (Automatik), Anzeige in der Kundenakte/Projektseite (Cockpit). Erst nach 2.1–2.3.
 
-### 2.7 Lucas Skills als Referenz (anfordern)
-- **Pre-Sound-Mail**: liest den Datenraum, füllt eine Word-Vorlage mit Werten aus der
-  Mieterliste (gelbe Felder manuell). → Engine liefert die Werte (2.1/2.2); die Vorlage
-  gehört als Anschreiben-Vorlage in `lib/kommunikation.ts` bzw. den Versand (WF 12).
-- **Investorenliste**: Scoring P1/P2 (frühere positive Reaktionen, vergleichbare Objekte,
-  Bundesland-Raster) → in `lib/abgleich.ts` als Sortierung ergänzen (Reaktionshistorie aus
-  `aktivitaet`, Vergleichsobjekte aus der Liveliste); heute filtert der Abgleich nur
-  Region + Assetklasse + Ticket.
-- **Status-Tracker** → 2.4.
+### 2.7 Lucas Skills als Referenz (erhalten 03.11., abgelegt unter `automation/vorlagen-seil/`)
+- **Pre-Sound-Mail**: liest den Datenraum, bestimmt den Produkttyp (A Bestand · B Bestand mit
+  Entwicklungspotenzial · C Entwicklungsgrundstück · D Sanierungsobjekt · E Forward/Neubau),
+  schreibt die Mail im festen Bullet-Format (Mietfläche · Einheiten „ca. 16 WE | 4 GE“ ·
+  Grundstücksfläche · Baujahr · Vermietungsstand · JNKM IST/SOLL), Betreff
+  `SEIL • [Ort] | [Produkttyp] | „[Objektname]“`. → Engine liefert die Werte (2.1/2.2, seit
+  03.11. inkl. Pre-Sound-Fakten); Mailformat gehört als Anschreiben-Vorlage in
+  `lib/kommunikation.ts` bzw. WF 12; Produkttyp = neues Mandatsfeld (Auswahl A–E).
+- **Investorenliste**: Filter Bundesland/Assetklasse/Ticket aus der Live-List, Scoring P1/P2
+  (frühere positive Reaktionen, vergleichbare letzte Ankäufe), Ausschlüsse (Opt-out, interne
+  Adressen, Dubletten) → in `lib/abgleich.ts` als Sortierung ergänzen; heute filtert der
+  Abgleich nur Region + Assetklasse + Ticket.
+- **Status-Tracker** → 2.4; **Pre-Sound erfassen** → 2.6 (Versandwelle = Mandat + Zeitpunkt +
+  BCC-Liste).
+
+### 2.8 Lucas Datenmodell (Live-List v4 / Statustracker) → Cockpit-Felder
+Die Live-List ist kodiert (Code vor Zahl vor Text). Was das Cockpit davon übernehmen sollte,
+damit Lucas Auswertungen weiter funktionieren:
+
+| Live-List | Codes | Cockpit heute | Zu tun |
+|---|---|---|---|
+| Status je Mandat (`MANDAT:CODE`) | AV angeboten · NF nachgefasst · IN Interesse · NA NDA angefordert · NV NDA versandt · NU NDA unterzeichnet · UE Unterlagen erhalten · CA Call/Termin · BE Besichtigung · DD Due Diligence · AN Angebot abgegeben · AB Absage · VS Verkäuferseite · KV Kaufvertrag | `kontakt.status` (angeschrieben, interesse, nda_angefragt, datenraum_freigegeben, preisanfrage, besichtigung, abgesagt …) | Zuordnungstabelle Stufe ↔ Code in `lib/crm.ts`; fehlende Stufen ergänzen: `nda_versandt`, `nda_unterzeichnet`, `due_diligence`, `angebot_abgegeben`, `kaufvertrag`; Export der Kontakte mit Code-Spalte |
+| Absagegrund (nur bei AB) | STO Standort · STR Objektstruktur · GEW Gewerbeanteil · PRS Preis · TIM Timing · SUCH Suchraster · VGB vergeben · LEE Leerstand/Zustand | Freitext `notiz` | Auswahlfeld `absagegrund` am Kontakt (Pflicht bei Absage) — Basis für „Top Absagegründe“ im Reporting (2.1) |
+| Objektart Suchraster | MFH · WGH · WA · WP · ETW · EFH · ZFH · RH · MA · STW · SEN · BH · WO · BÜ · EH · HOT · PFL · LOG · GH · MIX · GRD · PE | Liveliste-Vokabular in `lib/abgleich.ts` | Zuordnung der fünf Mandats-Klassen: Mehrfamilienhaus → MFH/WO/WP; Wohn- und Geschäftshaus → WGH/GH/MIX; Wohnanlage → WA/WP; Grundstück → GRD/PE; Ausnahme → manuell |
+| Bundesland | ISO 3166-2:DE (BW, BY, BE … TH, AT, CH), Mehrfachwerte mit `;` | `mandat.region` = Bundesland ausgeschrieben | Kürzel-Tabelle in `lib/abgleich.ts` (beide Richtungen) |
+| Ticket / WE | Ticket min/max in Mio. € · WE min/max | Ticket-Spanne | WE-Spanne in den Abgleich aufnehmen (Engine liefert `einheiten`) |
+| Ankauf 1–3 | `Datum\|Ort\|BL\|Objektart\|Größe\|Preis\|Quelle` | „zuletzt Vergleichbares gekauft“ sortiert | Parser für das Format; Scoring P1 = vergleichbarer Ankauf (BL + Objektart + Größe ±50 %) |
+| Investorentyp · Kontaktrolle · Strategie · Lageklasse · Deal-Struktur | PRV/FO/WU/GEN/KVG/PE/BT/PD/INST/KOM · GF/AKQ/AM/ASS · CORE/CORE+/VA/OPP/AUF · A/B/C/D/UML · AD/SD/BEIDE | Nur Firma/Name | Anzeige in der Kundenakte (read-only aus der Liveliste), Filter in der Investorensuche |
+| Opt-out · Ausschluss | J + Datum · NUR-RM / NUR-NW / NUR-NORD / KEIN-GEW / KEIN-ANG | — | Harter Ausschluss im Abgleich (Opt-out nie anschreiben; neues Angebot trotz Opt-out = Prüffall) |
+| Angebote (Versandwellen) | PS Pre-Sound · NF Nachfass · EV Einzelversand · PA Portalantwort; je Mail und Mandat eine Zeile, Empfängeranzahl, Reaktionen | `aktivitaet` (art versand) | Welle als eigene Entität (Mandat, Datum, Art, Empfänger-IDs) — Grundlage für Trichter „Ansprachen“ und für WF 05 |
+| Statustracker-Trichter | Erstkontakt → Interesse → NDA erhalten → NDA zurück → Mappe/DR light → Feedback; FU1–FU3 je Gruppe (Erstkontakt / NDA / Mappe) | `followups`, `followupLage()` | Gruppenlogik: Stufenwechsel durch eine Person setzt `followups` auf 0 (neue Leiter); 2.4-Ansicht zeigt FU-Stand je Gruppe |
+| Verkäufer-Reporting (PDF) | Kopf (Objekt, Stand, Version), KPI-Zeile, Trichter 6 Stufen, Käuferprofile, Top Bieter mit Sterne-Ranking, Top Absagegründe | — | Vorlage `automation/vorlagen-seil/muster/SEIL_Reporting_Musterobjekt_V1.pdf`; Versionsnummer + „verschickt am“ je Reporting (Lucas Kanban: Offen · In Arbeit · Fertig · Verschickt, wochenweise) |
+
+Grundsätze aus Lucas Regeln, die auch für das Cockpit gelten: nie löschen, nie einen befüllten
+Wert durch leer ersetzen, Status nur nach vorne (AV/NF werden von jeder Reaktion ersetzt, KV nie
+überschrieben), Abwesenheitsnotizen und Eingangsbestätigungen zählen nicht, Unzustellbar =
+Prüffall „E-Mail ungültig“, Kontakt-IDs nie neu vergeben.
 
 ## 3. Offene Entscheidungen (SEIL)
 1. Datenraum light: Kategorienauswahl ohne Schwärzung bauen oder bis zur Schwärzung warten?
@@ -100,6 +130,10 @@ Vorschläge, Qualitätskennzahlen). Die folgenden Punkte sind Oberfläche und Da
 3. WhatsApp (Superchat, Business-Account): nach stabilem E-Mail-Prozess, nicht vor 09.11.
 4. SharePoint-Migration (Nino/Eileen): bis dahin OneDrive-Freigabe je Mandatsordner von Hand.
 5. Echtversand: demoEmpfaenger bleibt gesetzt, bis SEIL freigibt; Zeitplan WF 05 aus.
+
+6. Follow-up-Leiter: WF 05 fährt seit 03.11. drei Stufen (Lucas Vorgabe). `FOLLOWUP_LEITER` in
+   `lib/kommunikation.ts` kennt vier — Cockpit auf drei angleichen (Cockpit-Session), sonst zeigt
+   `followupLage()` eine Stufe zu viel.
 
 ## 4. Reihenfolge bis 09.11.
 Di 03.11. Modul 01 A6/A10, Rollen (2.3) · Mi 04.11. Projektseite + Vorschlags-Freigabe
