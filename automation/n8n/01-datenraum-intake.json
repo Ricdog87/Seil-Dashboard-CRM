@@ -15,7 +15,7 @@
         40
       ],
       "parameters": {
-        "content": "## Glied 1: Lauf-Ende → Cockpit-Sync + Stammdaten (seit 02.11.2026)\n\nModul 01 (Datenraum-Engine) ruft diesen Webhook nach **jedem beendeten Lauf** auf — Header-Auth, Body `{ lauf, objekt, status, fehler, quelle: 'modul01', zeitpunkt, kennwerte }`, keine Dokumentinhalte.\n\n**Schritt 1 – Sync:** `POST /api/modul01/sync` im Cockpit legt für jeden echten Datenraum ein Mandat an (Name = Laufname ohne Zeitstempel, Phase Vorbereitung). Test-/Demoläufe (`TEST-…`, `DEMO-…`) erscheinen unter `uebersprungen` — gewollt.\n\n**Schritt 2 – Stammdaten (Punkt 3 vom 02.11.):** `kennwerte` enthält NUR die Werte, die mehrere Dokumente des Laufs übereinstimmend nennen (plz, ort, strasse, nutzung — „sicher“-Regel der Engine). Hier wird übersetzt: Ort → `stadt`, Ort → `region` (Bundesland) über die Tabelle `stadtBundesland` (beide im Knoten „Cockpit (hier anpassen)“, auf dem Server aus `/opt/seil/n8n-konfig.json`). Geschrieben wird mit `POST /api/mandate` — nur Felder, die im Mandat noch leer sind, nie Kaufpreis/Ziele/Freigaben, nie bei Testläufen oder fehlgeschlagenen Läufen. Unbekannte Stadt oder Nutzung → Feld bleibt leer (nie raten).\n\n**Zugangsdaten:** Header-Auth „Seil Webhook Secret“ am Webhook UND an allen HTTP-Knoten (dasselbe Geheimnis wie `MODUL01_SECRET` im Cockpit) — nur im n8n-Credential-Store.\n\n**Assetklasse (Termin SEIL 02.11.):** wird nicht automatisch gesetzt. Die Engine schlägt sie in SEILs fünf Klassen (Mehrfamilienhaus, Wohn- und Geschäftshaus, Wohnanlage, Grundstück, Ausnahme) zusammen mit Einheiten, Fläche und Jahresnettokaltmiete vor — sichtbar im Cockpit über WF 09 als „Vorschlag“ zum Freigeben. `nutzungAssetklasse` bleibt nur aus Kompatibilität in der Konfiguration.",
+        "content": "## Glied 1: Lauf-Ende → Cockpit-Sync + Stammdaten (seit 02.11.2026)\n\nModul 01 (Datenraum-Engine) ruft diesen Webhook nach **jedem beendeten Lauf** auf — Header-Auth, Body `{ lauf, objekt, status, fehler, quelle: 'modul01', zeitpunkt, kennwerte }`, keine Dokumentinhalte.\n\n**Schritt 1 – Sync:** `POST /api/modul01/sync` im Cockpit legt für jeden echten Datenraum ein Mandat an (Name = Laufname ohne Zeitstempel, Phase Vorbereitung). Test-/Demoläufe (`TEST-…`, `DEMO-…`) erscheinen unter `uebersprungen` — gewollt.\n\n**Schritt 2 – Stammdaten (Punkt 3 vom 02.11.):** `kennwerte` enthält NUR die Werte, die mehrere Dokumente des Laufs übereinstimmend nennen (plz, ort, strasse, nutzung — „sicher“-Regel der Engine). Hier wird übersetzt: Ort → `stadt`, Ort → `region` (Bundesland) über die Tabelle `stadtBundesland` (beide im Knoten „Cockpit (hier anpassen)“, auf dem Server aus `/opt/seil/n8n-konfig.json`). Geschrieben wird mit `POST /api/mandate` — nur Felder, die im Mandat noch leer sind, nie Kaufpreis/Ziele/Freigaben, nie bei Testläufen oder fehlgeschlagenen Läufen. Unbekannte Stadt oder Nutzung → Feld bleibt leer (nie raten).\n\n**Zugangsdaten:** Header-Auth „Seil Webhook Secret“ am Webhook UND an allen HTTP-Knoten (dasselbe Geheimnis wie `MODUL01_SECRET` im Cockpit) — nur im n8n-Credential-Store.\n\n**Assetklasse (Termin SEIL 02.11.):** wird nicht automatisch gesetzt. Die Engine schlägt sie in SEILs fünf Klassen (Mehrfamilienhaus, Wohn- und Geschäftshaus, Wohnanlage, Grundstück, Ausnahme) zusammen mit Einheiten, Fläche und Jahresnettokaltmiete vor — sichtbar im Cockpit über WF 09 als „Vorschlag“ zum Freigeben. `nutzungAssetklasse` bleibt nur aus Kompatibilität in der Konfiguration.\n\n**Geschützte PDFs (Abnahme A2, 03.11.2026):** Die Lauf-Ende-Meldung enthält `geschuetzt: { anzahl, dateien }` (nur Dateinamen). Bei > 0 legt WF 01 im Cockpit eine Aufgabe „Geschützte Unterlagen: Freigabe durch Auftraggeber nötig“ am Mandat an (fällig in 3 Werktagen, Quelle modul01, je Mandat nur einmal offen — die Route gibt bei Wiederholung die bestehende zurück). Die Dateien liegen in `_REVIEW` mit demselben Wortlaut.",
         "height": 560,
         "width": 620
       }
@@ -111,7 +111,7 @@
         700
       ],
       "parameters": {
-        "jsCode": "// Antwort des Cockpits mit dem gemeldeten Lauf zusammenführen — kurz und ohne Dokumentinhalte.\n// Zusätzlich (02.11.2026, Punkt 3): aus den sicheren Kennwerten der Engine die Stammdaten-\n// Kandidaten für das Mandat ableiten — Übersetzung nur über die Konfigurationstabellen.\nconst meldung = $('Lauf-Ende von Modul 01 (Header-Auth)').first().json.body ?? {};\nconst konfig = $('Cockpit (hier anpassen)').first().json ?? {};\nconst antwort = $input.first().json ?? {};\n\nconst tabelle = (v) => {\n  let roh = v;\n  if (typeof roh === 'string') { try { roh = JSON.parse(roh); } catch { roh = {}; } }\n  const aus = {};\n  for (const [k, w] of Object.entries(roh && typeof roh === 'object' ? roh : {})) {\n    if (typeof w === 'string' && w.trim() !== '') aus[String(k).trim().toLowerCase()] = w.trim();\n  }\n  return aus;\n};\nconst stadtBundesland = tabelle(konfig.stadtBundesland);\nconst nutzungAssetklasse = tabelle(konfig.nutzungAssetklasse);\n\nconst laufPraefix = (s) => String(s ?? '').replace(/_\\d{8}-\\d{6}$/, '').trim();\nconst istTestlauf = (s) => /^(test|demo)[-_ ]/i.test(s);\nconst kw = meldung.kennwerte && typeof meldung.kennwerte === 'object' ? meldung.kennwerte : {};\nconst mandatName = laufPraefix(meldung.objekt);\n\nconst kandidat = {};\nif (typeof kw.ort === 'string' && kw.ort.trim() !== '') {\n  const ort = kw.ort.trim();\n  kandidat.stadt = ort;\n  const schluessel = ort.toLowerCase();\n  const bundesland = stadtBundesland[schluessel] ?? stadtBundesland[schluessel.split(/\\s*[,(/]\\s*/)[0]];\n  if (bundesland) kandidat.region = bundesland;\n}\n// Assetklasse (Termin SEIL 02.11.2026): wird NICHT mehr automatisch gesetzt — die Engine\n// schlägt sie in SEILs fünf Klassen vor (WF 09 → Cockpit, Status „prüfen“), ein Mensch gibt frei.\nvoid nutzungAssetklasse;\nconst stammdatenPruefen =\n  meldung.status === 'fertig' && mandatName !== '' && !istTestlauf(mandatName) && Object.keys(kandidat).length > 0;\n\nreturn [{ json: {\n  ok: antwort.ok === true,\n  lauf: meldung.lauf ?? null,\n  objekt: meldung.objekt ?? null,\n  laufStatus: meldung.status ?? null,\n  angelegt: Array.isArray(antwort.angelegt) ? antwort.angelegt : [],\n  uebersprungen: Array.isArray(antwort.uebersprungen) ? antwort.uebersprungen : [],\n  abgleiche: antwort.abgleiche ?? null,\n  cockpitFehler: antwort.ok === true ? null : (antwort.grund ?? antwort.fehler ?? 'Cockpit hat nicht mit ok geantwortet'),\n  cockpitBasis: konfig.cockpitBasis ?? null,\n  mandatName,\n  kennwerte: kw,\n  stammdatenKandidat: kandidat,\n  stammdatenPruefen,\n  stammdaten: stammdatenPruefen ? null : { ok: true, geschrieben: {}, grund: istTestlauf(mandatName) ? 'Testlauf' : (meldung.status !== 'fertig' ? 'Lauf nicht fertig' : 'keine sicheren Kennwerte') },\n} }];"
+        "jsCode": "// Antwort des Cockpits mit dem gemeldeten Lauf zusammenführen — kurz und ohne Dokumentinhalte.\n// Zusätzlich (02.11.2026, Punkt 3): aus den sicheren Kennwerten der Engine die Stammdaten-\n// Kandidaten für das Mandat ableiten — Übersetzung nur über die Konfigurationstabellen.\nconst meldung = $('Lauf-Ende von Modul 01 (Header-Auth)').first().json.body ?? {};\nconst konfig = $('Cockpit (hier anpassen)').first().json ?? {};\nconst antwort = $input.first().json ?? {};\n\nconst tabelle = (v) => {\n  let roh = v;\n  if (typeof roh === 'string') { try { roh = JSON.parse(roh); } catch { roh = {}; } }\n  const aus = {};\n  for (const [k, w] of Object.entries(roh && typeof roh === 'object' ? roh : {})) {\n    if (typeof w === 'string' && w.trim() !== '') aus[String(k).trim().toLowerCase()] = w.trim();\n  }\n  return aus;\n};\nconst stadtBundesland = tabelle(konfig.stadtBundesland);\nconst nutzungAssetklasse = tabelle(konfig.nutzungAssetklasse);\n\nconst laufPraefix = (s) => String(s ?? '').replace(/_\\d{8}-\\d{6}$/, '').trim();\nconst istTestlauf = (s) => /^(test|demo)[-_ ]/i.test(s);\nconst kw = meldung.kennwerte && typeof meldung.kennwerte === 'object' ? meldung.kennwerte : {};\nconst mandatName = laufPraefix(meldung.objekt);\n\nconst kandidat = {};\nif (typeof kw.ort === 'string' && kw.ort.trim() !== '') {\n  const ort = kw.ort.trim();\n  kandidat.stadt = ort;\n  const schluessel = ort.toLowerCase();\n  const bundesland = stadtBundesland[schluessel] ?? stadtBundesland[schluessel.split(/\\s*[,(/]\\s*/)[0]];\n  if (bundesland) kandidat.region = bundesland;\n}\n// Assetklasse (Termin SEIL 02.11.2026): wird NICHT mehr automatisch gesetzt — die Engine\n// schlägt sie in SEILs fünf Klassen vor (WF 09 → Cockpit, Status „prüfen“), ein Mensch gibt frei.\nvoid nutzungAssetklasse;\nconst stammdatenPruefen =\n  meldung.status === 'fertig' && mandatName !== '' && !istTestlauf(mandatName) && Object.keys(kandidat).length > 0;\n\n// Abnahme A2 (03.11.2026): passwortgeschützte Dateien (nur Namen) → eine Aufgabe im Cockpit\n// „Freigabe durch Auftraggeber nötig“, je Mandat nur einmal offen (Route prüft Titel + Mandat).\nconst g = meldung.geschuetzt && typeof meldung.geschuetzt === 'object' ? meldung.geschuetzt : {};\nconst geschuetztDateien = Array.isArray(g.dateien) ? g.dateien.filter((d) => typeof d === 'string').slice(0, 50) : [];\nconst geschuetztAnzahl = geschuetztDateien.length;\nconst faellig = (() => { const d = new Date(); let n = 0; while (n < 3) { d.setDate(d.getDate() + 1); if (d.getDay() !== 0 && d.getDay() !== 6) n += 1; } return d.toISOString().slice(0, 10); })();\nconst aufgabeBody = geschuetztAnzahl > 0 && mandatName !== '' ? JSON.stringify({\n  titel: `Geschützte Unterlagen: Freigabe durch Auftraggeber nötig (${geschuetztAnzahl} Datei${geschuetztAnzahl === 1 ? '' : 'en'})`,\n  objekt: mandatName,\n  faellig,\n  quelle: 'modul01',\n  notiz: `Lauf ${meldung.lauf ?? ''}: diese Dateien sind mit Passwort geschützt und liegen in _REVIEW. Entsperrte Fassung beim Auftraggeber anfordern und neu hochladen.\\n` + geschuetztDateien.map((d) => `• ${d}`).join('\\n'),\n}) : null;\n\nreturn [{ json: {\n  geschuetztAnzahl,\n  aufgabeBody,\n  ok: antwort.ok === true,\n  lauf: meldung.lauf ?? null,\n  objekt: meldung.objekt ?? null,\n  laufStatus: meldung.status ?? null,\n  angelegt: Array.isArray(antwort.angelegt) ? antwort.angelegt : [],\n  uebersprungen: Array.isArray(antwort.uebersprungen) ? antwort.uebersprungen : [],\n  abgleiche: antwort.abgleiche ?? null,\n  cockpitFehler: antwort.ok === true ? null : (antwort.grund ?? antwort.fehler ?? 'Cockpit hat nicht mit ok geantwortet'),\n  cockpitBasis: konfig.cockpitBasis ?? null,\n  mandatName,\n  kennwerte: kw,\n  stammdatenKandidat: kandidat,\n  stammdatenPruefen,\n  stammdaten: stammdatenPruefen ? null : { ok: true, geschrieben: {}, grund: istTestlauf(mandatName) ? 'Testlauf' : (meldung.status !== 'fertig' ? 'Lauf nicht fertig' : 'keine sicheren Kennwerte') },\n} }];"
       }
     },
     {
@@ -273,6 +273,67 @@
         "respondWith": "firstIncomingItem",
         "options": {}
       }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cp-01-if3-c",
+              "leftValue": "={{ $json.geschuetztAnzahl }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "cp-01-if-geschuetzt",
+      "name": "Geschützte Dateien?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1160,
+        940
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.cockpitBasis }}/api/aufgaben",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.aufgabeBody }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 60000
+        }
+      },
+      "id": "cp-01-aufgabe-geschuetzt",
+      "name": "Aufgabe: Freigabe durch Auftraggeber nötig",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1420,
+        940
+      ]
     }
   ],
   "connections": {
@@ -314,6 +375,11 @@
         [
           {
             "node": "Stammdaten prüfen?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Geschützte Dateien?",
             "type": "main",
             "index": 0
           }
@@ -398,6 +464,18 @@
             "index": 0
           }
         ]
+      ]
+    },
+    "Geschützte Dateien?": {
+      "main": [
+        [
+          {
+            "node": "Aufgabe: Freigabe durch Auftraggeber nötig",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
       ]
     }
   }

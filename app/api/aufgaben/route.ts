@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { datenbankAktiv, dbAendern, dbLesen, dbSchreiben } from "@/lib/supabase";
 import { protokoll } from "@/lib/protokoll";
 import type { Aufgabe } from "@/lib/mandat";
-import { darfVerteilen, istGeschaeftsfuehrung } from "@/lib/rollen";
+import { darfVerteilen, istGeschaeftsfuehrung, istSystem } from "@/lib/rollen";
 
 /**
  * Aufgaben – was jemand tun muss, mit Namen und Datum daran.
@@ -85,8 +85,20 @@ export async function POST(request: Request): Promise<NextResponse> {
   const durch = request.headers.get("x-seil-benutzer") ?? "";
   // Verteilen darf die Geschaeftsfuehrung; alle anderen legen Aufgaben nur fuer sich an.
   const zustaendig = darfVerteilen(durch) ? (b?.zustaendig ?? durch ?? null) : durch || null;
+  // Aufgaben der Automatik (Modul 01, z. B. „geschützte Unterlagen – Freigabe durch
+  // Auftraggeber nötig“) sind je Mandat und Titel nur einmal offen: ein wiederholter
+  // Lauf legt keine zweite an, sondern bekommt die bestehende zurück.
+  const quelle = istSystem(durch) && b?.quelle === "modul01" ? "modul01" : "cockpit";
 
   try {
+    if (quelle === "modul01" && b?.objekt) {
+      const offen = await dbLesen<DbAufgabe>(
+        "aufgaben",
+        `objekt=eq.${encodeURIComponent(b.objekt)}&titel=eq.${encodeURIComponent(titel)}&erledigt=is.false&limit=1`,
+      );
+      const vorhanden = offen[0];
+      if (vorhanden) return NextResponse.json({ ok: true, bestehend: true, aufgabe: auf(vorhanden) });
+    }
     const geschrieben = await dbSchreiben<DbAufgabe>(
       "aufgaben",
       [
@@ -97,7 +109,7 @@ export async function POST(request: Request): Promise<NextResponse> {
           zustaendig,
           faellig: b?.faellig || null,
           notiz: b?.notiz ?? null,
-          quelle: "cockpit",
+          quelle,
           erstellt_durch: durch,
           geaendert: new Date().toISOString(),
         },
