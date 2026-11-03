@@ -34,7 +34,7 @@ export class Speicher {
         kategorie_vorschlag text,
         dateiname_vorschlag text,
         konfidenz real,
-        quelle text not null,            -- gedaechtnis | modell | heuristik
+        quelle text not null,            -- gedaechtnis | modell | heuristik | engine
         modell text,
         beispiele_genutzt integer default 0,
         kategorie_final text,
@@ -88,7 +88,7 @@ export class Speicher {
     const mich = merkmaleLesen(m);
     const kandidaten = this.db
       .prepare(
-        `select id, auftraggeber, pfad, dateiname, endung, tokens, trigramme, kategorie_final, dateiname_final, korrigiert
+        `select id, auftraggeber, pfad, dateiname, endung, tokens, trigramme, kategorie_final, dateiname_final, korrigiert, bestaetigung_quelle
          from beispiel where kategorie_final is not null
          order by case when auftraggeber = ? then 0 else 1 end, id desc limit 6000`,
       )
@@ -188,6 +188,7 @@ export class Speicher {
                 sum(case when quelle = 'gedaechtnis' then 1 else 0 end) as aus_gedaechtnis,
                 sum(case when quelle = 'modell' then 1 else 0 end) as aus_modell,
                 sum(case when quelle = 'heuristik' then 1 else 0 end) as aus_heuristik,
+                sum(case when quelle = 'engine' then 1 else 0 end) as aus_engine,
                 sum(case when korrigiert is not null then 1 else 0 end) as bestaetigt,
                 sum(case when korrigiert = 1 then 1 else 0 end) as korrigiert,
                 avg(konfidenz) as konfidenz_mittel
@@ -219,6 +220,7 @@ export class Speicher {
       ausGedaechtnis: Number(z.aus_gedaechtnis ?? 0),
       ausModell: Number(z.aus_modell ?? 0),
       ausHeuristik: Number(z.aus_heuristik ?? 0),
+      ausEngine: Number(z.aus_engine ?? 0),
       bestaetigt,
       korrigiert,
       trefferquote: bestaetigt ? Math.round(((bestaetigt - korrigiert) / bestaetigt) * 1000) / 1000 : null,

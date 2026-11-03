@@ -70,6 +70,19 @@ try {
   const ab = await post("/lauf/abschliessen", { lauf: "TEST-Rauch-3" });
   pruefe(ab.ok === true && ab.kennzahlen.gesamt === 2, "Lauf abgeschlossen mit Kennzahlen");
 
+  // 6b. Anbindung Engine (A10, 03.11.2026): die Engine schickt ihr eigenes Ergebnis mit —
+  //     ohne Gedächtnis-Treffer kein Modellaufruf, Quelle „engine“; beim nächsten Lauf
+  //     erkennt das Gedächtnis die bestätigte Datei und sagt, wer bestätigt hat.
+  const en = await post("/einordnen", { lauf: "TEST-Rauch-4", auftraggeber: "Testkunde B", pfad: "Vermietung", dateiname: "Mieterliste_final (2).pdf", vorschlag: { kategorie: "Mieterliste", konfidenz: 0.97 } });
+  pruefe(en.quelle === "engine" && en.kategorie === "Mieterliste" && en.pruefungNoetig === false, `Engine-Vorschlag übernommen ohne Modell: ${en.quelle}`);
+  await post("/bestaetigen/stapel", { entscheidungen: [{ vorschlagId: en.vorschlagId, kategorie: "Mieterliste", durch: "engine", quelle: "auto" }] });
+  const en2 = await post("/einordnen", { lauf: "TEST-Rauch-5", auftraggeber: "Testkunde B", pfad: "Vermietung", dateiname: "Mieterliste_final (2).pdf", vorschlag: { kategorie: "Mieterliste", konfidenz: 0.8 } });
+  pruefe(en2.quelle === "gedaechtnis" && en2.vorlage?.bestaetigung === "auto", `Zweiter Lauf: Treffer aus dem Gedächtnis, Vorlage bestätigt durch ${en2.vorlage?.bestaetigung}`);
+  const ungueltig = await post("/einordnen", { lauf: "TEST-Rauch-5", auftraggeber: "Testkunde B", pfad: "", dateiname: "IMG_0001.jpg", vorschlag: { kategorie: "gibt es nicht", konfidenz: 0.9 } });
+  pruefe(ungueltig.quelle === "heuristik", "Unbekannte Kategorie im Vorschlag → eigener Weg (hier Heuristik)");
+  const kb = await get("/kennzahlen?auftraggeber=Testkunde%20B");
+  pruefe(kb.ausEngine === 1 && kb.ausGedaechtnis === 1, `Kennzahlen zählen Engine (${kb.ausEngine}) und Gedächtnis (${kb.ausGedaechtnis}) getrennt`);
+
   // 7. Destillation (Testmodus: Musterregeln) und Regel-Freigabe.
   await post("/bestaetigen", { vorschlagId: d.vorschlagId, kategorie: "Mietverträge", durch: "qc", quelle: "qc" });
   const r1 = await post("/regeln", { bereich: "global", text: "Dateien mit „MV_“ am Anfang sind Mietverträge.", begruendung: "Hausregel", status: "entwurf" });

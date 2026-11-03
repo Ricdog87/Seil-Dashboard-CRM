@@ -70,6 +70,21 @@ async function einordnen(datei) {
       geschuetzt: false,
       quelle: "gedaechtnis",
       modell: null,
+      vorlage: { dateiname: top.dateiname, aehnlichkeit: top.aehnlichkeit, bestaetigung: top.bestaetigung_quelle ?? null },
+    };
+  } else if (datei.vorschlag && KATEGORIE_NAMEN.includes(datei.vorschlag.kategorie)) {
+    // Die Engine hat das Dokument selbst gelesen (Inhalt, nicht nur Name) und schickt ihr
+    // Ergebnis mit: kein zweiter Modellaufruf, das Gedächtnis merkt sich die Einordnung.
+    const konfidenz = Math.max(0, Math.min(1, Number(datei.vorschlag.konfidenz) || 0));
+    ergebnis = {
+      kategorie: datei.vorschlag.kategorie,
+      dateiname: datei.dateiname,
+      konfidenz,
+      begruendung: "Einordnung der Engine (Dokumentinhalt gelesen).",
+      fehlendeAngaben: [],
+      geschuetzt: false,
+      quelle: "engine",
+      modell: null,
     };
   } else {
     ergebnis = await klassifizierer.einordnen({ ...datei, pfad }, beispiele, speicher.aktiveRegeln(datei.auftraggeber));
@@ -91,6 +106,7 @@ async function einordnen(datei) {
     geschuetzt: ergebnis.geschuetzt === true,
     quelle: ergebnis.quelle,
     beispieleGenutzt: beispiele.length,
+    ...(ergebnis.vorlage ? { vorlage: ergebnis.vorlage } : {}),
     ...(ergebnis.hinweis ? { hinweis: ergebnis.hinweis } : {}),
   };
 }

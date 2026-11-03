@@ -43,6 +43,20 @@ Der Dienst hört nur auf 127.0.0.1. n8n erreicht ihn über
 oder im selben Docker-Netz über `http://gedaechtnis:8787`. Jede Anfrage außer
 `/gesund` braucht den Header `X-Seil-Secret`.
 
+## Anbindung an die Engine (Stand 03.11.2026, Abnahme A10)
+
+Die Engine (seil-doc-engine) ruft den Dienst direkt im Docker-Netz auf
+(`GEDAECHTNIS_URL=http://gedaechtnis:8787`, Compose-Profil `gedaechtnis` in
+`docker-compose.seil-prod.yml`; Einrichtung in `deploy/BETRIEB.md` → „Gedächtnis“).
+Sie schickt bei `/einordnen` ihre **eigene, aus dem Dokumentinhalt gewonnene
+Einordnung** mit (`vorschlag: { kategorie, konfidenz }`). Ohne Gedächtnis-Treffer
+übernimmt der Dienst diese als Quelle `engine` — kein zweiter Modellaufruf. Bei einem
+Treffer antwortet er mit der bestätigten Kategorie und `vorlage { dateiname,
+aehnlichkeit, bestaetigung }` (`qc` = Mensch, `auto` = Engine). Die Engine entscheidet:
+gleiche Kategorie bestätigt (von Menschen bestätigt → „bestätigen“-Fall wird automatisch
+abgelegt), andere Kategorie → immer Prüfung. Das Modell des Dienstes wird damit nur noch
+für `/destillieren` gebraucht. Die n8n-Anbindung unten bleibt als Alternative beschrieben.
+
 ## Anbindung in Modul 01 (n8n)
 
 Drei Aufrufe, drei HTTP-Request-Knoten:
@@ -92,7 +106,7 @@ als Aufgabe an die Geschäftsführung; Freigabe über `POST /regeln/:id`.
 
 | Variable | Bedeutung | Standard |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | Anthropic-Schlüssel (vom SDK gelesen) | – |
+| `ANTHROPIC_API_KEY` | Anthropic-Schlüssel (vom SDK gelesen; mit Engine-Anbindung nur für `/destillieren`) | – |
 | `GEDAECHTNIS_SECRET` | Pflichtheader `X-Seil-Secret` | leer = nur localhost |
 | `GEDAECHTNIS_MODELL` | Modell | `claude-opus-5-5` |
 | `GEDAECHTNIS_EFFORT` | Denktiefe der Einordnung | `low` |
