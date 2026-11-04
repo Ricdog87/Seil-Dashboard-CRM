@@ -54,6 +54,8 @@ export interface Kunde {
   assetklassen: string[];
   notiz: string | null;
   quelle: "liveliste" | "cockpit";
+  /** Lucas Reporting: privat · semi-professionell · professionell. */
+  kaeufertyp?: "privat" | "semiprofessionell" | "professionell" | null;
   geaendert: string | null;
   geaendertDurch: string | null;
 }
@@ -78,6 +80,7 @@ export interface KundeAnsicht {
   stufe: Stufe;
   betreuer: string | null;
   notiz: string | null;
+  kaeufertyp?: "privat" | "semiprofessionell" | "professionell" | null;
   /** „liveliste“ = steht in OneDrive, „cockpit“ = hier angelegt, „beides“ = hier gepflegt. */
   herkunft: "liveliste" | "cockpit" | "beides";
 }

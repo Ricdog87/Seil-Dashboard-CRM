@@ -25,7 +25,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <main className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6 sm:py-8">{children}</main>
           </Modul01Provider>
         </SitzungsProvider>
-        <footer className="mx-auto max-w-[1200px] border-t border-seil-line px-4 py-6 text-kicker text-seil-muted sm:px-6">
+        <footer className="no-print mx-auto max-w-[1200px] border-t border-seil-line px-4 py-6 text-kicker text-seil-muted sm:px-6">
           SEIL Cockpit · Modul 02 · Datenräume aus Modul 01 und Investoren aus der Liveliste in
           OneDrive, bei jedem Aufruf frisch gelesen. Vertraulich – nur für das SEIL-Team.
         </footer>

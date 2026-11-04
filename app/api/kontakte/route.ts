@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import type { Stufe } from "@/lib/crm";
-import { datenbankAktiv, dbLesen } from "@/lib/supabase";
+import { datenbankAktiv, dbLesen, inListe } from "@/lib/supabase";
 import { kontakteSchreiben, stufeGueltig, type DbKontakt, type KontaktEingabe } from "@/lib/kontakte-schreiben";
 import type { AntwortArt } from "@/lib/kommunikation";
+import { ABSAGEGRUENDE, type Absagegrund, type Kaeufertyp } from "@/lib/reporting";
 
 /**
  * Kontaktstand je Mandat – das Gedächtnis des CRM.
@@ -35,6 +36,10 @@ export interface Kontakt {
   /** Letzte Antwort des Investors, eingeordnet nach Standardprozess. */
   letzteAntwort: AntwortArt | null;
   letzteAntwortAm: string | null;
+  /** Lucas Reporting: Absagegrund, Stufe beim Ausstieg, Käufertyp des Kunden. */
+  absagegrund?: Absagegrund | null;
+  ausgeschiedenBei?: string | null;
+  kaeufertyp?: Kaeufertyp | null;
 }
 export interface Kontaktstand {
   modus: "live" | "aus" | "fehler";
@@ -58,6 +63,17 @@ export async function GET(request: Request): Promise<NextResponse<Kontaktstand>>
         "kontakt",
         `mandat=eq.${encodeURIComponent(mandat)}&order=firma.asc&limit=500`,
       );
+      // Käufertyp steht am Kunden, nicht am Kontakt – einmal nachlesen.
+      const typen = new Map<string, Kaeufertyp | null>();
+      const ids = zeilen.map((z) => z.investor_id);
+      for (let i = 0; i < ids.length; i += 150) {
+        const teil = ids.slice(i, i + 150);
+        const k = await dbLesen<{ investor_id: string; kaeufertyp: Kaeufertyp | null }>(
+          "kunde",
+          `investor_id=${encodeURIComponent(inListe(teil))}&select=investor_id,kaeufertyp&limit=1000`,
+        ).catch(() => []);
+        for (const z of k) typen.set(z.investor_id, z.kaeufertyp);
+      }
       return NextResponse.json({
         modus: "live",
         kontakte: zeilen.map((z) => ({
@@ -75,6 +91,9 @@ export async function GET(request: Request): Promise<NextResponse<Kontaktstand>>
           followups: z.followups ?? 0,
           letzteAntwort: (z.letzte_antwort as AntwortArt | null) ?? null,
           letzteAntwortAm: z.letzte_antwort_am ?? null,
+          absagegrund: (z.absagegrund as Absagegrund | null) ?? null,
+          ausgeschiedenBei: z.ausgeschieden_bei ?? null,
+          kaeufertyp: typen.get(z.investor_id) ?? null,
         })),
       });
     } catch (e) {
@@ -129,6 +148,9 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
   if (kontakte.some((k) => k.status && !stufeGueltig(k.status))) {
     return NextResponse.json({ ok: false, grund: "Unbekannte Stufe" }, { status: 400 });
+  }
+  if (kontakte.some((k) => k.absagegrund && !(ABSAGEGRUENDE as readonly string[]).includes(k.absagegrund))) {
+    return NextResponse.json({ ok: false, grund: "Unbekannter Absagegrund" }, { status: 400 });
   }
 
   const durch = request.headers.get("x-seil-benutzer") ?? "";

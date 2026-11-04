@@ -7,6 +7,7 @@ import {
   ARTEN, ART_LABEL, STUFEN, STUFE_LABEL, STUFE_TON, type Art, type KundeAnsicht, type Stufe,
 } from "@/lib/kunde";
 import { PHASE_LABEL } from "@/lib/mandat";
+import { KAEUFERTYPEN, KAEUFERTYP_LABEL, type Kaeufertyp } from "@/lib/reporting";
 import { Anschreiben } from "@/components/anschreiben";
 import { AufgabenListe } from "@/components/aufgaben-liste";
 import { NotizenListe } from "@/components/notizen-liste";
@@ -335,6 +336,13 @@ export function KundeAkte({ id, kuerzel, darfVerteilen = false }: { id: string; 
                 <span className="text-kicker text-seil-muted">Stufe</span>
                 <select value={kunde.stufe} onChange={(e) => void pflegen({ stufe: e.target.value as Stufe })} className={`rounded-seil border bg-seil-surface px-2 py-1 text-body ${STUFE_TON[kunde.stufe]}`}>
                   {STUFEN.map((s) => <option key={s} value={s}>{STUFE_LABEL[s]}</option>)}
+                </select>
+              </label>
+              <label className="grid gap-1">
+                <span className="text-kicker text-seil-muted">Käufertyp</span>
+                <select value={kunde.kaeufertyp ?? ""} onChange={(e) => void pflegen({ kaeufertyp: (e.target.value || null) as Kaeufertyp | null })} className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text">
+                  <option value="">noch nicht zugeordnet</option>
+                  {KAEUFERTYPEN.map((t) => <option key={t} value={t}>{KAEUFERTYP_LABEL[t]}</option>)}
                 </select>
               </label>
               <label className="grid gap-1">

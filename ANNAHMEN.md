@@ -1206,3 +1206,32 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     greift die Stichwort-Heuristik und kennzeichnet das. Der Dienst läuft auf dem SEIL-Server
     neben n8n (SQLite, Node ohne native Abhängigkeiten), hört nur lokal, Schlüssel nur in `.env`.
 
+
+121. **Reporting je Objekt nach Lucas Vorlage** (`/mandate/<Name>/reporting`, „Reporting ‚Musterobjekt‘
+    – V1“). Ein helles Blatt wie im PDF: vier Kennzahlen, Deal-Funnel (Ansprache →
+    Interessensbekundung → Asset-Prüfung → Indikation → Due Diligence → SEIL-HERO) mit „noch offen“
+    und „ausgeschieden“ je Stufe, Käuferprofile, Top-Bieter mit Sternen, Top-Absagegründe.
+    „Als PDF speichern“ druckt A4 quer auf eine Seite, ohne Navigation. Die Musteransicht zeigt
+    Lucas Beispielzahlen – ausdrücklich gekennzeichnet –, solange echte Gebote fehlen.
+122. **Woher der Funnel rechnet.** Jeder Kontakt zählt auf der höchsten Stufe, die er erreicht hat:
+    Trichterstufe (angeschrieben = Ansprache, geantwortet = Interesse, NDA/Datenraum/Preisanfrage/
+    Besichtigung = Asset-Prüfung) oder Gebotsstufe, je nachdem, was weiter ist. „Erreicht“ ist
+    kumulativ (wer in der Due Diligence ist, war auch in der Ansprache). Eine Absage zählt als
+    „ausgeschieden“ auf der Stufe, auf der sie kam (`kontakt.ausgeschieden_bei`, gesetzt beim
+    Wechsel auf „abgesagt“, gelöscht bei Rückkehr); ein zurückgezogenes Gebot ebenso. Bänder sind
+    logarithmisch hoch wie in der Vorlage – die Zahl steht immer als Text daneben.
+123. **Gebote nur von Hand.** Tabelle `gebot`, ein Gebot je Investor und Mandat, Stufe Indikation →
+    Due Diligence → SEIL-HERO, Betrag nie automatisch aus Mails (Lucas Grundregel). Erfasst im
+    Mandat unter „Gebote“; jede Änderung steht im Verlauf.
+124. **Sterne = Lucas Ranking-Kriterien.** Kaufpreis · Timeline · Finanzierung · ohne offene
+    Bedingungen · SEIL-Circle-Kunde, je erfüllt ein Stern. „Kaufpreis passt“ ist automatisch erfüllt
+    ab 95 % des Angebotspreises am Mandat (ohne Angebotspreis: das höchste Gebot) und je Gebot
+    überschreibbar. Top 5 nach Sternen, dann Betrag. Die 95 % sind eine Annahme – Luca bestätigen.
+125. **Käufertyp gehört dem Kunden, Absagegrund dem Kontakt.** Käufertyp (Privat ·
+    Semi-professionell · Professionell/Institutionell) gilt mandatsübergreifend und wird in der
+    Kundenakte oder im Verteiler gesetzt; der Absagegrund (Preisvorstellung · Lage · Finanzierung ·
+    Zustand · Timing · Sonstiges) je Mandat im Verteiler, sobald jemand auf „Abgesagt“ steht.
+    Fehlt beides, sagt das Reporting im Cockpit, wie viele Einträge offen sind – im PDF steht davon
+    nichts.
+126. **Objektadresse aus Modul 01.** Der Kopf des Reportings nimmt den Kennwert „Objektadresse“ aus dem
+    jüngsten Datenraum-Lauf des Mandats; liest die Engine ihn nicht, bleibt die Zeile leer.

@@ -59,4 +59,24 @@
   --seil-row-h: 38px; /* Tabellenzeile, Zielkorridor 36-40px */
   --seil-control-h: 28px; /* Buttons, Inputs, Selects */
   --seil-focus-ring: 2px;
+
+  /* --- Reporting („Papier“) ----------------------------------------------
+     Das Objekt-Reporting ist ein Dokument für den Verkäufer (Lucas Vorlage):
+     ein helles Blatt – im Cockpit wie im PDF, deshalb ohne Dunkel-Variante.
+     Datenfarben aus einer Blau-Familie, geprüft mit dem dataviz-Validator
+     (hell, Fläche #ffffff): Helligkeitsband, Chroma, Farbsehschwäche,
+     Normalsicht und Kontrast >= 3:1 – alles bestanden. Zahlen und Labels
+     stehen immer in Tinte, nie in Datenfarbe. */
+  --seil-papier: #ffffff;
+  --seil-papier-kachel: #f4f4f3;
+  --seil-papier-linie: #e4e6ea;
+  --seil-papier-tinte: #1a1a1e; /* Zahlen, Überschriften */
+  --seil-papier-text: #464b53; /* Fließtext */
+  --seil-papier-leise: #6b7078; /* Labels, Fußnoten – 4.9:1 auf Weiß */
+  --seil-daten-stark: #1d5a94; /* „noch offen“, Balken */
+  --seil-daten-mittel: #5a96cf; /* zweite Stufe derselben Familie */
+  --seil-daten-band: color-mix(in srgb, #5a96cf 26%, #ffffff); /* erreichte Stufe, Fläche */
+  --seil-daten-aus: #d5d8dd; /* ausgeschieden – bewusst neutral */
+  --seil-daten-spur: #eceef1; /* Schiene hinter Balken */
+  --seil-stern: #b07d1f; /* Ranking-Sterne, nur mit Zahl daneben */
 }

@@ -29,6 +29,7 @@ Adresse: https://seil-cockpit.vercel.app · Anmeldung mit Kürzel und Passwort
 |---|---|
 | **Übersicht** | Dein Tag: Leistung gegen Ziel, Kennzahlen, Pipeline, Freigaben (Tobias), Aufgaben, Verlauf |
 | **Mandate** | Pipeline-Tafel (Spalten = Abschnitte des Flowcharts, Karten ziehen) oder Liste; jedes Mandat mit Stammdaten, Wirtschaftlichkeit, Standarddokumenten, den 17 Schritten, dem Investoren-Trichter, Suche und Anschreiben, Aufgaben, Notizen und Verlauf |
+| **Reporting** (im Mandat, „Reporting für den Verkäufer →“) | Lucas Objekt-Reporting: Kennzahlen, Deal-Funnel, Käuferprofile, Top-Bieter, Absagegründe – live aus dem CRM, „Als PDF speichern“ gibt ein Blatt A4 quer. Gebote trägst du im Mandat unter „Gebote“ ein, Käufertyp und Absagegrund im Verteiler |
 | **Freigaben** | Der Eingang für Tobias: jedes Anschreiben wartet hier, bis er es freigibt |
 | **Aufgaben** | Meine Aufgaben nach Fälligkeit; Geschäftsführung sieht das ganze Team und verteilt |
 | **Leistung** | Eigene Ziele gegen Ist; Geschäftsführung: Umsatz, Pipeline-Wert, Forecast, Team |

@@ -10,6 +10,8 @@ import { NotizenListe } from "@/components/notizen-liste";
 import { AktivitaetenListe } from "@/components/aktivitaeten-liste";
 import { MandatProzess } from "@/components/mandat-prozess";
 import { DokumenteCheckliste } from "@/components/dokumente-checkliste";
+import { GeboteListe } from "@/components/gebote-liste";
+import Link from "next/link";
 import type { Kundenliste } from "@/app/api/kunden/route";
 import type { Mandatsliste } from "@/app/api/mandate/route";
 
@@ -127,7 +129,15 @@ export function MandatDetail({ mandat, kuerzel, darfVerteilen = false }: { manda
 
   return (
     <>
-      <h1 className="mt-3 text-title text-seil-text">{mandat}</h1>
+      <div className="mt-3 flex flex-wrap items-baseline justify-between gap-2">
+        <h1 className="text-title text-seil-text">{mandat}</h1>
+        <Link
+          href={`/mandate/${encodeURIComponent(mandat)}/reporting`}
+          className="rounded-seil border border-seil-line px-3 py-1 text-kicker text-seil-body hover:border-seil-accent hover:text-seil-accent"
+        >
+          Reporting für den Verkäufer →
+        </Link>
+      </div>
 
       {fehler ? (
         <p className="mt-2 rounded-[var(--seil-radius)] border border-seil-danger px-3 py-2 text-kicker text-seil-danger">
@@ -312,6 +322,7 @@ export function MandatDetail({ mandat, kuerzel, darfVerteilen = false }: { manda
         </section>
       ) : null}
 
+      {stand ? <GeboteListe mandat={mandat} kaufpreis={stand.kaufpreis ?? null} /> : null}
       <DokumenteCheckliste mandat={mandat} kompakt />
       <MandatProzess mandat={mandat} />
       <AufgabenListe mandat={mandat} zustaendig={undefined} titel="Aufgaben" darfVerteilen={darfVerteilen} />

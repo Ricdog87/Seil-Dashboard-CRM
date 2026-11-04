@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { datenbankAktiv, dbLesen, dbSchreiben } from "@/lib/supabase";
 import { protokoll } from "@/lib/protokoll";
+import { KAEUFERTYPEN, type Kaeufertyp } from "@/lib/reporting";
 import { ARTEN, STUFEN, type Art, type Kunde, type KundeAnsicht, type Stufe } from "@/lib/kunde";
 import type { LiveInvestor, LiveInvestoren } from "@/app/api/investoren/route";
 
@@ -34,6 +35,7 @@ interface DbKunde {
   assetklassen: string[] | null;
   notiz: string | null;
   quelle: "liveliste" | "cockpit";
+  kaeufertyp?: Kaeufertyp | null;
   geaendert: string | null;
   geaendert_durch: string | null;
 }
@@ -52,6 +54,7 @@ const aufKunde = (z: DbKunde): Kunde => ({
   assetklassen: z.assetklassen ?? [],
   notiz: z.notiz,
   quelle: z.quelle,
+  kaeufertyp: z.kaeufertyp ?? null,
   geaendert: z.geaendert,
   geaendertDurch: z.geaendert_durch,
 });
@@ -131,6 +134,7 @@ export async function GET(request: Request): Promise<NextResponse<Kundenliste>> 
       stufe: k?.stufe ?? "neu",
       betreuer: k?.betreuer ?? null,
       notiz: k?.notiz ?? null,
+      kaeufertyp: k?.kaeufertyp ?? null,
       herkunft: k ? "beides" : "liveliste",
     };
   });
@@ -175,6 +179,7 @@ function ausCrm(k: Kunde): KundeAnsicht {
     stufe: k.stufe,
     betreuer: k.betreuer,
     notiz: k.notiz,
+    kaeufertyp: k.kaeufertyp ?? null,
     herkunft: "cockpit",
   };
 }
@@ -196,6 +201,9 @@ export async function POST(request: Request): Promise<NextResponse> {
   if (b?.stufe && !STUFEN.includes(b.stufe)) {
     return NextResponse.json({ ok: false, grund: "Unbekannte Stufe" }, { status: 400 });
   }
+  if (b?.kaeufertyp && !(KAEUFERTYPEN as readonly string[]).includes(b.kaeufertyp)) {
+    return NextResponse.json({ ok: false, grund: "Unbekannter Käufertyp" }, { status: 400 });
+  }
   const durch = request.headers.get("x-seil-benutzer") ?? "";
 
   const zeile: Record<string, unknown> = {
@@ -214,6 +222,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     ["notiz", "notiz"],
     ["regionen", "regionen"],
     ["assetklassen", "assetklassen"],
+    ["kaeufertyp", "kaeufertyp"],
   ] as const) {
     const w = (b as Record<string, unknown>)[feld];
     if (w !== undefined) zeile[spalte] = w === "" ? null : w;

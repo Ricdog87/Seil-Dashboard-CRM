@@ -5,6 +5,7 @@ import { GEANTWORTET, STUFEN, STUFEN_LABEL, STUFEN_TON, type Stufe } from "@/lib
 import { ANTWORT_LABEL } from "@/lib/kommunikation";
 import type { Kontakt, Kontaktstand } from "@/app/api/kontakte/route";
 import { followupLage } from "@/lib/followup";
+import { ABSAGEGRUENDE, ABSAGEGRUND_LABEL, KAEUFERTYPEN, KAEUFERTYP_KURZ, type Absagegrund, type Kaeufertyp } from "@/lib/reporting";
 
 /**
  * Der Verteiler eines Mandats – wer steht wo im Prozess.
@@ -30,6 +31,60 @@ export function Verteiler({
   // Was gerade gesetzt wurde, bevor der naechste Abruf es bestaetigt - damit
   // sich die Liste nicht traege anfuehlt.
   const [vorlaeufig, setVorlaeufig] = useState<Record<string, Stufe>>({});
+  // Käufertyp und Absagegrund fürs Reporting – ebenfalls sofort sichtbar.
+  const [typVorl, setTypVorl] = useState<Record<string, Kaeufertyp | null>>({});
+  const [grundVorl, setGrundVorl] = useState<Record<string, Absagegrund | null>>({});
+
+  /** Käufertyp gehört dem Kunden (gilt mandatsübergreifend), nicht dem Kontakt. */
+  async function typSetzen(k: Kontakt, typ: Kaeufertyp | null) {
+    setSpeichert(k.investorId);
+    setFehler(null);
+    setTypVorl((v) => ({ ...v, [k.investorId]: typ }));
+    try {
+      const r = await fetch("/api/kunden", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: k.investorId, firma: k.firma ?? k.investorId, kaeufertyp: typ ?? "" }),
+      });
+      const a = (await r.json()) as { ok?: boolean; grund?: string };
+      if (!a.ok) throw new Error(a.grund ?? "nicht gespeichert");
+      neuLaden();
+    } catch (e) {
+      setTypVorl((v) => {
+        const n = { ...v };
+        delete n[k.investorId];
+        return n;
+      });
+      setFehler(`Käufertyp für „${k.firma ?? k.investorId}" nicht gespeichert: ${e instanceof Error ? e.message : "unbekannt"}`);
+    } finally {
+      setSpeichert(null);
+    }
+  }
+
+  async function grundSetzen(k: Kontakt, grund: Absagegrund | null) {
+    setSpeichert(k.investorId);
+    setFehler(null);
+    setGrundVorl((v) => ({ ...v, [k.investorId]: grund }));
+    try {
+      const r = await fetch("/api/kontakte", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mandat, kontakte: [{ investorId: k.investorId, absagegrund: grund }] }),
+      });
+      const a = (await r.json()) as { ok?: boolean; grund?: string };
+      if (!a.ok) throw new Error(a.grund ?? "nicht gespeichert");
+      neuLaden();
+    } catch (e) {
+      setGrundVorl((v) => {
+        const n = { ...v };
+        delete n[k.investorId];
+        return n;
+      });
+      setFehler(`Absagegrund für „${k.firma ?? k.investorId}" nicht gespeichert: ${e instanceof Error ? e.message : "unbekannt"}`);
+    } finally {
+      setSpeichert(null);
+    }
+  }
 
   async function setzen(k: Kontakt, status: Stufe) {
     setSpeichert(k.investorId);
@@ -75,9 +130,12 @@ export function Verteiler({
     }
   }
 
-  const kontakte = (stand?.kontakte ?? []).map((k) =>
-    vorlaeufig[k.investorId] ? { ...k, status: vorlaeufig[k.investorId] } : k,
-  );
+  const kontakte = (stand?.kontakte ?? []).map((k) => ({
+    ...k,
+    ...(vorlaeufig[k.investorId] ? { status: vorlaeufig[k.investorId] } : {}),
+    ...(k.investorId in typVorl ? { kaeufertyp: typVorl[k.investorId] } : {}),
+    ...(k.investorId in grundVorl ? { absagegrund: grundVorl[k.investorId] } : {}),
+  }));
   const offen = kontakte.filter((k) => k.status !== "abgesagt");
   const sichtbar = nurOffene ? offen : kontakte;
 
@@ -136,11 +194,12 @@ export function Verteiler({
       ) : null}
 
       <div className="overflow-x-auto rounded-[var(--seil-radius)] border border-seil-line">
-        <table className="w-full min-w-[860px] border-collapse text-body">
+        <table className="w-full min-w-[1000px] border-collapse text-body">
           <thead>
             <tr className="bg-seil-surface text-left text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
               <th className="px-3 py-2 font-medium">Investor</th>
               <th className="px-3 py-2 font-medium">Ansprechpartner</th>
+              <th className="px-3 py-2 font-medium">Käufertyp</th>
               <th className="px-3 py-2 font-medium">Stand</th>
               <th className="px-3 py-2 font-medium">Letzte Antwort</th>
               <th className="px-3 py-2 font-medium">Letzter Kontakt</th>
@@ -160,6 +219,22 @@ export function Verteiler({
                 </td>
                 <td className="px-3 py-2">
                   <select
+                    value={k.kaeufertyp ?? ""}
+                    disabled={speichert === k.investorId}
+                    onChange={(e) => void typSetzen(k, (e.target.value || null) as Kaeufertyp | null)}
+                    aria-label={`Käufertyp von ${k.firma ?? k.investorId}`}
+                    className={`rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-kicker ${k.kaeufertyp ? "text-seil-text" : "text-seil-muted"}`}
+                  >
+                    <option value="">— offen</option>
+                    {KAEUFERTYPEN.map((t) => (
+                      <option key={t} value={t}>
+                        {KAEUFERTYP_KURZ[t]}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="px-3 py-2">
+                  <select
                     value={k.status}
                     disabled={speichert === k.investorId}
                     onChange={(e) => void setzen(k, e.target.value as Stufe)}
@@ -172,6 +247,22 @@ export function Verteiler({
                       </option>
                     ))}
                   </select>
+                  {k.status === "abgesagt" ? (
+                    <select
+                      value={k.absagegrund ?? ""}
+                      disabled={speichert === k.investorId}
+                      onChange={(e) => void grundSetzen(k, (e.target.value || null) as Absagegrund | null)}
+                      aria-label={`Absagegrund von ${k.firma ?? k.investorId}`}
+                      className={`mt-1 block rounded-seil border bg-seil-surface px-2 py-0.5 text-kicker ${k.absagegrund ? "border-seil-line text-seil-body" : "border-seil-warning/60 text-seil-warning"}`}
+                    >
+                      <option value="">Grund? — fürs Reporting</option>
+                      {ABSAGEGRUENDE.map((g) => (
+                        <option key={g} value={g}>
+                          {ABSAGEGRUND_LABEL[g]}
+                        </option>
+                      ))}
+                    </select>
+                  ) : null}
                 </td>
                 <td className="whitespace-nowrap px-3 py-2 text-kicker text-seil-body">
                   {k.letzteAntwort ? ANTWORT_LABEL[k.letzteAntwort] ?? k.letzteAntwort : "—"}
@@ -203,7 +294,8 @@ export function Verteiler({
       <p className="mt-2 text-kicker leading-relaxed text-seil-muted">
         Eine Änderung ist sofort gespeichert und für alle sichtbar. Wer angeschrieben wird, kommt
         automatisch mit dem Stand „Angeschrieben“ hierher. Antworten erfasst die Tafel („Antwort ▾“)
-        oder die Antworterkennung – beide nach dem Standardprozess.
+        oder die Antworterkennung – beide nach dem Standardprozess. Käufertyp und Absagegrund
+        fließen ins Reporting (Käuferprofile, Top-Absagegründe).
       </p>
     </div>
   );

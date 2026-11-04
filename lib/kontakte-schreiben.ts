@@ -3,6 +3,7 @@ import { ANTWORT_LABEL, ANTWORT_REGELN, STUFEN_AUFGABEN, antwortArt, type Antwor
 import { dbLesen, dbSchreiben } from "@/lib/supabase";
 import { protokoll } from "@/lib/protokoll";
 import { preisauskunft } from "@/lib/rollen";
+import { ABSAGEGRUND_LABEL, type Absagegrund } from "@/lib/reporting";
 
 /**
  * Kontaktstand schreiben – die eine Stelle, an der sich der Trichter bewegt.
@@ -27,6 +28,8 @@ export interface KontaktEingabe {
   antwort?: string | null;
   /** Betreff der Antwort – nur für die Spur. */
   betreff?: string | null;
+  /** Warum jemand abgesagt hat (Lucas Reporting: Top-Absagegründe). */
+  absagegrund?: string | null;
 }
 
 export interface DbKontakt {
@@ -44,6 +47,8 @@ export interface DbKontakt {
   followups: number | null;
   letzte_antwort: string | null;
   letzte_antwort_am: string | null;
+  absagegrund?: string | null;
+  ausgeschieden_bei?: string | null;
 }
 
 interface Vorher {
@@ -131,6 +136,10 @@ export async function kontakteSchreiben(
       // Uhr läuft neu (Standardprozess: „2 Tage später nachfassen“).
       ...(regel ? { letzter_kontakt: jetzt, followups: 0 } : {}),
       ...(regel && mitSpalten ? { letzte_antwort: regel.art, letzte_antwort_am: jetzt } : {}),
+      // Für den Funnel: auf welcher Stufe jemand ausgestiegen ist. Wer zurückkommt, verliert beides.
+      ...(status === "abgesagt" && alt?.status !== "abgesagt" ? { ausgeschieden_bei: alt?.status ?? null } : {}),
+      ...(status !== "abgesagt" && alt?.status === "abgesagt" ? { ausgeschieden_bei: null, absagegrund: null } : {}),
+      ...(k.absagegrund !== undefined ? { absagegrund: k.absagegrund || null } : {}),
       geaendert_durch: durch,
       geaendert: jetzt,
     };
@@ -150,7 +159,12 @@ export async function kontakteSchreiben(
         text: `${name}: Antwort „${ANTWORT_LABEL[art]}“${betreff ? ` – „${betreff.slice(0, 80)}“` : ""}${alt !== k.status ? ` → ${k.status}` : ""}`,
       });
     } else if (geschrieben.length === 1) {
-      await protokoll({ mandat, investorId: k.investor_id, art: "kontakt", durch, text: `${name}: ${k.status}` });
+      const e = eingaben.find((x) => String(x.investorId) === k.investor_id);
+      const nurGrund = e?.absagegrund !== undefined && alt === k.status;
+      await protokoll({
+        mandat, investorId: k.investor_id, art: "kontakt", durch,
+        text: nurGrund ? `${name}: Absagegrund ${e?.absagegrund ? `„${ABSAGEGRUND_LABEL[e.absagegrund as Absagegrund] ?? e.absagegrund}“` : "entfernt"}` : `${name}: ${k.status}`,
+      });
     }
   }
   if (geschrieben.length > 1 && antworten.size === 0) {

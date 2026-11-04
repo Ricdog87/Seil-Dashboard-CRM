@@ -40,7 +40,7 @@ export function TopNav({ benutzer }: { benutzer?: string }) {
   if (aufAnmeldeseite) return null;
 
   return (
-    <header className="sticky top-0 z-20 border-b border-seil-line bg-seil-surface">
+    <header className="no-print sticky top-0 z-20 border-b border-seil-line bg-seil-surface">
       {/* Mobil bricht die Leiste in zwei Zeilen: oben Logo + Bedienung, darunter die Navigation.
           Ab md ist alles eine Zeile – nichts darf das Dokument breiter als den Viewport machen. */}
       <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-4 px-4 sm:px-6 md:h-14 md:flex-nowrap md:gap-8">

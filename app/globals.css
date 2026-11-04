@@ -168,3 +168,47 @@
     transform: translateX(-50%);
   }
 }
+
+/* --- Druck / „Als PDF speichern“ ------------------------------------------
+   Das Reporting druckt als ein Blatt A4 quer: ohne Navigation, ohne Fußzeile,
+   ohne Bedienelemente, Farben genau wie am Bildschirm. */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 8mm;
+  }
+  html,
+  body {
+    background: var(--seil-papier) !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  main > * {
+    animation: none !important;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .seil-blatt {
+    padding: 0 !important;
+    border-radius: 0 !important;
+  }
+  .seil-blatt .overflow-x-auto {
+    overflow: visible !important;
+  }
+  .seil-blatt section {
+    break-inside: avoid;
+  }
+}
+@media print {
+  /* A4 quer fasst das Blatt nur leicht verkleinert auf einer Seite. */
+  .seil-blatt {
+    zoom: 0.86;
+  }
+}
