@@ -139,10 +139,10 @@ function Luecken({ bericht, mandat }: { bericht: Bericht; mandat: string }) {
       ? "Noch keine Gebote erfasst – im Mandat unter „Gebote“ eintragen (Indikation, Due Diligence, SEIL-HERO)."
       : null,
     ohneTyp > 0
-      ? `${zahl(ohneTyp)} aktive Interessenten ohne Käufertyp – in der Kundenakte oder im Verteiler zuordnen.`
+      ? `${zahl(ohneTyp)} aktive Interessenten ohne Käufertyp – in der Kundenakte oder im Mandat unter Trichter → „Liste“ zuordnen.`
       : null,
     bericht.ohneAbsagegrund > 0
-      ? `${zahl(bericht.ohneAbsagegrund)} Absagen ohne Grund – im Verteiler nachtragen.`
+      ? `${zahl(bericht.ohneAbsagegrund)} Absagen ohne Grund – im Mandat unter Trichter → „Liste“ nachtragen.`
       : null,
     bericht.kopf.adresse
       ? null
