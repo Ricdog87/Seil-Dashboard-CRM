@@ -40,6 +40,12 @@ export interface Modul01Stand {
   objekte: Record<string, Modul01Objekt>; // Cockpit-Objekt-ID → Stand aus Modul 01
   /** Datenräume, zu denen es im Cockpit noch kein Mandat gibt – produktiv „Create deal“ (Nino, 28.08.). */
   unbekannt: Modul01Objekt[];
+  /**
+   * Läufe nach Mandat gezählt – über den Lauf-Präfix (Laufname ohne Zeitstempel), so wie der
+   * Sync die Mandate anlegt. Test- und Demoläufe werden bewusst nicht zu Mandaten und zählen
+   * getrennt. Nur mit Datenbank; ohne bleibt das Feld leer.
+   */
+  laeufe?: { gesamt: number; mitMandat: number; test: number; ohneMandat: number };
 }
 export const DEMO_STAND: Modul01Stand = { modus: "demo", objekte: {}, unbekannt: [] };
 

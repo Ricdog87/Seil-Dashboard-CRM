@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { datenbankAktiv, dbAendern, dbLesen, dbSchreiben } from "@/lib/supabase";
 import { protokoll } from "@/lib/protokoll";
 import type { Aufgabe } from "@/lib/mandat";
-import { darfVerteilen, istGeschaeftsfuehrung, istSystem } from "@/lib/rollen";
+import { darfVerteilen, istGeschaeftsfuehrung, istSystem, geschaeftsfuehrung } from "@/lib/rollen";
 
 /**
  * Aufgaben – was jemand tun muss, mit Namen und Datum daran.
@@ -84,11 +84,16 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
   const durch = request.headers.get("x-seil-benutzer") ?? "";
   // Verteilen darf die Geschaeftsfuehrung; alle anderen legen Aufgaben nur fuer sich an.
-  const zustaendig = darfVerteilen(durch) ? (b?.zustaendig ?? durch ?? null) : durch || null;
+  let zustaendig = darfVerteilen(durch) ? (b?.zustaendig ?? durch ?? null) : durch || null;
   // Aufgaben der Automatik (Modul 01, z. B. „geschützte Unterlagen – Freigabe durch
   // Auftraggeber nötig“) sind je Mandat und Titel nur einmal offen: ein wiederholter
   // Lauf legt keine zweite an, sondern bekommt die bestehende zurück.
   const quelle = istSystem(durch) && b?.quelle === "modul01" ? "modul01" : "cockpit";
+  // Eine Aufgabe aus Modul 01 gehört der zuständigen Person des Mandats, nie der Automatik –
+  // sonst sieht sie niemand. Ohne Mandat (Testläufe) geht sie an die Geschäftsführung.
+  if (quelle === "modul01" && (!b?.zustaendig || istSystem(b.zustaendig))) {
+    zustaendig = (await mandatZustaendig(b?.objekt)) ?? geschaeftsfuehrung()[0] ?? null;
+  }
 
   try {
     if (quelle === "modul01" && b?.objekt) {
@@ -123,6 +128,20 @@ export async function POST(request: Request): Promise<NextResponse> {
       { ok: false, grund: e instanceof Error ? e.message : "Datenbank nicht erreichbar" },
       { status: 502 },
     );
+  }
+}
+
+/** Zuständige Person eines Mandats – für Aufgaben, die Modul 01 anlegt. */
+async function mandatZustaendig(name: string | null | undefined): Promise<string | null> {
+  if (!name) return null;
+  try {
+    const [m] = await dbLesen<{ zustaendig: string | null }>(
+      "mandat",
+      `name=eq.${encodeURIComponent(name)}&select=zustaendig&limit=1`,
+    );
+    return m?.zustaendig ?? null;
+  } catch {
+    return null;
   }
 }
 

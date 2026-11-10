@@ -64,13 +64,19 @@ export function useObjekteLive(): Objekt[] {
 export function Modul01Status() {
   const s = useModul01();
   if (s.modus === "live") {
-    const anzahl = Object.keys(s.objekte).length;
+    const l = s.laeufe;
+    const anzahl = l ? l.gesamt : Object.keys(s.objekte).length + s.unbekannt.length;
+    const details = l
+      ? `${l.mitMandat} mit Mandat${l.test > 0 ? ` · ${l.test} Test-/Demo` : ""}${l.ohneMandat > 0 ? ` · ${l.ohneMandat} ohne Mandat im Cockpit` : ""}`
+      : s.unbekannt.length > 0
+        ? `${s.unbekannt.length} ohne Mandat im Cockpit`
+        : "";
     return (
       <p className="inline-flex items-center gap-2" data-modul01="live">
         <Radio size={ICON_SM} strokeWidth={ICON_STROKE} className="text-seil-success" aria-hidden />
         Modul 01: verbunden · Stand {fmtStand(s.stand ?? s.abgerufen)} · {anzahl}{" "}
-        {anzahl === 1 ? "Datenraum" : "Datenräume"} live
-        {s.unbekannt.length > 0 ? ` · ${s.unbekannt.length} ohne Mandat im Cockpit` : ""}
+        {anzahl === 1 ? "Datenraum-Lauf" : "Datenraum-Läufe"}
+        {details ? ` · ${details}` : ""}
       </p>
     );
   }
