@@ -1235,3 +1235,12 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     nichts.
 126. **Objektadresse aus Modul 01.** Der Kopf des Reportings nimmt den Kennwert „Objektadresse“ aus dem
     jüngsten Datenraum-Lauf des Mandats; liest die Engine ihn nicht, bleibt die Zeile leer.
+127. **Aufgaben aus Modul 01 gehören einem Menschen.** Legt Modul 01 über die Automatik eine
+    Aufgabe an (z. B. „Geschützte Unterlagen: Freigabe durch Auftraggeber nötig“), bekommt sie
+    die zuständige Person des Mandats; gibt es kein Mandat (Testläufe), die Geschäftsführung.
+    Vorher stand „automatik“ als Zuständiger – eine Aufgabe, die niemand sieht, ist keine.
+    Entspricht dem Vorschlag zu Entscheidung 3 der Modul-01-Übergabe (11.11.2026).
+128. **Die Kopfzeile zählt Läufe wie der Sync.** `/api/modul01/status` ordnet jeden Lauf über den
+    Lauf-Präfix (Laufname ohne Zeitstempel) einem Mandat zu – dieselbe Regel, nach der der Sync
+    Mandate anlegt – und zählt Test-/Demo-Läufe getrennt. Die alte Zählung über
+    `MODUL01_OBJEKT_MAP` meldete jeden Lauf als „ohne Mandat“, obwohl das Mandat längst da war.
