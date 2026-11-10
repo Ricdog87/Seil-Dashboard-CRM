@@ -28,7 +28,8 @@ export async function middleware(request: NextRequest) {
 
   const geheimnis = process.env.COCKPIT_SECRET ?? process.env.COCKPIT_PASS ?? "";
   const ausCookie = await sitzungPruefen(request.cookies.get(SITZUNG_COOKIE)?.value, geheimnis);
-  const angemeldet = ausCookie ?? ausKopfzeile(request, liste) ?? ausMaschine(request, pfad);
+  const angemeldet =
+    ausCookie ?? ausKopfzeile(request, liste) ?? ausMaschine(request, pfad) ?? ausCron(request, pfad);
 
   if (angemeldet) {
     const kopfzeilen = new Headers(request.headers);
@@ -46,6 +47,21 @@ function ausMaschine(request: NextRequest, pfad: string): string | null {
   if (!pfad.startsWith("/api/")) return null;
   const soll = process.env.MODUL01_SECRET ?? "";
   const ist = request.headers.get("x-seil-secret") ?? "";
+  if (!soll || soll.length !== ist.length) return null;
+  let abweichung = 0;
+  for (let i = 0; i < soll.length; i++) abweichung |= soll.charCodeAt(i) ^ ist.charCodeAt(i);
+  return abweichung === 0 ? SYSTEM_KUERZEL : null;
+}
+
+/**
+ * Der Vercel-Cron (vercel.json) – nur für den täglichen Puls, nur mit dem CRON_SECRET,
+ * das Vercel selbst als „Authorization: Bearer …“ mitschickt.
+ */
+function ausCron(request: NextRequest, pfad: string): string | null {
+  if (pfad !== "/api/puls") return null;
+  const soll = process.env.CRON_SECRET ?? "";
+  const kopf = request.headers.get("authorization") ?? "";
+  const ist = kopf.startsWith("Bearer ") ? kopf.slice(7) : "";
   if (!soll || soll.length !== ist.length) return null;
   let abweichung = 0;
   for (let i = 0; i < soll.length; i++) abweichung |= soll.charCodeAt(i) ^ ist.charCodeAt(i);

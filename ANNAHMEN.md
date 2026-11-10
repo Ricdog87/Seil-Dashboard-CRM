@@ -1244,3 +1244,10 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     Lauf-Präfix (Laufname ohne Zeitstempel) einem Mandat zu – dieselbe Regel, nach der der Sync
     Mandate anlegt – und zählt Test-/Demo-Läufe getrennt. Die alte Zählung über
     `MODUL01_OBJEKT_MAP` meldete jeden Lauf als „ohne Mandat“, obwohl das Mandat längst da war.
+129. **Die Datenbank darf nicht einschlafen.** Supabase pausiert kostenlose Projekte nach sieben
+    Tagen ohne Zugriffe (Warnmail 10.11.2026, nachdem das Team seit dem 03.11. nicht im Cockpit
+    war). Ein pausiertes Cockpit zeigt nichts und nimmt keinen Lauf von Modul 01 an. Deshalb
+    ruft ein Vercel-Cron (`vercel.json`) jeden Morgen `GET /api/puls` auf – ein Lesezugriff,
+    nichts wird geschrieben; die Middleware lässt ihn nur mit dem `CRON_SECRET` durch, das
+    Vercel selbst mitschickt. Der saubere Weg bleibt der bezahlte Tarif (keine Pausen,
+    tägliche Sicherungen) – eine Entscheidung für die Übergabe von Modul 02.
