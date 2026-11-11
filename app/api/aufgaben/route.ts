@@ -102,7 +102,18 @@ export async function POST(request: Request): Promise<NextResponse> {
         `objekt=eq.${encodeURIComponent(b.objekt)}&titel=eq.${encodeURIComponent(titel)}&erledigt=is.false&limit=1`,
       );
       const vorhanden = offen[0];
-      if (vorhanden) return NextResponse.json({ ok: true, bestehend: true, aufgabe: auf(vorhanden) });
+      if (vorhanden) {
+        // Hängt die bestehende Aufgabe noch bei der Automatik, geht sie jetzt an den Menschen.
+        const verwaist = !vorhanden.zustaendig || istSystem(vorhanden.zustaendig);
+        if (verwaist && zustaendig && !istSystem(zustaendig)) {
+          const [neu] = await dbAendern<DbAufgabe>("aufgaben", `id=eq.${encodeURIComponent(vorhanden.id)}`, {
+            zustaendig,
+            geaendert: new Date().toISOString(),
+          });
+          return NextResponse.json({ ok: true, bestehend: true, aufgabe: auf(neu ?? vorhanden) });
+        }
+        return NextResponse.json({ ok: true, bestehend: true, aufgabe: auf(vorhanden) });
+      }
     }
     const geschrieben = await dbSchreiben<DbAufgabe>(
       "aufgaben",
