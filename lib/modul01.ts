@@ -17,6 +17,29 @@ export interface Modul01Freigabe {
   investorEmail: string;
   freigegebenAm: string;
 }
+/**
+ * KI-Kosten und Laufzeit eines Laufs (seit 12.11.2026) – nur Zahlen. Modul 01 zählt je
+ * KI-Aufruf die Token und rechnet nach Listenpreis; der Euro-Betrag nutzt einen festen Kurs.
+ * Läufe von vor diesem Stand haben keine Aufzeichnung: das Feld ist dann `null`.
+ */
+export interface Modul01Kosten {
+  usd: number;
+  /** Euro zum festen Kurs des Laufs; `null`, wenn kein Kurs hinterlegt war. */
+  eur: number | null;
+  usdJeEur: number | null;
+  kursStand: string | null;
+  preiseStand: string | null;
+  aufrufe: number;
+  /** Aufrufe eines Modells ohne Listenpreis – sie fehlen in `usd`. */
+  aufrufeOhnePreis: number;
+  dokumenteMitKi: number;
+  /** Aus einem früheren Lauf oder einer Entscheidung übernommen – ohne KI, ohne Kosten. */
+  uebernommen: number;
+  laufzeitMs: number;
+  schwaerzenMs: number;
+  /** Ende des Laufs; `null`, solange er läuft oder wenn er abgebrochen wurde. */
+  beendet: string | null;
+}
 export interface Modul01Objekt {
   objektId: string | null;
   objektName?: string | null;
@@ -24,6 +47,7 @@ export interface Modul01Objekt {
   dokumente?: Modul01Dokument[];
   kennwerte?: Modul01Kennwert[];
   freigaben?: Modul01Freigabe[];
+  kosten?: Modul01Kosten | null;
 }
 export interface Modul01Antwort {
   stand?: string;

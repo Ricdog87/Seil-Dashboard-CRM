@@ -206,6 +206,11 @@ liest die Läufe über WF 09, legt für jeden echten Datenraum ein Mandat an
 **Leseweg (WF 09):** `GET seil/datenraum-status` liefert Läufe und Zählwerte
 (verarbeitet, abgelegt, in Prüfung, Dubletten) je Objekt; die Cockpit-Route
 `/api/modul01/status` ruft ihn serverseitig ab.
+Seit 12.11.2026 trägt jede Zeile zusätzlich `kosten` — KI-Kosten des Laufs nach Listenpreis
+(US-Dollar, Euro zum festen Kurs), Aufrufe, Dokumente mit KI / ohne KI übernommen, Laufzeit
+und Anteil der Schwärzung; `null` bei Läufen ohne Aufzeichnung. Quelle ist die
+Lauf-Übersicht der Engine (`aufwand`). Nach dem Engine-Update WF 09 neu einspielen:
+`python3 /root/wfimport.py /opt/seil-cockpit 09-datenraum-status-api.json`.
 
 **Stammdaten (WF 01, seit 02.11.2026):** `kennwerte` enthält nur die Werte, die
 mehrere Dokumente des Laufs übereinstimmend nennen (`plz`, `ort`, `strasse`,

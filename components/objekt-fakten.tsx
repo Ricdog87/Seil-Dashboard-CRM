@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { PRODUKTTYPEN, PRODUKTTYP_LABEL, type FaktText, type Mandat, type Produkttyp } from "@/lib/mandat";
 import { istOffen, uebernahme, type FaktSchluessel, type Vorschlag } from "@/lib/kennwerte";
 import type { Vorschlagsliste } from "@/app/api/mandate/vorschlaege/route";
+import { datumDe, dauerText, eurText, usdText, type MandatKosten } from "@/lib/datenraum-kosten";
 
 /**
  * Key Facts und Objektfakten eines Mandats – die Projektseite.
@@ -115,8 +116,10 @@ export function ObjektFakten({
               : `${offen.length} ${offen.length === 1 ? "Vorschlag" : "Vorschläge"} aus Modul 01 offen`;
 
   const assetVorschlag = offenZu("assetklasse");
+  const kosten = liste?.kosten ?? null;
 
   return (
+    <>
     <section className="mt-5 rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
         <span className={KICKER}>Objekt · Key Facts</span>
@@ -219,6 +222,59 @@ export function ObjektFakten({
         mieterliste“ heißt, zehn Dokumente nennen die Angabe, sechs davon mit diesem Wert, gelesen aus der Mieterliste.
         Ins Mandat kommt ein Wert erst mit „Übernehmen“ oder von Hand.{" "}
         {liste?.lauf ? `Stand: Lauf ${liste.lauf}.` : null}
+      </p>
+    </section>
+    {kosten ? <DatenraumKosten kosten={kosten} /> : null}
+    </>
+  );
+}
+
+/**
+ * KI-Kosten des Datenraums – was die Läufe dieses Mandats in Modul 01 gekostet haben.
+ * Nur Anzeige: Die Zahlen kommen bei jedem Aufruf frisch aus Modul 01.
+ */
+function DatenraumKosten({ kosten }: { kosten: MandatKosten }) {
+  const l = kosten.letzter;
+  const eur = eurText(kosten.eur);
+  const kacheln: { wert: string; neben?: string; label: string }[] = [
+    { wert: usdText(kosten.usd), neben: eur || undefined, label: "KI-Kosten gesamt" },
+    {
+      wert: String(kosten.mitAufzeichnung),
+      neben: kosten.mitAufzeichnung < kosten.laeufe ? `von ${kosten.laeufe} Läufen` : undefined,
+      label: kosten.mitAufzeichnung === 1 ? "Lauf mit Aufzeichnung" : "Läufe mit Aufzeichnung",
+    },
+    { wert: usdText(l.usd), neben: eurText(l.eur) || undefined, label: "Letzter Lauf" },
+    { wert: dauerText(l.laufzeitMs), neben: `davon Schwärzung ${dauerText(l.schwaerzenMs)}`, label: "Laufzeit letzter Lauf" },
+  ];
+  return (
+    <section className="mt-5 rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4">
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+        <span className={KICKER}>Datenraum · KI-Kosten</span>
+        <span className="text-kicker text-seil-muted">
+          aus Modul 01{l.beendet ? ` · letzter Lauf ${datumDe(l.beendet)}` : " · letzter Lauf nicht abgeschlossen"}
+        </span>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {kacheln.map((k) => (
+          <div key={k.label} className="rounded-seil border border-seil-line bg-seil-surface px-3 py-2">
+            <div className="text-title tabular-nums text-seil-text">{k.wert}</div>
+            {k.neben ? <div className="text-kicker tabular-nums text-seil-body">{k.neben}</div> : null}
+            <div className={`${KICKER} mt-1`}>{k.label}</div>
+          </div>
+        ))}
+      </div>
+      <p className="mt-2 text-[10px] leading-relaxed text-seil-muted">
+        Letzter Lauf: {l.dokumenteMitKi} {l.dokumenteMitKi === 1 ? "Dokument" : "Dokumente"} mit KI eingeordnet
+        {l.uebernommen > 0 ? `, ${l.uebernommen} ohne KI übernommen` : ""}. Listenpreis
+        {l.preiseStand ? ` vom ${datumDe(l.preiseStand)}` : ""}
+        {l.usdJeEur
+          ? `, Euro zum festen Kurs 1 € = ${l.usdJeEur.toLocaleString("de-DE", { minimumFractionDigits: 4, maximumFractionDigits: 4 })} $${l.kursStand ? ` (${datumDe(l.kursStand)})` : ""}`
+          : ""}
+        . Maßgeblich ist die Abrechnung bei Anthropic.
+        {kosten.mitAufzeichnung < kosten.laeufe ? " Läufe vor dem 12.11.2026 haben keine Aufzeichnung." : ""}
+        {kosten.aufrufeOhnePreis > 0
+          ? ` ${kosten.aufrufeOhnePreis} KI-Aufrufe ohne Listenpreis fehlen in der Summe.`
+          : ""}
       </p>
     </section>
   );

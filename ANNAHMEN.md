@@ -1316,3 +1316,18 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     Einzelverkauf). Nicht übernommen: Lucas Word-Datei mit Prüfteil, Quellentabelle und
     Alternativen – die Quelle steht beim Vorschlag in den Key Facts, die Übernahme im Verlauf des
     Mandats. Die Signatur hängt wie bisher die Automatik an.
+135. **KI-Kosten des Datenraums je Mandat.** Die Mandatsseite zeigt unter den Key Facts die Karte
+    „Datenraum · KI-Kosten“: Summe über alle Läufe des Mandats (US-Dollar nach Listenpreis, daneben
+    Euro zum festen Kurs), Zahl der Läufe mit Aufzeichnung, Kosten und Laufzeit des letzten Laufs
+    mit dem Anteil der Schwärzung. Die Zahlen entstehen in Modul 01 (die Engine zählt je KI-Aufruf
+    die Token, die die API meldet); WF 09 reicht sie je Lauf im Feld `kosten` durch, das Cockpit
+    summiert über den Lauf-Präfix (`lib/datenraum-kosten.ts`) und liefert sie mit den Vorschlägen
+    (`GET /api/mandate/vorschlaege`). **Gespeichert wird im Cockpit nichts** – die Zahl kommt bei
+    jedem Aufruf frisch aus Modul 01. **Regeln:** kein Lauf mit Aufzeichnung → keine Karte (nie
+    „0 $“); Läufe vor dem 12.11.2026 haben keine Aufzeichnung und zählen nicht mit; eine
+    Euro-Summe gibt es nur, wenn jeder aufgezeichnete Lauf einen Kurs trägt (kein Mischen);
+    Aufrufe eines Modells ohne Listenpreis werden ausgewiesen, nicht geschätzt. Maßgeblich bleibt
+    die Abrechnung im Anthropic-Konto von SEIL. Sichtbar für alle, die das Mandat sehen – es sind
+    Betriebskosten des Datenraums, keine Wirtschaftlichkeitsdaten des Mandats. Nicht enthalten:
+    Server, Gedächtnis-Dienst, Versand. Damit die Karte erscheint, muss auf dem Server die Engine
+    ab Stand 12.11.2026 laufen und WF 09 neu eingespielt sein.
