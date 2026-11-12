@@ -158,6 +158,10 @@ Terminvorschlag RSG: Zwischensession 1 am 13.11., Zwischensession 2 am 20.11., T
 am 24.11., Abnahme am 27.11., Launch am 30.11. — der Team-Workshop hängt an der Freigabe durch
 Luca und Nino.
 
+**Stand 12.11. abends:** Der Termin am 13.11. findet nicht statt (zu kurzfristig, die
+SharePoint-Site für die Mandate entsteht erst am Abend des 12.11.). Damit verschiebt sich auch
+die Zwischensession 1; neue Termine sind offen, die Reihenfolge der fünf Schritte bleibt.
+
 ### Stand der Punkte aus Abschnitt 2
 
 | Punkt | Stand 12.11. | Offen |
@@ -175,3 +179,43 @@ Luca und Nino.
 Abhängigkeit außerhalb des Cockpits: Die Investorenliste liegt seit dem Umzug nach SharePoint
 (07./08.11.) an einem neuen Ort; bis die Automatik dort wieder lesen darf, läuft der Abgleich
 nicht (WF 10). Zuschnitt der Bibliotheken und Rechte: Mahr EDV.
+
+## 6. Referenz: zwei Entwürfe „SEIL Circle“ (aus der WhatsApp-Gruppe, 12.11.2026)
+
+Zwei Bildschirm-Entwürfe eines Dashboards für den SEIL Circle (Zugang für Investoren und
+Eigentümer), einer dunkel mit Goldakzent, einer hell mit Blau. Die Bilder liegen nicht im
+Repository; hier steht nur, was sie für das Cockpit bedeuten. Zahlen aus den Entwürfen werden
+nicht übernommen.
+
+**Was die Entwürfe zeigen**
+
+- Kopfzeile mit vier Kennzahlen und Verlauf (Portfoliowert, Marktwert je Einheit, Soll-Miete,
+  Bruttorendite), darunter Karte der Standorte nach Einheiten, Wertentwicklung, empfohlene
+  Verkaufsstrategie, Nutzungsarten, Baujahre, Top-Standorte, Käuferinteresse (passende
+  Investoren aus dem Netzwerk), Dokumenten-Upload, nächste Schritte.
+- Zweiter Entwurf: Übersicht der aktiven Mandate (Portfolios, Objekte, Mietfläche, Einheiten,
+  JNKM, Städte), Tabelle der Transaktionsstandorte nach Einheiten, Deutschlandkarte mit
+  regionalen Schwerpunkten, Wachstumsprognose, Anteil der Assetklassen.
+
+**Was das für Modul 02 heißt**
+
+1. **Datenquelle statt zweiter Pflege.** Die Summen des zweiten Entwurfs (Objekte, Einheiten,
+   Mietfläche, JNKM, Städte, Einheiten je Stadt, Anteil der Assetklassen) sind genau die Key
+   Facts, die seit 12.11. am Mandat stehen (`einheiten`, `flaeche_qm`, `jahresnettokaltmiete`,
+   `stadt`, `region`, `assetklasse`). Wenn der Circle und das Cockpit dieselbe Datenbank
+   nutzen (UEBERGABE Punkt 8), können diese Zahlen aus den Mandaten gerechnet werden — unter
+   der Bedingung, dass die Key Facts gepflegt bzw. aus Modul 01 übernommen sind.
+2. **Mögliche Ansichten im Cockpit** (nicht beauftragt, Vorschlag für die Zwischensession):
+   eine Standort-Übersicht über alle Mandate (Tabelle Stadt → Einheiten, Karte nach
+   Bundesland), eine Kennzahlenzeile über alle aktiven Mandate, „passende Investoren“ je
+   Mandat als Kachel (der Abgleich liefert die Zahl schon).
+3. **Abgrenzung.** Wertentwicklung, Marktwerte, Renditen und die Verkaufsstrategie-Empfehlung
+   sind Inhalte des Circle und brauchen Bewertungsdaten, die das Cockpit nicht hat — nicht
+   Teil von Modul 02.
+4. **Gestaltung.** Das Cockpit bleibt bei den SEIL-Farben und -Schriften aus dem
+   Design-System; die Entwürfe bestätigen den Aufbau Kennzahlenzeile → Karten → Tabellen, den
+   das Cockpit schon nutzt. Ein Goldakzent wäre eine bewusste Entscheidung von SEIL.
+
+Zu klären mit Nino und Philipp: Wer ist für den Circle zuständig, auf welcher Datenbank läuft
+er, und welche Felder soll das Cockpit dafür liefern.
+
