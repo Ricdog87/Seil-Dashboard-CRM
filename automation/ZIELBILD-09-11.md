@@ -168,7 +168,7 @@ Luca und Nino.
 | 2.4 Status-Tracker-Ansicht | fertig, live seit 12.11. (ANNAHMEN 132) | Abgleich mit Lucas Excel in der Zwischensession: Stufen-Zuordnung, Absagegründe (drei Vokabulare), Export als CSV statt xlsx |
 | 2.5 Gebote / Top-Bieter | fertig, live (ANNAHMEN 123–124) | — |
 | 2.6 Postfach-Synchronisation | offen | braucht Postfach-Rechte (Mahr EDV); Vorschlag: nach dem Launch |
-| 2.7 Lucas Skills | teilweise | Pre-Sound-Mail als Vorlage; Scoring P1/P2 und Ausschlüsse im Abgleich |
+| 2.7 Lucas Skills | teilweise | Pre-Sound-Mail als Vorlage ist live seit 12.11. (ANNAHMEN 134); offen: Scoring P1/P2 und Ausschlüsse im Abgleich |
 | 2.8 Live-List-Codes | teilweise | Käufertyp und Absagegrund sind da (ANNAHMEN 125); fehlende Stufen (Due Diligence, Angebot abgegeben, Kaufvertrag), Code-Zuordnung, Bundesland-Kürzel, WE-Spanne, Opt-out, Versandwellen |
 | 3.6 Follow-up-Leiter | fertig, live seit 12.11. (ANNAHMEN 133) | — |
 

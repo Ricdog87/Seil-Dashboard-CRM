@@ -1275,7 +1275,7 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     „entwicklung“, „projekt“ sowie GRD/PE; „Ausnahme“ verengt nicht (`KLASSE_BEGRIFFE` in
     lib/abgleich.ts). Investoren ohne Angabe bleiben wie bisher im Abgleich. Die Zuordnung gehört
     in der Zwischensession bestätigt. Der Produkttyp (A Bestand … E Forward / Neubau, Lucas
-    Pre-Sound-Skill) wird nur gespeichert; die Pre-Sound-Vorlage, die ihn nutzt, steht noch aus.
+    Pre-Sound-Skill) bestimmt Betreff und Aufbau der Pre-Sound-Vorlage (Nr. 134).
 132. **Statustracker je Mandat.** `/mandate/<Name>/statustracker` zeigt Lucas Excel-Tracker aus dem
     Kontaktstand: je angeschriebenem Investor sechs Häkchen, Ergebnis, letzter Schritt, nächste
     Aktion, Follow-up-Stand, Bearbeiterkommentar (= Notiz am Kontakt). Zuordnung der Spalten zu den
@@ -1296,3 +1296,23 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     FU3 = Final) und WF 05 (`maxStufen = 3`). Die „weitere“ Stufe aus Nr. 112 entfällt. Neu wird
     auch in der Stufe „Datenraum freigegeben“ gewartet und nachgefasst (Lucas Gruppe „Mappe“);
     bisher endete die Uhr dort. Kontakte, die schon drei Follow-ups haben, gelten damit als stumm.
+134. **Pre-Sound-Mail als Vorlage – Klammern sperren den Versand.** Im Anschreiben eines Mandats setzt
+    „Pre-Sound-Vorlage einsetzen“ Betreff und Text nach Lucas Pre-Sound-Skill ein
+    (`lib/presound.ts`): Betreff `SEIL • [Ort] | [Kernaussage] | „[Objektname]“`, fester
+    Einleitungssatz, Bullets je Produkttyp, NDA-Satz A, Mandatssatz A, Schluss A. Kennzahlen kommen
+    aus den Key Facts, mit „ca.“, gerundet (m² und EUR ganzzahlig), im deutschen Zahlenformat; das
+    Baujahr steht ohne „ca.“. Was Luca in Word gelb markiert, steht in eckigen Klammern: `[fehlt]`
+    (Wert nicht am Mandat), `[prüfen: …]` (Objektname, Objektart, Planung, Zielgruppen-Satz),
+    `[nur bei Vorgabe: …]` (Kaufpreis, Abwicklungszeitraum). Solange eine solche Klammer in Betreff
+    oder Text steht, sind „Zur Freigabe geben“ und „Jetzt senden“ gesperrt, und `POST /api/versand`
+    lehnt den Auftrag ab – ein Platzhalter erreicht keinen Investor. **Setzungen:** Kernaussage im
+    Betreff je Typ (A = Objektart, B = „… mit Entwicklungspotenzial“, C = „Entwicklungsgrundstück“,
+    D = „Sanierungsobjekt“, E = „Neubauprojekt“); der Objektname ist immer zu entscheiden, weil der
+    Mandatsname im Cockpit kein Vermarktungsname sein muss; der Kaufpreis aus der
+    Wirtschaftlichkeit des Mandats wird nie eingesetzt (Lucas Regel: nur bei ausdrücklicher
+    Vorgabe); JNKM SOLL und alle Planungsangaben (Typ B–E) hat das Cockpit nicht und lässt sie als
+    `[fehlt]` stehen. Die Selbstprüfung zeigt zusätzlich Hinweise (Betreff beginnt mit „SEIL •“,
+    kein Semikolon, „Baurecht/genehmigt/baureif/schlüsselfertig“ nur mit Beleg, kein Paket- oder
+    Einzelverkauf). Nicht übernommen: Lucas Word-Datei mit Prüfteil, Quellentabelle und
+    Alternativen – die Quelle steht beim Vorschlag in den Key Facts, die Übernahme im Verlauf des
+    Mandats. Die Signatur hängt wie bisher die Automatik an.

@@ -11,7 +11,7 @@ import type { Kontaktstand } from "@/app/api/kontakte/route";
 import type { Mandatsstand } from "@/app/api/schritte/route";
 import type { FreigabeEingang } from "@/app/api/freigaben/route";
 import type { Modul01Objekt, Modul01Stand } from "@/lib/modul01";
-import { laufPraefix } from "@/lib/mandat";
+import { laufPraefix, type Mandat } from "@/lib/mandat";
 import type { Stand } from "@/lib/sop-ableitung";
 import { passt } from "@/lib/abgleich";
 
@@ -23,7 +23,7 @@ import { passt } from "@/lib/abgleich";
  * über den Laufnamen zugeordnet; gibt es keinen, fehlen nur die Zahlen aus
  * Modul 01, der Rest funktioniert.
  */
-export function MandatProzess({ mandat }: { mandat: string }) {
+export function MandatProzess({ mandat, stammdaten }: { mandat: string; stammdaten?: Mandat | null }) {
   const { daten: drStand } = useLive<Modul01Stand>("/api/modul01/status", 30000);
   const { daten: liste } = useLive<LiveInvestoren>("/api/investoren?limit=2000", 60000);
 
@@ -281,6 +281,7 @@ export function MandatProzess({ mandat }: { mandat: string }) {
         {markiert.length > 0 ? (
           <Anschreiben
             objekt={mandat}
+            mandat={stammdaten}
             empfaenger={markiert.map((i) => ({
               id: i.id,
               firma: i.firma,

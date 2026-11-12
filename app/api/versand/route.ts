@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { datenbankAktiv, dbSchreiben } from "@/lib/supabase";
 import { protokoll } from "@/lib/protokoll";
 import { bccKuerzel } from "@/lib/bcc";
+import { offeneMarken } from "@/lib/presound";
 
 /**
  * Anschreiben aus dem Cockpit heraus.
@@ -103,6 +104,14 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
   if (!b?.betreff?.trim() || !b?.text?.trim()) {
     return NextResponse.json({ ok: false, grund: "Betreff oder Text fehlt" }, { status: 400 });
+  }
+  // Platzhalter der Pre-Sound-Vorlage ([fehlt], [prüfen: …], [nur bei Vorgabe: …]) dürfen keinen Investor erreichen.
+  const offen = offeneMarken(b.betreff, b.text).length;
+  if (offen > 0) {
+    return NextResponse.json(
+      { ok: false, grund: `Im Entwurf ${offen === 1 ? "steht noch eine offene Klammer" : `stehen noch ${offen} offene Klammern`} – erst ausfüllen oder löschen.` },
+      { status: 400 },
+    );
   }
   // Eine Obergrenze, damit ein Fehlklick nicht tausend Mails auslöst.
   const grenze = Number(process.env.VERSAND_MAX ?? 50);

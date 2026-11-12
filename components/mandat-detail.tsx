@@ -356,7 +356,7 @@ export function MandatDetail({ mandat, kuerzel, darfVerteilen = false }: { manda
 
       {stand ? <GeboteListe mandat={mandat} kaufpreis={stand.kaufpreis ?? null} /> : null}
       <DokumenteCheckliste mandat={mandat} kompakt />
-      <MandatProzess mandat={mandat} />
+      <MandatProzess mandat={mandat} stammdaten={stand} />
       <AufgabenListe mandat={mandat} zustaendig={undefined} titel="Aufgaben" darfVerteilen={darfVerteilen} />
       <NotizenListe mandat={mandat} />
       <AktivitaetenListe mandat={mandat} />
