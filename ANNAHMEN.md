@@ -1164,6 +1164,7 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     sagt ihm, dass wir von keinem Interesse ausgehen. Nach einer Preisfrage gibt es genau eine Nachfrage
     („haben Sie mit Herrn Seil gesprochen?“), danach läuft es telefonisch. Gewartet wird in den Stufen
     Angeschrieben, Anfrage/Exposé und NDA angefragt. WF 05 muss dieselbe Zahl kennen (maxStufen 4).
+    **Stand 12.11.2026:** drei Stufen, auch nach Mappe / Datenraum – siehe Nr. 133.
 113. **Trichter neu sortiert.** Vorgemerkt → Angeschrieben → Anfrage/Exposé → NDA angefragt → NDA
     unterzeichnet → Datenraum frei → Preisfrage → Besichtigung → (Abgesagt). „Interesse“ stand vorher
     hinter dem Datenraum; laut Standardprozess ist die Anfrage aber der erste Schritt nach der
@@ -1251,3 +1252,47 @@ nachweislich falsche nicht. Lieber kein Vorschlag als ein falscher.
     nichts wird geschrieben; die Middleware lässt ihn nur mit dem `CRON_SECRET` durch, das
     Vercel selbst mitschickt. Der saubere Weg bleibt der bezahlte Tarif (keine Pausen,
     tägliche Sicherungen) – eine Entscheidung für die Übergabe von Modul 02.
+
+130. **Key Facts stehen im Mandat – Modul 01 schlägt vor, ein Mensch übernimmt.** Die Projektseite
+    (Karte „Objekt · Key Facts“ im Mandat) trägt Einheiten, Mietfläche und Jahresnettokaltmiete als
+    Zahlen (`mandat.einheiten`, `flaeche_qm`, `jahresnettokaltmiete`), den Produkttyp A–E
+    (`mandat.produkttyp`) und sechs Textangaben in `mandat.fakten` (Baujahr, Grundstücksfläche,
+    Einheiten WE | GE, Leerstand, Objektadresse, Flurstücke). `GET /api/mandate/vorschlaege?name=`
+    liest den jüngsten Datenraum-Lauf des Mandats (über den Lauf-Präfix) und gibt zurück, was
+    Modul 01 gelesen hat – mit Quelle („6/10, mieterliste“). Ins Mandat schreibt erst der Klick
+    „Übernehmen“ oder „Alle übernehmen“; das Protokoll hält fest, was aus Modul 01 kam. Zahlen
+    werden aus dem deutschen Text gelesen („238,6 m²“ → 238,6); lässt sich ein Wert nicht sicher
+    lesen, gibt es keinen Knopf, sondern nur den Text. So ist es im Termin vom 02.11. besprochen:
+    kein Wert kommt ungeprüft in ein Exposé oder eine Mail.
+    Migration: `supabase/migrationen/2026-11-12-projektseite-key-facts.sql`.
+131. **Fünf Assetklassen, Produkttyp A–E.** Die Assetklasse eines Mandats ist eine Auswahl:
+    Mehrfamilienhaus · Wohn- und Geschäftshaus · Wohnanlage · Grundstück · Ausnahme (Termin 02.11.).
+    Ältere Mandate behalten ihren Freitext, bis jemand umstellt. Für den Abgleich mit der Liveliste
+    ist das eine **Setzung**, weil dort Freitext („Wohnen — Berlin“) oder Kürzel aus Lucas
+    Suchraster stehen: Mehrfamilienhaus trifft „wohn…“, „mehrfamilien…“ sowie MFH/WO/WP;
+    Wohn- und Geschäftshaus trifft „wohn…“, „geschäftshaus“, „gemischt“, „einzelhandel“ sowie
+    WGH/GH/MIX; Wohnanlage trifft „wohn…“ sowie WA/WP; Grundstück trifft „grundstück“,
+    „entwicklung“, „projekt“ sowie GRD/PE; „Ausnahme“ verengt nicht (`KLASSE_BEGRIFFE` in
+    lib/abgleich.ts). Investoren ohne Angabe bleiben wie bisher im Abgleich. Die Zuordnung gehört
+    in der Zwischensession bestätigt. Der Produkttyp (A Bestand … E Forward / Neubau, Lucas
+    Pre-Sound-Skill) wird nur gespeichert; die Pre-Sound-Vorlage, die ihn nutzt, steht noch aus.
+132. **Statustracker je Mandat.** `/mandate/<Name>/statustracker` zeigt Lucas Excel-Tracker aus dem
+    Kontaktstand: je angeschriebenem Investor sechs Häkchen, Ergebnis, letzter Schritt, nächste
+    Aktion, Follow-up-Stand, Bearbeiterkommentar (= Notiz am Kontakt). Zuordnung der Spalten zu den
+    Trichterstufen (Setzung): Erstkontakt = ab „Angeschrieben“, Interesse = ab „Anfrage / Exposé“,
+    NDA erhalten = ab „NDA angefragt“ (der Investor hat das NDA bekommen), NDA zurück = ab „NDA
+    unterzeichnet“, Mappe / DR light = ab „Datenraum freigegeben“, Feedback Mappe / DR = ab
+    „Preisanfrage“. Ergebnis: Absage bei Status abgesagt, „Weiter“ sobald eine Antwort vorliegt
+    oder die Stufe Interesse erreicht ist, sonst „Offen“. Eine Absage löscht keine Häkchen –
+    gezählt wird die Stufe beim Ausstieg. Vorgemerkte ohne Erstkontakt stehen nicht in der Liste,
+    sie werden nur gezählt. „Für Excel laden“ gibt eine CSV-Datei (Semikolon, UTF-8 mit BOM) mit
+    Lucas Spalten und dahinter Follow-up-Gruppe, bisherige Follow-ups, Fällig am, Nächste Aktion;
+    Zellen, die mit = + - @ beginnen, werden entschärft. Eine echte xlsx-Datei mit Lucas Formeln
+    und Blättern gibt es nicht – wenn gewünscht, ist das ein eigener Schritt. Die Absagegründe sind
+    die des Cockpits (Nr. 125); Lucas Tracker und die Live-List-Codes kennen andere Listen – zu
+    klären.
+133. **Follow-up-Leiter: drei Stufen, auch nach der Mappe.** `FOLLOWUP_LEITER` hat seit 12.11.2026
+    drei Stufen (1. Follow Up · 2. Follow Up · Final Follow up) – wie Lucas Statustracker (FU1–FU3,
+    FU3 = Final) und WF 05 (`maxStufen = 3`). Die „weitere“ Stufe aus Nr. 112 entfällt. Neu wird
+    auch in der Stufe „Datenraum freigegeben“ gewartet und nachgefasst (Lucas Gruppe „Mappe“);
+    bisher endete die Uhr dort. Kontakte, die schon drei Follow-ups haben, gelten damit als stumm.

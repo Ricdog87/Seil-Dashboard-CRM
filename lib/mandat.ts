@@ -37,6 +37,21 @@ export const PHASE_TON: Record<Phase, string> = {
   verloren: "border-seil-line text-seil-muted",
 };
 
+/** Produkttyp des Objekts – bestimmt Betreff und Aufbau der Pre-Sound-Mail. */
+export const PRODUKTTYPEN = ["A", "B", "C", "D", "E"] as const;
+export type Produkttyp = (typeof PRODUKTTYPEN)[number];
+export const PRODUKTTYP_LABEL: Record<Produkttyp, string> = {
+  A: "A · Bestand",
+  B: "B · Bestand mit Entwicklungspotenzial",
+  C: "C · Entwicklungsgrundstück / Projekt",
+  D: "D · Sanierungsobjekt",
+  E: "E · Forward- / Neubauprojekt",
+};
+
+/** Objektfakten, die als Text am Mandat stehen (Spalte `fakten`). */
+export const FAKT_TEXTE = ["baujahr", "grundstueck", "flurstuecke", "einheitenMix", "leerstand", "adresse"] as const;
+export type FaktText = (typeof FAKT_TEXTE)[number];
+
 export interface Mandat {
   id: string;
   name: string;
@@ -60,6 +75,14 @@ export interface Mandat {
   abgleichAm: string | null;
   /** cockpit = von Hand, modul01 = aus einem Datenraum-Lauf. */
   quelle: string | null;
+  /** Key Facts der Projektseite – von Hand oder aus einem Vorschlag von Modul 01 übernommen. */
+  einheiten?: number | null;
+  flaecheQm?: number | null;
+  jahresnettokaltmiete?: number | null;
+  /** Produkttyp A–E nach Lucas Pre-Sound-Skill. */
+  produkttyp?: Produkttyp | null;
+  /** Weitere Objektfakten als Text (Baujahr, Grundstück, Flurstücke, Einheiten-Mix, Leerstand, Adresse). */
+  fakten?: Partial<Record<FaktText, string>>;
   erstellt: string | null;
   geaendert: string | null;
   geaendertDurch: string | null;

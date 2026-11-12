@@ -369,10 +369,11 @@ export interface FollowupStufe {
 }
 
 /**
- * Das Dokument nennt 1. und 2. Follow Up, dann „weitere Follow-ups“ im Wechsel
- * und zuletzt das Final Follow up. Wie viele „weitere“ es sind, legt es nicht
- * fest; das Cockpit setzt eines – vier Stufen insgesamt. Das ist eine Setzung
- * und steht in ANNAHMEN.md.
+ * Drei Stufen: 1. Follow Up, 2. Follow Up, Final Follow up – danach endet die
+ * Kette. So fährt es Lucas Nachfass-Flow und seit 03.11.2026 die Automatik
+ * (WF 05); sein Statustracker hält fest, dass die Regel „weitere Follow-ups
+ * abwechseln“ aus dem Dokument entfällt. Bis 12.11.2026 kannte das Cockpit
+ * eine vierte Stufe dazwischen.
  */
 export const FOLLOWUP_LEITER: readonly FollowupStufe[] = [
   {
@@ -395,9 +396,8 @@ da wir keine Rückmeldung erhalten haben, möchten wir nochmals höflich nachfra
 Freundliche Grüße
 ${SIGNATUR}`,
   },
-  { stufe: 3, name: "Weiteres Follow Up", text: null },
   {
-    stufe: 4,
+    stufe: 3,
     name: "Final Follow up",
     text: `Guten Tag,
 

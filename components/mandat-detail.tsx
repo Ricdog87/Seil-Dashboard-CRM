@@ -4,13 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 import { NAMEN, PERSONEN } from "@/lib/sitzung-token";
 import { PHASEN, PHASE_LABEL, PHASE_TON, type Mandat, type Phase } from "@/lib/mandat";
 import { fmtEur } from "@/lib/leistung";
-import { BUNDESLAENDER } from "@/lib/abgleich";
+import { ASSETKLASSEN, BUNDESLAENDER } from "@/lib/abgleich";
 import { AufgabenListe } from "@/components/aufgaben-liste";
 import { NotizenListe } from "@/components/notizen-liste";
 import { AktivitaetenListe } from "@/components/aktivitaeten-liste";
 import { MandatProzess } from "@/components/mandat-prozess";
 import { DokumenteCheckliste } from "@/components/dokumente-checkliste";
 import { GeboteListe } from "@/components/gebote-liste";
+import { ObjektFakten } from "@/components/objekt-fakten";
 import Link from "next/link";
 import type { Kundenliste } from "@/app/api/kunden/route";
 import type { Mandatsliste } from "@/app/api/mandate/route";
@@ -78,8 +79,10 @@ export function MandatDetail({ mandat, kuerzel, darfVerteilen = false }: { manda
     void holen();
   }, [holen]);
 
-  async function setzen(aenderung: Partial<Mandat>) {
-    setStand((s) => (s ? { ...s, ...aenderung } : s));
+  async function setzen(aenderung: Partial<Mandat> & { uebernommen?: string[] }) {
+    const { uebernommen: _nurProtokoll, fakten, ...felder } = aenderung;
+    void _nurProtokoll;
+    setStand((s) => (s ? { ...s, ...felder, ...(fakten ? { fakten: { ...(s.fakten ?? {}), ...fakten } } : {}) } : s));
     setFehler(null);
     try {
       const r = await fetch("/api/mandate", {
@@ -131,12 +134,20 @@ export function MandatDetail({ mandat, kuerzel, darfVerteilen = false }: { manda
     <>
       <div className="mt-3 flex flex-wrap items-baseline justify-between gap-2">
         <h1 className="text-title text-seil-text">{mandat}</h1>
-        <Link
-          href={`/mandate/${encodeURIComponent(mandat)}/reporting`}
-          className="rounded-seil border border-seil-line px-3 py-1 text-kicker text-seil-body hover:border-seil-accent hover:text-seil-accent"
-        >
-          Reporting für den Verkäufer →
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={`/mandate/${encodeURIComponent(mandat)}/statustracker`}
+            className="rounded-seil border border-seil-line px-3 py-1 text-kicker text-seil-body hover:border-seil-accent hover:text-seil-accent"
+          >
+            Statustracker →
+          </Link>
+          <Link
+            href={`/mandate/${encodeURIComponent(mandat)}/reporting`}
+            className="rounded-seil border border-seil-line px-3 py-1 text-kicker text-seil-body hover:border-seil-accent hover:text-seil-accent"
+          >
+            Reporting für den Verkäufer →
+          </Link>
+        </div>
       </div>
 
       {fehler ? (
@@ -176,7 +187,26 @@ export function MandatDetail({ mandat, kuerzel, darfVerteilen = false }: { manda
               ))}
             </select>
           </div>
-          <Feld label="Assetklasse" wert={stand.assetklasse} feld="assetklasse" />
+          <div className="grid gap-1">
+            <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
+              Assetklasse (Abgleich)
+            </span>
+            <select
+              value={stand.assetklasse ?? ""}
+              onChange={(e) => void setzen({ assetklasse: e.target.value || null })}
+              className="rounded-seil border border-seil-line bg-seil-surface px-2 py-1 text-body text-seil-text"
+            >
+              <option value="">— Assetklasse wählen</option>
+              {ASSETKLASSEN.map((a) => (
+                <option key={a} value={a}>
+                  {a}
+                </option>
+              ))}
+              {stand.assetklasse && !(ASSETKLASSEN as readonly string[]).includes(stand.assetklasse) ? (
+                <option value={stand.assetklasse}>{stand.assetklasse} (bisheriger Wert)</option>
+              ) : null}
+            </select>
+          </div>
           <div className="grid gap-1">
             <span className="text-kicker uppercase tracking-[var(--seil-tracking-kicker)] text-seil-muted">
               Auftraggeber
@@ -264,6 +294,8 @@ export function MandatDetail({ mandat, kuerzel, darfVerteilen = false }: { manda
           {abgleich ? <span className="text-seil-accent">{abgleich}</span> : null}
         </div>
       ) : null}
+
+      {stand ? <ObjektFakten mandat={mandat} stand={stand} setzen={setzen} /> : null}
 
       {stand ? (
         <section className="mt-5 rounded-[var(--seil-radius)] border border-seil-line bg-seil-card p-4">

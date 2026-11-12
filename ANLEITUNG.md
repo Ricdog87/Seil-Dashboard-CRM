@@ -30,6 +30,8 @@ Adresse: https://seil-cockpit.vercel.app · Anmeldung mit Kürzel und Passwort
 | **Übersicht** | Dein Tag: Leistung gegen Ziel, Kennzahlen, Pipeline, Freigaben (Tobias), Aufgaben, Verlauf |
 | **Mandate** | Pipeline-Tafel (Spalten = Abschnitte des Flowcharts, Karten ziehen) oder Liste; jedes Mandat mit Stammdaten, Wirtschaftlichkeit, Standarddokumenten, den 17 Schritten, dem Investoren-Trichter, Suche und Anschreiben, Aufgaben, Notizen und Verlauf |
 | **Reporting** (im Mandat, „Reporting für den Verkäufer →“) | Lucas Objekt-Reporting: Kennzahlen, Deal-Funnel, Käuferprofile, Top-Bieter, Absagegründe – live aus dem CRM, „Als PDF speichern“ gibt ein Blatt A4 quer. Gebote trägst du im Mandat unter „Gebote“ ein, Käufertyp und Absagegrund im Trichter unter „Liste“ |
+| **Key Facts** (im Mandat, Karte „Objekt · Key Facts“) | Einheiten, Mietfläche, Jahresnettokaltmiete, Produkttyp, Baujahr, Grundstück, Leerstand, Adresse, Flurstücke. Was Modul 01 beim Sortieren des Datenraums gelesen hat, steht als Vorschlag mit Quelle unter dem Feld – „Übernehmen“ (oder „Alle übernehmen“) schreibt es ins Mandat, von selbst kommt nichts hinein. Die Assetklasse wählst du aus fünf Klassen |
+| **Statustracker** (im Mandat, „Statustracker →“) | Lucas Tracker ohne Excel: je Investor die sechs Stufen (Erstkontakt · Interesse · NDA erhalten · NDA zurück · Mappe / DR light · Feedback), Ergebnis, letzter Schritt, nächste Aktion und Follow-up-Stand. Filter „Zu tun“ und „Follow-up fällig“, „Nachgefasst ✓“ zählt das Follow-up, „Für Excel laden“ gibt die Liste mit Lucas Spalten |
 | **Freigaben** | Der Eingang für Tobias: jedes Anschreiben wartet hier, bis er es freigibt |
 | **Aufgaben** | Meine Aufgaben nach Fälligkeit; Geschäftsführung sieht das ganze Team und verteilt |
 | **Leistung** | Eigene Ziele gegen Ist; Geschäftsführung: Umsatz, Pipeline-Wert, Forecast, Team |
@@ -56,7 +58,8 @@ Der Datenraum-Stand kommt live aus Modul 01.
 - **15 E-Mail-Kommunikation:** jede Antwort wird nach dem Standardprozess
   erfasst – von Hand („Antwort ▾“) oder durch die Antworterkennung. Das
   Cockpit setzt die Stufe, legt das Todo an und startet die Follow-up-Leiter
-  neu: 1. Follow Up, 2. Follow Up, weiteres, Final – alle zwei Tage.
+  neu: 1. Follow Up, 2. Follow Up, Final – alle zwei Tage, nach Erstkontakt,
+  NDA-Versand und Mappe / Datenraum.
 - **16/17 Phone Call und Broker Call:** Preisfragen gehen als Rückruf an
   Herrn Seil (nur telefonisch), Besichtigungswünsche als Vier-Schritte-Kette
   an die zuständige Person – als Aufgaben am Investor.

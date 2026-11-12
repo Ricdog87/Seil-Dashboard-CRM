@@ -31,7 +31,7 @@ export interface Kontakt {
   naechstesFollowUp: string | null;
   geaendertDurch: string | null;
   geaendert: string | null;
-  /** Wie oft nachgefasst wurde (Standardprozess: alle zwei Tage, 1. · 2. · weitere · Final). */
+  /** Wie oft nachgefasst wurde (Standardprozess: alle zwei Tage, 1. · 2. · Final). */
   followups: number;
   /** Letzte Antwort des Investors, eingeordnet nach Standardprozess. */
   letzteAntwort: AntwortArt | null;

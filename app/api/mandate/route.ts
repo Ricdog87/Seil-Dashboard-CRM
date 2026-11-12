@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { datenbankAktiv, dbLesen, dbSchreiben } from "@/lib/supabase";
 import { protokoll } from "@/lib/protokoll";
-import { PHASEN, type Mandat, type Phase } from "@/lib/mandat";
+import { FAKT_TEXTE, PHASEN, PRODUKTTYPEN, type FaktText, type Mandat, type Phase, type Produkttyp } from "@/lib/mandat";
 import { mandatAbgleichen } from "@/lib/modul01-sync";
 import { istSystem } from "@/lib/rollen";
 import { BUNDESLAENDER } from "@/lib/abgleich";
@@ -34,6 +34,11 @@ interface DbMandat {
   abschluss_am: string | null;
   abgleich_am: string | null;
   quelle: string | null;
+  einheiten?: number | null;
+  flaeche_qm?: number | string | null;
+  jahresnettokaltmiete?: number | string | null;
+  produkttyp?: Produkttyp | null;
+  fakten?: Partial<Record<FaktText, string>> | null;
   erstellt: string | null;
   geaendert: string | null;
   geaendert_durch: string | null;
@@ -58,6 +63,11 @@ const auf = (z: DbMandat): Mandat => ({
   abschlussAm: z.abschluss_am,
   abgleichAm: z.abgleich_am ?? null,
   quelle: z.quelle ?? null,
+  einheiten: z.einheiten ?? null,
+  flaecheQm: z.flaeche_qm == null ? null : Number(z.flaeche_qm),
+  jahresnettokaltmiete: z.jahresnettokaltmiete == null ? null : Number(z.jahresnettokaltmiete),
+  produkttyp: z.produkttyp ?? null,
+  fakten: z.fakten ?? {},
   erstellt: z.erstellt,
   geaendert: z.geaendert,
   geaendertDurch: z.geaendert_durch,
@@ -84,8 +94,12 @@ export async function POST(request: Request): Promise<NextResponse> {
   if (!datenbankAktiv()) {
     return NextResponse.json({ ok: false, grund: "Datenbank nicht eingerichtet" }, { status: 503 });
   }
-  const b = (await request.json().catch(() => null)) as Partial<Mandat> | null;
+  const b = (await request.json().catch(() => null)) as (Partial<Mandat> & { uebernommen?: unknown }) | null;
   const name = b?.name?.trim();
+  // Nur fürs Protokoll: welche Vorschläge aus Modul 01 mit diesem Klick übernommen wurden.
+  const uebernommen = Array.isArray(b?.uebernommen)
+    ? b.uebernommen.filter((x): x is string => typeof x === "string").slice(0, 12).map((x) => x.slice(0, 60))
+    : [];
   if (!name) {
     return NextResponse.json({ ok: false, grund: "Ohne Namen geht es nicht" }, { status: 400 });
   }
@@ -94,6 +108,16 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
   if (b?.region && !(BUNDESLAENDER as readonly string[]).includes(b.region)) {
     return NextResponse.json({ ok: false, grund: "Unbekannte Region – bitte ein Bundesland" }, { status: 400 });
+  }
+  if (b?.produkttyp && !(PRODUKTTYPEN as readonly string[]).includes(b.produkttyp)) {
+    return NextResponse.json({ ok: false, grund: "Unbekannter Produkttyp – A bis E" }, { status: 400 });
+  }
+  for (const feld of ["einheiten", "flaecheQm", "jahresnettokaltmiete"] as const) {
+    const w = (b as Record<string, unknown>)[feld];
+    if (w === undefined || w === null || w === "") continue;
+    if (typeof w !== "number" || !Number.isFinite(w) || w < 0 || (feld === "einheiten" && !Number.isInteger(w))) {
+      return NextResponse.json({ ok: false, grund: "Key Facts: bitte eine Zahl ab 0 eintragen" }, { status: 400 });
+    }
   }
   const durch = request.headers.get("x-seil-benutzer") ?? "";
 
@@ -120,9 +144,31 @@ export async function POST(request: Request): Promise<NextResponse> {
       ["honorarErwartet", "honorar_erwartet"],
       ["honorarIst", "honorar_ist"],
       ["abschlussAm", "abschluss_am"],
+      ["einheiten", "einheiten"],
+      ["flaecheQm", "flaeche_qm"],
+      ["jahresnettokaltmiete", "jahresnettokaltmiete"],
+      ["produkttyp", "produkttyp"],
     ] as const) {
       const w = (b as Record<string, unknown>)[feld];
       if (w !== undefined) zeile[spalte] = w === "" ? null : w;
+    }
+    // Objektfakten: nur die genannten Einträge ändern, der Rest bleibt stehen.
+    // Ein leerer Wert nimmt den Eintrag heraus.
+    const neueFakten = b?.fakten;
+    if (neueFakten && typeof neueFakten === "object") {
+      const vorher = await dbLesen<{ fakten: Partial<Record<FaktText, string>> | null }>(
+        "mandat",
+        `name=eq.${encodeURIComponent(name)}&select=fakten&limit=1`,
+      );
+      const fakten: Partial<Record<FaktText, string>> = { ...(vorher[0]?.fakten ?? {}) };
+      for (const k of FAKT_TEXTE) {
+        const w = (neueFakten as Record<string, unknown>)[k];
+        if (w === undefined) continue;
+        const text = String(w ?? "").trim().slice(0, 300);
+        if (text) fakten[k] = text;
+        else delete fakten[k];
+      }
+      zeile.fakten = fakten;
     }
     const geschrieben = await dbSchreiben<DbMandat>("mandat", [zeile], "name");
     if (geschrieben.length === 0) {
@@ -132,7 +178,11 @@ export async function POST(request: Request): Promise<NextResponse> {
       mandat: name,
       art: "mandat",
       durch,
-      text: b?.phase ? `Mandat auf „${b.phase}“ gesetzt` : "Mandat angelegt oder geändert",
+      text: b?.phase
+        ? `Mandat auf „${b.phase}“ gesetzt`
+        : uebernommen.length > 0
+          ? `Aus Modul 01 übernommen: ${uebernommen.join(", ")}`
+          : "Mandat angelegt oder geändert",
     });
     // Flowchart 13: sobald Region und Assetklasse stehen (oder sich ändern),
     // läuft der Abgleich gegen die Liveliste von selbst.

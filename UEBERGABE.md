@@ -89,7 +89,7 @@ Modul 01 → 02 (`lib/modul01-sync.ts`). Jede Abweichung und Setzung: ANNAHMEN.m
 6. **OneDrive → SharePoint** (IT, ~1,5 Tage) für globalen Ordnerzugriff.
 7. **Flächenaufstellung** als 21. Standardkategorie – wenn das Team zustimmt.
 8. **SEIL Circle**: Abstimmung mit Nino und Philipp (gemeinsame Supabase, Felder).
-9. **Follow-up-Leiter in WF 05** auf vier Stufen und Vorlagen hinterlegen, dann Cron an.
+9. **Follow-up-Leiter in WF 05**: drei Stufen (1. · 2. · Final) wie im Cockpit – erledigt 12.11.2026; Vorlagen hinterlegen, dann Cron an.
 10. **Mandatsnummer** statt Laufname als Schlüssel? Frage für Montag.
 
 ## 8. Montag, 02.11., 15:00 – Prozess-Deep-Dive mit Luca und Nino

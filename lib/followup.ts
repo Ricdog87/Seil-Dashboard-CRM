@@ -5,8 +5,10 @@ import { FOLLOWUP_LEITER, followupName } from "@/lib/kommunikation";
 /**
  * Die Follow-up-Regel des Standardprozesses (Flowchart Schritt 15):
  * keine Antwort → zwei Tage später nachfassen, 1. Follow Up, 2. Follow Up,
- * weitere im Wechsel, zuletzt das Final Follow up. Danach gilt der Investor
- * als stumm – das Final sagt ihm, dass wir von keinem Interesse ausgehen.
+ * zuletzt das Final Follow up. Danach gilt der Investor als stumm – das Final
+ * sagt ihm, dass wir von keinem Interesse ausgehen. Nachgefasst wird nach dem
+ * Erstkontakt, nach dem NDA-Versand und nach Mappe bzw. Datenraum (Lucas
+ * Statustracker: Gruppen Erstkontakt · NDA · Mappe).
  *
  * Nach einer Preisfrage gibt es genau eine Nachfrage („haben Sie mit Herrn
  * Seil gesprochen?“); danach läuft es telefonisch.
@@ -19,6 +21,7 @@ const WARTEND: Partial<Record<Stufe, { max: number; name: (stufe: number) => str
   angeschrieben: { max: FOLLOWUP_MAX, name: followupName },
   interesse: { max: FOLLOWUP_MAX, name: followupName },
   nda_angefragt: { max: FOLLOWUP_MAX, name: followupName },
+  datenraum_freigegeben: { max: FOLLOWUP_MAX, name: followupName },
   preisanfrage: { max: 1, name: () => "Nachfrage: mit Herrn Seil gesprochen?" },
 };
 

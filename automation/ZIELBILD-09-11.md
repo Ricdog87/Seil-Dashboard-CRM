@@ -163,14 +163,14 @@ Luca und Nino.
 | Punkt | Stand 12.11. | Offen |
 |---|---|---|
 | 2.1 Reporting je Projekt, PDF | fertig, live (ANNAHMEN 121–126) | Abgleich mit Lucas lokalem Tool in der Zwischensession; Sankey/Kuchen und Drill-down nur, wenn gewünscht |
-| 2.2 Projektseite | offen | Key Facts mit Freigabe-Knopf (Spalten `einheiten`, `flaeche_qm`, `jahresnettokaltmiete`, `bild_url`), fünf Assetklassen, Produkttyp A–E |
+| 2.2 Projektseite | fertig, live seit 12.11. (ANNAHMEN 130–131) | Projektbild (`bild_url`) fehlt noch; Zuordnung der fünf Assetklassen zu den Begriffen der Liveliste in der Zwischensession bestätigen |
 | 2.3 Rollen und Sichtbarkeit | Entscheidung offen | Workshop 30.10.: Mandate bleiben für alle sichtbar; Termin 02.11.: Objektbetreuer sehen nur eigene. In der Zwischensession klären, dann `darfMandatSehen` |
-| 2.4 Status-Tracker-Ansicht | offen | Listenansicht je Mandat, nächste Aktion, FU-Stand, Export |
+| 2.4 Status-Tracker-Ansicht | fertig, live seit 12.11. (ANNAHMEN 132) | Abgleich mit Lucas Excel in der Zwischensession: Stufen-Zuordnung, Absagegründe (drei Vokabulare), Export als CSV statt xlsx |
 | 2.5 Gebote / Top-Bieter | fertig, live (ANNAHMEN 123–124) | — |
 | 2.6 Postfach-Synchronisation | offen | braucht Postfach-Rechte (Mahr EDV); Vorschlag: nach dem Launch |
 | 2.7 Lucas Skills | teilweise | Pre-Sound-Mail als Vorlage; Scoring P1/P2 und Ausschlüsse im Abgleich |
 | 2.8 Live-List-Codes | teilweise | Käufertyp und Absagegrund sind da (ANNAHMEN 125); fehlende Stufen (Due Diligence, Angebot abgegeben, Kaufvertrag), Code-Zuordnung, Bundesland-Kürzel, WE-Spanne, Opt-out, Versandwellen |
-| 3.6 Follow-up-Leiter | offen | `FOLLOWUP_LEITER` kennt vier Stufen, WF 05 fährt drei — angleichen |
+| 3.6 Follow-up-Leiter | fertig, live seit 12.11. (ANNAHMEN 133) | — |
 
 Abhängigkeit außerhalb des Cockpits: Die Investorenliste liegt seit dem Umzug nach SharePoint
 (07./08.11.) an einem neuen Ort; bis die Automatik dort wieder lesen darf, läuft der Abgleich

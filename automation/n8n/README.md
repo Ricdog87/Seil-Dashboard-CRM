@@ -175,8 +175,8 @@ zu binden – deshalb die Konfigurationsdatei.)
 **Follow-up-Stufen – Stand 03.11.2026:** `maxStufen = 3` (1. · 2. · Final),
 wie Lucas Statustracker (FU1–FU3, FU3 = Final) und das SOP-Blatt „Process“;
 Abstand 2 Werktage; nach einer Preisfrage genau eine Nachfrage. Das Cockpit
-(`FOLLOWUP_LEITER` in lib/kommunikation.ts) kennt noch vier Stufen — Angleich
-auf drei steht in ZIELBILD-09-11.md für die Cockpit-Session. Der Zeitplan von WF 05 bleibt ausgeschaltet, bis SEIL
+(`FOLLOWUP_LEITER` in lib/kommunikation.ts) fährt seit 12.11.2026 dieselben drei
+Stufen (ANNAHMEN 133). Der Zeitplan von WF 05 bleibt ausgeschaltet, bis SEIL
 den Echtversand freigibt; bis dahin Testläufe nur mit `demoEmpfaenger`.
 
 **Ausführungsdaten (02.11.2026):** WF 09 und WF 10 sind reine Lese-APIs für das
