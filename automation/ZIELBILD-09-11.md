@@ -139,3 +139,39 @@ Prüffall „E-Mail ungültig“, Kontakt-IDs nie neu vergeben.
 Di 03.11. Modul 01 A6/A10, Rollen (2.3) · Mi 04.11. Projektseite + Vorschlags-Freigabe
 (2.2), Status-Tracker-Ansicht (2.4) · Do 05.11. Abnahmelauf Modul 01, Dashboard (2.1) ·
 Fr 06.11. Übergabe Modul 01, Dashboard-PDF, Gebote (2.5) · Mo 09.11. Review-Call.
+
+## 5. Stand 12.11.2026 und Vorgehen bis zum Launch
+
+Die Reihenfolge aus Abschnitt 4 ist überholt: Die Weiterentwicklung von Modul 02 ruhte ab
+03.11. bis zur Übergabe von Modul 01 (Abnahme 13.11.). Für den Weg zum Launch gilt der Ablauf,
+den Nino am 12.11. noch einmal festgehalten hat (so am 02.11. besprochen):
+
+1. **Unterlagen und Anforderungen** — erledigt (Termin 02.11., Unterlagen 03.11.).
+2. **Weiterentwicklung mit Zwischensessions** mit Luca und Nino: Abgleich Stand ↔ Anforderungen,
+   Rückfragen. Sobald beide das Modul für reif halten, folgt der Workshop mit dem Team.
+3. **Workshop mit dem Team:** Modul vorstellen, jede Person spielt die Funktionen live durch,
+   Input des Sales-Teams aufnehmen.
+4. **Optimierungen** aus dem Workshop.
+5. **Abschluss-Workshop mit Abnahme** durch das Team.
+
+Terminvorschlag RSG: Zwischensession 1 am 13.11., Zwischensession 2 am 20.11., Team-Workshop
+am 24.11., Abnahme am 27.11., Launch am 30.11. — der Team-Workshop hängt an der Freigabe durch
+Luca und Nino.
+
+### Stand der Punkte aus Abschnitt 2
+
+| Punkt | Stand 12.11. | Offen |
+|---|---|---|
+| 2.1 Reporting je Projekt, PDF | fertig, live (ANNAHMEN 121–126) | Abgleich mit Lucas lokalem Tool in der Zwischensession; Sankey/Kuchen und Drill-down nur, wenn gewünscht |
+| 2.2 Projektseite | offen | Key Facts mit Freigabe-Knopf (Spalten `einheiten`, `flaeche_qm`, `jahresnettokaltmiete`, `bild_url`), fünf Assetklassen, Produkttyp A–E |
+| 2.3 Rollen und Sichtbarkeit | Entscheidung offen | Workshop 30.10.: Mandate bleiben für alle sichtbar; Termin 02.11.: Objektbetreuer sehen nur eigene. In der Zwischensession klären, dann `darfMandatSehen` |
+| 2.4 Status-Tracker-Ansicht | offen | Listenansicht je Mandat, nächste Aktion, FU-Stand, Export |
+| 2.5 Gebote / Top-Bieter | fertig, live (ANNAHMEN 123–124) | — |
+| 2.6 Postfach-Synchronisation | offen | braucht Postfach-Rechte (Mahr EDV); Vorschlag: nach dem Launch |
+| 2.7 Lucas Skills | teilweise | Pre-Sound-Mail als Vorlage; Scoring P1/P2 und Ausschlüsse im Abgleich |
+| 2.8 Live-List-Codes | teilweise | Käufertyp und Absagegrund sind da (ANNAHMEN 125); fehlende Stufen (Due Diligence, Angebot abgegeben, Kaufvertrag), Code-Zuordnung, Bundesland-Kürzel, WE-Spanne, Opt-out, Versandwellen |
+| 3.6 Follow-up-Leiter | offen | `FOLLOWUP_LEITER` kennt vier Stufen, WF 05 fährt drei — angleichen |
+
+Abhängigkeit außerhalb des Cockpits: Die Investorenliste liegt seit dem Umzug nach SharePoint
+(07./08.11.) an einem neuen Ort; bis die Automatik dort wieder lesen darf, läuft der Abgleich
+nicht (WF 10). Zuschnitt der Bibliotheken und Rechte: Mahr EDV.
