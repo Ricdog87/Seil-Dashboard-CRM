@@ -215,9 +215,9 @@ export function ObjektFakten({
       </div>
 
       <p className="mt-2 text-[10px] leading-relaxed text-seil-muted">
-        Modul 01 liest diese Werte beim Sortieren des Datenraums aus den Unterlagen und nennt die Quelle (z. B. „6/10,
-        mieterliste“ = sechs von zehn Dokumenten mit dieser Angabe, aus der Mieterliste). Ins Mandat kommt ein Wert erst
-        mit „Übernehmen“ oder von Hand.{" "}
+        Modul 01 liest diese Werte beim Sortieren des Datenraums aus den Unterlagen und nennt die Quelle: „6/10,
+        mieterliste“ heißt, zehn Dokumente nennen die Angabe, sechs davon mit diesem Wert, gelesen aus der Mieterliste.
+        Ins Mandat kommt ein Wert erst mit „Übernehmen“ oder von Hand.{" "}
         {liste?.lauf ? `Stand: Lauf ${liste.lauf}.` : null}
       </p>
     </section>
