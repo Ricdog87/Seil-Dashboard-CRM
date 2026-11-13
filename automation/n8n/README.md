@@ -179,6 +179,14 @@ Abstand 2 Werktage; nach einer Preisfrage genau eine Nachfrage. Das Cockpit
 Stufen (ANNAHMEN 133). Der Zeitplan von WF 05 bleibt ausgeschaltet, bis SEIL
 den Echtversand freigibt; bis dahin Testläufe nur mit `demoEmpfaenger`.
 
+**Liveliste in zwei Blöcken (13.11.2026):** WF 02 (Abgleich) und WF 10 (Verteiler im
+Cockpit) lesen dieselbe Datei und haben denselben Konfigurationsknoten. In der
+Konfigurationsdatei braucht **jeder** einen eigenen Block (`02-matching.json`,
+`10-investoren-api.json`) mit `graphBasis`, `itemId`, `blatt`, `spalten`. Fehlt der Block von
+WF 10, bekommt der Workflow beim Einspielen keine Werte für die Liste — der Verteiler
+antwortet dann mit HTTP 500, obwohl WF 02 richtig eingestellt ist (Befund 13.11.2026). `graphBasis` nennt die Bibliothek, in der
+die **Liste** liegt; das muss nicht die Bibliothek der Mandate sein.
+
 **Ausführungsdaten (02.11.2026):** WF 09 und WF 10 sind reine Lese-APIs für das
 Cockpit (Aufruf bei jedem Seitenaufbau) und speichern erfolgreiche Läufe nicht
 mehr (`saveDataSuccessExecution: none`, Fehler weiterhin) – die Datenbank wuchs

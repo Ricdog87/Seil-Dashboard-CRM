@@ -12,6 +12,18 @@
       "letzteAnkaeufe": "<Spalte mit den letzten Ankaeufen>"
     }
   },
+  "10-investoren-api.json": {
+    "graphBasis": "/drives/<DRIVE-ID>",
+    "itemId": "<ITEM-ID-DER-LIVELISTE>",
+    "blatt": "<NAME-DES-TABELLENBLATTS>",
+    "spalten": {
+      "id": "<Spalte mit dem Investor>",
+      "regionen": "<Spalte mit der Region>",
+      "assetklassen": "<Spalte mit der Assetklasse>",
+      "sweetspot": "<Spalte mit der Ticketspanne, Form 1000000-10000000>",
+      "letzteAnkaeufe": "<Spalte mit den letzten Ankaeufen>"
+    }
+  },
   "09-datenraum-status-api.json": {
     "_credentials": {
       "Datenraum-Status abrufen": {
